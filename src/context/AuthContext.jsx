@@ -5,7 +5,7 @@ import { calculateProfileCompletion, flattenEducation } from "../utils/profileCo
 
 const AuthContext = createContext();
 
-const API = "https://www.careermitra.tech/api";
+const API = "https://www.careermitra.in/api";
 const AUTH_API = `${API}/auth`;
 const PENDING_REGISTER_KEY = "pendingRegisterCredentials";
 const REGISTER_VERIFY_TOKEN_KEY = "registerVerificationToken";

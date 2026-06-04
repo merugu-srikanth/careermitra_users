@@ -21,7 +21,7 @@ import { RiGovernmentFill } from "react-icons/ri";
 /* ══════════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════════ */
-const API_BASE = "https://www.careermitra.tech/api";
+const API_BASE = "https://www.careermitra.in/api";
 
 /* ══════════════════════════════════════════
    UTILS

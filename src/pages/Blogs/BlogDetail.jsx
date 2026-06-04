@@ -318,7 +318,7 @@ const BlogDetail = () => {
   const fetchBlog = async () => {
     setLoading(true); setError(null);
     try {
-      const r = await fetch(`https://careermitra.tech/api/blogs/slug/${slug}`);
+      const r = await fetch(`https://careermitra.in/api/blogs/slug/${slug}`);
       const d = await r.json();
       if (d.success) setBlog(d.data);
       else setError(d.message || 'Blog not found');
@@ -328,7 +328,7 @@ const BlogDetail = () => {
 
   const fetchRecent = async () => {
     try {
-      const r = await fetch('https://careermitra.tech/api/blogs?page=1&limit=6');
+      const r = await fetch('https://careermitra.in/api/blogs?page=1&limit=6');
       const d = await r.json();
       if (d.success) setRecentBlogs((d.data.blogs || []).filter(b => b.slug !== slug).slice(0, 4));
     } catch { }

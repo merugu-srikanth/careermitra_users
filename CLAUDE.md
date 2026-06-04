@@ -3,7 +3,7 @@
 > Government Jobs & Career Platform for India
 > Frontend: React 19 + Vite + Tailwind CSS
 > Auth API: `https://careermitra.in/api/public/api`
-> Jobs API: `https://careermitra.tech/api`
+> Jobs API: `https://careermitra.in/api`
 
 ---
 
@@ -279,7 +279,7 @@ loadingSingle // true while fetching single job details
 
 **Data fetch:**
 ```
-GET https://careermitra.tech/api/jobs?page=1&limit=8&sort=newest
+GET https://careermitra.in/api/jobs?page=1&limit=8&sort=newest
 → filters out internship jobs
 → maps API fields to component fields
 → sorts by newest postedDate
@@ -332,7 +332,7 @@ Full paginated job listing page with advanced filtering.
 
 **Data fetch:**
 ```
-GET https://careermitra.tech/api/jobs?page={page}&limit=12&sort={sort}
+GET https://careermitra.in/api/jobs?page={page}&limit=12&sort={sort}
 ```
 
 ---
@@ -383,7 +383,7 @@ Main navigation bar, present on all pages.
 | POST | `/reset-password` | Reset password with token |
 | GET | `/profile` | Fetch user profile (Bearer token required) |
 
-### Jobs API (`https://careermitra.tech/api`)
+### Jobs API (`https://careermitra.in/api`)
 
 | Method | Endpoint | Purpose |
 |---|---|---|
@@ -521,7 +521,7 @@ npm run lint     # Run ESLint
 
 2. **Apply Now / View Notification buttons** — must check `isLoggedIn = !!token` before rendering. Show "Login to Apply" (`Link to="/login"`) for unauthenticated users.
 
-3. **API base URLs are different** — auth uses `careermitra.in`, jobs use `careermitra.tech`. Don't mix them.
+3. **API base URLs are different** — auth uses `careermitra.in`, jobs use `careermitra.in`. Don't mix them.
 
 4. **ProtectedRoute** wraps only three pages. All other pages including `/jobs` are public — but individual action buttons inside are conditionally auth-gated.
 

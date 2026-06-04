@@ -19,7 +19,7 @@ import { GrAnnounce } from "react-icons/gr";
 
 
 const ANNOUNCEMENT_API_BASE =
-    import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.tech";
+    import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
 
 const fmtDate = (v) => {
     const d = new Date(v);

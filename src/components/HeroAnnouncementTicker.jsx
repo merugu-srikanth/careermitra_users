@@ -3,7 +3,7 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 
 const ANNOUNCEMENT_API_BASE =
-  import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.tech";
+  import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
 const ANNOUNCEMENTS_API = `${ANNOUNCEMENT_API_BASE}/api/announcements`;
 const imageBase64Cache = new Map();
 

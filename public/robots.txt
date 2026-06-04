@@ -10,5 +10,5 @@ Sitemap: https://careermitra.in/sitemap-index.xml
 # They need their OWN robots.txt files placed at each domain root:
 #
 # admin.careermitra.in/robots.txt     → Disallow: /
-# admin.careermitra.tech/robots.txt   → Disallow: /
-# careermitra.tech/robots.txt         → Disallow: /
+# admin.careermitra.in/robots.txt   → Disallow: /
+# careermitra.in/robots.txt         → Disallow: /

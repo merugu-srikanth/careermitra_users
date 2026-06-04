@@ -26,6 +26,7 @@ import AIChatBot from "./components/AIChatBot";
 import AuthorProfile from "./pages/AuthorProfile";
 import InternshipGuide from "./pages/Internshipguide";
 import CareerGuide from "./pages/CareerGuide";
+import EventsPage from "./pages/EventsPage";
 import NotFoundPage from "./components/NotFoundPage";
 import HeroAnnouncementTicker from "./components/HeroAnnouncementTicker";
 import AnnouncementDetail from "./pages/AnnouncementDetail";
@@ -109,6 +110,7 @@ export default function App() {
               <CareerGuide />
             }
           />
+          <Route path="/events" element={<EventsPage />} />
           <Route
             path="/contact-us"
             element={

@@ -115,7 +115,7 @@ const AuthorProfile = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`https://careermitra.tech/api/authors/${authorId}`);
+      const res = await fetch(`https://careermitra.in/api/authors/${authorId}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "Author not found");
 
@@ -139,7 +139,7 @@ const AuthorProfile = () => {
     if (!blogs.length) return;
     const results = await Promise.allSettled(
       blogs.map((b) =>
-        fetch(`https://careermitra.tech/api/blogs/slug/${b.slug}`).then((r) => r.json())
+        fetch(`https://careermitra.in/api/blogs/slug/${b.slug}`).then((r) => r.json())
       )
     );
     const map = {};
@@ -154,7 +154,7 @@ const AuthorProfile = () => {
   const fetchSuggested = async (assignedBlogs) => {
     try {
       const assignedIds = new Set(assignedBlogs.map((b) => b._id));
-      const res = await fetch("https://careermitra.tech/api/blogs?page=1&limit=10");
+      const res = await fetch("https://careermitra.in/api/blogs?page=1&limit=10");
       const data = await res.json();
       const all = data?.data?.blogs || [];
       setSuggestedBlogs(all.filter((b) => !assignedIds.has(b._id)).slice(0, 6));

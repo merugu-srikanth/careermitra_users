@@ -9,11 +9,12 @@ import {
   FaSignInAlt, FaSignOutAlt, FaTachometerAlt,
   FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
-  FaUser, FaEnvelope, FaBell
+  FaUser, FaEnvelope, FaBell, FaCalendarAlt
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
+import { isDeadlineExpired } from "../utils/jobDeadline";
 
-const API_BASE = "https://www.careermitra.tech/api";
+const API_BASE = "https://www.careermitra.in/api";
 
 /* ─── SOCIAL LINKS ─────────────────────────────────────────────────────────── */
 const socials = [
@@ -42,6 +43,7 @@ const navLinks = [
     ],
   },
   { name: "BLOGS", path: "/blogs", Icon: FaBlog },
+  { name: "EVENTS", path: "/events", Icon: FaCalendarAlt },
   { name: "CONTACT US", path: "/contact-us", Icon: FaPhoneAlt },
   {
     name: "YOUTUBE",
@@ -175,19 +177,12 @@ export default function Navbar() {
       return Number.isNaN(dt.getTime()) ? null : dt;
     };
 
-    const isExpiredJob = (job) => {
-      const deadline = toDateOrNull(
-        job?.application_last_date ||
-        job?.last_date ||
-        job?.application_deadline ||
-        job?.apply_last_date ||
-        job?.deadline
-      );
-      if (!deadline) return false;
-      const dayEnd = new Date(deadline);
-      dayEnd.setHours(23, 59, 59, 999);
-      return dayEnd < new Date();
-    };
+    const jobDeadlineField = (job) =>
+      job?.application_last_date ||
+      job?.last_date ||
+      job?.application_deadline ||
+      job?.apply_last_date ||
+      job?.deadline;
 
     (async () => {
       try {
@@ -200,17 +195,19 @@ export default function Navbar() {
           jobsSeenAt = null;
         }
 
-        const jobsRes = await axios.get(`${API_BASE}/job-posts-assigned/my-assigned`, {
+        const jobsRes = await axios.get(`${API_BASE}/user/recommended-jobs`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+          params: { page: 1, limit: 100 },
         });
 
-        const jobs = jobsRes?.data?.status === true
-          ? (jobsRes?.data?.assigned_job_posts?.data || [])
+        const jobs = jobsRes?.data?.data?.jobs || jobsRes?.data?.jobs || [];
+        const totalCount = jobsRes?.data?.data?.pagination?.total ?? jobs.length;
+
+        const liveJobs = Array.isArray(jobs)
+          ? jobs.filter((j) => !isDeadlineExpired(j?.application_deadline || jobDeadlineField(j)))
           : [];
 
-        const activeJobs = jobs.filter((j) => !isExpiredJob(j));
-
-        const jobsNewCount = activeJobs.filter((j) => {
+        const jobsNewCount = liveJobs.filter((j) => {
           const created = toDateOrNull(j?.posted_date || j?.created_at || j?.updated_at);
           if (!created) return false;
           return !jobsSeenAt || created > jobsSeenAt;
@@ -221,14 +218,14 @@ export default function Navbar() {
           new URLSearchParams(location.search).get("tab") === "jobs";
 
         const safeNewCount = onJobsTab ? 0 : jobsNewCount;
-        const showNew = safeNewCount > 0;
-        const activeCount = activeJobs.length;
+        const liveCount = liveJobs.length;
 
         setJobsBellCount({
-          activeCount,
+          totalCount,
+          activeCount: liveCount,
           newCount: safeNewCount,
-          displayCount: showNew ? safeNewCount : activeCount,
-          showNew,
+          displayCount: liveCount,
+          showNew: safeNewCount > 0,
         });
       } catch {
         setJobsBellCount((prev) => ({ ...prev, displayCount: prev.displayCount || 0 }));
@@ -365,16 +362,13 @@ export default function Navbar() {
                   <button
                     onClick={goToJobPostsTab}
                     className="relative group w-11 h-11 rounded-2xl bg-white/10 border border-orange-400/40 text-orange-400 hover:text-orange-300 hover:border-orange-400/70 hover:bg-white/15 transition-all duration-200 flex items-center justify-center"
-                    title={jobsBellCount.showNew ? "New jobs" : "Active jobs"}
+                    title={`${jobsBellCount.totalCount ?? 0} total · ${jobsBellCount.activeCount ?? 0} live${jobsBellCount.newCount > 0 ? ` · ${jobsBellCount.newCount} new` : ""}`}
                     aria-label="Open eligible government job posts"
                   >
                     <FaBell size={16} className="group-hover:animate-pulse" />
-                    <span className={jobsBellCount.showNew
-                      ? "absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-green-500 text-white text-[10px] font-black flex items-center justify-center leading-none shadow"
-                      : "absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center leading-none shadow"
-                    }>
-                        {jobsBellCount.displayCount}
-                      </span>
+                    <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center leading-none shadow">
+                      {jobsBellCount.totalCount ?? 0}
+                    </span>
                   </button>
 
                   <div
@@ -583,11 +577,11 @@ export default function Navbar() {
                         <div className="grid grid-cols-2 gap-2 text-[10px]">
                           <div className="rounded-2xl bg-slate-50 p-2 border border-slate-100">
                             <p className="text-slate-500">Jobs</p>
-                            <p className="text-sm font-black text-slate-800">{jobsBellCount.activeCount}</p>
+                            <p className="text-sm font-black text-slate-800">{jobsBellCount.activeCount ?? 0}</p>
                           </div>
                           <div className="rounded-2xl bg-slate-50 p-2 border border-slate-100">
                             <p className="text-slate-500">New</p>
-                            <p className="text-sm font-black text-slate-800">{jobsBellCount.newCount}</p>
+                            <p className="text-sm font-black text-slate-800">{jobsBellCount.newCount ?? 0}</p>
                           </div>
                         </div>
                       </div>

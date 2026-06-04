@@ -350,7 +350,7 @@ export default function AllJobs() {
         if (jobType) params.set("job_type", jobType);
         if (selectedCategoryId) params.set("category_id", selectedCategoryId);
 
-        const res = await fetch(`https://careermitra.tech/api/jobs?${params}`);
+        const res = await fetch(`https://careermitra.in/api/jobs?${params}`);
         const data = await res.json();
 
         if (data.success) {

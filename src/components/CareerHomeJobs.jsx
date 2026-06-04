@@ -640,7 +640,7 @@ export default function CareerHomeJobs() {
         (async () => {
             try {
                 setLoading(true);
-                const res = await fetch("https://careermitra.tech/api/jobs?page=1&limit=8&sort=newest");
+                const res = await fetch("https://careermitra.in/api/jobs?page=1&limit=8&sort=newest");
                 const data = await res.json();
                 if (data.success) {
                     const mapped = (data?.data?.jobs || [])
@@ -663,7 +663,7 @@ export default function CareerHomeJobs() {
         setShowModal(true);
         setSelectedJob(null);
         try {
-            const res = await fetch(`https://careermitra.tech/api/jobs/${id}`);
+            const res = await fetch(`https://careermitra.in/api/jobs/${id}`);
             const data = await res.json();
             if (data.success) {
                 setSelectedJob(mapApiJob(data.data));

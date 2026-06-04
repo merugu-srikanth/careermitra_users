@@ -989,7 +989,7 @@ const UserProfilePage = () => {
   const [age, setAge] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [jobsNavCount, setJobsNavCount] = useState({ total: 0, newCount: 0 });
+  const [jobsNavCount, setJobsNavCount] = useState({ total: 0, liveCount: 0, newCount: 0 });
   const [annNavCount, setAnnNavCount] = useState({ total: 0, newCount: 0 });
 
   const seenStorageKey = useMemo(() => {
@@ -1056,41 +1056,37 @@ const UserProfilePage = () => {
         const jobsSeenAt = toDateOrNull(seen.jobs_seen_at);
         const annSeenAt = toDateOrNull(seen.announcements_seen_at);
 
-        const [jobsRes, annRes] = await Promise.all([
+        const [jobsResult, annResult] = await Promise.allSettled([
           axios.get(`${API_BASE}/user/recommended-jobs`, {
             headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-            params: { page: 1, limit: 10 },
+            params: { page: 1, limit: 100 },
           }),
           axios.get(`${API_BASE}/marketing-events/my-events`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
-        const jobs = jobsRes?.data?.success === true
-          ? (jobsRes?.data?.data?.jobs || [])
-          : [];
-        const jobsTotal = jobsRes?.data?.data?.pagination?.total ?? jobs.length;
-        const activeEvents = annRes?.data?.status
-          ? (annRes?.data?.events || []).filter((e) => e?.is_active)
-          : [];
+        if (jobsResult.status === "fulfilled") {
+          const jobsData = jobsResult.value?.data;
+          const jobs = jobsData?.data?.jobs || jobsData?.jobs || [];
+          const jobsTotal = jobsData?.data?.pagination?.total ?? jobs.length;
+          const jobsNewCount = jobs.filter((j) => {
+            const created = toDateOrNull(j?.posted_date || j?.createdAt || j?.updatedAt);
+            return created && (!jobsSeenAt || created > jobsSeenAt);
+          }).length;
+          setJobsNavCount({ total: jobsTotal, liveCount: jobsTotal, newCount: activeTab === "jobs" ? 0 : jobsNewCount });
+        }
 
-        const jobsNewCount = jobs.filter((j) => {
-          const created = toDateOrNull(j?.posted_date || j?.createdAt || j?.updatedAt);
-          if (!created) return false;
-          return !jobsSeenAt || created > jobsSeenAt;
-        }).length;
-
-        const annNewCount = activeEvents.filter((e) => {
-          const created = toDateOrNull(e?.event_date || e?.created_at || e?.updated_at);
-          if (!created) return false;
-          return !annSeenAt || created > annSeenAt;
-        }).length;
-
-        setJobsNavCount({ total: jobsTotal, newCount: activeTab === "jobs" ? 0 : jobsNewCount });
-        setAnnNavCount({ total: activeEvents.length, newCount: activeTab === "announcements" ? 0 : annNewCount });
+        if (annResult.status === "fulfilled") {
+          const activeEvents = (annResult.value?.data?.events || []).filter((e) => e?.is_active);
+          const annNewCount = activeEvents.filter((e) => {
+            const created = toDateOrNull(e?.event_date || e?.created_at || e?.updated_at);
+            return created && (!annSeenAt || created > annSeenAt);
+          }).length;
+          setAnnNavCount({ total: activeEvents.length, newCount: activeTab === "announcements" ? 0 : annNewCount });
+        }
       } catch {
-        setJobsNavCount((prev) => ({ ...prev, total: prev.total || 0 }));
-        setAnnNavCount((prev) => ({ ...prev, total: prev.total || 0 }));
+        // no-op — allSettled handles individual failures above
       }
     })();
   }, [token, activeTab, getSeenState]);
@@ -1144,7 +1140,7 @@ const UserProfilePage = () => {
 
   const NAV = [
     { id: "profile", label: "My Profile", icon: <Ic.User className="w-3.5 h-3.5" />, desc: "Info & education" },
-    { id: "jobs", label: "Job Posts", icon: <Ic.Gov className="w-3.5 h-3.5" />, desc: "Eligible govt jobs", count: jobsNavCount.total, newCount: jobsNavCount.newCount },
+    { id: "jobs", label: "Job Posts", icon: <Ic.Gov className="w-3.5 h-3.5" />, desc: "Eligible govt jobs", count: jobsNavCount.total, liveCount: jobsNavCount.liveCount, newCount: jobsNavCount.newCount },
     // { id: "announcements", label: "Announcements", icon: <Ic.Bell className="w-3.5 h-3.5" />, desc: "Events & alerts", count: annNavCount.total, newCount: annNavCount.newCount },
     { id: "media", label: "Media", icon: <Ic.Img className="w-3.5 h-3.5" />, desc: "Uploaded documents" },
     { id: "settings", label: "Settings", icon: <Ic.Cog className="w-3.5 h-3.5" />, desc: "Account & security" },
@@ -1254,14 +1250,9 @@ const UserProfilePage = () => {
 
                   {/* badge */}
                   {typeof t.count === "number" && (
-                    <div className="shrink-0 flex flex-col items-end gap-0.5">
-                      <span className={cx("text-[9px] font-black px-2 py-0.5 rounded-full leading-none",
-                        active ? "bg-white/25 text-white" : "bg-orange-100 text-orange-600"
-                      )}>{t.count}</span>
-                      {t.newCount > 0 && (
-                        <span className="text-[9px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full leading-none">+{t.newCount}</span>
-                      )}
-                    </div>
+                    <span className={cx("shrink-0 text-[9px] font-black px-2 py-0.5 rounded-full leading-none",
+                      active ? "bg-white/25 text-white" : "bg-orange-100 text-orange-600"
+                    )}>{t.count}</span>
                   )}
                 </button>
               );

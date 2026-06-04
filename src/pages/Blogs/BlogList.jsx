@@ -373,7 +373,7 @@
     const fetchBlogs = async (page = 1, search = '', category = '') => {
       setLoading(true); setError(null);
       try {
-        let url = `https://careermitra.tech/api/blogs?page=${page}&limit=9`;
+        let url = `https://careermitra.in/api/blogs?page=${page}&limit=9`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
         if (category && category !== 'All') url += `&category=${encodeURIComponent(category)}`;
         const res = await fetch(url);
