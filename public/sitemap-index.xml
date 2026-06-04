@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-static.xml</loc>
+    <lastmod>2026-05-01T05:30:00+05:30</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-categories.xml</loc>
+    <lastmod>2026-05-01T05:30:00+05:30</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-jobs.xml</loc>
+    <lastmod>2026-05-01T05:30:00+05:30</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-results.xml</loc>
+    <lastmod>2026-05-01T05:30:00+05:30</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-admit-card.xml</loc>
+    <lastmod>2026-05-01T05:30:00+05:30</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://careermitra.in/sitemap-answer-key.xml</loc>
+    <lastmod>2026-04-28T05:30:00+05:30</lastmod>
+  </sitemap>
+</sitemapindex>
