@@ -100,9 +100,10 @@
 
   .bl-featured-img-wrap {
     position: relative; overflow: hidden;
-    min-height: 360px;
+    min-height: auto;
   }
   .bl-featured-img {
+    position: absolute; inset: 0;
     width: 100%; height: 100%; object-fit: cover;
     transition: transform 0.5s ease;
   }
@@ -127,7 +128,7 @@
   }
   .bl-featured-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 800;
+    font-size: clamp(1.4rem, 2.5vw, 1rem); font-weight: 800;
     color: #111827; line-height: 1.25;
     margin: 0 0 14px;
     text-decoration: none; display: block;
@@ -207,7 +208,7 @@
   }
   .bl-card-img-wrap { overflow: hidden; position: relative; }
   .bl-card-img {
-    width: 100%; height: 200px; object-fit: cover;
+    width: 100%;  object-fit: cover;
     transition: transform 0.45s ease;
     display: block;
   }
@@ -456,7 +457,7 @@
         Insights, exam strategies, job alerts, and career guides — everything you need to land your dream government job.
       </p>
 
-      <form onSubmit={handleSearch} className="flex items-center justify-center mb-6">
+      <form onSubmit={handleSearch} className="flex items-center justify-center ">
         <div className="flex items-center w-full max-w-xl bg-white/80 backdrop-blur-md shadow-lg rounded-full overflow-hidden border border-white/40">
           
           <span className="px-3 text-gray-400">
@@ -500,7 +501,7 @@
     </div>
   </section>
  
-          <div className="bl-container">
+          <div className="w-full px-4 md:px-15 py-12">
 
             {/* ── FEATURED ── */}
             {featured && !loading && (

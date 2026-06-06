@@ -562,7 +562,7 @@ export default function AllJobs() {
               onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
               className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
             >
-              <option value="newest">Newest</option>
+              <option value="newest">Latest</option>
               <option value="oldest">Oldest</option>
               <option value="expired">Expired</option>
             </select>
