@@ -500,7 +500,7 @@ function CTASection() {
               Join hundreds of aspirants who found their path with <span className="text-green-800 font-bold  italic"> "Career Mitra" </span>. Your future in  <span className="text-green-800 font-bold italic"> " public service" </span> starts with a single conversation.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/contact" 
+              <Link to="/contact-us" 
               onClick={navigate => navigate("/contact-us")}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.97 }}
