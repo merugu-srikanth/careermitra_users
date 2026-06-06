@@ -476,7 +476,7 @@ export default function AllJobs() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
+          {/* <div className="flex flex-wrap justify-center gap-4 mt-8">
             {[
               { label: "Total Jobs", val: totalItems },
               { label: "Total Posts", val: totalPosts.toLocaleString() },
@@ -488,7 +488,7 @@ export default function AllJobs() {
                 <div className="text-sm text-orange-100 font-medium">{stat.label}</div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -545,7 +545,7 @@ export default function AllJobs() {
            
 
             {/* Category Dropdown */}
-            <select
+            {/* <select
               value={selectedCategoryId}
               onChange={(e) => { setSelectedCategoryId(e.target.value); setPage(1); }}
               className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
@@ -554,7 +554,7 @@ export default function AllJobs() {
               {categoryOptions.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
-            </select>
+            </select> */}
 
             {/* Sort */}
             <select

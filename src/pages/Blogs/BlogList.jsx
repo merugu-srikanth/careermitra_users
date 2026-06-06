@@ -456,7 +456,6 @@
         Insights, exam strategies, job alerts, and career guides — everything you need to land your dream government job.
       </p>
 
-      {/* Search */}
       <form onSubmit={handleSearch} className="flex items-center justify-center mb-6">
         <div className="flex items-center w-full max-w-xl bg-white/80 backdrop-blur-md shadow-lg rounded-full overflow-hidden border border-white/40">
           
@@ -480,8 +479,7 @@
         </div>
       </form>
 
-      {/* Filters */}
-      <div className="flex flex-wrap justify-center gap-3">
+      {/* <div className="flex flex-wrap justify-center gap-3">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
@@ -497,7 +495,7 @@
             {cat}
           </button>
         ))}
-      </div>
+      </div> */}
 
     </div>
   </section>
@@ -535,7 +533,7 @@
                         </Link>
                       </span>
                       <span><CalIcon />{fmtDate(featured.published_at || featured.createdAt)}</span>
-                      <span><EyeIcon />{(featured.views || 0).toLocaleString()} views</span>
+                      {/* <span><EyeIcon />{(featured.views || 0).toLocaleString()} views</span> */}
                     </div>
                     <Link to={`/blog/${featured.slug}`} className="bl-read-btn">
                       Read Full Article <ArrowIcon />

@@ -459,7 +459,7 @@ const BlogDetail = () => {
                   </Link>
                 </div>
                 <div className="bd-meta-item"><CalIcon /> {fmtDate(blog.published_at || blog.createdAt)}</div>
-                <div className="bd-meta-item"><EyeIcon /> {(blog.views || 0).toLocaleString()} views</div>
+                {/* <div className="bd-meta-item"><EyeIcon /> {(blog.views || 0).toLocaleString()} views</div> */}
                 <div className="bd-meta-item"><ClockIcon /> {readTime(blog.content)} min read</div>
               </div>
 
