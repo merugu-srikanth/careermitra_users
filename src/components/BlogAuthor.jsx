@@ -156,7 +156,7 @@ const BlogAuthor = ({ author, views = 0, tagsCount = 0 }) => {
 
         <div className="ba-divider" />
 
-        <div className="ba-stats">
+        {/* <div className="ba-stats">
           <div className="ba-stat">
             <strong>{(views || 0).toLocaleString()}</strong>
             <span>Views</span>
@@ -169,7 +169,7 @@ const BlogAuthor = ({ author, views = 0, tagsCount = 0 }) => {
             <strong>★ 4.9</strong>
             <span>Rating</span>
           </div>
-        </div>
+        </div> */}
 
         <Link to={authorPath} className="ba-profile-link">
           View Profile <ArrowIcon />

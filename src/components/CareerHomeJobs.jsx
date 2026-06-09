@@ -640,12 +640,15 @@ export default function CareerHomeJobs() {
         (async () => {
             try {
                 setLoading(true);
-                const res = await fetch("https://careermitra.in/api/jobs?page=1&limit=8&sort=newest");
+                const res = await fetch("https://careermitra.in/api/jobs?page=1&limit=50&sort=newest");
                 const data = await res.json();
                 if (data.success) {
                     const mapped = (data?.data?.jobs || [])
                         .map(mapApiJob)
-                        .filter((j) => !String(j?.category || "").toLowerCase().includes("intern"))
+                        .filter((j) => {
+                            const t = String(j?.category || "").toLowerCase();
+                            return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
+                        })
                         .sort((a, b) => new Date(b.postedDateRaw || 0) - new Date(a.postedDateRaw || 0))
                         .slice(0, 8);
                     setJobs(mapped);

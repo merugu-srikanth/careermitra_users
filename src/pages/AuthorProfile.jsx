@@ -270,7 +270,7 @@ const AuthorProfile = () => {
                   )}
                 </div> */}
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                {/* <div className="flex flex-wrap items-center gap-2.5">
                   <div className="inline-flex items-center overflow-hidden rounded-xl border border-[#e5e7eb] bg-white shadow-[0_4px_14px_rgba(0,0,0,0.06)]">
                     <div className="px-5 py-3 text-center md:px-7 md:py-3.5">
                       <strong className="block text-2xl font-extrabold leading-none text-[#f97316] md:text-[1.5rem]">{assignedBlogs.length}</strong>
@@ -283,7 +283,7 @@ const AuthorProfile = () => {
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Social links */}

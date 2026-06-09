@@ -1,4 +1,4 @@
-import { FaBell, FaFacebookF, FaInstagram, FaLinkedinIn, FaSignInAlt, FaTwitter, FaUserPlus } from "react-icons/fa";
+import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import logo from "../assets/NewLogo.png";
@@ -11,6 +11,8 @@ export default function Footer() {
     { label: "Internship Guide", to: "/internship-guide" },
     { label: "Blogs", to: "/blogs" },
     { label: "Contact", to: "/contact-us" },
+    { label: "Terms of Service", to: "/terms-of-service" },
+    { label: "Privacy Policy", to: "/privacy-policy" },
   ];
 
   const accountLinks = [
@@ -18,12 +20,12 @@ export default function Footer() {
     { label: "Create Account", to: "/register", Icon: FaUserPlus },
   ];
 
-  const socialLinks = [
-    { label: "Facebook", href: "#", Icon: FaFacebookF },
-    { label: "Twitter", href: "#", Icon: FaTwitter },
-    { label: "Instagram", href: "#", Icon: FaInstagram },
-    { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
-  ];
+  // const socialLinks = [
+  //   { label: "Facebook", href: "#", Icon: FaFacebookF },
+  //   { label: "Twitter", href: "#", Icon: FaTwitter },
+  //   { label: "Instagram", href: "#", Icon: FaInstagram },
+  //   { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
+  // ];
 
   const trustPoints = [
     "Government jobs only",
@@ -79,17 +81,20 @@ Your one-stop gateway for government jobs and career guidance across India.     
               ))}
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              {socialLinks.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-300 transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400 hover:text-orange-300"
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
+            <div className="mt-5">
+              <a
+                href="https://www.youtube.com/@CareerMitraaa"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="CareerMitra YouTube Channel"
+                className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-5 py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
+              >
+                <FaYoutube size={28} className="shrink-0 text-red-500 group-hover:text-red-400" />
+                <div className="flex flex-col leading-tight text-left">
+                  <span className="text-sm font-black text-white">CareerMitra</span>
+                  <span className="text-xs font-medium text-red-400">@CareerMitraaa</span>
+                </div>
+              </a>
             </div>
           </section>
 
@@ -108,40 +113,77 @@ Your one-stop gateway for government jobs and career guidance across India.     
             </ul>
           </section>
 
-          <section className="rounded-2xl border border-green-400/30 bg-linear-to-br from-slate-900 via-slate-900 to-green-900/20 p-5 shadow-lg shadow-green-900/10 md:col-span-4 sm:p-6">
-            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white">
-              <FaBell size={18} />
-            </div>
-            <h3 className="text-lg font-black text-white">Never Miss an Alert</h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">
-              Smart job recommendations based on your education and profile details.
-            </p>
+          <section className="relative overflow-hidden rounded-2xl border border-green-500/20 md:col-span-4" style={{ background: "linear-gradient(145deg,#0f1e14 0%,#0d1f1a 50%,#0a1a12 100%)" }}>
+            {/* glow blobs */}
+            <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-green-500/20 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-orange-500/15 blur-2xl" />
+            {/* dot grid */}
+            <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
+              style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
 
-            <Link
-              to="/register"
-              className="group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-green-500 to-green-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition-all duration-200 hover:from-green-600 hover:to-green-700"
-            >
-              <FaUserPlus />
-              Subscribe for Job Alerts
-              <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
+            <div className="relative p-5 sm:p-6">
+              {/* Icon badge */}
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+                </span>
+                <span className="text-xs font-bold uppercase tracking-widest text-green-400">Live Alerts</span>
+              </div>
 
-            <div className="mt-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-              {accountLinks.map(({ label, to, Icon }) => (
-                <Link key={to} to={to} className="inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
-                  <Icon size={14} />
-                  <span>{label}</span>
-                </Link>
-              ))}
+              <h3 className="text-xl font-black leading-tight text-white">
+                Never Miss {" "}
+                <span className="bg-linear-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
+                  a Job Alert
+                </span>
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Smart job recommendations based on your education and profile details.
+              </p>
+
+              {/* divider */}
+              <div className="my-4 h-px w-full bg-linear-to-r from-green-500/30 via-slate-700 to-transparent" />
+
+              {/* CTA button */}
+              <Link
+                to="/register"
+                className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-green-500/30"
+                style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
+              >
+                <span className="absolute inset-0 translate-x-[-100%] bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-[100%]" />
+                <FaUserPlus size={14} />
+                Subscribe for Job Alerts
+                <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+
+              {/* account links */}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {accountLinks.map(({ label, to, Icon }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300"
+                  >
+                    <Icon size={12} />
+                    {label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </section>
         </div>
       </div>
 
       <div className="relative border-t border-slate-800/90 bg-slate-950/80">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
           <p>© {new Date().getFullYear()} CareerMitra. All rights reserved.</p>
-          <p>Built for aspirants across India.</p>
+          <div className="flex items-center gap-4">
+            <Link to="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/privacy-policy" className="hover:text-orange-400 transition-colors duration-200">Privacy Policy</Link>
+            <span className="text-slate-700">·</span>
+            <p>Built for aspirants across India.</p>
+          </div>
         </div>
       </div>
     </footer>

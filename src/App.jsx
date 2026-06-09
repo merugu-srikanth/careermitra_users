@@ -30,6 +30,8 @@ import EventsPage from "./pages/EventsPage";
 import NotFoundPage from "./components/NotFoundPage";
 import HeroAnnouncementTicker from "./components/HeroAnnouncementTicker";
 import AnnouncementDetail from "./pages/AnnouncementDetail";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 export default function App() {
   return (
@@ -124,6 +126,8 @@ export default function App() {
             }
           />
           <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>

@@ -5,6 +5,8 @@ import loginImg from "../assets/bg-images/Login.webp";
 import { Link, useNavigate } from "react-router-dom";
 import AnimatedBg from "../components/Animate";
 import { toast } from "react-toastify";
+import image from "../assets/IMAGESPAM.png"
+
 
 export default function Register() {
   const { register, verifyRegisterOtp, sendOtp, loginPendingRegisteredUser, checkProfile, storePendingRegisterCredentials, loading } = useAuth();
@@ -471,106 +473,121 @@ export default function Register() {
 
       {/* OTP Modal Overlay */}
       {showOtpModal && (
-        <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-8 relative animate-fadeIn">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-3 sm:p-4">
+          {/* Modal card — fixed height, no scroll */}
+          <div className="bg-white rounded-2xl max-w-7xl w-full h-[88vh] overflow-hidden relative animate-fadeIn shadow-2xl flex flex-col">
+
             {/* Close button */}
             <button
               onClick={() => setShowOtpModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+              className="absolute top-3 right-3 z-10 text-gray-400 hover:text-gray-600 transition bg-white rounded-full p-0.5"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Verify OTP</h3>
-              <p className="text-gray-600 text-sm">
-                Please enter the 6-digit verification code sent to
-              </p>
-              <p className="text-orange-600 font-semibold text-sm mt-1">
-                {registeredEmail}
-              </p>
-            </div>
+            {/* Grid fills remaining height */}
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr] flex-1 min-h-0">
 
-            {otpError && (
-              <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm text-center">
-                {otpError}
-              </div>
-            )}
-
-            {/* Timer */}
-            <div className="text-center mb-4">
-              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${timer <= 60 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-mono font-bold">{formatTime(timer)}</span>
-                <span>remaining</span>
-              </div>
-            </div>
-
-            {/* 6 OTP Boxes */}
-            <div className="flex gap-3 justify-center mb-6">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                  onPaste={index === 0 ? handleOtpPaste : undefined}
-                  className="w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold border-2 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
-                  style={{
-                    borderColor: otpError ? '#ef4444' : '#e5e7eb',
-                  }}
-                  autoFocus={index === 0}
-                />
-              ))}
-            </div>
-
-            {/* Verify Button */}
-            <button
-              onClick={handleVerifyOtp}
-              disabled={loading}
-              className={`w-full bg-orange-500 text-white py-3 rounded-xl hover:bg-orange-600 transition mb-3 ${
-                loading ? 'opacity-70 cursor-not-allowed' : ''
-              }`}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Verifying...</span>
+              {/* ── LEFT: OTP Form ── */}
+              <div className="flex flex-col justify-center px-6 py-6 sm:px-8 border-b sm:border-b-0 sm:border-r border-gray-100 overflow-hidden">
+                <div className="text-center mb-4">
+                  <div className="w-11 h-11 mx-auto bg-orange-100 rounded-full flex items-center justify-center mb-2">
+                    <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-0.5">Verify OTP</h3>
+                  <p className="text-gray-400 text-xs">6-digit code sent to</p>
+                  <p className="text-orange-500 font-semibold text-xs mt-0.5 break-all">{registeredEmail}</p>
                 </div>
-              ) : (
-                'Verify & Create Account'
-              )}
-            </button>
 
-            {/* Resend Section */}
-            <div className="text-center">
-              {canResend ? (
+                {otpError && (
+                  <div className="mb-3 p-2 bg-red-50 border border-red-300 text-red-600 rounded-lg text-xs text-center">
+                    {otpError}
+                  </div>
+                )}
+
+                {/* Timer */}
+                <div className="text-center mb-3">
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${timer <= 60 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="font-mono font-bold">{formatTime(timer)}</span>
+                    <span>remaining</span>
+                  </div>
+                </div>
+
+                {/* 6 OTP Boxes */}
+                <div className="flex gap-2 justify-center mb-4">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => (inputRefs.current[index] = el)}
+                      type="text"
+                      maxLength="1"
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      onPaste={index === 0 ? handleOtpPaste : undefined}
+                      className="w-10 h-10 text-center text-lg font-bold border-2 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+                      style={{ borderColor: otpError ? '#ef4444' : '#e5e7eb' }}
+                      autoFocus={index === 0}
+                    />
+                  ))}
+                </div>
+
+                {/* Verify Button */}
                 <button
-                  onClick={handleResendOtp}
-                  className="text-orange-500 hover:text-orange-600 font-medium transition hover:underline"
+                  onClick={handleVerifyOtp}
+                  disabled={loading}
+                  className={`w-full bg-orange-500 text-white py-2.5 text-sm rounded-xl font-semibold hover:bg-orange-600 transition mb-2.5 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  Resend OTP
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Verifying...</span>
+                    </div>
+                  ) : 'Verify & Create Account'}
                 </button>
-              ) : (
-                <p className="text-gray-500 text-sm">
-                  Didn't receive the code?{" "}
-                  <span className="text-gray-400">
-                    Resend available in {formatTime(timer)}
-                  </span>
-                </p>
-              )}
+
+                {/* Resend */}
+                <div className="text-center">
+                  {canResend ? (
+                    <button onClick={handleResendOtp} className="text-orange-500 hover:text-orange-600 font-medium transition hover:underline text-xs">
+                      Resend OTP
+                    </button>
+                  ) : (
+                    <p className="text-gray-400 text-xs">
+                      Didn't receive it? Resend in {formatTime(timer)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* ── RIGHT: Guidance Image — fills full height, no crop ── */}
+              <div className="bg-orange-50 flex flex-col sm:rounded-r-2xl overflow-hidden min-h-0">
+                {/* Header */}
+                <div className="shrink-0 px-4 py-2.5 border-b border-orange-100 flex items-center justify-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-xs font-bold text-orange-500 text-center">
+                    Can't find the email? Check your inbox &amp; spam folder
+                  </p>
+                </div>
+                {/* Image fills all remaining height */}
+                <div className="flex-1 min-h-0 flex items-center justify-center p-3">
+                  <img
+                    src={image}
+                    alt="Check inbox and spam folder for OTP"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

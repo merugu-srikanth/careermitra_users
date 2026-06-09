@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import loginImg from "../assets/bg-images/Login.webp";
 import AnimatedBg from "../components/Animate";
 import { toast } from "react-toastify";
+import spamGuideImg from "../assets/IMAGESPAM.png"
 
 export default function VerifyOtp() {
   const { verifyRegisterOtp, sendOtp, loginPendingRegisteredUser, checkProfile, loading } = useAuth();
@@ -222,6 +223,21 @@ export default function VerifyOtp() {
                 </span>
               </p>
             )}
+          </div>
+
+          {/* Spam Guidance */}
+          <div className="mt-5 pt-4 border-t border-gray-100">
+            <p className="text-xs font-semibold text-center text-orange-500 mb-3 flex items-center justify-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Can't find the email? Check your inbox &amp; spam folder
+            </p>
+            <img
+              src={spamGuideImg}
+              alt="Check inbox and spam folder for OTP"
+              className="w-full rounded-xl object-contain"
+            />
           </div>
 
           {/* Back to Register Link */}

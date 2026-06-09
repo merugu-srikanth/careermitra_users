@@ -14,4 +14,16 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+
+  port : 3000,
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://www.careermitra.in',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

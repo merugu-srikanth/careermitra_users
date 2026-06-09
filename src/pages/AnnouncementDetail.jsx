@@ -4,7 +4,7 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 
 const ANNOUNCEMENT_API_BASE =
-  import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "http://localhost:5000";
+  import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
 const ANNOUNCEMENTS_API = `${ANNOUNCEMENT_API_BASE}/api/announcements`;
 
 const imageBase64Cache = new Map();
@@ -43,6 +43,32 @@ const sanitizeHtml = (html) => {
   );
 };
 
+/* ── Skeleton loader ── */
+const Skeleton = () => (
+  <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pt-24 pb-16 px-4">
+    <div className="max-w-6xl mx-auto">
+      <div className="h-9 w-28 rounded-xl bg-gray-200 animate-pulse mb-6" />
+      <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-3">
+            <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+            <div className="h-64 bg-gray-200 animate-pulse" />
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className={`h-4 rounded bg-gray-100 animate-pulse ${i === 4 ? "w-2/3" : "w-full"}`} />
+            ))}
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 h-60 animate-pulse" />
+      </div>
+    </div>
+  </div>
+);
+
 export default function AnnouncementDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -55,404 +81,348 @@ export default function AnnouncementDetail() {
 
   useEffect(() => {
     let cancelled = false;
-
-    const fetchBySlugAndId = async () => {
+    const run = async () => {
       try {
         setLoading(true);
         setError("");
-
-        const listRes = await axios.get(ANNOUNCEMENTS_API, {
-          headers: { Accept: "application/json" },
-        });
-
+        const listRes = await axios.get(ANNOUNCEMENTS_API, { headers: { Accept: "application/json" } });
         const list = Array.isArray(listRes?.data?.data)
           ? listRes.data.data.map(normalizeAnnouncement)
           : [];
-
         if (!cancelled) {
-          setLatestAnnouncements(
-            list.filter((item) => item.status === "active" && item.slug)
-          );
+          setLatestAnnouncements(list.filter((i) => i.status === "active" && i.slug));
         }
-
-        const matched = list.find((item) => item.slug === slug);
-
+        const matched = list.find((i) => i.slug === slug);
         if (!matched?.id) {
-          if (!cancelled) {
-            setError("Announcement not found.");
-            setAnnouncement(null);
-          }
+          if (!cancelled) { setError("Announcement not found."); setAnnouncement(null); }
           return;
         }
-
-        const detailRes = await axios.get(`${ANNOUNCEMENTS_API}/${matched.id}`, {
-          headers: { Accept: "application/json" },
-        });
-
+        const detailRes = await axios.get(`${ANNOUNCEMENTS_API}/${matched.id}`, { headers: { Accept: "application/json" } });
         const detail = normalizeAnnouncement(detailRes?.data?.data || {});
-
-        if (!cancelled) {
-          setAnnouncement(detail?.id ? detail : matched);
-        }
+        if (!cancelled) setAnnouncement(detail?.id ? detail : matched);
       } catch (e) {
         if (!cancelled) {
-          setError(
-            e?.response?.data?.message || "Failed to load announcement details."
-          );
+          setError(e?.response?.data?.message || "Failed to load announcement.");
           setAnnouncement(null);
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     };
-
-    fetchBySlugAndId();
-
-    return () => {
-      cancelled = true;
-    };
+    run();
+    return () => { cancelled = true; };
   }, [slug]);
 
   useEffect(() => {
     let cancelled = false;
-
-    const convertImageToBase64 = async () => {
-      const source = announcement?.image;
-
-      if (!source) {
-        setResolvedImage("");
-        return;
-      }
-
-      if (source.startsWith("data:")) {
-        setResolvedImage(source);
-        return;
-      }
-
-      const cached = imageBase64Cache.get(source);
-      if (cached) {
-        setResolvedImage(cached);
-        return;
-      }
-
+    const convert = async () => {
+      const src = announcement?.image;
+      if (!src) { setResolvedImage(""); return; }
+      if (src.startsWith("data:")) { setResolvedImage(src); return; }
+      const cached = imageBase64Cache.get(src);
+      if (cached) { setResolvedImage(cached); return; }
       try {
-        const response = await fetch(source);
-        const blob = await response.blob();
-
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result || "");
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
+        const blob = await (await fetch(src)).blob();
+        const b64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onloadend = () => res(r.result || "");
+          r.onerror = rej;
+          r.readAsDataURL(blob);
         });
-
-        if (!cancelled && typeof base64 === "string") {
-          imageBase64Cache.set(source, base64);
-          setResolvedImage(base64);
-        }
-      } catch {
-        if (!cancelled) {
-          setResolvedImage(source);
-        }
-      }
+        if (!cancelled && typeof b64 === "string") { imageBase64Cache.set(src, b64); setResolvedImage(b64); }
+      } catch { if (!cancelled) setResolvedImage(src); }
     };
-
-    convertImageToBase64();
-
-    return () => {
-      cancelled = true;
-    };
+    convert();
+    return () => { cancelled = true; };
   }, [announcement?.image]);
 
   const metaItems = useMemo(() => {
     if (!announcement) return [];
-
-    return [
-      { label: "Slug", value: announcement.slug || "N/A" },
-      { label: "Status", value: announcement.status || "active" },
-      { label: "Published At", value: formatDate(announcement.publishedAt) },
-      { label: "Date", value: formatDate(announcement.date) },
-      { label: "Time", value: announcement.time || "N/A" },
-    ];
+    const rows = [];
+    if (announcement.date) rows.push({ label: "Date", value: formatDate(announcement.date), icon: "🗓️" });
+    // if (announcement.publishedAt) rows.push({ label: "Published", value: formatDate(announcement.publishedAt), icon: "📅" });
+    // if (announcement.time) rows.push({ label: "Time", value: announcement.time, icon: "🕐" });
+    rows.push({ label: "Status", value: announcement.status || "active", icon: "✅" });
+    return rows;
   }, [announcement]);
 
   const latestFive = useMemo(
-    () => latestAnnouncements.filter((item) => item.slug !== slug).slice(0, 5),
+    () => latestAnnouncements.filter((i) => i.slug !== slug).slice(0, 5),
     [latestAnnouncements, slug]
   );
 
-  if (loading) {
-    return (
-      <section
-        style={{
-          minHeight: "100vh",
-          background: "#f8fafc",
-          padding: "140px 16px 60px",
-        }}
-      >
-        <div style={{ width: "min(1120px, 100%)", margin: "0 auto" }}>
-          <div
-            style={{
-              background: "#ffffff",
-              border: "1px solid #e5e7eb",
-              borderRadius: 14,
-              padding: "14px 16px",
-              color: "#111827",
-              fontSize: 15,
-              fontWeight: 600,
-            }}
-          >
-            Loading announcement...
-          </div>
-        </div>
-      </section>
-    );
-  }
+  if (loading) return <Skeleton />;
 
   if (error || !announcement) {
     return (
-      <section
-        style={{
-          minHeight: "100vh",
-          background: "#f8fafc",
-          padding: "140px 16px 60px",
-        }}
-      >
-        <div
-          style={{
-            width: "min(1120px, 100%)",
-            borderRadius: 14,
-            border: "1px solid #fecaca",
-            background: "#fef2f2",
-            color: "#7f1d1d",
-            padding: "20px 18px",
-          }}
-        >
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>Announcement</h2>
-          <p style={{ marginTop: 10, marginBottom: 0 }}>{error || "Announcement not found."}</p>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center px-4 pt-20">
+        <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Announcement Not Found</h2>
+          <p className="text-gray-500 text-sm mb-6">{error || "The announcement you're looking for doesn't exist."}</p>
           <button
             onClick={() => navigate(-1)}
-            style={{
-              marginTop: 16,
-              border: "none",
-              borderRadius: 999,
-              background: "linear-gradient(90deg, #f97316, #22c55e)",
-              color: "#fff",
-              fontWeight: 700,
-              padding: "10px 18px",
-              cursor: "pointer",
-            }}
+            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-xl transition"
           >
-        Home
+            Go Back
           </button>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section
-      style={{
-        background: "#f8fafc",
-        minHeight: "100vh",
-        padding: "40px 16px 60px",
-      }}
-    >
-      <div style={{ width: "min(1120px, 100%)", margin: "0 auto" }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            border: "1px solid #d1d5db",
-            background: "#ffffff",
-            color: "#111827",
-            borderRadius: 10,
-            padding: "9px 12px",
-            cursor: "pointer",
-            fontWeight: 700,
-            marginBottom: 14,
-          }}
-        >
-          <span aria-hidden="true">←</span>
-          Home
-        </button>
+    <>
+      {/* Prose + responsive styles */}
+      <style>{`
+        .ann-prose h1,.ann-prose h2,.ann-prose h3,.ann-prose h4{font-weight:700;color:#111827;line-height:1.3;margin:1.2em 0 0.5em}
+        .ann-prose h1{font-size:clamp(1.25rem,3vw,1.6rem)}
+        .ann-prose h2{font-size:clamp(1.1rem,2.5vw,1.35rem);border-bottom:2px solid #fde8d4;padding-bottom:6px}
+        .ann-prose h3{font-size:clamp(1rem,2vw,1.15rem)}
+        .ann-prose p{margin:0 0 1em;color:#374151;line-height:1.8;font-size:clamp(0.875rem,1.5vw,1rem)}
+        .ann-prose ul,.ann-prose ol{padding-left:1.4em;margin:0 0 1em;color:#374151}
+        .ann-prose li{margin-bottom:0.4em;line-height:1.7}
+        .ann-prose a{color:#f97316;text-decoration:underline;font-weight:600;word-break:break-word}
+        .ann-prose a:hover{color:#ea580c}
+        .ann-prose-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;margin:1em 0;border:1px solid #f3f4f6}
+        .ann-prose table{width:100%;border-collapse:collapse;font-size:0.88rem;table-layout:auto}
+        .ann-prose th{background:#fff7ed;color:#c2410c;font-weight:700;padding:10px 14px;text-align:left;border:1px solid #fde8d4;white-space:nowrap;min-width:80px}
+        .ann-prose td{padding:9px 14px;border:1px solid #f3f4f6;color:#374151;white-space:normal;word-break:break-word}
+        .ann-prose tr:nth-child(even) td{background:#fafafa}
+        .ann-prose strong{font-weight:700;color:#111827}
+        .ann-prose blockquote{border-left:4px solid #f97316;padding:10px 16px;background:#fff7ed;border-radius:0 8px 8px 0;margin:1em 0;color:#92400e;font-style:italic}
+        .ann-prose img{max-width:100%;height:auto;border-radius:10px;margin:0.5em 0;display:block}
+        @media(max-width:480px){
+          .ann-prose th,.ann-prose td{padding:7px 10px;font-size:0.8rem}
+        }
+      `}</style>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr)",
-            gap: 16,
-          }}
-        >
-          <style>{`
-            @media (min-width: 1024px) {
-              .announcement-detail-grid {
-                grid-template-columns: minmax(0, 1fr) 320px;
-                align-items: start;
-              }
-            }
-          `}</style>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
 
-          <div className="announcement-detail-grid" style={{ display: "grid", gap: 16 }}>
-            <article style={{ display: "grid", gap: 14 }}>
-              <header
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 14,
-                  padding: "20px 18px",
-                }}
+        {/* ── Hero Banner ── */}
+        <div className="bg-white border-b border-gray-100 pt-20 sm:pt-24 pb-5 sm:pb-8 px-4 shadow-sm">
+          <div className="max-w-6xl mx-auto">
+
+            {/* Breadcrumb + back */}
+            <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+              <div className="flex items-center gap-1.5 text-xs text-gray-400 flex-wrap min-w-0">
+                <Link to="/" className="hover:text-orange-500 transition shrink-0">Home</Link>
+                <span className="shrink-0">/</span>
+                <span className="text-gray-500 font-medium truncate max-w-50 sm:max-w-sm">{announcement.title}</span>
+              </div>
+              <button
+                onClick={() => navigate(-1)}
+                className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-orange-500 bg-gray-50 hover:bg-orange-50 border border-gray-200 hover:border-orange-200 px-3 py-1.5 rounded-lg transition"
               >
-                <h1 style={{ margin: 0, color: "#111827", fontSize: "clamp(1.5rem, 2.8vw, 2.2rem)", lineHeight: 1.2 }}>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back
+              </button>
+            </div>
+
+            {/* Title block */}
+            <div className="flex items-start gap-2.5 sm:gap-3">
+              <span className="shrink-0 w-1 sm:w-1.5 h-8 sm:h-10 bg-orange-500 rounded-full mt-1" />
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 leading-tight wrap-break-word">
                   {announcement.title}
                 </h1>
-                <p style={{ margin: "8px 0 0", color: "#4b5563", fontSize: 14 }}>
-                  {formatDate(announcement.date)} | {announcement.time || "N/A"}
-                </p>
-              </header>
+                <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                  {announcement.date && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                      <svg className="w-3 h-3 text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/><line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/><line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/>
+                      </svg>
+                      {formatDate(announcement.date)}
+                    </span>
+                  )}
+                  {announcement.time && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                      <svg className="w-3 h-3 text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" strokeWidth="2"/><path d="M12 6v6l4 2" strokeWidth="2"/>
+                      </svg>
+                      {announcement.time}
+                    </span>
+                  )}
+                  <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${announcement.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${announcement.status === "active" ? "bg-green-500" : "bg-gray-400"}`} />
+                    {announcement.status === "active" ? "Active" : announcement.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              {announcement.image ? (
-                <div
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: 14,
-                    overflow: "hidden",
-                  }}
-                >
+        {/* ── Body ── */}
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+          <div className="grid lg:grid-cols-[1fr_290px] gap-5 sm:gap-6 items-start">
+
+            {/* ── MAIN CONTENT ── */}
+            <div className="space-y-4 sm:space-y-5 min-w-0">
+
+              {/* Image */}
+              {(resolvedImage || announcement.image) && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <img
                     src={resolvedImage || announcement.image}
                     alt={announcement.title}
-                    style={{ width: "100%", maxHeight: 460, objectFit: "cover", display: "block" }}
+                    className="w-full max-h-80 sm:max-h-105 lg:max-h-120 object-cover"
                   />
                 </div>
-              ) : null}
+              )}
 
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 14,
-                  padding: "20px 18px 24px",
-                  display: "grid",
-                  gap: 18,
-                }}
-              >
-                <div
-                  style={{ color: "#1f2937", lineHeight: 1.7, fontSize: 15 }}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.info) }}
-                />
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-                    gap: 10,
-                  }}
-                >
-                  {metaItems.map((meta) => (
+              {/* Info / HTML content */}
+              {announcement.info && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
+                  <div className="flex items-center gap-2 mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-gray-100">
+                    <span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />
+                    <h2 className="text-sm sm:text-base font-bold text-gray-800">Announcement Details</h2>
+                  </div>
+                  {/* Wrap content so internal tables scroll horizontally on mobile */}
+                  <div className="ann-prose">
                     <div
-                      key={meta.label}
-                      style={{
-                        border: "1px solid #e5e7eb",
-                        borderRadius: 10,
-                        background: "#f9fafb",
-                        padding: "10px 12px",
-                      }}
-                    >
-                      <div style={{ fontSize: 12, color: "#f97316", fontWeight: 700 }}>
-                        {meta.label}
-                      </div>
-                      <div style={{ fontSize: 14, color: "#111827", marginTop: 4 }}>
-                        {meta.value}
-                      </div>
-                    </div>
-                  ))}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.info).replace(/<table/g,'<div class="ann-prose-table-wrap"><table').replace(/<\/table>/g,'</table></div>') }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ── Details Table ── */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center gap-2 px-4 sm:px-6 py-3.5 bg-linear-to-r from-orange-500 to-orange-400">
+                  <svg className="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <h2 className="text-xs sm:text-sm font-bold text-white tracking-wide uppercase">Quick Details</h2>
                 </div>
 
-                {announcement.url ? (
-                  <a
-                    href={announcement.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      width: "fit-content",
-                      borderRadius: 10,
-                      textDecoration: "none",
-                      background: "linear-gradient(90deg, #f97316, #22c55e)",
-                      color: "#fff",
-                      fontWeight: 700,
-                      padding: "10px 18px",
-                    }}
-                  >
-                    Open Official Link
-                  </a>
-                ) : null}
-              </div>
-            </article>
-
-            <aside
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e5e7eb",
-                borderRadius: 14,
-                padding: "14px",
-                position: "sticky",
-                top: 120,
-              }}
-            >
-              <h3 style={{ margin: 0, fontSize: 17, color: "#111827" }}>Latest Announcements</h3>
-              <p style={{ margin: "6px 0 12px", fontSize: 12.5, color: "#6b7280" }}>
-                Check the latest 5 updates.
-              </p>
-
-              <div style={{ display: "grid", gap: 8 }}>
-                {latestFive.length ? (
-                  latestFive.map((item) => (
-                    <Link
-                      key={item.id || item.slug}
-                      to={`/announcements/${item.slug}`}
-                      style={{
-                        textDecoration: "none",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: 10,
-                        background: "#f9fafb",
-                        padding: "10px",
-                        display: "grid",
-                        gap: 4,
-                      }}
+                {/* Rows */}
+                <div className="divide-y divide-gray-100">
+                  {metaItems.map((meta, idx) => (
+                    <div
+                      key={meta.label}
+                      className={`flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                     >
-                      <span style={{ color: "#111827", fontSize: 13.5, fontWeight: 700, lineHeight: 1.35 }}>
-                        {item.title}
+                      <span className="text-sm sm:text-base w-6 sm:w-7 text-center shrink-0">{meta.icon}</span>
+                      <span className="w-20 sm:w-28 shrink-0 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">
+                        {meta.label}
                       </span>
-                      <span style={{ color: "#6b7280", fontSize: 12 }}>
-                        {formatDate(item.date)} | {item.time || "N/A"}
+                      <span className="w-px h-4 bg-gray-200 shrink-0" />
+                      {meta.label === "Status" ? (
+                        <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full ${meta.value === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta.value === "active" ? "bg-green-500" : "bg-gray-400"}`} />
+                          {meta.value.charAt(0).toUpperCase() + meta.value.slice(1)}
+                        </span>
+                      ) : (
+                        <span className="text-xs sm:text-sm font-semibold text-gray-800 wrap-break-word min-w-0">{meta.value}</span>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Official link row */}
+                  {announcement.url && (
+                    <div className={`flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 ${metaItems.length % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                      <span className="text-sm sm:text-base w-6 sm:w-7 text-center shrink-0">🔗</span>
+                      <span className="w-20 sm:w-28 shrink-0 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">
+                        Official
                       </span>
-                    </Link>
-                  ))
+                      <span className="w-px h-4 bg-gray-200 shrink-0" />
+                      <a
+                        href={announcement.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm shadow-orange-200 shrink-0"
+                      >
+                        <span className="hidden xs:inline">Visit Portal</span>
+                        <span className="xs:hidden">Open</span>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* ── SIDEBAR ── */}
+            <aside className="lg:sticky lg:top-24 space-y-4">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b border-gray-100">
+                  <span className="w-1 h-5 bg-orange-500 rounded-full" />
+                  <h3 className="text-sm sm:text-base font-bold text-gray-800">Latest Announcements</h3>
+                </div>
+
+                {latestFive.length ? (
+                  /* Mobile: horizontal scroll cards | Desktop: vertical list */
+                  <>
+                    <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden snap-x snap-mandatory">
+                      {latestFive.map((item) => (
+                        <Link
+                          key={item.id || item.slug}
+                          to={`/announcements/${item.slug}`}
+                          className="shrink-0 w-52 snap-start p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition group"
+                        >
+                          <p className="text-xs font-semibold text-gray-800 group-hover:text-orange-600 transition leading-snug line-clamp-3 mb-1.5">
+                            {item.title}
+                          </p>
+                          <p className="text-[10px] text-gray-400">{formatDate(item.date)}</p>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="hidden lg:flex flex-col gap-2.5">
+                      {latestFive.map((item) => (
+                        <Link
+                          key={item.id || item.slug}
+                          to={`/announcements/${item.slug}`}
+                          className="flex gap-2.5 p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition group"
+                        >
+                          <div className="shrink-0 w-1 bg-orange-200 rounded-full group-hover:bg-orange-400 transition self-stretch" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition leading-snug line-clamp-2">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">{formatDate(item.date)}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
                 ) : (
-                  <div
-                    style={{
-                      border: "1px dashed #d1d5db",
-                      borderRadius: 10,
-                      background: "#f9fafb",
-                      color: "#6b7280",
-                      fontSize: 12.5,
-                      padding: "10px",
-                    }}
-                  >
-                    No other announcements found.
-                  </div>
+                  <p className="text-sm text-gray-400 text-center py-4">No other announcements.</p>
                 )}
               </div>
+
+              {/* Share / tip card */}
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-5 text-white">
+                <div className="text-2xl mb-2">🔔</div>
+                <h4 className="font-bold text-base mb-1">Stay Updated</h4>
+                <p className="text-orange-100 text-xs leading-relaxed">
+                  Check back regularly for the latest government job announcements and career updates.
+                </p>
+                <Link
+                  to="/jobs"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold bg-white text-orange-500 px-4 py-2 rounded-lg hover:bg-orange-50 transition"
+                >
+                  View All Jobs
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
             </aside>
+
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }
