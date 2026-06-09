@@ -43,7 +43,7 @@ const CARDS = [
         btnGrad: "linear-gradient(135deg,#7c3aed,#c026d3)",
         btnIcon: FaUserPlus,
         description:
-            "Get job alerts by email and manage your profile for better career opportunities.",
+            "Register and stay updated with profile-based job alerts on email and your dashboard.",
         button: "Free Registration",
         link: "/register",
     },
@@ -58,7 +58,7 @@ const CARDS = [
         btnGrad: "linear-gradient(135deg,#2563eb,#4f46e5)",
         btnIcon: FaBriefcase,
         description:
-            "Browse the latest government job openings and apply for suitable positions easily.",
+            "Explore the Latest Jobs & Apply Instantly.",
         button: "View Jobs",
         link: "/jobs",
     },
@@ -73,7 +73,7 @@ const CARDS = [
         btnGrad: "linear-gradient(135deg,#059669,#16a34a)",
         btnIcon: FaChartLine,
         description:
-            "Explore internships and skill programs to improve knowledge and career growth.",
+            "Explore internships and skill-up programs to accelerate your career.",
         button: "Explore Now",
         link: "/internship-guide",
     },
@@ -88,7 +88,7 @@ const CARDS = [
         btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
         btnIcon: FaArrowRight,
         description:
-            "Receive expert guidance for career planning, education choices, and job readiness.",
+            "Expert guidance for career planning, education and job readiness.",
         button: "Get Guidance",
         link: "/contact-us",
     },
@@ -111,15 +111,85 @@ const CARDS = [
 ];
 
 /* ─────────────────────────────────────────
+   COMPACT ANNOUNCEMENTS — mobile / tablet only
+───────────────────────────────────────── */
+function CompactAnnouncements({ list, loading }) {
+    const navigate = useNavigate();
+    const [open, setOpen] = useState(true);
+
+    return (
+        <div
+            className="rounded-2xl border overflow-hidden"
+            style={{ borderColor: "#ede9fe", boxShadow: "0 2px 12px rgba(109,40,217,0.08)" }}
+        >
+            {/* header — always visible, tap to expand */}
+            <button
+                type="button"
+                onClick={() => setOpen((p) => !p)}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-linear-to-r from-purple-600 to-purple-800"
+            >
+                <div className="flex items-center gap-2.5">
+                    <GrAnnounce className="text-white shrink-0" style={{ fontSize: 20 }} />
+                    <div className="text-left">
+                        <p className="text-sm font-black text-white leading-none">Announcements</p>
+                        <p className="text-[10px] text-violet-200 mt-0.5">
+                            {loading ? "Loading…" : `${list.length} active updates`}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1 text-[10px] font-black text-amber-200 bg-white/10 border border-white/15 px-2 py-0.5 rounded-full">
+                        <FaFire style={{ color: "#fbbf24", fontSize: 8 }} /> Live
+                    </span>
+                    <FaArrowRight
+                        className="text-white/70 transition-transform duration-200"
+                        style={{ fontSize: 11, transform: open ? "rotate(90deg)" : "rotate(0deg)" }}
+                    />
+                </div>
+            </button>
+
+            {/* collapsible body */}
+            {open && (
+                <div className="max-h-52 overflow-y-auto divide-y divide-slate-50 bg-white">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-6 gap-2">
+                            <div className="w-5 h-5 rounded-full animate-spin"
+                                style={{ border: "2px solid #ede9fe", borderTopColor: "#7c3aed" }} />
+                            <p className="text-xs text-slate-400">Loading…</p>
+                        </div>
+                    ) : list.length === 0 ? (
+                        <p className="text-xs text-slate-400 text-center py-6">No announcements yet</p>
+                    ) : (
+                        list.map((item) => (
+                            <button
+                                key={item.id || item.slug}
+                                type="button"
+                                onClick={() => item.slug && navigate(`/announcements/${item.slug}`)}
+                                className="w-full text-left px-4 py-2.5 hover:bg-violet-50/60 flex items-start gap-2.5 transition-colors"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#7c3aed" }} />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold text-slate-700 leading-snug line-clamp-2">{item.title}</p>
+                                    {item.date && <p className="text-[10px] text-slate-400 mt-0.5">{fmtDate(item.date)}</p>}
+                                </div>
+                                <FaArrowRight className="text-violet-300 text-[9px] shrink-0 mt-1" />
+                            </button>
+                        ))
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────
    VERTICAL ANNOUNCEMENTS PANEL
    • RAF-based scroll — no duplicates
    • Height locked to flex-stretch (matches cards)
    • Pauses on hover, resumes on leave
 ───────────────────────────────────────── */
-function VerticalAnnouncements() {
+function VerticalAnnouncements({ list, loading }) {
     const navigate = useNavigate();
-    const [list, setList] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     /* refs for the scroll loop — never cause re-renders */
     const viewportRef = useRef(null); // overflow:hidden container
@@ -127,29 +197,6 @@ function VerticalAnnouncements() {
     const rafRef = useRef(null);
     const posRef = useRef(0);
     const pauseRef = useRef(false);
-
-    /* fetch once */
-    useEffect(() => {
-        axios
-            .get(`${ANNOUNCEMENT_API_BASE}/api/announcements`, {
-                headers: { Accept: "application/json" },
-            })
-            .then((res) => {
-                const data = Array.isArray(res?.data?.data) ? res.data.data : [];
-                setList(
-                    data
-                        .filter((a) => a.status === "active")
-                        .map((a) => ({
-                            id: a.id || a._id || "",
-                            title: a.title || "Announcement",
-                            slug: a.slug || "",
-                            date: a.date || a.publishedAt || a.created_at || null,
-                        }))
-                );
-            })
-            .catch(() => { })
-            .finally(() => setLoading(false));
-    }, []);
 
     const shouldScroll = list.length > 2;
 
@@ -361,7 +408,7 @@ function FeatureCard({ card }) {
                 <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug mb-1 sm:mb-2">
                     {card.title}
                 </h3>
-                <p className="text-[10px] sm:text-[12px] text-slate-500 leading-relaxed flex-1 hidden sm:block">
+                <p className="text-[10px] sm:text-[12px] text-slate-500 leading-relaxed flex-1 ">
                     {card.description}
                 </p>
             </div>
@@ -384,6 +431,31 @@ function FeatureCard({ card }) {
    MAIN EXPORT
 ───────────────────────────────────────── */
 export default function HeroFinalPage() {
+    const [annList, setAnnList] = useState([]);
+    const [annLoading, setAnnLoading] = useState(true);
+
+    useEffect(() => {
+        axios
+            .get(`${ANNOUNCEMENT_API_BASE}/api/announcements`, {
+                headers: { Accept: "application/json" },
+            })
+            .then((res) => {
+                const data = Array.isArray(res?.data?.data) ? res.data.data : [];
+                setAnnList(
+                    data
+                        .filter((a) => a.status === "active")
+                        .map((a) => ({
+                            id: a.id || a._id || "",
+                            title: a.title || "Announcement",
+                            slug: a.slug || "",
+                            date: a.date || a.publishedAt || a.created_at || null,
+                        }))
+                );
+            })
+            .catch(() => {})
+            .finally(() => setAnnLoading(false));
+    }, []);
+
     return (
         <section className="bg-white w-full py-25 sm:py-24 xl:py-28">
             <div className="w-full px-4 sm:px-6 xl:px-12">
@@ -433,9 +505,16 @@ export default function HeroFinalPage() {
                         ))}
                     </div>
 
-                    {/* Announcements — full width below cards on mobile, 40% on xl */}
-                    <div className="w-full xl:w-[40%] min-h-[440px] xl:min-h-[360px]">
-                        <VerticalAnnouncements />
+                    {/* Announcements */}
+                    <div className="w-full xl:w-[40%]">
+                        {/* Mobile/tablet: compact collapsible strip */}
+                        <div className="xl:hidden">
+                            <CompactAnnouncements list={annList} loading={annLoading} />
+                        </div>
+                        {/* Desktop: full vertical scroll panel */}
+                        <div className="hidden xl:block min-h-90 h-full">
+                            <VerticalAnnouncements list={annList} loading={annLoading} />
+                        </div>
                     </div>
 
                 </div>
