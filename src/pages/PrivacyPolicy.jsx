@@ -30,8 +30,8 @@ export default function PrivacyPolicy() {
   return (
     <>
       <SEO
-        title="Privacy Policy — CareerMitra"
-        description="Learn how CareerMitra collects, uses, and protects your personal data. We are committed to safeguarding your privacy."
+        title="Privacy Policy — Careermitra"
+        description="Learn how Careermitra collects, uses, and protects your personal data. We are committed to safeguarding your privacy."
       />
 
       <div className="min-h-screen pt-20 bg-white">
@@ -60,8 +60,8 @@ export default function PrivacyPolicy() {
               {[
                 { label: "Account Info", desc: "Name, email address, mobile number, and password (hashed)." },
                 { label: "Profile Data", desc: "Qualifications, job interests, age, and location preferences." },
-                { label: "Usage Data", desc: "Pages visited, jobs viewed, search queries, and session duration." },
-                { label: "Device Info", desc: "Browser type, device type, OS, and IP address for security." },
+                // { label: "Usage Data", desc: "Pages visited, jobs viewed, search queries, and session duration." },
+                // { label: "Device Info", desc: "Browser type, device type, OS, and IP address for security." },
               ].map(({ label, desc }) => (
                 <div key={label} className="rounded-xl border border-blue-100 bg-blue-50/60 p-3">
                   <p className="text-xs font-black text-blue-700 mb-1">{label}</p>
@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
           </Section>
 
           <Section icon={FaUserLock} title="How We Use Your Information" accent="orange">
-            <p>The data we collect is used exclusively to improve your experience on CareerMitra:</p>
+            <p>The data we collect is used exclusively to improve your experience on Careermitra:</p>
             <ul className="list-none space-y-2 mt-2">
               {[
                 "To create and manage your user account.",
@@ -88,7 +88,7 @@ export default function PrivacyPolicy() {
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-gray-400 mt-2">We do <strong className="text-gray-600">not</strong> sell, rent, or trade your personal information to third parties.</p>
+            {/* <p className="text-xs text-gray-400 mt-2">We do <strong className="text-gray-600">not</strong> sell, rent, or trade your personal information to third parties.</p> */}
           </Section>
 
           <Section icon={FaShieldAlt} title="Data Security" accent="green">
@@ -108,39 +108,23 @@ export default function PrivacyPolicy() {
             </ul>
             <p>While we take all reasonable precautions, no internet transmission is 100% secure. We encourage you to use a strong, unique password for your account.</p>
           </Section>
-
+{/* 
           <Section icon={FaCookieBite} title="Cookies & Local Storage" accent="purple">
-            <p>CareerMitra uses browser localStorage (not traditional cookies) to store your authentication token and session preferences. This allows you to stay logged in across page refreshes.</p>
+            <p>Careermitra uses browser localStorage (not traditional cookies) to store your authentication token and session preferences. This allows you to stay logged in across page refreshes.</p>
             <p>We may also use analytics tools that place cookies to measure platform usage and improve performance. These do not contain personally identifiable information.</p>
             <p>You can clear localStorage or cookies at any time via your browser settings, which will log you out of your account.</p>
-          </Section>
+          </Section> */}
 
-          <Section icon={FaGavel} title="Your Rights" accent="blue">
-            <p>As a CareerMitra user, you have the right to:</p>
-            <div className="grid sm:grid-cols-2 gap-3 mt-3">
-              {[
-                { label: "Access", desc: "Request a copy of the personal data we hold about you." },
-                { label: "Correction", desc: "Update or correct inaccurate personal information via your profile." },
-                { label: "Deletion", desc: "Request deletion of your account and associated data." },
-                { label: "Portability", desc: "Receive your data in a structured, machine-readable format." },
-              ].map(({ label, desc }) => (
-                <div key={label} className="rounded-xl border border-blue-100 bg-blue-50/60 p-3">
-                  <p className="text-xs font-black text-blue-700 mb-1">{label}</p>
-                  <p className="text-xs text-gray-500">{desc}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-gray-500">To exercise any of these rights, contact us through the <Link to="/contact-us" className="text-blue-500 hover:underline font-semibold">Contact page</Link>.</p>
-          </Section>
+       
 
           <Section icon={FaUserLock} title="Third-Party Links" accent="orange">
-            <p>CareerMitra links to official government job portals, notification PDFs, and application portals. These external sites have their own privacy policies, and we are not responsible for their content or data practices.</p>
+            <p>Careermitra links to official government job portals, notification PDFs, and application portals. These external sites have their own privacy policies, and we are not responsible for their content or data practices.</p>
             <p>We recommend reviewing the privacy policy of any third-party site you visit from our platform.</p>
           </Section>
 
           <Section icon={FaGavel} title="Changes to This Policy" accent="green">
             <p>We may update this Privacy Policy from time to time. When we do, the "Last updated" date at the top of this page will be revised.</p>
-            <p>Significant changes will be communicated via a notice on the platform or via email. Continued use of CareerMitra after changes are posted constitutes your acceptance of the revised policy.</p>
+            <p>Significant changes will be communicated via a notice on the platform or via email. Continued use of Careermitra after changes are posted constitutes your acceptance of the revised policy.</p>
           </Section>
 
           {/* Contact card */}

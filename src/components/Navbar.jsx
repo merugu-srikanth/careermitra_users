@@ -474,7 +474,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-semibold text-sm shadow-sm shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
+                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-4 rounded-full font-semibold text-sm shadow-sm shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
                 >
                   <FaSignInAlt size={13} />Student Login
                 </Link>
@@ -489,15 +489,30 @@ export default function Navbar() {
           </div>
 
 
-
-          {/* MOBILE HAMBURGER */}
-          <button
+              <div className="flex items-center gap-4 lg:hidden">
+              <a
+                href="https://www.youtube.com/@CareerMitraaa"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="CareerMitra YouTube Channel"
+                className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-2 py-1 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
+              >
+                <FaYoutube size={28} className="shrink-0 text-red-500 group-hover:text-red-400" />
+                {/* <div className="flex flex-col leading-tight text-left">
+                  <span className="text-sm font-black text-white">CareerMitra</span>
+                  <span className="text-xs font-medium text-red-400">@CareerMitraaa</span>
+                </div> */}
+              </a>
+               <button
             onClick={() => setDrawerOpen(true)}
             className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
             aria-label="Open menu"
           >
             <FaBars size={18} />
           </button>
+            </div>
+          {/* MOBILE HAMBURGER */}
+         
         </div>
 
         {/* bottom shadow line */}
