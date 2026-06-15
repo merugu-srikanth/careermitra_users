@@ -2,6 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 
+const slugify = (s = '') =>
+  String(s).toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+const isMongoId = (s) => /^[a-f0-9]{24}$/i.test(s);
+
+const getBlogPath = (blog, detail) => {
+  const cat = slugify(
+    detail?.categories?.[0]?.name || detail?.category ||
+    blog?.categories?.[0]?.name || blog?.category || 'general'
+  );
+  return `/${cat}/${blog.slug}`;
+};
+
 /* ─── Styles ──────────────────────────────────────────────────────────────── */
 const AP_STYLES = `
 .ap-wrap { background:#f9fafb;min-height:100vh; }
@@ -115,7 +131,22 @@ const AuthorProfile = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`https://careermitra.in/api/authors/${authorId}`);
+      let resolvedId = authorId;
+
+      // If param is a slug (not a 24-char MongoDB hex ID), resolve to _id via blog data
+      if (!isMongoId(authorId)) {
+        const blogsRes = await fetch("https://careermitra.in/api/blogs?page=1&limit=50");
+        const blogsData = await blogsRes.json();
+        const blogs = blogsData.data?.blogs || [];
+        const match = blogs
+          .map((b) => b.author)
+          .filter(Boolean)
+          .find((a) => slugify(a.author_name || a.name || "") === authorId);
+        if (!match?._id) throw new Error("Author not found");
+        resolvedId = match._id;
+      }
+
+      const res = await fetch(`https://careermitra.in/api/authors/${resolvedId}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "Author not found");
 
@@ -202,7 +233,7 @@ const AuthorProfile = () => {
         title={`${author_name} — Author at Career Mitra`}
         description={bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`}
         keywords={`${author_name}, career mitra author, career blog, government jobs`}
-        url={`https://www.careermitra.in/author/${authorId}`}
+        url={`https://www.careermitra.in/author/${slugify(author_name || authorId)}`}
         image={avatar_url}
         type="profile"
         authorName={author_name}
@@ -324,7 +355,7 @@ const AuthorProfile = () => {
                 {assignedBlogs.map((blog) => {
                   const detail = blogDetails[blog.slug];
                   return (
-                    <Link key={blog._id} to={`/blog/${blog.slug}`} className="ap-blog-card">
+                    <Link key={blog._id} to={getBlogPath(blog, detail)} className="ap-blog-card">
                       {detail?.featured_image ? (
                         <img
                           src={detail.featured_image}
@@ -365,7 +396,7 @@ const AuthorProfile = () => {
 
               <div className="ap-suggest-grid">
                 {suggestedBlogs.map((blog) => (
-                  <Link key={blog._id} to={`/blog/${blog.slug}`} className="ap-suggest-card">
+                  <Link key={blog._id} to={getBlogPath(blog, null)} className="ap-suggest-card">
                     {blog.featured_image ? (
                       <img
                         src={blog.featured_image}

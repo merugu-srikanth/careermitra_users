@@ -60,7 +60,7 @@ const CARDS = [
         description:
             "Explore the Latest Jobs & Apply Instantly.",
         button: "View Jobs",
-        link: "/jobs",
+        link: "/latest-job-notifications",
     },
     {
         id: 3,
@@ -198,7 +198,7 @@ function VerticalAnnouncements({ list, loading }) {
     const posRef = useRef(0);
     const pauseRef = useRef(false);
 
-    const shouldScroll = list.length > 2;
+    const shouldScroll = list.length > 0;
 
     /* start / restart RAF loop whenever list changes */
     useEffect(() => {
@@ -211,15 +211,15 @@ function VerticalAnnouncements({ list, loading }) {
 
         if (!shouldScroll) return;
 
-        const SPEED = 0.45; // px per frame (~27px/s at 60 fps)
+        const SPEED = 0.22; // px per frame — slow readable scroll
 
         const tick = () => {
             if (!pauseRef.current) {
                 posRef.current += SPEED;
-                const maxScroll = track.scrollHeight - viewport.clientHeight;
-                /* seamless loop: once the track scrolls its full height, reset */
-                if (maxScroll > 0 && posRef.current >= maxScroll) {
-                    posRef.current = 0;
+                /* seamless loop: list is doubled — reset at exactly half the track height */
+                const halfHeight = track.scrollHeight / 2;
+                if (halfHeight > 0 && posRef.current >= halfHeight) {
+                    posRef.current -= halfHeight;
                 }
                 track.style.transform = `translateY(-${posRef.current}px)`;
             }
@@ -313,16 +313,16 @@ function VerticalAnnouncements({ list, loading }) {
                         <p className="text-slate-400 text-sm font-semibold">No announcements yet</p>
                     </div>
                 ) : (
-                    /* track — translated by RAF, NOT doubled */
+                    /* track — list doubled for seamless loop */
                     <div
                         ref={trackRef}
-                        className="pt-2 will-change-transform"
+                        className="will-change-transform"
                         onMouseEnter={pause}
                         onMouseLeave={resume}
                     >
-                        {list.map((item) => (
+                        {[...list, ...list].map((item, idx) => (
                             <button
-                                key={item.id || item.slug}
+                                key={`${item.id || item.slug}-${idx}`}
                                 type="button"
                                 onClick={() => item.slug ? navigate(`/announcements/${item.slug}`) : null}
                                 className="group w-full text-left px-4 py-3 border-b border-slate-50 hover:bg-violet-50/60 transition-colors flex items-start gap-3"
@@ -347,7 +347,7 @@ function VerticalAnnouncements({ list, loading }) {
             </div>
 
             {/* ── Footer ── */}
-            <div className="shrink-0 px-4 py-3 border-t border-violet-50 bg-violet-50/40">
+            {/* <div className="shrink-0 px-4 py-3 border-t border-violet-50 bg-violet-50/40">
                 <button
                     type="button"
                     className="w-full flex items-center justify-center gap-2 text-xs font-bold text-violet-600 hover:text-violet-800 transition-colors py-1.5 rounded-xl hover:bg-violet-100"
@@ -355,7 +355,7 @@ function VerticalAnnouncements({ list, loading }) {
                     View All Announcements
                     <FaArrowRight style={{ fontSize: 9 }} />
                 </button>
-            </div>
+            </div> */}
         </div>
     );
 }
@@ -386,40 +386,40 @@ function FeatureCard({ card }) {
                 e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
             }}
         >
-            {/* Icon area — smaller on mobile */}
-            <div className="pt-5 sm:pt-7 pb-1 flex flex-col items-center gap-2 sm:gap-3">
+            {/* Icon area */}
+            <div className="pt-4 sm:pt-6 pb-1 flex flex-col items-center gap-2">
                 <div
-                    className="w-14 h-14 sm:w-18 sm:h-18 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
                     style={{ background: card.iconBg }}
                 >
-                    <Icon style={{ color: card.iconColor, fontSize: 26 }} />
+                    <Icon style={{ color: card.iconColor, fontSize: 22 }} />
                 </div>
                 {/* step badge */}
-                <span
+                {/* <span
                     className="w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center shadow"
                     style={{ background: card.badgeBg }}
                 >
                     {card.id}
-                </span>
+                </span> */}
             </div>
 
             {/* Content */}
-            <div className="px-3 sm:px-5 pt-1 pb-1 flex-1 flex flex-col text-center">
-                <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug mb-1 sm:mb-2">
+            <div className="px-3 sm:px-4 pt-1 pb-1 flex-1 flex flex-col text-center">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug mb-1">
                     {card.title}
                 </h3>
-                <p className="text-[10px] sm:text-[12px] text-slate-500 leading-relaxed flex-1 ">
+                <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed flex-1">
                     {card.description}
                 </p>
             </div>
 
             {/* CTA */}
-            <div className="px-3 sm:px-5 pb-4 sm:pb-6 pt-2 sm:pt-3">
+            <div className="px-3 sm:px-4 pb-3 sm:pb-5 pt-2">
                 <button
-                    className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-3 text-white text-[11px] sm:text-[13px] font-bold rounded-xl sm:rounded-2xl transition-all hover:opacity-90 active:scale-95"
+                    className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all hover:opacity-90 active:scale-95"
                     style={{ background: card.btnGrad }}
                 >
-                    <BtnIcon style={{ fontSize: 11 }} />
+                    <BtnIcon style={{ fontSize: 10 }} />
                     <span className="truncate">{card.button}</span>
                 </button>
             </div>
@@ -457,11 +457,11 @@ export default function HeroFinalPage() {
     }, []);
 
     return (
-        <section className="bg-white w-full py-25 sm:py-24 xl:py-28">
-            <div className="w-full px-4 sm:px-6 xl:px-12">
+        <section className="bg-white w-full py-8 sm:py-12 xl:py-16">
+            <div className="w-full px-4 sm:px-6 xl:px-10">
 
                 {/* ── Section heading ── */}
-                <div className="text-center mb-14">
+                <div className="text-center mb-6 sm:mb-8 xl:mb-10">
                     <span
                         className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] px-4 py-1.5 rounded-full border mb-5"
                         style={{
@@ -496,23 +496,23 @@ export default function HeroFinalPage() {
                 </div>
 
                 {/* ── Cards + Announcements ── */}
-                <div className="flex flex-col xl:flex-row gap-5 items-stretch w-full">
+                <div className="flex flex-col xl:flex-row gap-4 xl:gap-5 items-stretch w-full">
 
-                    {/* Cards — 2 col on mobile/tablet, 4 col on xl */}
-                    <div className="w-full xl:w-[75%] grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4">
+                    {/* Cards — 2 col on mobile/tablet, 4 col on xl+ */}
+                    <div className="w-full xl:flex-1 grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
                         {CARDS.map((card) => (
                             <FeatureCard key={card.id} card={card} />
                         ))}
                     </div>
 
                     {/* Announcements */}
-                    <div className="w-full xl:w-[40%]">
+                    <div className="w-full xl:w-96 xl:shrink-0">
                         {/* Mobile/tablet: compact collapsible strip */}
                         <div className="xl:hidden">
                             <CompactAnnouncements list={annList} loading={annLoading} />
                         </div>
-                        {/* Desktop: full vertical scroll panel */}
-                        <div className="hidden xl:block min-h-90 h-full">
+                        {/* Desktop: full vertical scroll panel — fixed 250px */}
+                        <div className="hidden xl:flex xl:flex-col" style={{ height: 250 }}>
                             <VerticalAnnouncements list={annList} loading={annLoading} />
                         </div>
                     </div>

@@ -32,6 +32,7 @@ import HeroAnnouncementTicker from "./components/HeroAnnouncementTicker";
 import AnnouncementDetail from "./pages/AnnouncementDetail";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import BlogCategory from "./pages/Blogs/BlogCategory";
 
 export default function App() {
   return (
@@ -59,7 +60,7 @@ export default function App() {
             }
           />
           <Route
-            path="/jobs"
+            path="/latest-job-notifications"
             element={<AllJobs />}
           />
 
@@ -80,18 +81,14 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/blogs"
-            element={
-              <BlogList />
-            }
-          />
-          <Route
-            path="/blog/:slug"
-            element={
-              <BlogDetail />
-            }
-          />
+          {/* /blogs route disabled — categories accessed directly via /:categorySlug */}
+          {/* <Route path="/blogs" element={<BlogList />} /> */}
+          <Route path="/all-articles" element={<BlogList />} />
+          {/* legacy URLs — kept for backward compat */}
+          <Route path="/blog/:slug" element={<BlogDetail />} />
+          <Route path="/category/:categorySlug" element={<BlogCategory />} />
+          {/* clean SEO-friendly URLs */}
+          <Route path="/:categorySlug/:blogSlug" element={<BlogDetail />} />
           <Route path="/author/:authorId" element={<AuthorProfile />} />
 
           <Route
@@ -128,6 +125,8 @@ export default function App() {
           <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          {/* clean category URL: /drdo, /tgpsc, etc. — must be last before * */}
+          <Route path="/:categorySlug" element={<BlogCategory />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>

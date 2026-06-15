@@ -16,6 +16,12 @@ import { isDeadlineExpired } from "../utils/jobDeadline";
 
 const API_BASE = "https://www.careermitra.in/api";
 
+const catSlugify = (s = '') =>
+  String(s).toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 /* ─── SOCIAL LINKS ─────────────────────────────────────────────────────────── */
 const socials = [
   { Icon: FaLinkedin, href: "#", color: "hover:text-blue-600", label: "LinkedIn" },
@@ -29,7 +35,7 @@ const socials = [
 const navLinks = [
   { name: "HOME", path: "/", Icon: FaHome },
   { name: "ABOUT US", path: "/about-us", Icon: FaInfoCircle },
-  { name: " LATEST GOVT JOBS", path: "/jobs", Icon: FaInfoCircle },
+  { name: " Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   // { name: "INTERNSHIP GUIDE", path: "/internship-guide", Icon: FaInfoCircle },
   {
     name: "CAREER",
@@ -42,7 +48,8 @@ const navLinks = [
       // { name: "Skill Development", path: "/coming-soon" },
     ],
   },
-  { name: "BLOGS", path: "/blogs", Icon: FaBlog },
+  // { name: "BLOGS", path: "/blogs", Icon: FaBlog },
+  { name: "CATEGORIES", Icon: FaBlog, blogsDropdown: true },
   { name: "EVENTS", path: "/events", Icon: FaCalendarAlt },
   { name: "CONTACT US", path: "/contact-us", Icon: FaPhoneAlt },
   {
@@ -94,6 +101,17 @@ const normalizeProfilePayload = (payload) => {
   return { ...userData, education: flattenEducation(rawEducation), sports: sportsData };
 };
 
+/* helper: group category list A-Z */
+const groupAlpha = (cats) => {
+  const map = {};
+  [...cats].sort((a, b) => a.name.localeCompare(b.name)).forEach(cat => {
+    const l = (cat.name[0] || "#").toUpperCase();
+    if (!map[l]) map[l] = [];
+    map[l].push(cat);
+  });
+  return map;
+};
+
 /* ─── MAIN NAVBAR ──────────────────────────────────────────────────────────── */
 export default function Navbar() {
   const { user, token, logout } = useAuth();
@@ -106,6 +124,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [blogCategories, setBlogCategories] = useState([]);
 
   const dropdownRef = useRef();
 
@@ -136,6 +155,26 @@ export default function Navbar() {
     };
   }, []);
 
+  /* fetch blog categories once — primary category only to match page filtering */
+  useEffect(() => {
+    fetch("https://careermitra.in/api/blogs?page=1&limit=100")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.success) return;
+        const seen = new Set();
+        const cats = [];
+        for (const blog of data.data?.blogs || []) {
+          const primary = blog.categories?.[0];
+          if (primary && primary._id && !seen.has(primary._id)) {
+            seen.add(primary._id);
+            cats.push({ id: primary._id, name: primary.name, slug: catSlugify(primary.name) });
+          }
+        }
+        setBlogCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
   /* close drawer on route change */
   useEffect(() => setDrawerOpen(false), [location.pathname]);
 
@@ -161,8 +200,23 @@ export default function Navbar() {
   const isActive = (path) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
-  const visibleNavLinks = navLinks.filter(
-    (link) => link.name !== "JOBS" || !!token
+  const visibleNavLinks = useMemo(() =>
+    navLinks
+      .map((link) => {
+        if (!link.blogsDropdown) return link;
+        return {
+          ...link,
+          dropdown: blogCategories.length > 0
+            ? blogCategories.map((cat) => ({
+                name: cat.name,
+                path: `/${cat.slug}`,
+                state: { categoryName: cat.name, categoryId: cat.id },
+              }))
+            : [{ name: "Loading categories…", path: "/" }],
+        };
+      })
+      .filter((link) => link.name !== "JOBS" || !!token),
+    [blogCategories, token]
   );
 
   useEffect(() => {
@@ -313,7 +367,63 @@ export default function Navbar() {
                   );
                 }
 
-                // 🔹 DROPDOWN
+                // 🔹 CATEGORIES → hover dropdown with A-Z alphabet grouping
+                if (link.blogsDropdown) {
+                  const alphaMap = groupAlpha(blogCategories);
+                  const letters = Object.keys(alphaMap);
+                  return (
+                    <div
+                      key={link.name}
+                      className="relative"
+                      onMouseEnter={() => setOpenDropdown(link.name)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
+                      <button className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${scrolled ? "text-slate-200 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-slate-900 hover:bg-slate-50"}`}>
+                        {link.name}
+                        <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
+                      </button>
+
+                      <AnimatePresence>
+                        {openDropdown === link.name && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute left-0 top-10 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50"
+                          >
+                            {/* All Articles at top */}
+                            <Link
+                              to="/all-articles"
+                              className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition border-b border-orange-100"
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 13, height: 13 }}><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                              All Articles
+                            </Link>
+
+                            {/* Sorted list, scrollable */}
+                            <div className="max-h-96 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#f97316 #f3f4f6" }}>
+                              {blogCategories.length === 0 ? (
+                                <div className="px-5 py-4 text-sm text-slate-400">Loading…</div>
+                              ) : [...blogCategories].sort((a, b) => a.name.localeCompare(b.name)).map(cat => (
+                                <Link
+                                  key={cat.id}
+                                  to={`/${cat.slug}`}
+                                  state={{ categoryName: cat.name, categoryId: cat.id }}
+                                  className="block px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
+                                >
+                                  {cat.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
+
+                // 🔹 REGULAR DROPDOWN (e.g. CAREER)
                 return (
                   <div
                     key={link.name}
@@ -323,11 +433,7 @@ export default function Navbar() {
                   >
                     <button className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${scrolled ? "text-slate-200 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-slate-900 hover:bg-slate-50"}`}>
                       {link.name}
-                      <FaChevronDown
-                        className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""
-                          }`}
-                        size={12}
-                      />
+                      <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
                     </button>
 
                     <AnimatePresence>
@@ -339,15 +445,18 @@ export default function Navbar() {
                           transition={{ duration: 0.2 }}
                           className="absolute left-0 top-10 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50"
                         >
-                          {link.dropdown.map((item, i) => (
-                            <Link
-                              key={item.name}
-                              to={item.path}
-                              className="block px-5 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50 hover:text-slate-900 transition"
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                          <div className="max-h-100 overflow-y-auto">
+                            {link.dropdown.map((item) => (
+                              <Link
+                                key={item.name}
+                                to={item.path}
+                                state={item.state}
+                                className="block px-5 py-3 text-sm font-medium text-slate-800 hover:bg-orange-50 hover:text-orange-600 transition"
+                              >
+                                {item.name}
+                              </Link>
+                            ))}
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -645,6 +754,38 @@ export default function Navbar() {
                         );
                       }
 
+                      // CATEGORIES → A-Z inline list in drawer
+                      if (link.blogsDropdown) {
+                        const alphaMap = groupAlpha(blogCategories);
+                        const letters = Object.keys(alphaMap);
+                        return (
+                          <div key={link.name}>
+                            <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{link.name}</p>
+                            {/* All Articles */}
+                            <Link
+                              to="/all-articles"
+                              onClick={() => setDrawerOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all ml-2 mb-1"
+                            >
+                              All Articles
+                            </Link>
+                            {/* Sorted list */}
+                            {[...blogCategories].sort((a, b) => a.name.localeCompare(b.name)).map(cat => (
+                              <Link
+                                key={cat.id}
+                                to={`/${cat.slug}`}
+                                state={{ categoryName: cat.name, categoryId: cat.id }}
+                                onClick={() => setDrawerOpen(false)}
+                                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
+                                {cat.name}
+                              </Link>
+                            ))}
+                          </div>
+                        );
+                      }
+
                       return (
                         <div key={link.name}>
                           <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
@@ -654,6 +795,7 @@ export default function Navbar() {
                             <Link
                               key={item.name}
                               to={item.path}
+                              state={item.state}
                               onClick={() => setDrawerOpen(false)}
                               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
                             >

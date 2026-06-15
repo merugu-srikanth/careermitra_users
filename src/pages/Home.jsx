@@ -55,7 +55,7 @@ const topJobCategories = [
 
 export default function Home() {
   return (
-    <div style={{ overflow: "hidden", fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="py-20" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
 
       <SEO
         title="Career Mitra: Personalized Latest Govt Jobs Notifications & Career Guidance in India"

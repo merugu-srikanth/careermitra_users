@@ -128,7 +128,7 @@ const BlogAuthor = ({ author, views = 0, tagsCount = 0 }) => {
   const role = author?.role || 'Career Expert & Writer';
   const profileImage = author?.profile_image || author?.avatar_url || author?.avatar || null;
   // prefer _id for route; fall back to slug for legacy
-  const authorPath = author?._id ? `/author/${author._id}` : `/author/${slugify(name)}`;
+  const authorPath = `/author/${slugify(name)}`;
 
   return (
     <div className="ba-card">

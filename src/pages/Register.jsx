@@ -254,24 +254,62 @@ export default function Register() {
         
         {/* LEFT SIDE IMAGE */}
         <div className="hidden md:flex items-center justify-center p-8">
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
             <img
               src={loginImg}
               alt="Register illustration"
-              className="object-contain max-h-[400px] w-full rounded-3xl "
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/500x500?text=Register+Image";
-              }}
+              className="object-contain max-h-[420px] w-full rounded-3xl"
+              onError={(e) => { e.target.src = "https://via.placeholder.com/500x500?text=Register+Image"; }}
             />
+
+            {/* QR badge — overlaid bottom-right on image */}
+            <div className="absolute bg-blur bottom-4 right-4 bg-white rounded-2xl shadow-xl border border-orange-100 p-3 flex items-center gap-3 w-full" >
+              <div className="shrink-0 bg-orange-50  rounded-xl p-1.5 border border-orange-100">
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=72x72&data=https://careermitra.in/register&margin=4"
+                  alt="Scan QR to register"
+                  width={122}
+                  height={72}
+                  className="rounded-lg"
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl font-bold text-gray-800 mb-0.5">📱 Scan to Register</p>
+              
+
+                <p className="text- text-gray-400 leading-snug mb-1">Open your phone camera, scan this QR code and fill your registration instantly — no typing needed!
+</p>
+                {/* <p className="text-[10px] font-semibold text-orange-500 truncate">careermitra.in/register</p> */}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* RIGHT SIDE FORM */}
-        <div className="p-10 flex flex-col justify-center bg-white">
-          <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">Register</h2>
-          <p className="text-gray-500 text-center mb-6">
+        <div className="p-8 flex flex-col justify-center bg-white">
+          <h2 className="text-2xl font-bold text-center mb-1 text-gray-800">Register</h2>
+          <p className="text-gray-500 text-sm text-center mb-3">
             Create your account to get started
           </p>
+
+          {/* QR Code Card — mobile & tablet only */}
+          <div className="md:hidden flex items-center gap-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-2xl p-4 mb-5 shadow-sm">
+            <div className="shrink-0 bg-white rounded-xl p-1.5 shadow-sm border border-orange-100">
+              <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://careermitra.in/register&margin=4"
+                alt="Scan QR to register"
+                width={80}
+                height={80}
+                className="rounded-lg"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-800 mb-0.5">📱 Scan &amp; Register</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Scan QR with your phone to fill registration <span className="text-orange-500 font-semibold">instantly</span>!
+              </p>
+            </div>
+          </div>
 
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl text-sm">
@@ -283,7 +321,7 @@ export default function Register() {
           <input
             type="text"
             placeholder="Full Name"
-            className="w-full py-2 px-3 border rounded-xl mb-3 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
+            className="w-full py-1.5 px-3 text-sm border rounded-lg mb-2.5 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
             onChange={(e) => setName(e.target.value)}
             onKeyPress={handleKeyPress}
             value={name}
@@ -293,7 +331,7 @@ export default function Register() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full py-2 px-3 border rounded-xl mb-3 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
+            className="w-full py-1.5 px-3 text-sm border rounded-lg mb-2.5 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
             onChange={(e) => setEmail(e.target.value)}
             onKeyPress={handleKeyPress}
             value={email}
@@ -302,7 +340,7 @@ export default function Register() {
           <input
             type="number"
             placeholder="Phone Number"
-            className="w-full py-2 px-3 border rounded-xl mb-3 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
+            className="w-full py-1.5 px-3 text-sm border rounded-lg mb-2.5 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
             onChange={(e) => setPhone(e.target.value)}
             onKeyPress={handleKeyPress}
             value={phone}
@@ -314,7 +352,7 @@ export default function Register() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full py-2 px-3 pr-10 border rounded-xl focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
+              className="w-full py-1.5 px-3 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
               onChange={(e) => setPassword(e.target.value)}
               onKeyPress={handleKeyPress}
               value={password}
@@ -342,7 +380,7 @@ export default function Register() {
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
-              className="w-full py-2 px-3 pr-10 border rounded-xl focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
+              className="w-full py-1.5 px-3 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition"
               onChange={(e) => setConfirmPassword(e.target.value)}
               onKeyPress={handleKeyPress}
               value={confirmPassword}

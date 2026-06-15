@@ -85,7 +85,7 @@ const BD_STYLES = `
 .bd-content h3 { font-size:1.1rem;font-weight:600;color:#374151;margin:1.6rem 0 0.6rem;display:flex;align-items:center;gap:0.5rem; }
 .bd-content h3::before { content:'';display:inline-block;width:18px;height:3px;background:#f97316;border-radius:3px;flex-shrink:0; }
 .bd-content h4 { font-size:0.8rem;font-weight:700;color:#f97316;margin:1.4rem 0 0.4rem;text-transform:uppercase;letter-spacing:0.08em; }
-.bd-content strong,.bd-content b { font-weight:700;color:#111827;background:linear-gradient(120deg,rgba(249,115,22,0.12),rgba(249,115,22,0.05));padding:0 4px 1px;border-radius:4px; }
+.bd-content strong,.bd-content b { font-weight:700;color:#111827; }
 .bd-content em,.bd-content i { font-style:italic;color:#4b5563; }
 .bd-content ul { list-style:none;padding:0.75rem 1rem;margin:0.4rem 0 1.35rem;background:linear-gradient(135deg,#fff7ed,#f0fdf4);border-radius:12px;border:1px solid rgba(249,115,22,0.12); }
 .bd-content ul li { position:relative;padding:0.35rem 0 0.35rem 1.6rem;border-bottom:1px dashed rgba(249,115,22,0.15);font-size:0.97rem;color:#374151; }
@@ -250,6 +250,7 @@ const wrapTables = (html) =>
 
 /* fmtDate */
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
 
 /* Reading progress */
 const ReadingProgress = () => {
@@ -294,9 +295,16 @@ const slugify = (value = '') =>
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
+const getBlogPath = (b) => {
+  const cat = slugify(b?.categories?.[0]?.name || b?.category || 'general');
+  return `/${cat}/${b.slug}`;
+};
+
 /* ── Main Component ───────────────────────────────────────────────────────── */
 const BlogDetail = () => {
-  const { slug } = useParams();
+  // supports both /:categorySlug/:blogSlug (new) and /blog/:slug (legacy)
+  const { slug, blogSlug } = useParams();
+  const actualSlug = blogSlug || slug;
   const navigate = useNavigate();
 
   const [blog, setBlog] = useState(null);
@@ -312,13 +320,13 @@ const BlogDetail = () => {
 
   const typingRef = useRef(null);
 
-  useEffect(() => { fetchBlog(); fetchRecent(); window.scrollTo(0, 0); }, [slug]);
+  useEffect(() => { fetchBlog(); fetchRecent(); window.scrollTo(0, 0); }, [actualSlug]);
   useEffect(() => () => clearInterval(typingRef.current), []);
 
   const fetchBlog = async () => {
     setLoading(true); setError(null);
     try {
-      const r = await fetch(`https://careermitra.in/api/blogs/slug/${slug}`);
+      const r = await fetch(`https://careermitra.in/api/blogs/slug/${actualSlug}`);
       const d = await r.json();
       if (d.success) setBlog(d.data);
       else setError(d.message || 'Blog not found');
@@ -330,7 +338,7 @@ const BlogDetail = () => {
     try {
       const r = await fetch('https://careermitra.in/api/blogs?page=1&limit=6');
       const d = await r.json();
-      if (d.success) setRecentBlogs((d.data.blogs || []).filter(b => b.slug !== slug).slice(0, 4));
+      if (d.success) setRecentBlogs((d.data.blogs || []).filter(b => b.slug !== actualSlug).slice(0, 4));
     } catch { }
   };
 
@@ -401,7 +409,7 @@ const BlogDetail = () => {
         title={blog.meta_title || blog.title}
         description={blog.meta_description || blog.short_description}
         keywords={(blog.tags || []).join(', ')}
-        url={`https://www.careermitra.in/blog/${blog.slug}`}
+        url={`https://www.careermitra.in${getBlogPath(blog)}`}
         image={blog.featured_image}
         type="article"
         publishedAt={blog.published_at || blog.createdAt}
@@ -418,9 +426,9 @@ const BlogDetail = () => {
           <nav className="bd-crumb">
             <Link to="/">Home</Link>
             <ChevronRight />
-            <Link to="/blogs">Blog</Link>
+            <Link to={`/${slugify(primaryCategory)}`}>{primaryCategory}</Link>
             <ChevronRight />
-            <span style={{ color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{primaryCategory}</span>
+            <span style={{ color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{blog.title}</span>
           </nav>
 
           {/* 70/30 Layout */}
@@ -428,7 +436,7 @@ const BlogDetail = () => {
 
             {/* ── LEFT: Article ── */}
             <article className="bd-article">
-              <Link to="/blogs" className="bd-back"><ArrowLeft /> All Articles</Link>
+              <Link to={`/${slugify(primaryCategory)}`} className="bd-back"><ArrowLeft /> {primaryCategory}</Link>
 
               {/* Hero image */}
               <div className="bd-hero-img-wrap">
@@ -453,15 +461,51 @@ const BlogDetail = () => {
               {/* Meta */}
               <div className="bd-meta">
                 <div className="bd-meta-item author">
-                  <UserIcon />
-                  <Link to={`/author/${authorId || slugify(authorName)}`} style={{ color: '#111827', textDecoration: 'none' }}>
+                  {blog.author?.avatar_url ? (
+                    <img
+                      src={blog.author.avatar_url}
+                      alt={authorName}
+                      style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #fed7aa', flexShrink: 0 }}
+                      onError={e => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <span style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#f97316,#ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                      {getInitials(authorName)}
+                    </span>
+                  )}
+                  <Link to={`/author/${slugify(authorName)}`} style={{ color: '#111827', textDecoration: 'none' }}>
                     {authorName}
                   </Link>
                 </div>
-                {/* <div className="bd-meta-item"><CalIcon /> {fmtDate(blog.published_at || blog.createdAt)}</div> */}
-                {/* <div className="bd-meta-item"><EyeIcon /> {(blog.views || 0).toLocaleString()} views</div> */}
-                {/* <div className="bd-meta-item"><ClockIcon /> {readTime(blog.content)} min read</div> */}
+                <div className="bd-meta-item"><CalIcon /> {fmtDate(blog.createdAt || blog.created_at || blog.published_at)}</div>
+                <div className="bd-meta-item"><ClockIcon /> {fmtTime(blog.createdAt || blog.created_at || blog.published_at)}</div>
               </div>
+
+              {/* Primary category only — secondary categories are excluded to keep slug/breadcrumb consistent */}
+              {primaryCategory && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                  {[{ name: primaryCategory }].map((cat, i) => (
+                    <Link
+                      key={i}
+                      to={`/${slugify(cat.name)}`}
+                      state={{ categoryName: cat.name }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 5,
+                        fontSize: '0.78rem', fontWeight: 600,
+                        color: '#f97316', background: '#fff7ed',
+                        border: '1.5px solid rgba(249,115,22,0.25)',
+                        padding: '5px 14px', borderRadius: 100,
+                        textDecoration: 'none', transition: 'all 0.18s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#ffedd5'; e.currentTarget.style.borderColor = '#f97316'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#fff7ed'; e.currentTarget.style.borderColor = 'rgba(249,115,22,0.25)'; }}
+                    >
+                      <span style={{ width: 12, height: 12, display: 'flex', flexShrink: 0 }}><TagIcon /></span>
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
 
               {/* ── AI SUMMARY BUTTON ── */}
               <button className="bd-summary-btn" onClick={handleSummary}>
@@ -528,11 +572,11 @@ const BlogDetail = () => {
             <aside className="bd-sidebar">
 
               {/* Author card */}
-              <BlogAuthor
+              {/* <BlogAuthor
                 author={blog.author}
                 views={blog.views}
                 tagsCount={blog.tags?.length}
-              />
+              /> */}
 
               {/* Latest blogs */}
               {recentBlogs.length > 0 && (
@@ -540,7 +584,7 @@ const BlogDetail = () => {
                   <div className="bd-sidebar-head green"><FireIcon /> Latest Articles</div>
                   <div className="bd-sidebar-body">
                     {recentBlogs.map(post => (
-                      <Link key={post._id} to={`/blog/${post.slug}`} className="bd-related-item">
+                      <Link key={post._id} to={getBlogPath(post)} className="bd-related-item">
                         {post.featured_image
                           ? <img src={post.featured_image} alt={post.title} className="bd-related-img" onError={e => { e.target.style.display = 'none'; }} />
                           : <div className="bd-related-img-placeholder" />}
@@ -557,7 +601,7 @@ const BlogDetail = () => {
               {/* Tags cloud */}
               {blog.tags && blog.tags.length > 0 && (
                 <div className="bd-sidebar-card">
-                  <div className="bd-sidebar-head dark"><TagIcon /> Topics</div>
+                  <div className="bd-sidebar-head dark"><TagIcon /> Tabs</div>
                   <div className="bd-sidebar-tags">
                     {blog.tags.map((tag, i) => <span key={i} className="bd-sidebar-tag">#{tag}</span>)}
                   </div>
@@ -579,9 +623,8 @@ const BlogDetail = () => {
                 </div>
                 <div className="bd-sidebar-body">
                   {[
-                    { label: 'Total Views', val: (blog.views || 0).toLocaleString() },
                     { label: 'Read Time', val: `${readTime(blog.content)} min` },
-                    { label: 'Published', val: fmtDate(blog.published_at || blog.createdAt) },
+                    { label: 'Published', val: fmtDate(blog.createdAt || blog.created_at || blog.published_at) },
                     { label: 'Category', val: blog.category || 'General' },
                   ].map(({ label, val }) => (
                     <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f9fafb' }}>
