@@ -2,22 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/NewLogo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-icons/icon-512x512.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/pwa-icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/pwa-icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/pwa-icons/icon-144x144.png" />
+
+    <!-- PWA Theme -->
+    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="background-color" content="#ffffff" />
+
+    <!-- iOS PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CareerMitra" />
+
+    <!-- Windows tile -->
+    <meta name="msapplication-TileImage" content="/pwa-icons/icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#1e3a8a" />
+
+    <!-- SEO -->
     <title>Career Mitra – Govt Job Alerts 2026</title>
+    <meta name="description" content="Find the latest Government Jobs, Internships & Career Opportunities across India. Get real-time alerts and apply directly on CareerMitra." />
+    <meta name="application-name" content="CareerMitra" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <meta name="google-site-verification" content="ySgIg5NO1g78PM7IyyHFdlkbAQJo3lHDwmseEmsFJuQ" />
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-580RJ53PGL"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-580RJ53PGL');
-</script>
+    <!-- Google site verification -->
+    <meta name="google-site-verification" content="ySgIg5NO1g78PM7IyyHFdlkbAQJo3lHDwmseEmsFJuQ" />
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-580RJ53PGL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-580RJ53PGL');
+    </script>
   </head>
   <body>
     <div id="root"></div>

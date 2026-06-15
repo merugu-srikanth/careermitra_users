@@ -33,6 +33,7 @@ import AnnouncementDetail from "./pages/AnnouncementDetail";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import BlogCategory from "./pages/Blogs/BlogCategory";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 
 export default function App() {
   return (
@@ -132,6 +133,7 @@ export default function App() {
         </Routes>
         {/* <AIChatBot /> */}
         <Footer />
+        <PWAUpdatePrompt />
 
       </Router>
     </AuthProvider>

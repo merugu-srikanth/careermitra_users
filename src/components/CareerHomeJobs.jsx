@@ -823,7 +823,7 @@ export default function CareerHomeJobs() {
                 <div className="text-center">
                     <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                         <Link
-                            to="/jobs"
+                            to="/latest-job-notifications"
                             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-black rounded-full shadow-xl hover:shadow-2xl transition-all text-base group"
                         >
                             <span>View All Opportunities</span>
