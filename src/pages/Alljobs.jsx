@@ -192,7 +192,7 @@ function Pagination({ current, total, onChange }) {
 }
 
 // ── Table View Component ──────────────────────────────────────────────────────
-function TableView({ jobs, onApply, onViewNotification }) {
+function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="overflow-y-auto max-h-[70vh]">
@@ -229,9 +229,17 @@ function TableView({ jobs, onApply, onViewNotification }) {
                     </div>
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
-                    <div className="text-xs text-gray-600 whitespace-normal wrap-break-word leading-snug">
+                    <div className="text-xs text-gray-600 leading-snug" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {job.qualifications || "-"}
                     </div>
+                    {job.qualifications && job.qualifications.length > 120 && (
+                      <button
+                        onClick={() => onViewQual(job.qualifications)}
+                        className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors"
+                      >
+                        View More ↓
+                      </button>
+                    )}
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
                     <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 whitespace-normal wrap-break-word leading-snug">
@@ -328,6 +336,7 @@ export default function AllJobs() {
 
   const [search, setSearch] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [qualModal, setQualModal] = useState(null); // stores qualification text to show in modal
   const [sortBy, setSortBy] = useState("newest");
   const [jobType, setJobType] = useState("jobs");
   const [page, setPage] = useState(1);
@@ -634,7 +643,7 @@ export default function AllJobs() {
             ))}
           </div>
         ) : (
-          <TableView jobs={paginated} onApply={handleApply} onViewNotification={handleViewNotification} />
+          <TableView jobs={paginated} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} />
         )}
 
         {/* ── Pagination ───────────────────────────────────────────────────────── */}
@@ -646,6 +655,48 @@ export default function AllJobs() {
           </p>
         )}
       </div>
+
+      {/* ── Qualification Modal ── */}
+      {qualModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setQualModal(null)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+                  <svg width="14" height="14" fill="none" stroke="#f97316" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <h3 className="text-sm font-bold text-gray-800">Qualification Requirements</h3>
+              </div>
+              <button
+                onClick={() => setQualModal(null)}
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <XIcon />
+              </button>
+            </div>
+            {/* Body */}
+            <div className="overflow-y-auto px-5 py-4">
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{qualModal}</p>
+            </div>
+            {/* Footer */}
+            <div className="px-5 py-3 border-t border-gray-100">
+              <button
+                onClick={() => setQualModal(null)}
+                className="w-full py-2 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
