@@ -16,7 +16,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['NewLogo.png', 'favicon.svg', 'icons.svg'],
+      includeAssets: ['NewLogo.png', 'favicon.png', 'pwa-icons/*.png'],
       manifest: {
         name: 'CareerMitra – Govt Job Alerts 2026',
         short_name: 'CareerMitra',
@@ -30,6 +30,16 @@ export default defineConfig({
         lang: 'en-IN',
         categories: ['education', 'business', 'productivity'],
         icons: [
+          {
+            src: 'pwa-icons/icon-16x16.png',
+            sizes: '16x16',
+            type: 'image/png',
+          },
+          {
+            src: 'pwa-icons/icon-32x32.png',
+            sizes: '32x32',
+            type: 'image/png',
+          },
           {
             src: 'pwa-icons/icon-72x72.png',
             sizes: '72x72',
