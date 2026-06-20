@@ -33,27 +33,23 @@ const socials = [
 
 /* ─── NAV LINKS ────────────────────────────────────────────────────────────── */
 const navLinks = [
-  { name: "HOME", path: "/", Icon: FaHome },
-  { name: "ABOUT US", path: "/about-us", Icon: FaInfoCircle },
-  { name: " Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
-  // { name: "INTERNSHIP GUIDE", path: "/internship-guide", Icon: FaInfoCircle },
+  { name: "Home", path: "/", Icon: FaHome },
+  { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
+  { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
+  // { name: "Internship Guide", path: "/internship-guide", Icon: FaInfoCircle },
   {
-    name: "CAREER",
+    name: "Career",
     dropdown: [
       { name: "Career Overview", path: "/career-guide" },
-      { name: "Internship FAQ'S", path: "/internship-guide" },
-      // { name: "Career Tips", path: "/coming-soon" },
-      // { name: "Interview Preparation", path: "/coming-soon" },
-      // { name: "Career Counselling", path: "/coming-soon" },
-      // { name: "Skill Development", path: "/coming-soon" },
+      { name: "Internship FAQ's", path: "/internship-guide" },
     ],
   },
-  // { name: "BLOGS", path: "/blogs", Icon: FaBlog },
-  { name: "CATEGORIES", Icon: FaBlog, blogsDropdown: true },
-  { name: "EVENTS", path: "/events", Icon: FaCalendarAlt },
-  { name: "CONTACT US", path: "/contact-us", Icon: FaPhoneAlt },
+  // { name: "Articles", path: "/government-jobs", Icon: FaBlog },
+  { name: "Jobs 2026", Icon: FaBlog, blogsDropdown: true },
+  { name: "Events", path: "/events", Icon: FaCalendarAlt },
+  { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },
   {
-    name: "YOUTUBE",
+    name: "YouTube",
     path: "https://www.youtube.com/@CareerMitraaa",
     Icon: FaYoutube,
     iconOnly: true,
@@ -101,17 +97,6 @@ const normalizeProfilePayload = (payload) => {
   return { ...userData, education: flattenEducation(rawEducation), sports: sportsData };
 };
 
-/* helper: group category list A-Z */
-const groupAlpha = (cats) => {
-  const map = {};
-  [...cats].sort((a, b) => a.name.localeCompare(b.name)).forEach(cat => {
-    const l = (cat.name[0] || "#").toUpperCase();
-    if (!map[l]) map[l] = [];
-    map[l].push(cat);
-  });
-  return map;
-};
-
 /* ─── MAIN NAVBAR ──────────────────────────────────────────────────────────── */
 export default function Navbar() {
   const { user, token, logout } = useAuth();
@@ -125,6 +110,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [blogCategories, setBlogCategories] = useState([]);
+  const [hoveredParentId, setHoveredParentId] = useState(null);
+  const [openMobileParent, setOpenMobileParent] = useState(null);
 
   const dropdownRef = useRef();
 
@@ -155,21 +142,26 @@ export default function Navbar() {
     };
   }, []);
 
-  /* fetch blog categories once — primary category only to match page filtering */
+  /* fetch categories from /api/blogs/filters */
   useEffect(() => {
-    fetch("https://careermitra.in/api/blogs?page=1&limit=100")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.success) return;
-        const seen = new Set();
-        const cats = [];
-        for (const blog of data.data?.blogs || []) {
-          const primary = blog.categories?.[0];
-          if (primary && primary._id && !seen.has(primary._id)) {
-            seen.add(primary._id);
-            cats.push({ id: primary._id, name: primary.name, slug: catSlugify(primary.name) });
-          }
-        }
+    fetch("https://careermitra.in/api/blogs/filters")
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) throw new Error("failed");
+        const rawParents = data.data?.parents || [];
+        const rawChildren = data.data?.children || [];
+        const cats = rawParents
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(p => ({
+            id: p.id,
+            name: p.name,
+            slug: catSlugify(p.name),
+            parentId: null,
+            children: rawChildren
+              .filter(c => c.parent_id === p.id)
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(c => ({ id: c.id, name: c.name, slug: catSlugify(c.name), parentId: p.id })),
+          }));
         setBlogCategories(cats);
       })
       .catch(() => {});
@@ -201,23 +193,27 @@ export default function Navbar() {
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
   const visibleNavLinks = useMemo(() =>
-    navLinks
-      .map((link) => {
-        if (!link.blogsDropdown) return link;
-        return {
-          ...link,
-          dropdown: blogCategories.length > 0
-            ? blogCategories.map((cat) => ({
-                name: cat.name,
-                path: `/${cat.slug}`,
-                state: { categoryName: cat.name, categoryId: cat.id },
-              }))
-            : [{ name: "Loading categories…", path: "/" }],
-        };
-      })
-      .filter((link) => link.name !== "JOBS" || !!token),
-    [blogCategories, token]
+    navLinks.filter((link) => link.name !== "JOBS" || !!token),
+    [token]
   );
+
+  const categoryTree = useMemo(() => {
+    const parents = blogCategories.filter(c => !c.parentId);
+    const children = blogCategories.filter(c => c.parentId);
+    if (parents.length === 0) {
+      return [...blogCategories]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(c => ({ ...c, children: [] }));
+    }
+    return [...parents]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(parent => ({
+        ...parent,
+        children: children
+          .filter(c => c.parentId === parent.id)
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      }));
+  }, [blogCategories]);
 
   useEffect(() => {
     if (!token) {
@@ -342,7 +338,7 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center gap-1">
               {visibleNavLinks.map((link) => {
                 // 🔹 NORMAL LINK
-                if (!link.dropdown) {
+                if (!link.dropdown && !link.blogsDropdown) {
                   const active = isActive(link.path);
                   const isIconOnly = link.iconOnly;
                   return (
@@ -367,16 +363,16 @@ export default function Navbar() {
                   );
                 }
 
-                // 🔹 CATEGORIES → hover dropdown with A-Z alphabet grouping
+                // 🔹 CATEGORIES → Mega menu (parents left | children right)
                 if (link.blogsDropdown) {
-                  const alphaMap = groupAlpha(blogCategories);
-                  const letters = Object.keys(alphaMap);
+                  const hasMegaMenu = categoryTree.some(p => p.children?.length > 0);
+                  const activeParent = categoryTree.find(p => p.id === hoveredParentId);
                   return (
                     <div
                       key={link.name}
                       className="relative"
                       onMouseEnter={() => setOpenDropdown(link.name)}
-                      onMouseLeave={() => setOpenDropdown(null)}
+                      onMouseLeave={() => { setOpenDropdown(null); setHoveredParentId(null); }}
                     >
                       <button className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${scrolled ? "text-slate-200 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-slate-900 hover:bg-slate-50"}`}>
                         {link.name}
@@ -390,32 +386,96 @@ export default function Navbar() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute left-0 top-10 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50"
+                            className="absolute left-0 top-10 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden z-50"
+                            style={{ width: hasMegaMenu ? 540 : 280 }}
                           >
-                            {/* All Articles at top */}
+                            {/* All Government Jobs */}
                             <Link
-                              to="/all-articles"
+                              to="/government-jobs"
                               className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition border-b border-orange-100"
+                              onClick={() => setOpenDropdown(null)}
                             >
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 13, height: 13 }}><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-                              All Articles
+                              All Government Jobs
                             </Link>
 
-                            {/* Sorted list, scrollable */}
-                            <div className="max-h-96 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#f97316 #f3f4f6" }}>
-                              {blogCategories.length === 0 ? (
-                                <div className="px-5 py-4 text-sm text-slate-400">Loading…</div>
-                              ) : [...blogCategories].sort((a, b) => a.name.localeCompare(b.name)).map(cat => (
-                                <Link
-                                  key={cat.id}
-                                  to={`/${cat.slug}`}
-                                  state={{ categoryName: cat.name, categoryId: cat.id }}
-                                  className="block px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
-                                >
-                                  {cat.name}
-                                </Link>
-                              ))}
-                            </div>
+                            {hasMegaMenu ? (
+                              <div className="flex" style={{ minHeight: 260 }}>
+                                {/* Left panel — parent categories */}
+                                <div className="border-r border-slate-100 overflow-y-auto py-2" style={{ width: 200, maxHeight: 360, scrollbarWidth: "thin", scrollbarColor: "#f97316 #f3f4f6" }}>
+                                  {categoryTree.map(parent => (
+                                    <div
+                                      key={parent.id}
+                                      onMouseEnter={() => setHoveredParentId(parent.id)}
+                                      className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-all border-r-2 ${hoveredParentId === parent.id ? "bg-orange-50 border-orange-500" : "border-transparent hover:bg-slate-50"}`}
+                                    >
+                                      <Link
+                                        to={`/${parent.slug}`}
+                                        className={`flex-1 text-sm font-semibold truncate ${hoveredParentId === parent.id ? "text-orange-600" : "text-slate-700"}`}
+                                        onClick={() => setOpenDropdown(null)}
+                                      >
+                                        {parent.name}
+                                      </Link>
+                                      {parent.children?.length > 0 && (
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 11, height: 11, flexShrink: 0, marginLeft: 6, color: hoveredParentId === parent.id ? "#f97316" : "#cbd5e1" }}>
+                                          <polyline points="9 18 15 12 9 6" />
+                                        </svg>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Right panel — children of hovered parent */}
+                                <div className="flex-1 overflow-y-auto p-3" style={{ maxHeight: 360, scrollbarWidth: "thin", scrollbarColor: "#f97316 #f3f4f6" }}>
+                                  {activeParent ? (
+                                    activeParent.children?.length > 0 ? (
+                                      <>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 px-2 mb-2">{activeParent.name}</p>
+                                        <div className="grid grid-cols-2 gap-1">
+                                          {activeParent.children.map(child => (
+                                            <Link
+                                              key={child.id}
+                                              to={`/${parent.slug}/${child.slug}`}
+                                              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
+                                              onClick={() => setOpenDropdown(null)}
+                                            >
+                                              <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
+                                              {child.name}
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="flex items-center justify-center h-full text-slate-400 text-sm py-10">
+                                        No subcategories
+                                      </div>
+                                    )
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 py-10">
+                                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 32, height: 32, opacity: 0.35 }}>
+                                        <polyline points="9 18 15 12 9 6" />
+                                      </svg>
+                                      <p className="text-xs text-center">Hover a category<br/>to see subcategories</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="max-h-96 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#f97316 #f3f4f6" }}>
+                                {categoryTree.length === 0 ? (
+                                  <div className="px-5 py-4 text-sm text-slate-400">Loading…</div>
+                                ) : categoryTree.map(cat => (
+                                  <Link
+                                    key={cat.id}
+                                    to={`/${cat.slug}`}
+                                    className="block px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
+                                    onClick={() => setOpenDropdown(null)}
+                                  >
+                                    {cat.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -733,7 +793,7 @@ export default function Navbar() {
                   </p>
                   <nav className="space-y-0.5">
                     {visibleNavLinks.map((link) => {
-                      if (!link.dropdown) {
+                      if (!link.dropdown && !link.blogsDropdown) {
                         const active = isActive(link.path);
                         return (
                           <Link
@@ -754,34 +814,74 @@ export default function Navbar() {
                         );
                       }
 
-                      // CATEGORIES → A-Z inline list in drawer
+                      // CATEGORIES → accordion mega menu in mobile drawer
                       if (link.blogsDropdown) {
-                        const alphaMap = groupAlpha(blogCategories);
-                        const letters = Object.keys(alphaMap);
+                        const hasMegaMenu = categoryTree.some(p => p.children?.length > 0);
                         return (
                           <div key={link.name}>
                             <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{link.name}</p>
-                            {/* All Articles */}
                             <Link
-                              to="/all-articles"
+                              to="/government-jobs"
                               onClick={() => setDrawerOpen(false)}
                               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all ml-2 mb-1"
                             >
-                              All Articles
+                              All Government Jobs
                             </Link>
-                            {/* Sorted list */}
-                            {[...blogCategories].sort((a, b) => a.name.localeCompare(b.name)).map(cat => (
-                              <Link
-                                key={cat.id}
-                                to={`/${cat.slug}`}
-                                state={{ categoryName: cat.name, categoryId: cat.id }}
-                                onClick={() => setDrawerOpen(false)}
-                                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
-                                {cat.name}
-                              </Link>
-                            ))}
+
+                            {hasMegaMenu ? (
+                              categoryTree.map(parent => (
+                                <div key={parent.id}>
+                                  <div className="flex items-center ml-2">
+                                    <Link
+                                      to={`/${parent.slug}`}
+                                      onClick={() => setDrawerOpen(false)}
+                                      className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
+                                      {parent.name}
+                                    </Link>
+                                    {parent.children?.length > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setOpenMobileParent(prev => prev === parent.id ? null : parent.id)}
+                                        className="p-2 rounded-xl hover:bg-orange-50 transition-all"
+                                      >
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 12, height: 12, transition: "transform 0.2s", transform: openMobileParent === parent.id ? "rotate(180deg)" : "none" }}>
+                                          <polyline points="6 9 12 15 18 9" />
+                                        </svg>
+                                      </button>
+                                    )}
+                                  </div>
+                                  {openMobileParent === parent.id && parent.children?.length > 0 && (
+                                    <div className="ml-8 border-l-2 border-orange-100 pl-2 mt-0.5 mb-1">
+                                      {parent.children.map(child => (
+                                        <Link
+                                          key={child.id}
+                                          to={`/${parent.slug}/${child.slug}`}
+                                          onClick={() => setDrawerOpen(false)}
+                                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all"
+                                        >
+                                          <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
+                                          {child.name}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              categoryTree.map(cat => (
+                                <Link
+                                  key={cat.id}
+                                  to={`/${cat.slug}`}
+                                  onClick={() => setDrawerOpen(false)}
+                                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
+                                  {cat.name}
+                                </Link>
+                              ))
+                            )}
                           </div>
                         );
                       }

@@ -649,7 +649,7 @@ export default function CareerHomeJobs() {
                             const t = String(j?.category || "").toLowerCase();
                             return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
                         })
-                        .sort((a, b) => new Date(b.postedDateRaw || 0) - new Date(a.postedDateRaw || 0))
+                        .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
                         .slice(0, 8);
                     setJobs(mapped);
                 }

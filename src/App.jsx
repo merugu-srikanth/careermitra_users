@@ -16,6 +16,9 @@ import Userprofilepage from "./pages/Userprofilepage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BlogDetail from "./pages/Blogs/BlogDetail";
 import BlogList from "./pages/Blogs/BlogList";
+import ArticleList from "./pages/Articles/ArticleList";
+import ArticleDetail from "./pages/Articles/ArticleDetail";
+import TwoSegmentResolver from "./pages/Articles/TwoSegmentResolver";
 import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
 import Contact from "./pages/ContactPage";
@@ -82,15 +85,26 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          {/* /blogs route disabled — categories accessed directly via /:categorySlug */}
-          {/* <Route path="/blogs" element={<BlogList />} /> */}
-          <Route path="/all-articles" element={<BlogList />} />
-          {/* legacy URLs — kept for backward compat */}
-          <Route path="/blog/:slug" element={<BlogDetail />} />
+          {/* ── Articles (new system) ── */}
+          <Route path="/articles" element={<ArticleList />} />
+          <Route path="/articles/:parentSlug/:childSlug/:slug" element={<ArticleDetail />} />
+          <Route path="/articles/:parentSlug/:slug" element={<ArticleDetail />} />
+          <Route path="/articles/:slug" element={<ArticleDetail />} />
+
+          {/* ── Legacy blog routes ── */}
+          <Route path="/government-jobs" element={<BlogList />} />
           <Route path="/category/:categorySlug" element={<BlogCategory />} />
-          {/* clean SEO-friendly URLs */}
-          <Route path="/:categorySlug/:blogSlug" element={<BlogDetail />} />
           <Route path="/author/:authorId" element={<AuthorProfile />} />
+
+          {/* ── Block old /blog and /blogs paths (all depths) ── */}
+          <Route path="/blogs"         element={<Navigate to="/articles" replace />} />
+          <Route path="/blogs/:a"      element={<NotFoundPage />} />
+          <Route path="/blogs/:a/:b"   element={<NotFoundPage />} />
+          <Route path="/blogs/*"       element={<NotFoundPage />} />
+          <Route path="/blog"          element={<Navigate to="/articles" replace />} />
+          <Route path="/blog/:a"       element={<NotFoundPage />} />
+          <Route path="/blog/:a/:b"    element={<NotFoundPage />} />
+          <Route path="/blog/*"        element={<NotFoundPage />} />
 
           <Route
             path="/about-us"
@@ -126,8 +140,13 @@ export default function App() {
           <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          {/* clean category URL: /drdo, /tgpsc, etc. — must be last before * */}
-          <Route path="/:categorySlug" element={<BlogCategory />} />
+          {/* Clean URLs — must be last before * */}
+          {/* 3-segment: always an article under child category */}
+          <Route path="/:parentSlug/:childSlug/:articleSlug" element={<ArticleDetail />} />
+          {/* 2-segment: resolves to child category list OR article */}
+          <Route path="/:parentSlug/:slug" element={<TwoSegmentResolver />} />
+          {/* 1-segment: parent category listing */}
+          <Route path="/:parentSlug" element={<ArticleList />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>

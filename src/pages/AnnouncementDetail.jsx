@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
 
@@ -7,7 +7,6 @@ const ANNOUNCEMENT_API_BASE =
   import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
 const ANNOUNCEMENTS_API = `${ANNOUNCEMENT_API_BASE}/api/announcements`;
 
-const imageBase64Cache = new Map();
 
 const normalizeAnnouncement = (item) => ({
   id: item?.id || item?._id || "",
@@ -71,70 +70,78 @@ const Skeleton = () => (
 
 export default function AnnouncementDetail() {
   const { slug } = useParams();
+  const { state: navState } = useLocation(); // { id } passed from navigate()
   const navigate = useNavigate();
 
   const [announcement, setAnnouncement] = useState(null);
   const [latestAnnouncements, setLatestAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // If id was passed via router state, skip skeleton — fetch happens in background
+  const [loading, setLoading] = useState(!navState?.id);
   const [error, setError] = useState("");
-  const [resolvedImage, setResolvedImage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    const run = async () => {
+
+    const fetchById = async (id) => {
       try {
-        setLoading(true);
-        setError("");
-        const listRes = await axios.get(ANNOUNCEMENTS_API, { headers: { Accept: "application/json" } });
-        const list = Array.isArray(listRes?.data?.data)
-          ? listRes.data.data.map(normalizeAnnouncement)
-          : [];
-        if (!cancelled) {
-          setLatestAnnouncements(list.filter((i) => i.status === "active" && i.slug));
-        }
-        const matched = list.find((i) => i.slug === slug);
-        if (!matched?.id) {
-          if (!cancelled) { setError("Announcement not found."); setAnnouncement(null); }
-          return;
-        }
-        const detailRes = await axios.get(`${ANNOUNCEMENTS_API}/${matched.id}`, { headers: { Accept: "application/json" } });
-        const detail = normalizeAnnouncement(detailRes?.data?.data || {});
-        if (!cancelled) setAnnouncement(detail?.id ? detail : matched);
+        const res = await axios.get(`${ANNOUNCEMENTS_API}/${id}`, { headers: { Accept: "application/json" } });
+        const detail = normalizeAnnouncement(res?.data?.data || {});
+        if (!cancelled && detail?.id) setAnnouncement(detail);
       } catch (e) {
-        if (!cancelled) {
+        // only show error if we have no data at all
+        if (!cancelled && !announcement) {
           setError(e?.response?.data?.message || "Failed to load announcement.");
-          setAnnouncement(null);
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
+
+    const fetchListForSidebar = () => {
+      axios.get(ANNOUNCEMENTS_API, { headers: { Accept: "application/json" } })
+        .then(res => {
+          const list = Array.isArray(res?.data?.data)
+            ? res.data.data.map(normalizeAnnouncement)
+            : [];
+          if (!cancelled) setLatestAnnouncements(list.filter((i) => i.status === "active" && i.slug));
+        })
+        .catch(() => {});
+    };
+
+    const run = async () => {
+      setError("");
+
+      if (navState?.id) {
+        // Fast path: ID already known — fetch detail + sidebar in PARALLEL
+        fetchById(navState.id);
+        fetchListForSidebar();
+      } else {
+        // Slow path (direct URL): fetch list to resolve slug → id, sidebar comes free
+        try {
+          setLoading(true);
+          const listRes = await axios.get(ANNOUNCEMENTS_API, { headers: { Accept: "application/json" } });
+          const list = Array.isArray(listRes?.data?.data)
+            ? listRes.data.data.map(normalizeAnnouncement)
+            : [];
+          if (!cancelled) setLatestAnnouncements(list.filter((i) => i.status === "active" && i.slug));
+          const matched = list.find((i) => i.slug === slug);
+          if (!matched?.id) {
+            if (!cancelled) { setError("Announcement not found."); setLoading(false); }
+            return;
+          }
+          await fetchById(matched.id);
+        } catch (e) {
+          if (!cancelled) {
+            setError(e?.response?.data?.message || "Failed to load announcement.");
+            setLoading(false);
+          }
+        }
+      }
+    };
+
     run();
     return () => { cancelled = true; };
   }, [slug]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const convert = async () => {
-      const src = announcement?.image;
-      if (!src) { setResolvedImage(""); return; }
-      if (src.startsWith("data:")) { setResolvedImage(src); return; }
-      const cached = imageBase64Cache.get(src);
-      if (cached) { setResolvedImage(cached); return; }
-      try {
-        const blob = await (await fetch(src)).blob();
-        const b64 = await new Promise((res, rej) => {
-          const r = new FileReader();
-          r.onloadend = () => res(r.result || "");
-          r.onerror = rej;
-          r.readAsDataURL(blob);
-        });
-        if (!cancelled && typeof b64 === "string") { imageBase64Cache.set(src, b64); setResolvedImage(b64); }
-      } catch { if (!cancelled) setResolvedImage(src); }
-    };
-    convert();
-    return () => { cancelled = true; };
-  }, [announcement?.image]);
 
   const metaItems = useMemo(() => {
     if (!announcement) return [];
@@ -267,12 +274,13 @@ export default function AnnouncementDetail() {
             <div className="space-y-4 sm:space-y-5 min-w-0">
 
               {/* Image */}
-              {(resolvedImage || announcement.image) && (
+              {announcement.image && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <img
-                    src={resolvedImage || announcement.image}
+                    src={announcement.image}
                     alt={announcement.title}
                     className="w-full max-h-80 sm:max-h-105 lg:max-h-120 object-cover"
+                    onError={(e) => { e.target.style.display = "none"; }}
                   />
                 </div>
               )}

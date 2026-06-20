@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import SEO from '../../components/SEO';
 import BlogAuthor from '../../components/BlogAuthor';
+import blogFallback from '../../assets/blog-sample.png';
 
 /* ─── Styles ─────────────────────────────────────────────────────────────── */
 const BD_STYLES = `
@@ -311,6 +312,7 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [recentBlogs, setRecentBlogs] = useState([]);
+  const [parentCategory, setParentCategory] = useState(null); // { name, slug }
 
   // AI summary state
   const [summaryVisible, setSummaryVisible] = useState(false);
@@ -328,10 +330,45 @@ const BlogDetail = () => {
     try {
       const r = await fetch(`https://careermitra.in/api/blogs/slug/${actualSlug}`);
       const d = await r.json();
-      if (d.success) setBlog(d.data);
-      else setError(d.message || 'Blog not found');
+      if (d.success) {
+        setBlog(d.data);
+        resolveParentCategory(d.data);
+      } else setError(d.message || 'Article not found');
     } catch { setError('Network error. Please try again.'); }
     finally { setLoading(false); }
+  };
+
+  const resolveParentCategory = async (blogData) => {
+    const primaryCat = blogData?.categories?.[0];
+    if (!primaryCat) return;
+
+    // 1. Check if backend already populated parent info on the category object
+    if (primaryCat.parentName) {
+      setParentCategory({ name: primaryCat.parentName, slug: slugify(primaryCat.parentName) });
+      return;
+    }
+    if (primaryCat.parent?.name) {
+      setParentCategory({ name: primaryCat.parent.name, slug: slugify(primaryCat.parent.name) });
+      return;
+    }
+
+    // 2. Look for parent in the blog's own categories array
+    const parentId = primaryCat.parentId || primaryCat.parent_id;
+    if (parentId) {
+      const found = (blogData.categories || []).find(c => (c._id || c.id) === parentId);
+      if (found) {
+        setParentCategory({ name: found.name, slug: slugify(found.name) });
+        return;
+      }
+      // 3. Fetch from categories API as last resort
+      try {
+        const cr = await fetch('https://careermitra.in/api/categories');
+        const cd = await cr.json();
+        const all = cd.data || cd.categories || [];
+        const match = all.find(c => (c._id || c.id) === parentId);
+        if (match) setParentCategory({ name: match.name, slug: slugify(match.name) });
+      } catch { }
+    }
   };
 
   const fetchRecent = async () => {
@@ -394,8 +431,8 @@ const BlogDetail = () => {
   if (error || !blog) return (
     <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
       <div style={{ fontSize: '4rem', fontWeight: 800, color: '#f3f4f6', fontFamily: "'Playfair Display',serif" }}>404</div>
-      <p style={{  color: '#6b7280', marginBottom: 24 }}>{error || 'Blog not found'}</p>
-      <Link to="/blogs" style={{ background: '#f97316', color: '#fff', padding: '12px 24px', borderRadius: 12, textDecoration: 'none',  fontWeight: 600 }}>Back to Blogs</Link>
+      <p style={{  color: '#6b7280', marginBottom: 24 }}>{error || 'Article not found'}</p>
+      <Link to="/all-articles" style={{ background: '#f97316', color: '#fff', padding: '12px 24px', borderRadius: 12, textDecoration: 'none',  fontWeight: 600 }}>Back to Articles</Link>
     </div>
   );
 
@@ -422,9 +459,15 @@ const BlogDetail = () => {
       <div style={{ background: '#fff', minHeight: '100vh' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', paddingTop: 80 }}>
 
-          {/* Breadcrumb */}
+          {/* Breadcrumb: Home / Parent? / Primary / Title */}
           <nav className="bd-crumb">
             <Link to="/">Home</Link>
+            {parentCategory && (
+              <>
+                <ChevronRight />
+                <Link to={`/${parentCategory.slug}`}>{parentCategory.name}</Link>
+              </>
+            )}
             <ChevronRight />
             <Link to={`/${slugify(primaryCategory)}`}>{primaryCategory}</Link>
             <ChevronRight />
@@ -440,9 +483,9 @@ const BlogDetail = () => {
 
               {/* Hero image */}
               <div className="bd-hero-img-wrap">
-                <img src={blog.featured_image} alt={blog.image_alt_text || blog.title}
+                <img src={blog.featured_image || blogFallback} alt={blog.image_alt_text || blog.title}
                   className="bd-hero-img" loading="eager"
-                  onError={e => { e.target.parentNode.style.background = '#f9fafb'; e.target.style.display = 'none'; }} />
+                  onError={e => { e.target.onerror = null; e.target.src = blogFallback; }} />
                 {primaryCategory && <span className="bd-hero-cat">{primaryCategory}</span>}
               </div>
 
@@ -585,9 +628,12 @@ const BlogDetail = () => {
                   <div className="bd-sidebar-body">
                     {recentBlogs.map(post => (
                       <Link key={post._id} to={getBlogPath(post)} className="bd-related-item">
-                        {post.featured_image
-                          ? <img src={post.featured_image} alt={post.title} className="bd-related-img" onError={e => { e.target.style.display = 'none'; }} />
-                          : <div className="bd-related-img-placeholder" />}
+                        <img
+                          src={post.featured_image || blogFallback}
+                          alt={post.title}
+                          className="bd-related-img"
+                          onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
+                        />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div className="bd-related-title">{post.title}</div>
                           <div className="bd-related-date">{fmtDate(post.published_at || post.createdAt)}</div>

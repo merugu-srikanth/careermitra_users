@@ -161,19 +161,60 @@ function CompactAnnouncements({ list, loading }) {
                         <p className="text-xs text-slate-400 text-center py-6">No announcements yet</p>
                     ) : (
                         list.map((item) => (
-                            <button
+                            <div
                                 key={item.id || item.slug}
-                                type="button"
-                                onClick={() => item.slug && navigate(`/announcements/${item.slug}`)}
-                                className="w-full text-left px-4 py-2.5 hover:bg-violet-50/60 flex items-start gap-2.5 transition-colors"
+                                className="w-full px-4 py-2.5 hover:bg-violet-50/60 flex items-start gap-1.5 transition-colors"
                             >
-                                <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" style={{ background: "#7c3aed" }} />
+                                <span
+                                    className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
+                                    style={{ background: "#7c3aed" }}
+                                />
+
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-slate-700 leading-snug line-clamp-2">{item.title}</p>
-                                    {item.date && <p className="text-[10px] text-slate-400 mt-0.5">{fmtDate(item.date)}</p>}
+                                    {/* Title */}
+                                    <p className="text-xs font-semibold text-slate-700 leading-snug line-clamp-2">
+                                        {item.title}
+                                    </p>
+
+                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                        {/* Date */}
+                                        {item.date && (
+                                            <span className="text-[10px] text-slate-400">
+                                                {fmtDate(item.date)}
+                                            </span>
+                                        )}
+                                        {/* Apply Now */}
+                                        {item.url && (
+                                            <a
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="inline-flex items-center gap-1 text-[10px] font-bold text-white px-2 py-0.5 rounded-full"
+                                                style={{ background: "linear-gradient(90deg,#f97316,#ea580c)" }}
+                                            >
+                                                Apply Now
+                                                <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
-                                <FaArrowRight className="text-violet-300 text-[9px] shrink-0 mt-1" />
-                            </button>
+
+                                {/* Arrow — ONLY this navigates to detail page */}
+                                {item.slug && (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(`/announcements/${item.slug}`)}
+                                        className="shrink-0 mt-1 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                                        style={{ background: "#ede9fe" }}
+                                        aria-label={`View ${item.title}`}
+                                    >
+                                        <FaArrowRight className="text-violet-500" style={{ fontSize: 9 }} />
+                                    </button>
+                                )}
+                            </div>
                         ))
                     )}
                 </div>
@@ -321,26 +362,56 @@ function VerticalAnnouncements({ list, loading }) {
                         onMouseLeave={resume}
                     >
                         {[...list, ...list].map((item, idx) => (
-                            <button
+                            <div
                                 key={`${item.id || item.slug}-${idx}`}
-                                type="button"
-                                onClick={() => item.slug ? navigate(`/announcements/${item.slug}`) : null}
-                                className="group w-full text-left px-4 py-3 border-b border-slate-50 hover:bg-violet-50/60 transition-colors flex items-start gap-3"
+                                className="w-full px-4 py-2.5 border-b border-slate-50 hover:bg-violet-50/40 transition-colors flex items-start gap-2.5 group"
                             >
-                                <span className="w-2 h-2 rounded-full shrink-0 mt-1.5 group-hover:scale-125 transition-transform"
+                                <span className="w-2 h-2 rounded-full shrink-0 mt-1.5"
                                     style={{ background: "#7c3aed" }} />
+
+                                {/* Title + date */}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-slate-700 leading-snug line-clamp-2 group-hover:text-violet-700 transition-colors">
                                         {item.title}
                                     </p>
-                                    {item.date && (
-                                        <p className="text-[10px] text-slate-400 mt-1 font-medium">
-                                            {fmtDate(item.date)}
-                                        </p>
-                                    )}
+                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                        {item.date && (
+                                            <span className="text-[10px] text-slate-400 font-medium">
+                                                {fmtDate(item.date)}
+                                            </span>
+                                        )}
+                                        {/* Apply Now */}
+                                        {item.url && (
+                                            <a
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="inline-flex items-center gap-1 text-[10px] font-bold text-white px-2 py-0.5 rounded-full"
+                                                style={{ background: "linear-gradient(90deg,#f97316,#ea580c)" }}
+                                            >
+                                                Apply Now
+                                                <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
-                                <FaArrowRight className="text-violet-300 group-hover:text-violet-500 text-[10px] shrink-0 mt-1 transition-all group-hover:translate-x-0.5" />
-                            </button>
+
+                                {/* Arrow — only this navigates to detail page */}
+                                {item.slug && (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(`/announcements/${item.slug}`, { state: { id: item.id } })}
+                                        className="shrink-0 mt-1 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                                        style={{ background: "#ede9fe" }}
+                                        aria-label={`View ${item.title}`}
+                                    >
+                                        <FaArrowRight className="text-violet-500" style={{ fontSize: 9 }} />
+                                    </button>
+                                )}
+                            </div>
                         ))}
                     </div>
                 )}
@@ -448,6 +519,7 @@ export default function HeroFinalPage() {
                             id: a.id || a._id || "",
                             title: a.title || "Announcement",
                             slug: a.slug || "",
+                            url: a.url || null,
                             date: a.date || a.publishedAt || a.created_at || null,
                         }))
                 );

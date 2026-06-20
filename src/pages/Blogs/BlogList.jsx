@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../../components/SEO';
+import blogFallback from '../../assets/blog-sample.png';
 
 const BLOGLIST_STYLES = `
 
@@ -321,93 +322,35 @@ const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
   const [featured, setFeatured] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [inputVal, setInputVal] = useState('');
-  const [dynamicCategories, setDynamicCategories] = useState([]);
-  const sentinelRef = useRef(null);
-  const isLoadingMore = useRef(false);
 
-  const fetchBlogs = async (page = 1, search = '', append = false) => {
-    if (append) { setLoadingMore(true); }
-    else { setLoading(true); setError(null); }
+  const fetchBlogs = async (search = '') => {
+    setLoading(true); setError(null);
     try {
-      let url = `https://careermitra.in/api/blogs?page=${page}&limit=9`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
+      let url = 'https://careermitra.in/api/blogs';
+      if (search) url += `?search=${encodeURIComponent(search)}`;
       const res = await fetch(url);
       const data = await res.json();
-      if (data.success) {
-        const payload = data?.data || {};
-        const rawBlogs = Array.isArray(payload.blogs)
-          ? payload.blogs
-          : (Array.isArray(data?.blogs) ? data.blogs : []);
-        const allBlogs = rawBlogs.map(normalizeBlog);
-        const pagination = payload.pagination || { page: 1, totalPages: 1, total: 0 };
-        setTotalCount(pagination.total || 0);
-        setCurrentPage(page);
-        setHasMore(page < (pagination.totalPages || 1));
-        if (append) {
-          setBlogs(prev => [...prev, ...allBlogs]);
-        } else if (page === 1 && !search) {
-          setFeatured(allBlogs[0] || null);
-          setBlogs(allBlogs.slice(1));
-        } else {
-          setFeatured(null);
-          setBlogs(allBlogs);
-        }
-      } else { if (!append) setError(data.message || 'Failed to fetch blogs'); }
-    } catch { if (!append) setError('Network error. Please try again.'); }
-    finally { setLoading(false); setLoadingMore(false); isLoadingMore.current = false; }
+      const d = data.data || data;
+      const allBlogs = (d.articles || []).map(normalizeBlog);
+      setTotalCount(allBlogs.length);
+      if (!search) {
+        setFeatured(allBlogs[0] || null);
+        setBlogs(allBlogs.slice(1));
+      } else {
+        setFeatured(null);
+        setBlogs(allBlogs);
+      }
+    } catch { setError('Network error. Please try again.'); }
+    finally { setLoading(false); }
   };
 
-  const loadMore = useCallback(() => {
-    if (isLoadingMore.current || !hasMore || searchTerm || loading) return;
-    isLoadingMore.current = true;
-    fetchBlogs(currentPage + 1, '', true);
-  }, [currentPage, hasMore, searchTerm, loading]);
-
-  // Intersection Observer — trigger loadMore when sentinel enters viewport
+  // Refetch when search changes
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      entries => { if (entries[0].isIntersecting) loadMore(); },
-      { rootMargin: '300px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [loadMore]);
-
-  // Extract real category names from a broader batch on mount
-  useEffect(() => {
-    fetch('https://careermitra.in/api/blogs?page=1&limit=50')
-      .then(r => r.json())
-      .then(data => {
-        if (!data.success) return;
-        const rawBlogs = data.data?.blogs || data.blogs || [];
-        const seen = new Set();
-        const cats = [];
-        rawBlogs.forEach(blog => {
-          const primary = blog.categories?.[0];
-          if (primary?.name && !seen.has(primary.name)) {
-            seen.add(primary.name);
-            cats.push(primary.name);
-          }
-        });
-        setDynamicCategories(cats);
-      })
-      .catch(() => {});
-  }, []);
-
-  // Reset + refetch when search changes
-  useEffect(() => {
-    setHasMore(true);
-    setCurrentPage(1);
-    fetchBlogs(1, searchTerm);
+    fetchBlogs(searchTerm);
   }, [searchTerm]);
 
   const handleSearch = (e) => { e.preventDefault(); setSearchTerm(inputVal); };
@@ -415,12 +358,12 @@ const BlogList = () => {
   return (
     <>
       <SEO
-        title="Blog | Career Mitra — Govt Jobs, Career Guides & More"
+        title="Articles | Career Mitra — Govt Jobs, Career Guides & More"
         description="Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra."
         keywords="govt jobs 2026, career guide, exam tips, sarkari naukri, government jobs"
-        url="https://www.careermitra.in/blogs"
+        url="https://www.careermitra.in/government-jobs"
         type="website"
-        image="https://www.careermitra.in/og-blog.png"
+        image="https://www.careermitra.in/og-articles.png"
       />
       <div style={{ background: '#fff' }}>
         <div className="bl-container">
@@ -451,10 +394,10 @@ const BlogList = () => {
               <div className="bl-featured">
                 <div className="bl-featured-img-wrap">
                   <img
-                    src={featured.featured_image}
+                    src={featured.featured_image || blogFallback}
                     alt={featured.image_alt_text || featured.title}
                     className="bl-featured-img"
-                    onError={e => { e.target.style.background = '#f9fafb'; e.target.src = ''; }}
+                    onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
                   />
                   <div className="bl-featured-badge">
                     <svg viewBox="0 0 24 24" fill="currentColor" style={{width:11,height:11}}>
@@ -491,9 +434,9 @@ const BlogList = () => {
 
           {featured && !loading && <div style={{ height: 48 }} />}
 
-          {/* ── ALL ARTICLES HEADING ── */}
+          {/* ── All Government Jobs HEADING ── */}
           <div className="bl-section-head">
-            <h2>{searchTerm ? 'Search Results' : 'All Articles'}</h2>
+            <h2>{searchTerm ? 'Search Results' : 'All Government Jobs'}</h2>
             {!loading && totalCount > 0 && (
               <span>{totalCount} article{totalCount !== 1 ? 's' : ''}</span>
             )}
@@ -528,11 +471,11 @@ const BlogList = () => {
                   <article key={blog._id} className="bl-card">
                     <div className="bl-card-img-wrap">
                       <img
-                        src={blog.featured_image}
+                        src={blog.featured_image || blogFallback}
                         alt={blog.image_alt_text || blog.title}
                         className="bl-card-img"
                         loading="lazy"
-                        onError={e => { e.target.parentNode.style.background = '#f9fafb'; e.target.style.display = 'none'; }}
+                        onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
                       />
                       {blog.primaryCategory && <span className="bl-card-cat-badge">{blog.primaryCategory}</span>}
                     </div>
@@ -581,19 +524,6 @@ const BlogList = () => {
                 ))}
               </div>
 
-              {/* Infinite scroll sentinel */}
-              <div ref={sentinelRef} style={{ height: 1 }} />
-              {loadingMore && (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
-                  <div style={{ width: 36, height: 36, border: '3px solid #fed7aa', borderTopColor: '#f97316', borderRadius: '50%', animation: 'bl-spin 0.8s linear infinite' }} />
-                  <style>{`@keyframes bl-spin{to{transform:rotate(360deg)}}`}</style>
-                </div>
-              )}
-              {!hasMore && !searchTerm && (
-                <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem', padding: '24px 0 8px' }}>
-                  All articles loaded
-                </p>
-              )}
             </>
           )}
         </div>

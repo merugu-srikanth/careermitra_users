@@ -1,15 +1,36 @@
 import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import logo from "../assets/NewLogo.png";
 
+const toSlug = (name = "", apiSlug = "") =>
+  apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+
+function buildCategoryUrl(child, parents) {
+  const parent = parents.find(p => p.id === child.parent_id);
+  if (!parent) return "/articles";
+  return `/${toSlug(parent.name, parent.slug)}/${toSlug(child.name, child.slug)}`;
+}
+
 export default function Footer() {
+  const [cats, setCats] = useState({ parents: [], children: [] });
+
+  useEffect(() => {
+    fetch("https://careermitra.in/api/blogs/filters")
+      .then(r => r.json())
+      .then(data => {
+        const d = data.data || data;
+        setCats({ parents: d.parents || [], children: d.children || [] });
+      })
+      .catch(() => {});
+  }, []);
   const quickLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about-us" },
     { label: "Career Guide", to: "/career-guide" },
     { label: "Internship Guide", to: "/internship-guide" },
-    { label: "Blogs", to: "/blogs" },
+    { label: "Articles", to: "/government-jobs" },
     { label: "Contact", to: "/contact-us" },
     { label: "Terms of Service", to: "/terms-of-service" },
     { label: "Privacy Policy", to: "/privacy-policy" },
@@ -38,6 +59,28 @@ export default function Footer() {
       <div className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-green-500/10 blur-3xl" />
       <div className="h-1 w-full bg-linear-to-r from-orange-500 via-amber-400 to-green-500" />
+
+      {/* ── Popular Categories ── */}
+      {cats.children.length > 0 && (
+        <div className="border-b border-slate-800/70">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Popular Categories</h3>
+            <div className="h-0.5 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400 mb-6" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2.5">
+              {cats.children.map(child => (
+                <Link
+                  key={child.id}
+                  to={buildCategoryUrl(child, cats.parents)}
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-orange-300 transition-colors duration-200 truncate"
+                >
+                  <span className="w-1 h-1 rounded-full bg-orange-500 shrink-0" />
+                  {child.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:px-8">
         <div className="mb-8 rounded-2xl border border-orange-400/30 bg-linear-to-r from-orange-500/15 via-orange-400/10 to-green-500/15 p-5 shadow-lg shadow-black/20 sm:p-6">
@@ -150,7 +193,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-green-500/30"
                 style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
               >
-                <span className="absolute inset-0 translate-x-[-100%] bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-[100%]" />
+                <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                 <FaUserPlus size={14} />
                 Subscribe for Job Alerts
                 <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />

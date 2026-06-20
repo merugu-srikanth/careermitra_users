@@ -135,9 +135,9 @@ const AuthorProfile = () => {
 
       // If param is a slug (not a 24-char MongoDB hex ID), resolve to _id via blog data
       if (!isMongoId(authorId)) {
-        const blogsRes = await fetch("https://careermitra.in/api/blogs?page=1&limit=50");
+        const blogsRes = await fetch("https://careermitra.in/api/blogs");
         const blogsData = await blogsRes.json();
-        const blogs = blogsData.data?.blogs || [];
+        const blogs = blogsData.data?.articles || [];
         const match = blogs
           .map((b) => b.author)
           .filter(Boolean)
@@ -185,9 +185,9 @@ const AuthorProfile = () => {
   const fetchSuggested = async (assignedBlogs) => {
     try {
       const assignedIds = new Set(assignedBlogs.map((b) => b._id));
-      const res = await fetch("https://careermitra.in/api/blogs?page=1&limit=10");
+      const res = await fetch("https://careermitra.in/api/blogs");
       const data = await res.json();
-      const all = data?.data?.blogs || [];
+      const all = data?.data?.articles || [];
       setSuggestedBlogs(all.filter((b) => !assignedIds.has(b._id)).slice(0, 6));
     } catch {}
   };
