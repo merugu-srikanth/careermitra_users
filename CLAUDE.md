@@ -4,26 +4,49 @@
 > Frontend: React 19 + Vite + Tailwind CSS
 > Auth API: `https://careermitra.in/api/public/api`
 > Jobs API: `https://careermitra.in/api`
+> Articles API: `https://careermitra.in/api/articles`
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| UI Framework | React 19.2.4 |
-| Build Tool | Vite 8.0.1 |
-| Routing | React Router v7.14.0 |
-| Styling | Tailwind CSS 4.2.2 |
-| Animations | Framer Motion 12.38.0 |
-| HTTP Client | Axios 1.14.0 |
-| State Management | React Context API (no Redux) |
-| Notifications | React Toastify 11.0.5 |
-| Icons | React Icons 5.6.0, Lucide React 1.8.0 |
-| SEO | React Helmet Async 3.0.0 |
-| XSS Sanitization | DOMPurify 3.3.3 |
-| Charts/Maps | AMCharts 4 |
-| Confetti | React Confetti 6.4.0 |
+| Layer | Technology | Version |
+|---|---|---|
+| UI Framework | React | 19.2.4 |
+| Build Tool | Vite | 8.0.1 |
+| Routing | React Router | v7.14.0 |
+| Styling | Tailwind CSS | 4.2.2 |
+| Animations | Framer Motion | 12.38.0 |
+| HTTP Client | Axios | 1.14.0 |
+| State Management | React Context API (no Redux) | — |
+| Notifications | React Toastify | 11.0.5 |
+| Icons | React Icons + Lucide React | 5.6.0 / 1.8.0 |
+| SEO | React Helmet Async | 3.0.0 |
+| XSS Sanitization | DOMPurify | 3.3.3 |
+| Charts/Maps | AMCharts 4 | — |
+| Confetti | React Confetti | 6.4.0 |
+
+---
+
+## Global Context Providers
+
+App.jsx wraps everything in three context providers:
+
+```jsx
+<AuthProvider>        ← auth state (user, token, login/logout methods)
+  <JobProvider>       ← jobs data shared across pages
+    <BlogProvider>    ← blog/article categories shared across pages
+      ...
+    </BlogProvider>
+  </JobProvider>
+</AuthProvider>
+```
+
+| Context | File | Purpose |
+|---|---|---|
+| `AuthContext` | `src/context/AuthContext.jsx` | Global auth state — user, token, all auth methods |
+| `JobContext` | `src/context/JobContext.jsx` | Shared job listings state |
+| `BlogContext` | `src/context/BlogContext.jsx` | Shared blog/article categories state |
 
 ---
 
@@ -31,12 +54,13 @@
 
 ```
 sootradhara.in career enduser/
-├── public/                          # Static public assets
+├── public/                          # Static public assets (favicons, manifest)
 ├── src/
 │   ├── assets/                      # Images, logos, backgrounds
 │   │   ├── NewLogo.png
 │   │   ├── Careermitra-hero.webp
 │   │   ├── hero.png
+│   │   ├── blog-sample.png          # Fallback image for articles
 │   │   └── bg-images/
 │   │       ├── Login.webp
 │   │       ├── Login1.png
@@ -45,17 +69,20 @@ sootradhara.in career enduser/
 │   │   ├── AllJobCard.jsx           # Job card for grid display (AllJobs page)
 │   │   ├── Animate.jsx              # Animation wrapper
 │   │   ├── Animatedsection.jsx      # Scroll-triggered animated section
-│   │   ├── AIChatBot.jsx            # AI chatbot (currently commented out in App.jsx)
+│   │   ├── AIChatBot.jsx            # AI chatbot (commented out in App.jsx)
 │   │   ├── AuthLayout.jsx           # Auth pages layout wrapper
+│   │   ├── BlogAuthor.jsx           # Author card used in ArticleDetail
 │   │   ├── CareerHomeJobs.jsx       # Featured jobs on Home page (grid + table)
 │   │   ├── FloatingWhatsApp.jsx     # Floating WhatsApp contact button
 │   │   ├── Footer.jsx               # Site-wide footer
 │   │   ├── GovernmentHero.jsx       # Hero section for government jobs
 │   │   ├── GovernmentHeroMobile.jsx # Mobile variant of government hero
 │   │   ├── Hero.jsx                 # General hero section
+│   │   ├── HeroFinalPage.jsx        # Final hero page variant
 │   │   ├── Heropage.jsx             # Hero page variant
 │   │   ├── Heroleft.jsx             # Hero left panel
 │   │   ├── Herosection.jsx          # Hero section variant
+│   │   ├── HeroAnnouncementTicker.jsx # Scrolling ticker below Navbar (currently commented out)
 │   │   ├── IndiaMap.jsx             # Interactive India map (AMCharts)
 │   │   ├── Jobcard.jsx              # Job filter card component
 │   │   ├── Jobcategories.jsx        # Job category filter component
@@ -65,71 +92,106 @@ sootradhara.in career enduser/
 │   │   ├── Navbar.jsx               # Main navigation bar
 │   │   ├── NotFoundPage.jsx         # 404 error page
 │   │   ├── ProtectedRoute.jsx       # Auth guard — redirects to /login if no token
+│   │   ├── PWAUpdatePrompt.jsx      # PWA update banner (always rendered)
 │   │   ├── SEO.jsx                  # SEO head tags via react-helmet-async
 │   │   └── Studentcareersession.jsx # Student career guide section
 │   ├── context/
-│   │   └── AuthContext.jsx          # Global auth state (user, token, all auth methods)
+│   │   ├── AuthContext.jsx          # Global auth state (user, token, all auth methods)
+│   │   ├── JobContext.jsx           # Shared jobs state
+│   │   └── BlogContext.jsx          # Shared blog/article categories state
 │   ├── pages/
 │   │   ├── Home.jsx                 # Landing page
 │   │   ├── Login.jsx                # Login (password + OTP + forgot password)
 │   │   ├── Register.jsx             # User registration with OTP
 │   │   ├── RegisterVerify.jsx       # OTP verification for registration
 │   │   ├── ResetPassword.jsx        # Password reset via email link
-│   │   ├── Alljobs.jsx              # Full jobs listing with filters + pagination
+│   │   ├── Alljobs.jsx              # Jobs listing → route: /latest-job-notifications
 │   │   ├── Userprofilepage.jsx      # User dashboard (protected)
 │   │   ├── Userprofilefillingpage.jsx # Profile completion form (protected)
 │   │   ├── Profilre.jsx             # Profile management layout (protected)
+│   │   ├── Dashabord.jsx            # Dashboard component
 │   │   ├── AboutPage.jsx            # About us static page
 │   │   ├── ContactPage.jsx          # Contact us page
 │   │   ├── CareerGuide.jsx          # Career guide educational page
 │   │   ├── Internshipguide.jsx      # Internship guide educational page
 │   │   ├── InternshipTable.jsx      # Internship listings table
-│   │   ├── AuthorProfile.jsx        # Blog author profile page
+│   │   ├── EventsPage.jsx           # Events listing → route: /events
+│   │   ├── AnnouncementDetail.jsx   # Single announcement → route: /announcements/:slug
+│   │   ├── TermsOfService.jsx       # Terms of service → route: /terms-of-service
+│   │   ├── PrivacyPolicy.jsx        # Privacy policy → route: /privacy-policy
+│   │   ├── AuthorProfile.jsx        # Blog author profile → route: /author/:authorId
 │   │   ├── Staticjobs.js            # Static job data constants
 │   │   ├── Commingsoon/
-│   │   │   └── ComingSoon.jsx       # Coming soon placeholder page
-│   │   └── Blogs/
-│   │       ├── BlogList.jsx         # Blog listing page
-│   │       └── BlogDetail.jsx       # Individual blog post page
+│   │   │   └── ComingSoon.jsx       # Coming soon placeholder
+│   │   ├── Articles/                # NEW article system
+│   │   │   ├── ArticleList.jsx      # Articles listing → /articles + clean URLs
+│   │   │   ├── ArticleDetail.jsx    # Article detail → /articles/:slug + clean URLs
+│   │   │   └── TwoSegmentResolver.jsx # Resolves /:parent/:slug → category OR article
+│   │   └── Blogs/                   # Legacy blog system (backward compat only)
+│   │       ├── BlogList.jsx         # Blog listing → /government-jobs
+│   │       ├── BlogCategory.jsx     # Category listing → /category/:categorySlug
+│   │       └── BlogDetail.jsx       # Blog detail (old /blog/:slug now returns 404)
 │   ├── utils/
-│   │   └── jobDeadline.js           # Deadline calculation helpers
-│   ├── App.jsx                      # Root component — routing setup
+│   │   ├── jobDeadline.js           # Deadline calculation helpers
+│   │   └── profileCompletion.js     # Profile completion % + flattenEducation
+│   ├── App.jsx                      # Root component — routing + providers
 │   ├── App.css                      # Global CSS overrides
 │   ├── index.css                    # Tailwind base imports
 │   ├── main.jsx                     # React DOM entry point
-│   └── ScrollToTop.jsx              # Scrolls window to top on route change
+│   └── ScrollToTop.jsx              # Scrolls to top on route change
 ├── index.html                       # HTML entry point
-├── vite.config.js                   # Vite config (React plugin + Tailwind)
-├── package.json                     # Dependencies and scripts
-└── eslint.config.js                 # ESLint configuration
+├── vite.config.js                   # Vite config
+├── package.json
+└── eslint.config.js
 ```
 
 ---
 
 ## Routes & Pages
 
-### Public Routes (accessible without login)
+### Public Routes
 
 | Route | Component | Description |
 |---|---|---|
-| `/` | `Home.jsx` | Landing page with hero, featured jobs, career guides |
-| `/jobs` | `Alljobs.jsx` | Full job listings with search, filter, pagination |
-| `/login` | `Login.jsx` | Login page (password / OTP / forgot password) |
+| `/` | `Home.jsx` | Landing page |
+| `/latest-job-notifications` | `Alljobs.jsx` | Full job listings with filters + pagination |
+| `/login` | `Login.jsx` | Login (password / OTP / forgot password) |
 | `/register` | `Register.jsx` | Registration with OTP verification |
 | `/verify-otp` | `RegisterVerify.jsx` | OTP verification step |
 | `/reset-password` | `ResetPassword.jsx` | Password reset via email link |
-| `/blogs` | `BlogList.jsx` | Blog article listing |
-| `/blog/:slug` | `BlogDetail.jsx` | Individual blog post |
-| `/author/:authorId` | `AuthorProfile.jsx` | Blog author profile |
-| `/announcements/:slug` | `AnnouncementDetail.jsx` | Announcement detail page |
+| `/articles` | `ArticleList.jsx` | All articles with search/category filters |
+| `/articles/:slug` | `ArticleDetail.jsx` | Article detail — flat slug |
+| `/articles/:parentSlug/:slug` | `ArticleDetail.jsx` | Article detail — 2-level |
+| `/articles/:parentSlug/:childSlug/:slug` | `ArticleDetail.jsx` | Article detail — 3-level |
+| `/events` | `EventsPage.jsx` | Events listing |
+| `/announcements/:slug` | `AnnouncementDetail.jsx` | Single announcement detail |
 | `/about-us` | `AboutPage.jsx` | About page |
 | `/internship-guide` | `InternshipGuide.jsx` | Internship guide |
 | `/career-guide` | `CareerGuide.jsx` | Career guide |
 | `/contact-us` | `Contact.jsx` | Contact page |
+| `/terms-of-service` | `TermsOfService.jsx` | Terms of service |
+| `/privacy-policy` | `PrivacyPolicy.jsx` | Privacy policy |
 | `/coming-soon` | `ComingSoon.jsx` | Placeholder page |
-| `*` | `NotFoundPage.jsx` | 404 fallback |
+| `/author/:authorId` | `AuthorProfile.jsx` | Author profile |
 
-### Protected Routes (require auth token — wrapped in `ProtectedRoute`)
+### Clean URL Routes (must be declared last before `*`)
+
+| Route | Component | Notes |
+|---|---|---|
+| `/:parentSlug/:childSlug/:articleSlug` | `ArticleDetail.jsx` | 3-segment = always article |
+| `/:parentSlug/:slug` | `TwoSegmentResolver.jsx` | Resolves → category list OR article |
+| `/:parentSlug` | `ArticleList.jsx` | 1-segment = parent category listing |
+
+### Legacy Routes
+
+| Route | Component | Notes |
+|---|---|---|
+| `/government-jobs` | `BlogList.jsx` | Old blog list |
+| `/category/:categorySlug` | `BlogCategory.jsx` | Old category listing |
+| `/blogs`, `/blog` | redirect → `/articles` | |
+| `/blogs/:a`, `/blog/:a` etc. | `NotFoundPage.jsx` | Blocked |
+
+### Protected Routes
 
 | Route | Component | Description |
 |---|---|---|
@@ -139,368 +201,165 @@ sootradhara.in career enduser/
 
 ---
 
-## Authentication Architecture
+## Navbar (`src/components/Navbar.jsx`)
 
-### AuthContext (`src/context/AuthContext.jsx`)
+### Nav Links
 
-Central auth state provided via React Context. Wraps the entire app in `App.jsx`.
+| Label | Route/Behavior |
+|---|---|
+| Home | `/` |
+| About Us | `/about-us` |
+| Latest Job Notifications | `/latest-job-notifications` |
+| Career | Dropdown: Career Overview `/career-guide`, Internship FAQ's `/internship-guide` |
+| Jobs 2026 | `blogsDropdown: true` — mega menu with article categories from API |
+| Events | `/events` |
+| Contact Us | `/contact-us` |
+| YouTube | `https://www.youtube.com/@CareerMitraaa` (icon-only) |
 
-**State:**
+### Jobs 2026 Mega Menu
+
+- Source: `GET /api/blogs/filters` → `{ parents[], children[] }`
+- Desktop: two-panel — parents left, children right on hover
+- Mobile: accordion — parent `<Link>` navigates + chevron `<button>` toggles children
+- Parent links: `/articles?parent_category_id=<id>`
+- Child links: `/articles?child_category_id=<id>`
+
+### Profile Dropdown (logged in)
+
+- Shows: avatar, name, profile completion %, notification bell (new jobs count)
+- Links: `/user-dashboard`, logout button
+
+---
+
+## Articles System
+
+### ArticleList (`src/pages/Articles/ArticleList.jsx`)
+
+- Filter options from: `GET /api/articles/filters`
+- Single filter rule: only one of `search` / `parent_category_id` / `child_category_id` active
+- URL-driven filters via `useSearchParams` (shareable links)
+- `buildArticleUrl(article)` → canonical URL from `article.categoryTree[0]`
+- Uses `BlogContext` for shared category data
+
+### ArticleDetail (`src/pages/Articles/ArticleDetail.jsx`)
+
+Features:
+- Reading progress bar (fixed top, orange)
+- AI Summary with typewriter effect
+- Text-to-Speech (Web Speech API, en-IN)
+- Share bar (WhatsApp, Facebook, Telegram, Twitter, copy link)
+- Table of Contents from H2/H3 headings
+- Breadcrumb: `Home › Parent › Child › Title`
+- DOMPurify sanitized HTML content
+- Related articles sidebar
+- Author card (`BlogAuthor` component)
+- Tags → `/articles?search=<tag>`
+
+### TwoSegmentResolver (`src/pages/Articles/TwoSegmentResolver.jsx`)
+
+- Route: `/:parentSlug/:slug`
+- Checks `/api/blogs/filters` (5-min module-level cache)
+- If slug = child category → renders `<ArticleList />`
+- If slug ≠ any category → renders `<ArticleDetail />`
+
+### Article URL Builder
 
 ```js
-user    // current user object (null if not logged in)
-token   // JWT token from localStorage (null if not logged in)
-loading // boolean — true while any auth API call is in progress
-```
-
-**Methods exposed:**
-
-| Method | Description |
-|---|---|
-| `loginWithPassword(email, password)` | Password-based login → sets token + user |
-| `sendOtp(email)` | Send OTP to email for OTP login |
-| `verifyOtp(email, otp)` | Verify login OTP → sets token + user |
-| `register(data)` | Register new account → triggers OTP |
-| `verifyRegisterOtp(email, otp)` | Verify registration OTP |
-| `loginPendingRegisteredUser(email, pw)` | Auto-login after registration using stored credentials |
-| `forgotPassword(email)` | Send password reset email |
-| `resetPassword(data)` | Reset password with token from email |
-| `checkProfile(authToken)` | Check if user's profile is complete (returns boolean) |
-| `logout()` | Clear token + user state + localStorage |
-| `storePendingRegisterCredentials(email, pw)` | Save credentials to localStorage before OTP |
-| `getPendingRegisterCredentials()` | Read pending credentials from localStorage |
-| `clearPendingRegisterCredentials()` | Remove pending credentials from localStorage |
-
-**localStorage keys:**
-
-| Key | Purpose |
-|---|---|
-| `token` | JWT auth token (persists across sessions) |
-| `pendingRegisterCredentials` | Temp email+password during registration OTP flow |
-| `rememberedEmail` | Email remembered from login |
-| `registerEmail` | Email used during registration |
-
-### ProtectedRoute (`src/components/ProtectedRoute.jsx`)
-
-Simple auth guard. If `token` is null → redirects to `/login`. Used in `App.jsx` around protected pages.
-
-```jsx
-// Usage in App.jsx
-<Route path="/user-dashboard" element={
-  <ProtectedRoute>
-    <Userprofilepage />
-  </ProtectedRoute>
-} />
-```
-
----
-
-## Login Flow (step-by-step)
-
-```
-User visits /login
-    │
-    ├─ Password Login tab
-    │     Enter email + password
-    │     → loginWithPassword(email, password)
-    │     → token saved to localStorage
-    │     → checkProfile(token)
-    │           ├─ profile complete   → redirect /
-    │           └─ profile incomplete → redirect /user-profile-filling
-    │
-    └─ OTP Login tab
-          Enter email → sendOtp(email) → OTP sent
-          Enter 6-digit OTP → verifyOtp(email, otp)
-          → token saved to localStorage
-          → checkProfile(token)
-                ├─ complete   → redirect /
-                └─ incomplete → redirect /user-profile-filling
-
-  Forgot Password link
-      Enter email → forgotPassword(email) → reset link sent
-      User clicks email link → /reset-password?token=...
-      Enter new password → resetPassword(data) → redirect /login
-```
-
----
-
-## Registration Flow (step-by-step)
-
-```
-User visits /register
-    │
-    Fill form: name, email, phone, password, confirm password, job interest
-    → register(data)
-    → storePendingRegisterCredentials(email, password)
-    → OTP modal appears
-    │
-    Enter 6-digit OTP
-    → verifyRegisterOtp(email, otp)
-    → Success modal with confetti
-    → loginPendingRegisteredUser()  ← auto-login with stored credentials
-    → clearPendingRegisterCredentials()
-    → redirect / or /user-profile-filling
-```
-
----
-
-## Component Documentation
-
-### CareerHomeJobs (`src/components/CareerHomeJobs.jsx`)
-
-Displays the 8 latest government jobs on the Home page. Supports grid and table views.
-
-**Key feature — Auth-gated buttons:**
-- `Apply Now` and `View Notification` buttons are only visible when the user is **logged in**
-- When logged out, a single **"Login to Apply"** button is shown instead, linking to `/login`
-- This uses `token` from `useAuth()` → `isLoggedIn = !!token`
-
-**Sub-components:**
-
-| Component | Description |
-|---|---|
-| `JobGridCard` | Individual job card in grid view. Props: `job`, `onView`, `isLoggedIn` |
-| `JobTableRow` | Table row for each job. Props: `job`, `onView`, `idx`, `isLoggedIn` |
-| `JobModal` | Full-screen modal with job details and Apply Now. Props: `job`, `loading`, `onClose`, `isLoggedIn` |
-| `GridSkeleton` | Loading skeleton for grid card |
-| `TableRowSkeleton` | Loading skeleton for table row |
-| `Badge` | Job type badge (permanent / contract / temporary) |
-
-**State:**
-
-```js
-jobs          // Array of 8 latest jobs fetched from API
-loading       // true while fetching jobs list
-viewMode      // "grid" | "table"
-selectedJob   // job object loaded for the modal
-showModal     // boolean — modal visibility
-loadingSingle // true while fetching single job details
-```
-
-**Data fetch:**
-```
-GET https://careermitra.in/api/jobs?page=1&limit=8&sort=newest
-→ filters out internship jobs
-→ maps API fields to component fields
-→ sorts by newest postedDate
-→ slices to max 8
-```
-
-**API field mapping:**
-
-| API Field | Component Field |
-|---|---|
-| `_id` | `id` |
-| `title` | `title` |
-| `jobSource` | `org` |
-| `jobType` | `category` |
-| `numberOfPosts` | `noOfPosts` |
-| `ageRequirement` | `age` |
-| `qualifications` | `qualifications` |
-| `applyLink` | `applyLink` |
-| `notificationUrl / notificationURL / notification_url` | `notificationUrl` |
-| `postedDate` (split at T) | `postedDate` |
-| `applicationDeadline` (split at T) | `lastDate` |
-
-**Helper functions:**
-
-| Function | Description |
-|---|---|
-| `formatDateDDMMYYYY(value)` | Converts any date to DD/MM/YYYY string |
-| `getDaysLeftText(value)` | Returns "Expires in X days" / "Expires Today" / "Expired X days ago" |
-| `isDeadlineExpired(value)` | Returns true if deadline has passed |
-| `normalizeExternalUrl(value)` | Ensures URL starts with https:// |
-| `getIsNew(postedDate)` | Returns true if job posted within last 7 days |
-
----
-
-### Alljobs (`src/pages/Alljobs.jsx`)
-
-Full paginated job listing page with advanced filtering.
-
-**Features:**
-- Search by title, organization, qualification
-- Filter by category, age range, job type
-- Sort by newest / oldest deadline
-- Grid view and Table view toggle
-- 12 jobs per page with pagination + scroll-to-top
-- Shows total jobs count, total posts, organizations count, categories count
-
-**Auth behavior:**
-- `Apply` button: if user is **not logged in** → redirects to `/register`
-- If user is **logged in** → opens apply link directly
-
-**Data fetch:**
-```
-GET https://careermitra.in/api/jobs?page={page}&limit=12&sort={sort}
-```
-
----
-
-### Navbar (`src/components/Navbar.jsx`)
-
-Main navigation bar, present on all pages.
-
-**Navigation links:**
-- HOME → `/`
-- ABOUT US → `/about-us`
-- LATEST GOVT JOBS → `/jobs`
-- CAREER (dropdown) → Career Guide `/career-guide`, Internship Guide `/internship-guide`
-- BLOGS → `/blogs`
-- CONTACT US → `/contact-us`
-
-**Auth-aware behavior:**
-- Logged out → shows Login + Register links
-- Logged in → shows user profile dropdown with name, avatar, profile completion %, dashboard link, logout button
-- Notifications bell → shows count of new active jobs
-
-**Mobile:** Hamburger menu with drawer slide-in
-
----
-
-### ProtectedRoute (`src/components/ProtectedRoute.jsx`)
-
-```jsx
-// Checks token from useAuth()
-// No token → <Navigate to="/login" />
-// Has token → renders children
+buildArticleUrl(article):
+  tree = article.categoryTree[0]
+  → has parent + child  : /{parentSlug}/{childSlug}/{article.slug}
+  → has parent only     : /{parentSlug}/{article.slug}
+  → no tree             : /{article.slug}
 ```
 
 ---
 
 ## API Endpoints
 
-### Auth API (`https://careermitra.in/api/public/api`)
+### Auth (`https://careermitra.in/api/public/api`)
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| POST | `/user/login` | Password login → returns token |
+| POST | `/user/login` | Password login |
 | POST | `/login` | Send login OTP |
-| POST | `/verify-otp` | Verify login OTP → returns token |
-| POST | `/register` | Register new user → triggers OTP |
+| POST | `/verify-otp` | Verify login OTP → token |
+| POST | `/register` | Register new user |
 | POST | `/verify-register-otp` | Verify registration OTP |
-| POST | `/forgot-password` | Send password reset email |
-| POST | `/reset-password` | Reset password with token |
-| GET | `/profile` | Fetch user profile (Bearer token required) |
+| POST | `/forgot-password` | Send reset email |
+| POST | `/reset-password` | Reset with token |
+| GET | `/profile` | Get user profile (Bearer token) |
 
-### Jobs API (`https://careermitra.in/api`)
+### Jobs (`https://careermitra.in/api`)
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/jobs?page=1&limit=8&sort=newest` | Fetch latest 8 jobs (home page) |
-| GET | `/jobs?page={n}&limit=12&sort={s}` | Paginated jobs list (all jobs page) |
-| GET | `/jobs/{id}` | Single job details for modal |
+| GET | `/jobs?page=1&limit=8&sort=newest` | 8 latest jobs (home) |
+| GET | `/jobs?page={n}&limit=12&sort={s}` | Paginated jobs list |
+| GET | `/jobs/{id}` | Single job detail |
+
+### Articles (`https://careermitra.in/api`)
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/articles` | All articles |
+| GET | `/articles?parent_category_id=<id>` | Filter by parent category |
+| GET | `/articles?child_category_id=<id>` | Filter by child category |
+| GET | `/articles?search=<term>` | Search articles |
+| GET | `/articles/slug/:slug` | Article by slug |
+| GET | `/articles/filters` | Categories with published articles |
+| GET | `/blogs/filters` | Category tree for Navbar + resolver |
 
 ---
 
-## Application Flow (End-to-End)
+## Authentication Architecture
 
-```
-Browser loads app
-    │
-    └── main.jsx renders <App />
-            │
-            └── <AuthProvider>         ← reads token from localStorage on mount
-                    │
-                    └── <Router>
-                            │
-                            ├── <ScrollToTop />    ← resets scroll on route change
-                            ├── <Navbar />         ← always rendered, auth-aware
-                            │
-                            ├── <HeroAnnouncementTicker /> ← always rendered below the Navbar
-                            │
-                            ├── <Routes>
-                            │       ├── / → Home
-                            │       │     ├── Hero section
-                            │       │     ├── CareerHomeJobs  ← fetches 8 latest jobs
-                            │       │     │     ├── Logged IN  → shows Apply Now + View Notification
-                            │       │     │     └── Logged OUT → shows "Login to Apply"
-                            │       │     ├── Latestjobssection
-                            │       │     ├── Studentcareersession
-                            │       │     └── IndiaMap
-                            │       │
-                            │       ├── /jobs → AllJobs
-                            │       │     ├── Search + Filter bar
-                            │       │     ├── Grid/Table toggle
-                            │       │     ├── Job cards (12 per page)
-                            │       │     │     ├── Logged IN  → Apply button opens link
-                            │       │     │     └── Logged OUT → Apply redirects /register
-                            │       │     └── Pagination
-                            │       │
-                            │       ├── /login  → Login (password | OTP | forgot password)
-                            │       ├── /register → Register + OTP modal
-                            │       ├── /verify-otp → OTP verification
-                            │       ├── /reset-password → Reset password form
-                            │       │
-                            │       ├── /user-dashboard [Protected]
-                            │       ├── /user-profile-filling [Protected]
-                            │       ├── /UserProfile [Protected]
-                            │       │
-                            │       ├── /blogs → BlogList
-                            │       ├── /blog/:slug → BlogDetail
-                            │       ├── /author/:id → AuthorProfile
-                            │       ├── /announcements/:slug → AnnouncementDetail
-                            │       ├── /about-us, /contact-us, /career-guide, /internship-guide, /coming-soon
-                            │       └── * → NotFoundPage
-                            │
-                            └── <Footer />   ← always rendered
-```
+### AuthContext
+
+| State | Type | Description |
+|---|---|---|
+| `user` | object \| null | Current user |
+| `token` | string \| null | JWT from localStorage |
+| `loading` | boolean | Auth API in progress |
+
+| Method | Description |
+|---|---|
+| `loginWithPassword(email, password)` | Sets token + user |
+| `sendOtp(email)` | Sends OTP |
+| `verifyOtp(email, otp)` | Verifies → sets token |
+| `register(data)` | Registers → triggers OTP |
+| `verifyRegisterOtp(email, otp)` | Verifies registration OTP |
+| `loginPendingRegisteredUser(email, pw)` | Auto-login after register |
+| `forgotPassword(email)` | Sends reset email |
+| `resetPassword(data)` | Resets with token |
+| `checkProfile(authToken)` | Returns boolean — profile complete? |
+| `logout()` | Clears all state + localStorage |
+
+**localStorage keys:** `token`, `pendingRegisterCredentials`, `rememberedEmail`, `registerEmail`
 
 ---
 
 ## Auth-Gated Features
 
-The following UI elements are **only visible to logged-in users**:
+### CareerHomeJobs (Home page)
 
-### In CareerHomeJobs (Home page)
-
-| User State | Shown |
+| State | Shown |
 |---|---|
-| Logged IN | `View Notification` button + `Apply Now` button per job card |
-| Logged OUT | Single `Login to Apply` button (redirects to `/login`) |
+| Logged IN | `View Notification` + `Apply Now` per card |
+| Logged OUT | `Login to Apply` → `/login` |
 
-**Implementation:** `isLoggedIn = !!token` from `useAuth()`, passed as prop to `JobGridCard`, `JobTableRow`, and `JobModal`.
+### AllJobs page
 
-### In AllJobs page
-
-| User State | Behavior |
+| State | Behavior |
 |---|---|
-| Logged IN | `Apply` button opens job's apply link in new tab |
-| Logged OUT | `Apply` button redirects to `/register` |
+| Logged IN | Apply opens job link in new tab |
+| Logged OUT | Apply redirects to `/register` |
 
-### In Navbar
+### Navbar
 
-| User State | Shown |
+| State | Shown |
 |---|---|
-| Logged IN | User avatar, name, dashboard link, notification bell, logout |
+| Logged IN | Avatar, name, completion %, bell, dashboard, logout |
 | Logged OUT | Login link, Register link |
-
-### Protected Routes
-
-Entire pages behind `ProtectedRoute`:
-- `/user-dashboard` — User profile overview
-- `/user-profile-filling` — Profile completion form
-- `/UserProfile` — Full profile management
-
----
-
-## State Management Pattern
-
-No Redux. Uses:
-- **React Context API** (`AuthContext`) for global auth state
-- **`useState`** in each component for local UI state (modals, filters, pagination)
-- **`useEffect`** for API data fetching on mount
-- **`localStorage`** for token persistence across page refreshes
-
----
-
-## Utilities (`src/utils/jobDeadline.js`)
-
-| Function | Returns |
-|---|---|
-| `getDeadlineDayDifference(date)` | Number of days between today and deadline |
-| `isDeadlineExpired(date)` | `true` if deadline has passed |
-| `getDeadlineStatusText(date)` | Human-readable string: "Expires in X days" / "Expired X days ago" |
 
 ---
 
@@ -515,18 +374,45 @@ npm run lint     # Run ESLint
 
 ---
 
-## Important Notes for Development
+## Mobile App (Separate Project)
 
-1. **Auth token check:** Always use `const { token } = useAuth()` — never read `localStorage.getItem("token")` directly in components.
+Location: `d:\Sootradhara\CareerMitraApp\`
 
-2. **Apply Now / View Notification buttons** — must check `isLoggedIn = !!token` before rendering. Show "Login to Apply" (`Link to="/login"`) for unauthenticated users.
+| Detail | Value |
+|---|---|
+| Framework | Expo SDK 51 |
+| React Native | 0.74.5 |
+| WebView | react-native-webview 13.8.6 |
+| Package name | `com.careermitra.app` |
+| Entry | `App.js` → WebView → `https://careermitra.in/` |
+| EAS Project | `@srikanthmerugu/careermitra-app` |
+| APK (test) | `eas build -p android --profile preview` |
+| AAB (Play Store) | `eas build -p android --profile production` |
 
-3. **API base URLs are different** — auth uses `careermitra.in`, jobs use `careermitra.in`. Don't mix them.
+App features: orange progress bar, hardware back button, offline error + retry, custom user agent, `window.isCareerMitraApp = true` JS bridge, external links open in system browser.
 
-4. **ProtectedRoute** wraps only three pages. All other pages including `/jobs` are public — but individual action buttons inside are conditionally auth-gated.
+---
 
-5. **Internship jobs are filtered out** in `CareerHomeJobs.jsx` — jobs with `jobType` containing "intern" are excluded from the home page display.
+## Important Dev Rules
 
-6. **Profile completion check** — after login, `checkProfile(token)` determines if user goes to `/` (complete) or `/user-profile-filling` (incomplete).
+1. **Auth token:** Always `const { token } = useAuth()` — never `localStorage.getItem("token")` in components.
 
-7. **AIChatBot** — the component exists (`src/components/AIChatBot.jsx`) but is commented out in `App.jsx`. Uncomment `<AIChatBot />` to enable it.
+2. **Article URLs:** Always `buildArticleUrl(article)` from `article.categoryTree[0]` — never rebuild from `article.categories[]`.
+
+3. **Single filter rule:** In `ArticleList`, only one of `search` / `parent_category_id` / `child_category_id` active at once.
+
+4. **Navbar categories:** `GET /api/blogs/filters` — returns `{ parents[], children[] }` where children have `parent_id`.
+
+5. **No "blog" naming** in new code — use "article" everywhere in the Articles system.
+
+6. **Jobs route changed:** `/jobs` is now `/latest-job-notifications`.
+
+7. **Internship jobs filtered out** in `CareerHomeJobs.jsx` — `jobType` containing "intern" excluded from home page.
+
+8. **AIChatBot** — exists but commented out. Uncomment `<AIChatBot />` in `App.jsx` to enable.
+
+9. **HeroAnnouncementTicker** — exists but commented out. Uncomment `<HeroAnnouncementTicker />` in `App.jsx` to enable.
+
+10. **PWAUpdatePrompt** — always rendered in `App.jsx`, handles service worker updates automatically.
+
+11. **profileCompletion util** — `calculateProfileCompletion()` and `flattenEducation()` used in Navbar for the profile % badge.

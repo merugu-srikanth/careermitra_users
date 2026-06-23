@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Calendar, ExternalLink, Search, FileText, Building2, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useJobs } from "../context/JobContext";
 
 const JOBS_API = "https://careermitra.in/api/jobs";
 const ITEMS_PER_PAGE = 10;
@@ -265,54 +266,33 @@ const Pagination = ({ current, total, onChange }) => {
   );
 };
 
-/* ── Main Component ────────────────────────────────────────────────────── */
 const InternshipTable = () => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { allJobs, loading: contextLoading } = useJobs();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeType, setActiveType] = useState("internships");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        setLoading(true);
-        // Fetch page 1 to get total page count (API max limit = 100)
-        const firstRes = await fetch(`${JOBS_API}?page=1&limit=100&sort=newest`);
-        const firstResult = await firstRes.json();
-        if (!firstResult.success) return;
+  const loading = contextLoading;
 
-        const { jobs: firstJobs = [], pagination } = firstResult.data;
-        const totalPages = pagination?.totalPages ?? 1;
-
-        let allJobs = [...firstJobs];
-
-        // Fetch remaining pages in parallel if needed
-        if (totalPages > 1) {
-          const pageNums = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
-          const restResults = await Promise.all(
-            pageNums.map((p) =>
-              fetch(`${JOBS_API}?page=${p}&limit=100&sort=newest`).then((r) => r.json())
-            )
-          );
-          restResults.forEach((r) => {
-            if (r.success) allJobs = allJobs.concat(r.data?.jobs || []);
-          });
-        }
-
-        const filtered = allJobs
-          .filter((j) => j.job_type === "internship" || j.job_type === "skillup")
-          .map(normalizeJob);
-        setItems(filtered);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAll();
-  }, []);
+  const items = useMemo(() => {
+    if (contextLoading) return [];
+    return allJobs
+      .filter((j) => j.jobType === "internship" || j.jobType === "skillup")
+      .map((j) => ({
+        id: j.id,
+        title: j.title,
+        org: j.org || "-",
+        qualifications: j.qualifications || "-",
+        applyLink: j.applyLink || null,
+        notificationUrl: j.notificationUrl || null,
+        postedDate: j.postedDate || null,
+        deadline: j.lastDate || null,
+        age: j.age || "-",
+        posts: j.noOfPosts ?? "-",
+        type: j.jobType === "internship" ? "internships" : "skillups",
+      }));
+  }, [allJobs, contextLoading]);
 
   const typeFilteredItems = useMemo(
     () => items.filter((item) => item.type === activeType),

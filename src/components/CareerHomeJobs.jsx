@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { useJobs } from "../context/JobContext";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -291,7 +292,7 @@ const JobGridCard = ({ job }) => {
                     </div>
                     <div className="flex items-center justify-between">
                         <span className="text-gray-400">Qualification</span>
-                        <span className="font-medium text-right max-w-[60%] truncate">
+                        <span className="font-medium text-right max-w-[60%] truncate block" title={job.qualifications}>
                             {job.qualifications || "—"}
                         </span>
                     </div>
@@ -341,7 +342,7 @@ const JobGridCard = ({ job }) => {
                         View More
                     </motion.button> */}
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <motion.a
                             whileTap={{ scale: 0.97 }}
                             href={normalizeExternalUrl(job.notificationUrl) || "#"}
@@ -629,37 +630,24 @@ export default function CareerHomeJobs() {
     const { token } = useAuth();
     const isLoggedIn = !!token;
 
-    const [jobs, setJobs] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { allJobs, loading: contextLoading } = useJobs();
     const [viewMode, setViewMode] = useState("grid"); // "grid" | "table"
     const [selectedJob, setSelectedJob] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [loadingSingle, setLoadingSingle] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setLoading(true);
-                const res = await fetch("https://careermitra.in/api/jobs?page=1&limit=50&sort=newest");
-                const data = await res.json();
-                if (data.success) {
-                    const mapped = (data?.data?.jobs || [])
-                        .map(mapApiJob)
-                        .filter((j) => {
-                            const t = String(j?.category || "").toLowerCase();
-                            return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
-                        })
-                        .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
-                        .slice(0, 8);
-                    setJobs(mapped);
-                }
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
+    const loading = contextLoading;
+
+    const jobs = useMemo(() => {
+        if (contextLoading) return [];
+        return allJobs
+            .filter((j) => {
+                const t = String(j?.jobType || "").toLowerCase();
+                return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
+            })
+            .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
+            .slice(0, 8);
+    }, [allJobs, contextLoading]);
 
     const fetchJobDetails = async (id) => {
         setLoadingSingle(true);

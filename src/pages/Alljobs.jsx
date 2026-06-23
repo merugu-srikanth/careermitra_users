@@ -1,7 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import AllJobCard from "../components/AllJobCard";
 import SEO from "../components/SEO";
-import { getDeadlineStatusText, isDeadlineExpired } from "../utils/jobDeadline";
+import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "../utils/jobDeadline";
+import { useJobs } from "../context/JobContext";
+
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const SearchIcon = () => (
@@ -105,40 +107,9 @@ const normalizeExternalUrl = (value) => {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
-const pickFirst = (obj, keys, fallback = "") => {
-  for (const key of keys) {
-    const value = obj?.[key];
-    if (value !== undefined && value !== null && value !== "") return value;
-  }
-  return fallback;
-};
+// pickFirst and toDateOnly helper functions have been removed since mapping is handled in context
 
-const toDateOnly = (value) => {
-  if (!value || typeof value !== "string") return "";
-  return value.split("T")[0] || "";
-};
-
-const mapApiJob = (j) => {
-  const postedRaw = pickFirst(j, ["postedDate", "posted_date"]);
-  const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
-
-  return {
-    id: pickFirst(j, ["_id", "id"]),
-    jobType: pickFirst(j, ["job_type", "jobType"], "jobs"),
-    title: pickFirst(j, ["title"]),
-    org: pickFirst(j, ["jobSource", "source_name", "sourceName"]),
-    categoryId: String(pickFirst(j, ["category_id", "categoryId"], "")),
-    category: pickFirst(j, ["category_name", "categoryName"], "General"),
-    noOfPosts: pickFirst(j, ["numberOfPosts", "no_of_posts"], 0),
-    age: pickFirst(j, ["ageRequirement", "age"]),
-    location: "All India",
-    qualifications: pickFirst(j, ["qualifications"]),
-    applyLink: pickFirst(j, ["applyLink", "apply_link"]),
-    notificationUrl: pickFirst(j, ["notificationUrl", "notificationURL", "notification_url"]),
-    postedDate: toDateOnly(postedRaw),
-    lastDate: toDateOnly(deadlineRaw),
-  };
-};
+// mapApiJob helper has been removed since jobs are mapped via context
 
 // ── Pagination ─────────────────────────────────────────────────────────────────
 function Pagination({ current, total, onChange }) {
@@ -328,86 +299,129 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function AllJobs() {
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const { allJobs, loading: contextLoading, error: contextError } = useJobs();
 
   const [search, setSearch] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [qualModal, setQualModal] = useState(null); // stores qualification text to show in modal
+  const [statusFilter, setStatusFilter] = useState("active");
   const [sortBy, setSortBy] = useState("newest");
   const [jobType, setJobType] = useState("jobs");
   const [page, setPage] = useState(1);
-  const [categoryOptions, setCategoryOptions] = useState([]);
   const [viewMode, setViewMode] = useState(() => (
     typeof window !== "undefined" && window.innerWidth < 768 ? "grid" : "table"
   )); // "grid" or "table"
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const loading = contextLoading;
+  const error = contextError;
 
-        const params = new URLSearchParams();
-        params.set("page", String(page));
-        params.set("limit", String(ITEMS_PER_PAGE));
-        params.set("sort", sortBy || "newest");
-        if (search.trim()) params.set("search", search.trim());
-        if (jobType) params.set("job_type", jobType);
-        if (selectedCategoryId) params.set("category_id", selectedCategoryId);
+  const categoryOptions = useMemo(() => {
+    const fetchedCategories = [];
+    const seenCatIds = new Set();
+    allJobs.forEach((job) => {
+      if (!job.categoryId || seenCatIds.has(job.categoryId)) return;
+      seenCatIds.add(job.categoryId);
+      fetchedCategories.push({ id: job.categoryId, name: job.category || "General" });
+    });
+    return fetchedCategories.sort((a, b) => a.name.localeCompare(b.name));
+  }, [allJobs]);
 
-        const res = await fetch(`https://careermitra.in/api/jobs?${params}`);
-        const data = await res.json();
+  const filteredAndSortedJobs = useMemo(() => {
+    let result = [...allJobs];
 
-        if (data.success) {
-          const mappedJobs = (data?.data?.jobs || []).map(mapApiJob);
-          const fetchedCategories = [];
-          const seenCatIds = new Set();
-          mappedJobs.forEach((job) => {
-            if (!job.categoryId || seenCatIds.has(job.categoryId)) return;
-            seenCatIds.add(job.categoryId);
-            fetchedCategories.push({ id: job.categoryId, name: job.category || "General" });
-          });
-
-          setJobs(mappedJobs);
-          setCategoryOptions(fetchedCategories.sort((a, b) => a.name.localeCompare(b.name)));
-          setTotalPages(data?.data?.pagination?.totalPages || 1);
-          setTotalItems(data?.data?.pagination?.total || mappedJobs.length);
-        } else {
-          setJobs([]);
-          setTotalPages(1);
-          setTotalItems(0);
-          setError(data?.message || "Failed to load jobs");
+    // 1. Filter by jobType
+    if (jobType) {
+      result = result.filter((j) => {
+        const type = String(j.jobType || "").toLowerCase();
+        if (jobType === "jobs") {
+          return type !== "internship" && type !== "skillup" && type !== "skill_up";
+        } else if (jobType === "internship") {
+          return type === "internship" || type === "internships";
+        } else if (jobType === "skillup") {
+          return type === "skillup" || type === "skill up" || type === "skill_up";
         }
-      } catch (err) {
-        console.error("API Error:", err);
-        setJobs([]);
-        setTotalPages(1);
-        setTotalItems(0);
-        setError("Unable to load jobs right now.");
-      } finally {
-        setLoading(false);
-      }
-    };
+        return true;
+      });
+    }
 
-    fetchJobs();
-  }, [page, sortBy, search, jobType, selectedCategoryId]);
+    // 2. Filter by search query
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      result = result.filter(
+        (j) =>
+          String(j.title || "").toLowerCase().includes(q) ||
+          String(j.org || "").toLowerCase().includes(q) ||
+          String(j.qualifications || "").toLowerCase().includes(q)
+      );
+    }
 
-  const paginated = jobs;
+    // 3. Filter by category (State)
+    if (selectedCategoryId) {
+      result = result.filter((j) => String(j.categoryId) === String(selectedCategoryId));
+    }
+
+    // 4. Filter by status
+    if (statusFilter === "active") {
+      result = result.filter((j) => !isDeadlineExpired(j.lastDate));
+    } else if (statusFilter === "expired") {
+      result = result.filter((j) => isDeadlineExpired(j.lastDate));
+    } else if (statusFilter === "expiring_soon") {
+      result = result.filter((j) => {
+        if (isDeadlineExpired(j.lastDate)) return false;
+        const days = getDeadlineDayDifference(j.lastDate);
+        return days !== null && days >= 0 && days <= 7;
+      });
+    }
+
+    // 5. Sort
+    if (sortBy === "newest" || sortBy === "oldest") {
+      const asc = sortBy === "oldest";
+      result.sort((a, b) => {
+        const dateA = new Date(a.postedDateRaw || a.createdAt || 0);
+        const dateB = new Date(b.postedDateRaw || b.createdAt || 0);
+        return asc ? dateA - dateB : dateB - dateA;
+      });
+    } else if (sortBy === "deadline") {
+      result.sort((a, b) => {
+        if (!a.lastDate && !b.lastDate) return 0;
+        if (!a.lastDate) return 1;
+        if (!b.lastDate) return -1;
+        return new Date(a.lastDate) - new Date(b.lastDate);
+      });
+    }
+
+    return result;
+  }, [allJobs, jobType, search, selectedCategoryId, statusFilter, sortBy]);
+
+  // Total items matching filters
+  const totalItems = filteredAndSortedJobs.length;
+
+  // Total pages
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+  // Paginated subset
+  const paginated = useMemo(() => {
+    return filteredAndSortedJobs.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  }, [filteredAndSortedJobs, page]);
+
+  // Total Posts (vacancies sum of matching filtered items)
+  const totalPosts = useMemo(() => {
+    return filteredAndSortedJobs.reduce((s, j) => s + (Number(j.noOfPosts) || 0), 0);
+  }, [filteredAndSortedJobs]);
+
+  // Note: organisationsCount and the reset page useEffect are removed to resolve ESLint issues. Page resetting is handled in event handlers.
 
   const handlePageChange = (p) => {
     setPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const hasFilters = Boolean(search || selectedCategoryId || sortBy !== "newest" || jobType !== "jobs");
+  const hasFilters = Boolean(search || selectedCategoryId || statusFilter !== "active" || sortBy !== "newest" || jobType !== "jobs");
 
   const clearFilters = () => {
     setSearch("");
     setSelectedCategoryId("");
+    setStatusFilter("active");
     setSortBy("newest");
     setJobType("jobs");
     setPage(1);
@@ -426,10 +440,6 @@ export default function AllJobs() {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
   };
-
-  const totalPosts = jobs.reduce((s, j) => s + (j.noOfPosts || 0), 0);
-
-  const organisationsCount = useMemo(() => [...new Set(jobs.map((j) => j.org).filter(Boolean))].length, [jobs]);
 
   
 
@@ -554,7 +564,7 @@ export default function AllJobs() {
            
 
             {/* Category Dropdown */}
-            {/* <select
+            <select
               value={selectedCategoryId}
               onChange={(e) => { setSelectedCategoryId(e.target.value); setPage(1); }}
               className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
@@ -563,7 +573,19 @@ export default function AllJobs() {
               {categoryOptions.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
-            </select> */}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
+            >
+              <option value="active">Active Jobs</option>
+              <option value="expiring_soon">Expiring This Week</option>
+              <option value="expired">Expired Jobs</option>
+              <option value="all">All Jobs</option>
+            </select>
 
             {/* Sort */}
             <select
@@ -571,10 +593,11 @@ export default function AllJobs() {
               onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
               className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
             >
-              <option value="newest">Latest</option>
-              <option value="oldest">Oldest</option>
-              <option value="expired">Expired</option>
+              <option value="newest">Latest Posted</option>
+              <option value="oldest">Oldest Posted</option>
+              <option value="deadline">Closing Soonest</option>
             </select>
+
 
             {/* Clear */}
             {hasFilters && (

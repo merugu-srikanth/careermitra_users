@@ -112,6 +112,7 @@ export default function Navbar() {
   const [blogCategories, setBlogCategories] = useState([]);
   const [hoveredParentId, setHoveredParentId] = useState(null);
   const [openMobileParent, setOpenMobileParent] = useState(null);
+  const [isPWA, setIsPWA] = useState(false);
 
   const dropdownRef = useRef();
 
@@ -167,6 +168,12 @@ export default function Navbar() {
       .catch(() => {});
   }, []);
 
+  /* detect PWA standalone mode */
+  useEffect(() => {
+    const mq = window.matchMedia('(display-mode: standalone)');
+    setIsPWA(mq.matches || window.navigator.standalone === true || !!window.isCareerMitraApp);
+  }, []);
+
   /* close drawer on route change */
   useEffect(() => setDrawerOpen(false), [location.pathname]);
 
@@ -193,8 +200,12 @@ export default function Navbar() {
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
 
   const visibleNavLinks = useMemo(() =>
-    navLinks.filter((link) => link.name !== "JOBS" || !!token),
-    [token]
+    navLinks.filter((link) => {
+      if (link.name === "JOBS" && !token) return false;
+      if (link.blogsDropdown && isPWA) return false;
+      return true;
+    }),
+    [token, isPWA]
   );
 
   const categoryTree = useMemo(() => {
@@ -321,17 +332,47 @@ export default function Navbar() {
         <div className="h-0.5 w-full bg-linear-to-r from-orange-400 via-orange-500 to-green-500" />
 
         <div
-          className={` px-4 md:px-15 flex items-center justify-between transition-all duration-300 ${scrolled ? "h-17" : "h-20"
-            }`}
+          className={`px-4 md:px-15 flex items-center transition-all duration-300 ${scrolled ? "h-17" : "h-20"}`}
         >
-          {/* LOGO */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <img
-              src={Logo}
-              alt="Career Mitra"
-              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-14" : "h-20"
-                }`}
-            />          </Link>
+          {/* ── MOBILE ROW: hamburger | logo center | youtube ── */}
+          <div className="flex lg:hidden items-center w-full">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex-none flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
+              aria-label="Open menu"
+            >
+              <FaBars size={18} />
+            </button>
+            <div className="flex-1 flex justify-center">
+              <Link to="/" className="flex items-center">
+                <img
+                  src={Logo}
+                  alt="Career Mitra"
+                  className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12" : "h-14"}`}
+                />
+              </Link>
+            </div>
+            <a
+              href="https://www.youtube.com/@CareerMitraaa"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="CareerMitra YouTube Channel"
+              className="flex-none inline-flex items-center justify-center rounded-2xl border border-red-500/40 bg-red-600/10 p-2 text-red-400 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
+            >
+              <FaYoutube size={24} className="text-red-500" />
+            </a>
+          </div>
+
+          {/* ── DESKTOP ROW: logo | nav links + auth ── */}
+          <div className="hidden lg:flex items-center justify-between w-full">
+            {/* LOGO */}
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <img
+                src={Logo}
+                alt="Career Mitra"
+                className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-14" : "h-20"}`}
+              />
+            </Link>
 
           {/* DESKTOP LINKS */}
           <div className="hidden lg:flex items-center gap-1">
@@ -658,30 +699,7 @@ export default function Navbar() {
           </div>
 
 
-              <div className="flex items-center gap-4 lg:hidden">
-              <a
-                href="https://www.youtube.com/@CareerMitraaa"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="CareerMitra YouTube Channel"
-                className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-2 py-1 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
-              >
-                <FaYoutube size={28} className="shrink-0 text-red-500 group-hover:text-red-400" />
-                {/* <div className="flex flex-col leading-tight text-left">
-                  <span className="text-sm font-black text-white">CareerMitra</span>
-                  <span className="text-xs font-medium text-red-400">@CareerMitraaa</span>
-                </div> */}
-              </a>
-               <button
-            onClick={() => setDrawerOpen(true)}
-            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
-            aria-label="Open menu"
-          >
-            <FaBars size={18} />
-          </button>
-            </div>
-          {/* MOBILE HAMBURGER */}
-         
+          </div>
         </div>
 
         {/* bottom shadow line */}
@@ -706,12 +724,12 @@ export default function Navbar() {
             {/* DRAWER PANEL */}
             <motion.div
               key="drawer"
-              initial={{ x: "100%" }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-[82vw] max-w-85 z-70 lg:hidden flex flex-col"
-              style={{ background: "#ffffff", boxShadow: "-4px 0 32px rgba(0,0,0,0.12)" }}
+              className="fixed top-0 left-0 h-full w-[82vw] max-w-85 z-70 lg:hidden flex flex-col"
+              style={{ background: "#ffffff", boxShadow: "4px 0 32px rgba(0,0,0,0.12)" }}
             >
 
               {/* ── TOP HEADER ── */}

@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import SEO from "../../components/SEO";
 import blogFallback from "../../assets/blog-sample.png";
+import { useBlogs } from "../../context/BlogContext";
 
 const API_BASE = "https://careermitra.in/api";
 
@@ -130,17 +131,18 @@ export default function ArticleList() {
   const childSlugParam  = pathChild || pathSlug || searchParams.get("child") || "";
 
   const [search,     setSearch]     = useState(searchParams.get("search") || "");
-  const [articles,   setArticles]   = useState([]);
-  const [total,      setTotal]      = useState(0);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(null);
   const [filterData, setFilterData] = useState(null); // null = not yet loaded
 
   const debounceRef = useRef(null);
 
+  const { blogs: allArticles, loading: contextLoading, error: contextError } = useBlogs();
+
+  const loading = contextLoading;
+  const error = contextError;
+
   /* ── Load filter options once ── */
   useEffect(() => {
-    fetch(`${API_BASE}/blogs/filters`)
+    fetch("https://careermitra.in/api/blogs/filters")
       .then(r => r.json())
       .then(data => {
         const d = data.data || data;
@@ -153,35 +155,39 @@ export default function ArticleList() {
   const parentId = filterData ? (filterData.parents.find(p => toSlug(p.name, p.slug) === parentSlugParam)?.id || "") : "";
   const childId  = filterData ? (filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam)?.id || "") : "";
 
-  /* ── Fetch articles — waits for filterData ── */
-  useEffect(() => {
-    if (filterData === null) return;
-    setLoading(true);
-    setError(null);
+  const articles = useMemo(() => {
+    if (contextLoading || filterData === null) return [];
+    let list = [...allArticles];
 
-    const q = new URLSearchParams();
     if (childSlugParam) {
       const childCat = filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam);
-      if (childCat) q.set("child_category_id", childCat.id);
+      if (childCat) {
+        list = list.filter(a => a.primary_category?._id === childCat.id);
+      }
     } else if (parentSlugParam) {
       const parentCat = filterData.parents.find(p => toSlug(p.name, p.slug) === parentSlugParam);
-      if (parentCat) q.set("parent_category_id", parentCat.id);
+      if (parentCat) {
+        list = list.filter(a => {
+          const tree = a.categoryTree?.[0];
+          const pId = parentCat.id;
+          return tree?.parent?.id === pId || tree?.parent?._id === pId;
+        });
+      }
     } else {
       const s = searchParams.get("search");
-      if (s) q.set("search", s);
+      if (s) {
+        const q = s.toLowerCase().trim();
+        list = list.filter(
+          (a) =>
+            String(a.title || "").toLowerCase().includes(q) ||
+            String(a.short_description || "").toLowerCase().includes(q)
+        );
+      }
     }
+    return list;
+  }, [allArticles, parentSlugParam, childSlugParam, searchParams, filterData, contextLoading]);
 
-    fetch(`${API_BASE}/blogs?${q}`)
-      .then(r => r.json())
-      .then(data => {
-        const d = data.data || data;
-        const list = d.articles || [];
-        setArticles(list);
-        setTotal(d.total ?? list.length);
-      })
-      .catch(e => setError(e.message || "Failed to load articles"))
-      .finally(() => setLoading(false));
-  }, [parentSlugParam, childSlugParam, searchParams, filterData]);
+  const total = articles.length;
 
   /* ── Filter handlers ── */
   const apply = useCallback((key, value) => {

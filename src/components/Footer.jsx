@@ -71,10 +71,10 @@ export default function Footer() {
                 <Link
                   key={child.id}
                   to={buildCategoryUrl(child, cats.parents)}
-                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-orange-300 transition-colors duration-200 truncate"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-orange-300 transition-colors duration-200 whitespace-normal wrap-break-word"
                 >
                   <span className="w-1 h-1 rounded-full bg-orange-500 shrink-0" />
-                  {child.name}
+                  {child.name} Jobs
                 </Link>
               ))}
             </div>
@@ -200,12 +200,12 @@ Your one-stop gateway for government jobs and career guidance across India.     
               </Link>
 
               {/* account links */}
-              <div className="mt-4 flex flex-wrap items-center gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-2">
                 {accountLinks.map(({ label, to, Icon }) => (
                   <Link
                     key={to}
                     to={to}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-2 py-2.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300 text-center"
                   >
                     <Icon size={12} />
                     {label}

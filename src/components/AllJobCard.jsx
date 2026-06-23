@@ -90,7 +90,7 @@ export default function AllJobCard({ title, org, lastDate, postedDate, location,
 
           <div className="flex items-center justify-between">
             <span className="text-gray-400">Qualification</span>
-            <span className="font-medium text-right max-w-[60%] truncate">
+            <span className="font-medium text-right max-w-[60%] truncate block" title={qualifications}>
               {qualifications || "-"}
             </span>
           </div>
@@ -125,7 +125,7 @@ export default function AllJobCard({ title, org, lastDate, postedDate, location,
         <div className="flex-1 min-h-[18px]" />
 
         <div className="border-t border-gray-100 pt-2">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button
               onClick={handleNotification}
               disabled={isExpired || !notificationUrl}

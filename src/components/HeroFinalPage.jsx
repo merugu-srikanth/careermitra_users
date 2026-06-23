@@ -570,8 +570,8 @@ export default function HeroFinalPage() {
                 {/* ── Cards + Announcements ── */}
                 <div className="flex flex-col xl:flex-row gap-4 xl:gap-5 items-stretch w-full">
 
-                    {/* Cards — 2 col on mobile/tablet, 4 col on xl+ */}
-                    <div className="w-full xl:flex-1 grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
+                    {/* Cards — 2 col on mobile, 2 col on tablet, 4 col on xl+ */}
+                    <div className="w-full xl:flex-1 grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
                         {CARDS.map((card) => (
                             <FeatureCard key={card.id} card={card} />
                         ))}

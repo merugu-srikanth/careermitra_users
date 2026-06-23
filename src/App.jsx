@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./context/AuthContext";
+import { JobProvider } from "./context/JobContext";
+import { BlogProvider } from "./context/BlogContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { toast, ToastContainer } from "react-toastify";
@@ -41,9 +43,10 @@ import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 export default function App() {
   return (
     <AuthProvider>
-
-      <ToastContainer />
-      <Router>
+      <JobProvider>
+        <BlogProvider>
+          <ToastContainer />
+          <Router>
         <ScrollToTop />
         <Navbar />
         {/* <HeroAnnouncementTicker /> */}
@@ -155,6 +158,8 @@ export default function App() {
         <PWAUpdatePrompt />
 
       </Router>
+        </BlogProvider>
+      </JobProvider>
     </AuthProvider>
   );
 }

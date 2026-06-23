@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../../components/SEO';
 import blogFallback from '../../assets/blog-sample.png';
+import { useBlogs } from '../../context/BlogContext';
 
 const BLOGLIST_STYLES = `
 
@@ -319,39 +320,38 @@ const CardSkeleton = () => (
 );
 
 const BlogList = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [featured, setFeatured] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [totalCount, setTotalCount] = useState(0);
+  const { blogs: allBlogs, loading: contextLoading, error: contextError } = useBlogs();
   const [searchTerm, setSearchTerm] = useState('');
   const [inputVal, setInputVal] = useState('');
 
-  const fetchBlogs = async (search = '') => {
-    setLoading(true); setError(null);
-    try {
-      let url = 'https://careermitra.in/api/blogs';
-      if (search) url += `?search=${encodeURIComponent(search)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const d = data.data || data;
-      const allBlogs = (d.articles || []).map(normalizeBlog);
-      setTotalCount(allBlogs.length);
-      if (!search) {
-        setFeatured(allBlogs[0] || null);
-        setBlogs(allBlogs.slice(1));
-      } else {
-        setFeatured(null);
-        setBlogs(allBlogs);
-      }
-    } catch { setError('Network error. Please try again.'); }
-    finally { setLoading(false); }
-  };
+  const loading = contextLoading;
+  const error = contextError;
 
-  // Refetch when search changes
-  useEffect(() => {
-    fetchBlogs(searchTerm);
-  }, [searchTerm]);
+  const filteredBlogs = useMemo(() => {
+    if (contextLoading) return [];
+    let list = [...allBlogs];
+    if (searchTerm.trim()) {
+      const q = searchTerm.trim().toLowerCase();
+      list = list.filter(
+        (b) =>
+          String(b.title || "").toLowerCase().includes(q) ||
+          String(b.short_description || "").toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [allBlogs, searchTerm, contextLoading]);
+
+  const featured = useMemo(() => {
+    if (searchTerm.trim() || filteredBlogs.length === 0) return null;
+    return filteredBlogs[0];
+  }, [filteredBlogs, searchTerm]);
+
+  const blogs = useMemo(() => {
+    if (searchTerm.trim()) return filteredBlogs;
+    return filteredBlogs.slice(1);
+  }, [filteredBlogs, searchTerm]);
+
+  const totalCount = filteredBlogs.length;
 
   const handleSearch = (e) => { e.preventDefault(); setSearchTerm(inputVal); };
 
