@@ -382,7 +382,7 @@ const JobGridCard = ({ job }) => {
 
 // ─── Table Row ────────────────────────────────────────────────────────────────
 
-const JobTableRow = ({ job, onView, idx, isLoggedIn }) => {
+const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
     const isNew = getIsNew(job.postedDate);
     return (
     <motion.tr
@@ -406,6 +406,14 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn }) => {
         </td>
         <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
             <span className="text-gray-600 line-clamp-1 max-w-[140px] block">{job.qualifications || "—"}</span>
+            {job.qualifications && (
+                <button
+                    onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
+                    className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors block"
+                >
+                    View More ↓
+                </button>
+            )}
         </td>
         <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
             <span className="text-gray-500">{formatDateDDMMYYYY(job.postedDate)}</span>
@@ -424,30 +432,21 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn }) => {
                 >
                     View
                 </motion.button>
-                {isLoggedIn ? (
-                    <motion.a
-                        whileTap={{ scale: 0.95 }}
-                        href={normalizeExternalUrl(job.applyLink) || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${normalizeExternalUrl(job.applyLink)
-                            ? "bg-green-500 text-white hover:bg-green-600"
-                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            }`}
-                        onClick={(e) => {
-                            if (!normalizeExternalUrl(job.applyLink)) e.preventDefault();
-                        }}
-                    >
-                        Apply
-                    </motion.a>
-                ) : (
-                    <Link
-                        to="/login"
-                        className="px-3 py-1.5 text-xs font-bold bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors whitespace-nowrap"
-                    >
-                        Login to Apply
-                    </Link>
-                )}
+                <motion.a
+                    whileTap={{ scale: 0.95 }}
+                    href={normalizeExternalUrl(job.applyLink) || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${normalizeExternalUrl(job.applyLink)
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        }`}
+                    onClick={(e) => {
+                        if (!normalizeExternalUrl(job.applyLink)) e.preventDefault();
+                    }}
+                >
+                    Apply Now
+                </motion.a>
             </div>
         </td>
     </motion.tr>
@@ -591,31 +590,22 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                         View Notification
                                     </motion.a>
 
-                                    {isLoggedIn ? (
-                                        <motion.a
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            href={normalizeExternalUrl(job?.applyLink) || "#"}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
-                                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
-                                                : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                }`}
-                                            onClick={(e) => {
-                                                if (!normalizeExternalUrl(job?.applyLink)) e.preventDefault();
-                                            }}
-                                        >
-                                            Apply Now
-                                        </motion.a>
-                                    ) : (
-                                        <Link
-                                            to="/login"
-                                            className="flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
-                                        >
-                                            Login to Apply
-                                        </Link>
-                                    )}
+                                    <motion.a
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        href={normalizeExternalUrl(job?.applyLink) || "#"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
+                                            ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
+                                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                            }`}
+                                        onClick={(e) => {
+                                            if (!normalizeExternalUrl(job?.applyLink)) e.preventDefault();
+                                        }}
+                                    >
+                                        Apply Now
+                                    </motion.a>
                         </div>
                     </div>
                 </>
@@ -635,6 +625,7 @@ export default function CareerHomeJobs() {
     const [selectedJob, setSelectedJob] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [loadingSingle, setLoadingSingle] = useState(false);
+    const [qualModal, setQualModal] = useState(null);
 
     const loading = contextLoading;
 
@@ -794,6 +785,7 @@ export default function CareerHomeJobs() {
                                                     onView={fetchJobDetails}
                                                     idx={i}
                                                     isLoggedIn={isLoggedIn}
+                                                    onViewQual={setQualModal}
                                                 />
                                             ))}
                                     </tbody>
@@ -834,6 +826,48 @@ export default function CareerHomeJobs() {
                     />
                 )}
             </AnimatePresence>
+
+            {/* ── Qualification Modal ── */}
+            {qualModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setQualModal(null)}>
+                    <div
+                        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                            <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                                <h3 className="text-sm font-black uppercase tracking-wider">Qualification Requirements</h3>
+                            </div>
+                            <button
+                                onClick={() => setQualModal(null)}
+                                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white"
+                            >
+                                <CloseIcon />
+                            </button>
+                        </div>
+                        {/* Body */}
+                        <div className="overflow-y-auto px-6 py-5">
+                            <h4 className="text-base font-bold text-gray-900 mb-3">{qualModal.title}</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{qualModal.qualifications}</p>
+                        </div>
+                        {/* Footer */}
+                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                            <button
+                                onClick={() => setQualModal(null)}
+                                className="px-6 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 shadow-md hover:shadow-lg transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style>{`
         @keyframes blob {

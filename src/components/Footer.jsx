@@ -112,7 +112,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
-            <img src={logo} alt="CareerMitra Logo" className="h-20 w-auto sm:h-24" />
+             <img src={logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
             <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">
 Your one-stop gateway for government jobs and career guidance across India.            </p>
 
@@ -129,12 +129,12 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 href="https://www.youtube.com/@CareerMitraaa"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="CareerMitra YouTube Channel"
+                aria-label="Careermitra YouTube Channel"
                 className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-5 py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
               >
                 <FaYoutube size={28} className="shrink-0 text-red-500 group-hover:text-red-400" />
                 <div className="flex flex-col leading-tight text-left">
-                  <span className="text-sm font-black text-white">CareerMitra</span>
+                  <span className="text-sm font-black text-white">Careermitra</span>
                   <span className="text-xs font-medium text-red-400">@CareerMitraaa</span>
                 </div>
               </a>
@@ -219,7 +219,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
 
       <div className="relative border-t border-slate-800/90 bg-slate-950/80">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
-          <p>© {new Date().getFullYear()} CareerMitra. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Careermitra. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link to="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
             <span className="text-slate-700">·</span>

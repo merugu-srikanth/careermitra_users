@@ -370,7 +370,7 @@ export default function Home() {
                 Stay Updated With Every Government Job Notifications 2026
               </h2>
               <p className="md:max-w-4xl mx-auto mb-5" >
-                A missed job opportunity hurts more than a rejection. It turns into lasting regret for thousands of students everyday, simply due to late updates. With CareerMitra, get timely personalized job updates directly to your mobile/email.
+                A missed job opportunity hurts more than a rejection. It turns into lasting regret for thousands of students everyday, simply due to late updates. With Careermitra, get timely personalized job updates directly to your mobile/email.
               </p>
 
               {/* Stats row */}

@@ -192,9 +192,9 @@ export default function BlogCategory() {
   return (
     <>
       <SEO
-        title={`${categoryName || categorySlug} Articles — CareerMitra`}
-        description={`Read the latest ${categoryName} articles, guides, job alerts and career tips on CareerMitra — India's government jobs platform.`}
-        keywords={`${categoryName}, career articles, government jobs, CareerMitra, ${categoryName} articles, job alerts India`}
+        title={`${categoryName || categorySlug} Articles — Careermitra`}
+        description={`Read the latest ${categoryName} articles, guides, job alerts and career tips on Careermitra — India's government jobs platform.`}
+        keywords={`${categoryName}, career articles, government jobs, Careermitra, ${categoryName} articles, job alerts India`}
       />
 
       <div className="min-h-screen w-full bg-white pt-20 ">

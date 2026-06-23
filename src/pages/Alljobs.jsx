@@ -205,7 +205,7 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
                     </div>
                     {job.qualifications && job.qualifications.length > 120 && (
                       <button
-                        onClick={() => onViewQual(job.qualifications)}
+                        onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
                         className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors"
                       >
                         View More ↓
@@ -446,7 +446,7 @@ export default function AllJobs() {
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20">
       <SEO
-        title="Government Jobs 2026: Latest Govt Jobs Notifications in India | Career Mitra"
+        title="Government Jobs 2026: Latest Govt Jobs Notifications in India | Careermitra"
         description="Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India."
         keywords="government jobs 2026, latest govt jobs notifications, sarkari naukri 2026, free job alerts, govt job updates, central govt jobs, state govt jobs, latest recruitment notifications"
         url="https://www.careermitra.in/jobs"
@@ -706,7 +706,8 @@ export default function AllJobs() {
             </div>
             {/* Body */}
             <div className="overflow-y-auto px-5 py-4">
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{qualModal}</p>
+              <h4 className="text-sm font-bold text-slate-900 mb-3">{qualModal.title}</h4>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{qualModal.qualifications}</p>
             </div>
             {/* Footer */}
             <div className="px-5 py-3 border-t border-gray-100">
