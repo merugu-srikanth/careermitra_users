@@ -47,117 +47,94 @@ export default function App() {
         <BlogProvider>
           <ToastContainer />
           <Router>
-        <ScrollToTop />
-        <Navbar />
-        {/* <HeroAnnouncementTicker /> */}
+            <ScrollToTop />
+            <Navbar />
+            {/* <HeroAnnouncementTicker /> */}
 
-        <Routes>
-          <Route path="/" element={<Home />} />
+            <Routes>
+              {/* ── Active Routes ── */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route
+                path="/user-dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Userprofilepage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/latest-job-notifications"
+                element={<AllJobs />}
+              />
+              <Route
+                path="/user-profile-filling"
+                element={
+                  <ProtectedRoute>
+                    <Userprofilefillingpage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/government-jobs" element={<BlogList />} />
+              <Route path="/about-us" element={<AboutPage />} />
+              <Route path="/internship-guide" element={<InternshipGuide />} />
+              <Route path="/career-guide" element={<CareerGuide />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/contact-us" element={<Contact />} />
+              <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/user-dashboard"
-            element={
-              <ProtectedRoute>
-                <Userprofilepage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/latest-job-notifications"
-            element={<AllJobs />}
-          />
+              {/* Clean URLs — must be last before wildcard * */}
+              {/* 3-segment: always an article under child category */}
+              <Route path="/:parentSlug/:childSlug/:articleSlug" element={<ArticleDetail />} />
+              {/* 2-segment: resolves to child category list OR article */}
+              <Route path="/:parentSlug/:slug" element={<TwoSegmentResolver />} />
+              {/* 1-segment: parent category listing */}
+              <Route path="/:parentSlug" element={<ArticleList />} />
 
-          <Route
-            path="/user-profile-filling"
-            element={
-              <ProtectedRoute>
-                <Userprofilefillingpage />
-              </ProtectedRoute>
-            }
-          />
+              {/* ── Commented Out / Inactive Routes ── */}
+              {/*
+              <Route
+                path="/UserProfile"
+                element={
+                  <ProtectedRoute>
+                    <ProfileLayout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/articles" element={<ArticleList />} />
+              <Route path="/articles/:parentSlug/:childSlug/:slug" element={<ArticleDetail />} />
+              <Route path="/articles/:parentSlug/:slug" element={<ArticleDetail />} />
+              <Route path="/articles/:slug" element={<ArticleDetail />} />
+              <Route path="/category/:categorySlug" element={<BlogCategory />} />
+              <Route path="/author/:authorId" element={<AuthorProfile />} />
+              <Route
+                path="/coming-soon"
+                element={
+                  <ComingSoon />
+                }
+              />
+              <Route path="/blogs"         element={<Navigate to="/articles" replace />} />
+              <Route path="/blogs/:a"      element={<NotFoundPage />} />
+              <Route path="/blogs/:a/:b"   element={<NotFoundPage />} />
+              <Route path="/blogs/*"       element={<NotFoundPage />} />
+              <Route path="/blog"          element={<Navigate to="/articles" replace />} />
+              <Route path="/blog/:a"       element={<NotFoundPage />} />
+              <Route path="/blog/:a/:b"    element={<NotFoundPage />} />
+              <Route path="/blog/*"        element={<NotFoundPage />} />
+              */}
 
-          <Route
-            path="/UserProfile"
-            element={
-              <ProtectedRoute>
-                <ProfileLayout />
-              </ProtectedRoute>
-            }
-          />
-          {/* ── Articles (new system) ── */}
-          <Route path="/articles" element={<ArticleList />} />
-          <Route path="/articles/:parentSlug/:childSlug/:slug" element={<ArticleDetail />} />
-          <Route path="/articles/:parentSlug/:slug" element={<ArticleDetail />} />
-          <Route path="/articles/:slug" element={<ArticleDetail />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+            {/* <AIChatBot /> */}
+            <Footer />
+            <PWAUpdatePrompt />
 
-          {/* ── Legacy blog routes ── */}
-          <Route path="/government-jobs" element={<BlogList />} />
-          <Route path="/category/:categorySlug" element={<BlogCategory />} />
-          <Route path="/author/:authorId" element={<AuthorProfile />} />
-
-          {/* ── Block old /blog and /blogs paths (all depths) ── */}
-          <Route path="/blogs"         element={<Navigate to="/articles" replace />} />
-          <Route path="/blogs/:a"      element={<NotFoundPage />} />
-          <Route path="/blogs/:a/:b"   element={<NotFoundPage />} />
-          <Route path="/blogs/*"       element={<NotFoundPage />} />
-          <Route path="/blog"          element={<Navigate to="/articles" replace />} />
-          <Route path="/blog/:a"       element={<NotFoundPage />} />
-          <Route path="/blog/:a/:b"    element={<NotFoundPage />} />
-          <Route path="/blog/*"        element={<NotFoundPage />} />
-
-          <Route
-            path="/about-us"
-            element={
-              <AboutPage />
-            }
-          />
-          <Route
-            path="/internship-guide"
-            element={
-              <InternshipGuide />
-            }
-          />
-          <Route
-            path="/career-guide"
-            element={
-              <CareerGuide />
-            }
-          />
-          <Route path="/events" element={<EventsPage />} />
-          <Route
-            path="/contact-us"
-            element={
-              <Contact />
-            }
-          />
-          <Route
-            path="/coming-soon"
-            element={
-              <ComingSoon />
-            }
-          />
-          <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          {/* Clean URLs — must be last before * */}
-          {/* 3-segment: always an article under child category */}
-          <Route path="/:parentSlug/:childSlug/:articleSlug" element={<ArticleDetail />} />
-          {/* 2-segment: resolves to child category list OR article */}
-          <Route path="/:parentSlug/:slug" element={<TwoSegmentResolver />} />
-          {/* 1-segment: parent category listing */}
-          <Route path="/:parentSlug" element={<ArticleList />} />
-          <Route path="*" element={<NotFoundPage />} />
-
-        </Routes>
-        {/* <AIChatBot /> */}
-        <Footer />
-        <PWAUpdatePrompt />
-
-      </Router>
+          </Router>
         </BlogProvider>
       </JobProvider>
     </AuthProvider>
