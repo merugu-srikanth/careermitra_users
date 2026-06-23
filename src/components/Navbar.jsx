@@ -128,6 +128,20 @@ export default function Navbar() {
       .catch(console.error);
   }, [token]);
 
+  /* expose SPA navigate function for Expo/WebView app wrapper */
+  useEffect(() => {
+    window.__spaNavigate = (path) => {
+      try {
+        navigate(path);
+      } catch (err) {
+        console.error("SPA navigate failed:", err);
+      }
+    };
+    return () => {
+      delete window.__spaNavigate;
+    };
+  }, [navigate]);
+
   /* scroll + outside click */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
