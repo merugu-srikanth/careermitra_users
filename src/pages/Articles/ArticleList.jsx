@@ -3,6 +3,7 @@ import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom"
 import SEO from "../../components/SEO";
 import blogFallback from "../../assets/blog-sample.png";
 import { useBlogs } from "../../context/BlogContext";
+import NotFoundPage from "../../components/NotFoundPage";
 
 const API_BASE = "https://careermitra.in/api";
 
@@ -237,6 +238,15 @@ export default function ArticleList() {
     : activeParent?.name
     ? `${activeParent.name} Articles | CareerMitra`
     : "Articles | CareerMitra";
+
+  if (filterData) {
+    if (parentSlugParam && !parentId) {
+      return <NotFoundPage />;
+    }
+    if (childSlugParam && !childId) {
+      return <NotFoundPage />;
+    }
+  }
 
   return (
     <>
