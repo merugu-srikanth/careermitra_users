@@ -272,7 +272,7 @@ export default function ArticleList() {
               ) : (
                 <>
                   <span>›</span>
-                  <span className="text-orange-500 font-semibold">Articles</span>
+                  <span className="text-orange-500 font-semibold">Government Jobs</span>
                 </>
               )}
               {activeChild && (
@@ -283,7 +283,7 @@ export default function ArticleList() {
               )}
             </nav>
             <h1 className="text-3xl font-black text-gray-900 mb-1">
-              {activeChild?.name || activeParent?.name || "Articles"}
+              {activeChild?.name || activeParent?.name || "Government Jobs"}
             </h1>
             <p className="text-sm text-gray-400">
               {loading ? "Loading…" : `${total} article${total !== 1 ? "s" : ""}`}
@@ -309,7 +309,7 @@ export default function ArticleList() {
                 type="text"
                 value={search}
                 onChange={e => handleSearch(e.target.value)}
-                placeholder="Search articles…"
+                placeholder="Search Government Jobs…"
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white"
               />
             </div>
@@ -357,8 +357,8 @@ export default function ArticleList() {
           ) : articles.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-xl font-black text-gray-800 mb-2">No articles found</h3>
-              <p className="text-gray-400 text-sm mb-6">No articles found for your search.</p>
+              <h3 className="text-xl font-black text-gray-800 mb-2">No Government Jobs found</h3>
+              <p className="text-gray-400 text-sm mb-6">No Government Jobs found for your search.</p>
               <button onClick={clearAll} className="px-5 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
                 Clear Filters
               </button>
