@@ -200,10 +200,12 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
                     </div>
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
-                    <div className="text-xs text-gray-600 leading-snug" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {job.qualifications || "-"}
+                    <div className="text-xs text-gray-600 leading-snug">
+                      {job.qualifications && job.qualifications.length > 30
+                        ? `${job.qualifications.substring(0, 30)}...`
+                        : (job.qualifications || "-")}
                     </div>
-                    {job.qualifications && job.qualifications.length > 120 && (
+                    {job.qualifications && job.qualifications.length > 30 && (
                       <button
                         onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
                         className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors"

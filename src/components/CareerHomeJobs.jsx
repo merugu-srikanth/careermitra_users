@@ -405,8 +405,12 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
             {job.noOfPosts || "—"}
         </td>
         <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
-            <span className="text-gray-600 line-clamp-1 max-w-[140px] block">{job.qualifications || "—"}</span>
-            {job.qualifications && (
+            <span className="text-gray-600 max-w-[140px] block">
+                {job.qualifications && job.qualifications.length > 30
+                    ? `${job.qualifications.substring(0, 30)}...`
+                    : (job.qualifications || "—")}
+            </span>
+            {job.qualifications && job.qualifications.length > 30 && (
                 <button
                     onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
                     className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors block"
