@@ -13,11 +13,8 @@ const toSlug = (name = "", apiSlug = "") =>
 
 function buildArticleUrl(article) {
   const tree = article.categoryTree?.[0];
-  if (!tree) return `/news/${article.slug}`;
-  let parentSlug = toSlug(tree.parent?.name, tree.parent?.slug);
-  if (parentSlug === "blog" || parentSlug === "blogs") {
-    parentSlug = "news";
-  }
+  if (!tree) return `/${article.slug}`;
+  const parentSlug = toSlug(tree.parent?.name, tree.parent?.slug);
   const child = tree.children?.find(c => c.id === article.primary_category?._id);
   if (child) {
     const childSlug = toSlug(child.name, child.slug);
