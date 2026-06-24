@@ -380,7 +380,7 @@ export default function ArticleDetail() {
   // Handles all route patterns:
   // /articles/:slug | /articles/:p/:slug | /articles/:p/:c/:slug
   // /:parentSlug/:slug (TwoSegmentResolver) | /:parentSlug/:childSlug/:articleSlug
-  const { slug: paramSlug, articleSlug } = useParams();
+  const { parentSlug, childSlug, slug: paramSlug, articleSlug } = useParams();
   const slug = articleSlug || paramSlug;
   const navigate = useNavigate();
 
@@ -423,7 +423,22 @@ export default function ArticleDetail() {
         if (data.success === false) throw new Error(data.message || "Article not found");
         const art = data.article || data.data || data;
 
-        // Canonical URL Redirect check to prevent SEO duplicates (e.g. redirect /blog/xxx to /news/xxx)
+        // Validate that category slugs in route match the actual article category tree
+        const artTree = art.categoryTree?.[0];
+        const artParentSlug = artTree ? toSlug(artTree.parent?.name, artTree.parent?.slug) : "";
+        const artPrimaryChild = artTree?.children?.find(c => c.id === art.primary_category?._id);
+        const artChildSlug = artPrimaryChild ? toSlug(artPrimaryChild.name, artPrimaryChild.slug) : "";
+
+        // If route has parentSlug, it must match the article's actual parent category slug
+        if (parentSlug && parentSlug !== artParentSlug) {
+          throw new Error("Article not found");
+        }
+        // If route has childSlug, it must match the article's actual child category slug
+        if (childSlug && childSlug !== artChildSlug) {
+          throw new Error("Article not found");
+        }
+
+        // Canonical URL Redirect check to prevent SEO duplicates (e.g. redirect trailing slashes or capital cases if any)
         const canonicalPath = buildArticleUrl(art);
         if (window.location.pathname !== canonicalPath) {
           navigate(canonicalPath, { replace: true });
