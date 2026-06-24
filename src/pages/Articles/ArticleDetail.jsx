@@ -12,8 +12,11 @@ const toSlug = (name = "", apiSlug = "") =>
 
 function buildArticleUrl(article) {
   const tree = article.categoryTree?.[0];
-  if (!tree) return `/${article.slug}`;
-  const parentSlug = toSlug(tree.parent?.name, tree.parent?.slug);
+  if (!tree) return `/news/${article.slug}`;
+  let parentSlug = toSlug(tree.parent?.name, tree.parent?.slug);
+  if (parentSlug === "blog" || parentSlug === "blogs") {
+    parentSlug = "news";
+  }
   const child = tree.children?.find(c => c.id === article.primary_category?._id);
   if (child) return `/${parentSlug}/${toSlug(child.name, child.slug)}/${article.slug}`;
   return `/${parentSlug}/${article.slug}`;
@@ -422,6 +425,14 @@ export default function ArticleDetail() {
       .then(data => {
         if (data.success === false) throw new Error(data.message || "Article not found");
         const art = data.article || data.data || data;
+
+        // Canonical URL Redirect check to prevent SEO duplicates (e.g. redirect /blog/xxx to /news/xxx)
+        const canonicalPath = buildArticleUrl(art);
+        if (window.location.pathname !== canonicalPath) {
+          navigate(canonicalPath, { replace: true });
+          return;
+        }
+
         setArticle(art);
 
         const { html } = processContent(art.content || "");
