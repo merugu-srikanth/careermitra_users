@@ -3,6 +3,8 @@ import AllJobCard from "../components/AllJobCard";
 import SEO from "../components/SEO";
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "../utils/jobDeadline";
 import { useJobs } from "../context/JobContext";
+import { useAuth } from "../context/AuthContext";
+import ProfileCard from "../components/ProfileCard";
 
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -301,6 +303,7 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function AllJobs() {
+  const { token } = useAuth();
   const { allJobs, loading: contextLoading, error: contextError } = useJobs();
 
   const [search, setSearch] = useState("");
@@ -514,6 +517,7 @@ export default function AllJobs() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <ProfileCard token={token} />
 
         {/* ── Job Type Tabs ───────────────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-2 mb-4">

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
     FaBell,
@@ -502,8 +503,21 @@ function FeatureCard({ card }) {
    MAIN EXPORT
 ───────────────────────────────────────── */
 export default function HeroFinalPage() {
+    const { token } = useAuth();
     const [annList, setAnnList] = useState([]);
     const [annLoading, setAnnLoading] = useState(true);
+
+    const dynamicCards = CARDS.map((card) => {
+        if (card.id === 1 && token) {
+            return {
+                ...card,
+                button: "Go to Dashboard",
+                btnIcon: FaArrowRight,
+                link: "/user-dashboard",
+            };
+        }
+        return card;
+    });
 
     useEffect(() => {
         axios
@@ -572,19 +586,15 @@ export default function HeroFinalPage() {
 
                     {/* Cards — 2 col on mobile, 2 col on tablet, 4 col on xl+ */}
                     <div className="w-full xl:flex-1 grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
-                        {CARDS.map((card) => (
+                        {dynamicCards.map((card) => (
                             <FeatureCard key={card.id} card={card} />
                         ))}
                     </div>
 
                     {/* Announcements */}
                     <div className="w-full xl:w-96 xl:shrink-0">
-                        {/* Mobile/tablet: compact collapsible strip */}
-                        <div className="xl:hidden">
-                            <CompactAnnouncements list={annList} loading={annLoading} />
-                        </div>
-                        {/* Desktop: full vertical scroll panel — fixed 250px */}
-                        <div className="hidden xl:flex xl:flex-col" style={{ height: 250 }}>
+                        {/* Auto-scrolling announcements panel on all screen sizes */}
+                        <div className="flex flex-col" style={{ height: 250 }}>
                             <VerticalAnnouncements list={annList} loading={annLoading} />
                         </div>
                     </div>

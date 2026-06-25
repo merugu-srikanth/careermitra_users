@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
+import ProfileCard from "./ProfileCard";
 
 const API_BASE = "https://www.careermitra.in/api";
 
@@ -35,6 +36,7 @@ const socials = [
 const navLinks = [
   { name: "Home", path: "/", Icon: FaHome },
   { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
+  // { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   // { name: "Internship Guide", path: "/internship-guide", Icon: FaInfoCircle },
   {
@@ -44,18 +46,10 @@ const navLinks = [
       { name: "Internship FAQ's", path: "/internship-guide" },
     ],
   },
-  // { name: "Articles", path: "/government-jobs", Icon: FaBlog },
-  { name: "Jobs 2026", Icon: FaBlog, blogsDropdown: true },
+  { name: "Government Jobs", Icon: FaBlog, blogsDropdown: true },
   { name: "Events", path: "/events", Icon: FaCalendarAlt },
   { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },
-  {
-    name: "YouTube",
-    path: "https://www.youtube.com/@CareerMitraaa",
-    Icon: FaYoutube,
-    iconOnly: true,
-    iconBg: "bg-red-600 text-white",
-    title: "YouTube",
-  },
+
   // {
   //   name: "INSTAGRAM",
   //   path: "/coming-soon",
@@ -319,7 +313,7 @@ export default function Navbar() {
       {/* ── TOP BAR (desktop only) ─────────────────────────────────────────── */}
       {/* <div className="hidden md:flex bg-orange-500 text-white text-xs py-1.5 px-6 items-center justify-between">
         <span className="font-medium tracking-wide">
-          🎯 Career Mitra — Empowering Youth Through Government Careers
+          🎯 Careermitra — Empowering Youth Through Government Careers
         </span>
         <div className="flex items-center gap-3">
           {socials.map(({ Icon, href, label }) => (
@@ -338,7 +332,7 @@ export default function Navbar() {
       {/* ── MAIN NAV ───────────────────────────────────────────────────────── */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-          ? "bg-[#050a06]/97 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.55)]"
+          ? "bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
           : "bg-transparent"
           }`}
       >
@@ -361,7 +355,7 @@ export default function Navbar() {
               <Link to="/" className="flex items-center">
                 <img
                   src={Logo}
-                  alt="Career Mitra"
+                  alt="Careermitra"
                   className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12" : "h-14"}`}
                 />
               </Link>
@@ -383,7 +377,7 @@ export default function Navbar() {
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img
                 src={Logo}
-                alt="Career Mitra"
+                alt="Careermitra"
                 className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-14" : "h-20"}`}
               />
             </Link>
@@ -403,8 +397,8 @@ export default function Navbar() {
                       title={link.title || link.name}
                       className={`group flex items-center justify-center transition-all duration-200 ${isIconOnly ? "w-12 h-12" : "px-4 py-2"} ${
                         active
-                          ? scrolled ? "text-white" : "text-slate-900"
-                          : scrolled ? "text-slate-200 hover:text-white" : "text-slate-800 hover:text-slate-900"
+                          ? "text-orange-600 font-bold"
+                          : "text-slate-700 hover:text-orange-600"
                       }`}
                     >
                       {isIconOnly ? (
@@ -421,7 +415,7 @@ export default function Navbar() {
                 // 🔹 CATEGORIES → Mega menu (parents left | children right)
                 if (link.blogsDropdown) {
                   const hasMegaMenu = categoryTree.some(p => p.children?.length > 0);
-                  const activeParent = categoryTree.find(p => p.id === hoveredParentId);
+                  const activeParent = categoryTree.find(p => p.id === hoveredParentId) || categoryTree[0];
                   return (
                     <div
                       key={link.name}
@@ -429,7 +423,7 @@ export default function Navbar() {
                       onMouseEnter={() => setOpenDropdown(link.name)}
                       onMouseLeave={() => { setOpenDropdown(null); setHoveredParentId(null); }}
                     >
-                      <button className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${scrolled ? "text-slate-200 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-slate-900 hover:bg-slate-50"}`}>
+                      <button className="flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 text-slate-700 hover:text-orange-600 hover:bg-orange-50/50">
                         {link.name}
                         <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
                       </button>
@@ -462,17 +456,17 @@ export default function Navbar() {
                                     <div
                                       key={parent.id}
                                       onMouseEnter={() => setHoveredParentId(parent.id)}
-                                      className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-all border-r-2 ${hoveredParentId === parent.id ? "bg-orange-50 border-orange-500" : "border-transparent hover:bg-slate-50"}`}
+                                      className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-all border-r-2 ${activeParent?.id === parent.id ? "bg-orange-50 border-orange-500" : "border-transparent hover:bg-slate-50"}`}
                                     >
                                       <Link
                                         to={`/${parent.slug}`}
-                                        className={`flex-1 text-sm font-semibold truncate ${hoveredParentId === parent.id ? "text-orange-600" : "text-slate-700"}`}
+                                        className={`flex-1 text-sm font-semibold truncate ${activeParent?.id === parent.id ? "text-orange-600" : "text-slate-700"}`}
                                         onClick={() => setOpenDropdown(null)}
                                       >
                                         {parent.name}
                                       </Link>
                                       {parent.children?.length > 0 && (
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 11, height: 11, flexShrink: 0, marginLeft: 6, color: hoveredParentId === parent.id ? "#f97316" : "#cbd5e1" }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 11, height: 11, flexShrink: 0, marginLeft: 6, color: activeParent?.id === parent.id ? "#f97316" : "#cbd5e1" }}>
                                           <polyline points="9 18 15 12 9 6" />
                                         </svg>
                                       )}
@@ -490,7 +484,7 @@ export default function Navbar() {
                                           {activeParent.children.map(child => (
                                             <Link
                                               key={child.id}
-                                              to={`/${parent.slug}/${child.slug}`}
+                                              to={`/${activeParent.slug}/${child.slug}`}
                                               className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
                                               onClick={() => setOpenDropdown(null)}
                                             >
@@ -546,7 +540,7 @@ export default function Navbar() {
                     onMouseEnter={() => setOpenDropdown(link.name)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <button className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${scrolled ? "text-slate-200 hover:text-white hover:bg-white/10" : "text-slate-800 hover:text-slate-900 hover:bg-slate-50"}`}>
+                    <button className="flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 text-slate-700 hover:text-orange-600 hover:bg-orange-50/50">
                       {link.name}
                       <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
                     </button>
@@ -580,40 +574,64 @@ export default function Navbar() {
               })}
             </div>
             {/* DESKTOP RIGHT */}
-            <div className="hidden lg:flex items-center gap-3">
-              {token ? (
-                <>
-                  <button
-                    onClick={goToJobPostsTab}
-                    className="relative group w-11 h-11 rounded-2xl bg-white/10 border border-orange-400/40 text-orange-400 hover:text-orange-300 hover:border-orange-400/70 hover:bg-white/15 transition-all duration-200 flex items-center justify-center"
-                    title={`${jobsBellCount.totalCount ?? 0} total · ${jobsBellCount.activeCount ?? 0} live${jobsBellCount.newCount > 0 ? ` · ${jobsBellCount.newCount} new` : ""}`}
-                    aria-label="Open eligible government job posts"
-                  >
-                    <FaBell size={16} className="group-hover:animate-pulse" />
-                    <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center leading-none shadow">
-                      {jobsBellCount.totalCount ?? 0}
-                    </span>
-                  </button>
+            {/* DESKTOP RIGHT */}
+            <div className="hidden lg:flex items-center">
+              <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-1.5 flex items-center gap-3.5 shadow-2xs">
+                {/* YouTube Link */}
+                <a
+                  href="https://www.youtube.com/@CareerMitraaa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
+                  title="YouTube Channel"
+                >
+                  <FaYoutube size={17} />
+                </a>
 
-                  <div
-                    ref={dropdownRef}
-                    className="relative"
-                    onMouseEnter={() => setProfileOpen(true)}
-                    onMouseLeave={() => setProfileOpen(false)}
-                  >
-                    <button
-                      onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-xl transition-all duration-200 shadow-sm shadow-orange-200"
+                <div className="w-px h-5 bg-slate-200/60" />
+
+                {token ? (
+                  <>
+                    {/* Jobs Bell Button */}
+                    <div className="relative flex items-center">
+                      <button
+                        onClick={goToJobPostsTab}
+                        className="w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
+                        title={`${jobsBellCount.totalCount ?? 0} total · ${jobsBellCount.activeCount ?? 0} live`}
+                        aria-label="Open job notifications"
+                      >
+                        <FaBell size={15} />
+                        <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-orange-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">
+                          {jobsBellCount.totalCount ?? 0}
+                        </span>
+                        {jobsBellCount.newCount > 0 && (
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white rounded-full animate-ping" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="w-px h-5 bg-slate-200/60" />
+
+                    {/* Profile Dropdown */}
+                    <div
+                      ref={dropdownRef}
+                      className="relative"
+                      onMouseEnter={() => setProfileOpen(true)}
+                      onMouseLeave={() => setProfileOpen(false)}
                     >
-                      <AvatarSVG size={32} />
-                      <span className="text-sm font-bold max-w-25 truncate">{displayName}</span>
-                      <span title="Profile Complation" className="px-2 py-0.5 rounded-full   text-[15px] bg-green-500 animate-bounce font-black leading-none">
-                        {profileCompletion}%
-                      </span>
-                      <motion.span animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                        <FaChevronDown size={11} />
-                      </motion.span>
-                    </button>
+                      <button
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        className="flex items-center gap-2 bg-transparent hover:bg-slate-50 pl-1 pr-2 py-1 rounded-xl transition-all duration-200"
+                      >
+                        <AvatarSVG size={28} />
+                        <div className="flex flex-col items-start text-left min-w-0">
+                          {/* <span className="text-xs font-black text-slate-700 leading-tight truncate max-w-20">{displayName}</span> */}
+                          {/* <span className="text-[9px] text-slate-400 font-bold leading-none mt-0.5">Profile: {profileCompletion}%</span> */}
+                        </div>
+                        <motion.span animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="text-slate-400">
+                          <FaChevronDown size={9} />
+                        </motion.span>
+                      </button>
 
                     <AnimatePresence>
                       {profileOpen && (
@@ -698,11 +716,12 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-4 rounded-full font-semibold text-sm shadow-sm shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
+                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
                 >
-                  <FaSignInAlt size={13} />Student Login
+                  <FaSignInAlt size={11} />Student Login
                 </Link>
               )}
+              </div>
             </div>
              {/* <Link
                   to="/login"
@@ -747,7 +766,7 @@ export default function Navbar() {
             >
 
               {/* ── TOP HEADER ── */}
-              <div className="shrink-0 relative overflow-hidden px-5 pt-5 pb-5 border-b border-slate-100"
+              <div className="shrink-0 relative overflow-hidden px-5 pt-5 pb-3"
                 style={{ background: "linear-gradient(135deg,#fff7ed 0%,#ffffff 100%)" }}
               >
                 {/* subtle orange glow */}
@@ -755,8 +774,8 @@ export default function Navbar() {
                   style={{ background: "radial-gradient(circle,#f97316,transparent)" }} />
 
                 {/* close + logo row */}
-                <div className="relative flex items-center justify-between mb-4">
-                  <img src={Logo} alt="Career Mitra" className="h-12 w-auto object-contain" />
+                <div className="relative flex items-center justify-between">
+                  <img src={Logo} alt="Careermitra" className="h-12 w-auto object-contain" />
                   <button
                     onClick={() => setDrawerOpen(false)}
                     className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-all"
@@ -764,59 +783,54 @@ export default function Navbar() {
                     <FaTimes size={14} />
                   </button>
                 </div>
-
-                {/* user block */}
-                {token ? (
-                  <div className="flex items-center gap-3 rounded-2xl p-3 bg-orange-50 border border-orange-100">
-                    <AvatarSVG size={44} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 font-black text-sm truncate leading-tight">{displayName}</p>
-                      <p className="text-slate-400 text-[11px] truncate mt-0.5">{displayEmail}</p>
-                      <div className="mt-2 space-y-3">
-                        <div>
-                          <div className="flex items-center justify-between text-[10px] font-bold mb-1">
-                            <span className="text-slate-500">Profile</span>
-                            <span className={profileIncomplete ? "text-amber-500" : "text-green-500"}>{profileCompletion}%</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-orange-200 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ${profileIncomplete ? "bg-amber-400" : "bg-green-500"}`}
-                              style={{ width: `${profileCompletion}%` }}
-                            />
-                          </div>
-                          <p className="text-[10px] text-slate-500 mt-2">
-                            {profileCompletion < 100
-                              ? "Add education to unlock job matches"
-                              : "Profile fully complete ✓"}
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-[10px]">
-                          <div className="rounded-2xl bg-slate-50 p-2 border border-slate-100">
-                            <p className="text-slate-500">Jobs</p>
-                            <p className="text-sm font-black text-slate-800">{jobsBellCount.activeCount ?? 0}</p>
-                          </div>
-                          <div className="rounded-2xl bg-slate-50 p-2 border border-slate-100">
-                            <p className="text-slate-500">New</p>
-                            <p className="text-sm font-black text-slate-800">{jobsBellCount.newCount ?? 0}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setDrawerOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-sm shadow-orange-200"
-                  >
-                    <FaSignInAlt size={13} />
-                    Login to your account
-                  </Link>
-                )}
               </div>
 
               {/* ── SCROLLABLE BODY ── */}
               <div className="flex-1 overflow-y-auto bg-white" style={{ scrollbarWidth: "none" }}>
+
+                {/* User Block (Profile Card & Quick Links) */}
+                <div className="px-5 pt-4 pb-3 border-b border-slate-100 bg-linear-to-b from-[#fffbf7] to-white">
+                  {token ? (
+                    <div className="space-y-4">
+                      <ProfileCard token={token} />
+                      <div className="grid grid-cols-2 gap-3 px-1">
+                        <button
+                          onClick={() => { navigate("/user-dashboard"); setDrawerOpen(false); }}
+                          className="flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 shadow-xs transition-all"
+                        >
+                          <FaTachometerAlt size={14} />
+                          Dashboard
+                        </button>
+                        <button
+                          onClick={() => { goToJobPostsTab(); setDrawerOpen(false); }}
+                          className="relative flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 shadow-xs transition-all"
+                        >
+                          <div className="relative">
+                            <FaBell size={14} />
+                            {jobsBellCount.newCount > 0 && (
+                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-ping" />
+                            )}
+                          </div>
+                          Jobs ({jobsBellCount.displayCount})
+                          {jobsBellCount.newCount > 0 && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-black animate-bounce">
+                              New {jobsBellCount.newCount}
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setDrawerOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-sm shadow-orange-200"
+                    >
+                      <FaSignInAlt size={13} />
+                      Login to your account
+                    </Link>
+                  )}
+                </div>
 
                 {/* NAV SECTION */}
                 <div className="px-3 pt-4 pb-2">
@@ -848,7 +862,6 @@ export default function Navbar() {
 
                       // CATEGORIES → accordion mega menu in mobile drawer
                       if (link.blogsDropdown) {
-                        const hasMegaMenu = categoryTree.some(p => p.children?.length > 0);
                         return (
                           <div key={link.name}>
                             <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{link.name}</p>
@@ -857,63 +870,8 @@ export default function Navbar() {
                               onClick={() => setDrawerOpen(false)}
                               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all ml-2 mb-1"
                             >
-                              All Government Jobs
+                              Government Jobs
                             </Link>
-
-                            {hasMegaMenu ? (
-                              categoryTree.map(parent => (
-                                <div key={parent.id}>
-                                  <div className="flex items-center ml-2">
-                                    <Link
-                                      to={`/${parent.slug}`}
-                                      onClick={() => setDrawerOpen(false)}
-                                      className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                    >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
-                                      {parent.name}
-                                    </Link>
-                                    {parent.children?.length > 0 && (
-                                      <button
-                                        type="button"
-                                        onClick={() => setOpenMobileParent(prev => prev === parent.id ? null : parent.id)}
-                                        className="p-2 rounded-xl hover:bg-orange-50 transition-all"
-                                      >
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 12, height: 12, transition: "transform 0.2s", transform: openMobileParent === parent.id ? "rotate(180deg)" : "none" }}>
-                                          <polyline points="6 9 12 15 18 9" />
-                                        </svg>
-                                      </button>
-                                    )}
-                                  </div>
-                                  {openMobileParent === parent.id && parent.children?.length > 0 && (
-                                    <div className="ml-8 border-l-2 border-orange-100 pl-2 mt-0.5 mb-1">
-                                      {parent.children.map(child => (
-                                        <Link
-                                          key={child.id}
-                                          to={`/${parent.slug}/${child.slug}`}
-                                          onClick={() => setDrawerOpen(false)}
-                                          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all"
-                                        >
-                                          <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
-                                          {child.name}
-                                        </Link>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))
-                            ) : (
-                              categoryTree.map(cat => (
-                                <Link
-                                  key={cat.id}
-                                  to={`/${cat.slug}`}
-                                  onClick={() => setDrawerOpen(false)}
-                                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-200 shrink-0" />
-                                  {cat.name}
-                                </Link>
-                              ))
-                            )}
                           </div>
                         );
                       }
@@ -948,33 +906,6 @@ export default function Navbar() {
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">Account</p>
                     <div className="space-y-1">
 
-                      {/* jobs bell */}
-                      <button
-                        onClick={() => { goToJobPostsTab(); setDrawerOpen(false); }}
-                        className="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl bg-orange-50 border border-orange-100 hover:bg-orange-100 transition-all"
-                      >
-                        <span className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
-                            <FaBell size={13} className="text-orange-500" />
-                          </span>
-                          <span className="text-sm font-semibold text-slate-700">Job Notifications</span>
-                        </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${jobsBellCount.showNew ? "bg-green-500" : "bg-orange-500"} text-white`}>
-                          {jobsBellCount.showNew ? `+${jobsBellCount.displayCount}` : jobsBellCount.displayCount}
-                        </span>
-                      </button>
-
-                      {/* dashboard */}
-                      <button
-                        onClick={() => { navigate("/user-dashboard"); setDrawerOpen(false); }}
-                        className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-all"
-                      >
-                        <span className="w-8 h-8 rounded-xl bg-slate-200 flex items-center justify-center shrink-0">
-                          <FaTachometerAlt size={13} className="text-slate-600" />
-                        </span>
-                        <span className="text-sm font-semibold text-slate-700">Dashboard</span>
-                      </button>
-
                       {/* complete profile */}
                       {profileIncomplete && (
                         <button
@@ -1006,7 +937,7 @@ export default function Navbar() {
               {/* ── FOOTER ── */}
               <div className="shrink-0 px-5 py-4 border-t border-slate-100 bg-slate-50">
                 <p className="text-center text-[11px] font-medium text-slate-400">
-                  © 2026 <span className="text-orange-500 font-bold">Career Mitra</span> · Hyderabad
+                  © 2026 <span className="text-orange-500 font-bold">Careermitra</span> · Hyderabad
                 </p>
               </div>
 

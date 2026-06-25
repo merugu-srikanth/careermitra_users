@@ -34,6 +34,9 @@ export default function Footer() {
     { label: "Contact", to: "/contact-us" },
     { label: "Terms of Service", to: "/terms-of-service" },
     { label: "Privacy Policy", to: "/privacy-policy" },
+    { label: "Disclaimer", to: "/disclaimer" },
+    { label: "Editorial Policy", to: "/editorial-policy" },
+    { label: "Correction Policy", to: "/correction-policy" },
   ];
 
   const accountLinks = [
@@ -224,6 +227,12 @@ Your one-stop gateway for government jobs and career guidance across India.     
             <Link to="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
             <span className="text-slate-700">·</span>
             <Link to="/privacy-policy" className="hover:text-orange-400 transition-colors duration-200">Privacy Policy</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/disclaimer" className="hover:text-orange-400 transition-colors duration-200">Disclaimer</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/editorial-policy" className="hover:text-orange-400 transition-colors duration-200">Editorial Policy</Link>
+            <span className="text-slate-700">·</span>
+            <Link to="/correction-policy" className="hover:text-orange-400 transition-colors duration-200">Correction Policy</Link>
             <span className="text-slate-700">·</span>
             <p>Built for aspirants across India.</p>
           </div>

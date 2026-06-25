@@ -267,7 +267,7 @@ const JobGridCard = ({ job }) => {
                             {job.title}
                         </h3>
 
-                        <p className="text-sm text-orange-600 font-semibold mt-1">
+                        <p className="text-sm text-orange-600 font-semibold mt-1 line-clamp-1" title={job.org}>
                             {job.org}
                         </p>
                     </div>
@@ -399,7 +399,15 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
             <p className="text-xs text-orange-500 font-medium truncate">{job.org}</p>
         </td>
         <td className="px-4 py-3.5 hidden md:table-cell">
-            <Badge label={job.category} />
+            {/* <Badge label={job.category} /> */}
+
+
+            <Badge label=                {job.category && job.category.length > 20
+                    ? `${job.category.substring(0, 20)}...`
+                    : (job.category || "—")} />
+
+
+
         </td>
         <td className="px-4 py-3.5 text-xs text-gray-600 hidden lg:table-cell">
             {job.noOfPosts || "—"}

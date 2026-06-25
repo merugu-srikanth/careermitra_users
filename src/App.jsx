@@ -37,6 +37,10 @@ import HeroAnnouncementTicker from "./components/HeroAnnouncementTicker";
 import AnnouncementDetail from "./pages/AnnouncementDetail";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Disclaimer from "./pages/Disclaimer";
+import EditorialPolicy from "./pages/EditorialPolicy";
+import CorrectionPolicy from "./pages/CorrectionPolicy";
+import TeamPage from "./pages/TeamPage";
 import BlogCategory from "./pages/Blogs/BlogCategory";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 
@@ -80,6 +84,7 @@ export default function App() {
               />
               <Route path="/government-jobs" element={<BlogList />} />
               <Route path="/about-us" element={<AboutPage />} />
+              <Route path="/meet-our-team" element={<TeamPage />} />
               <Route path="/internship-guide" element={<InternshipGuide />} />
               <Route path="/career-guide" element={<CareerGuide />} />
               <Route path="/events" element={<EventsPage />} />
@@ -87,6 +92,9 @@ export default function App() {
               <Route path="/announcements/:slug" element={<AnnouncementDetail />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
+              <Route path="/editorial-policy" element={<EditorialPolicy />} />
+              <Route path="/correction-policy" element={<CorrectionPolicy />} />
 
               {/* Clean URLs — must be last before wildcard * */}
               {/* 3-segment: always an article under child category */}

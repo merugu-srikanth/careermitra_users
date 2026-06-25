@@ -63,7 +63,7 @@ export default function AllJobCard({ title, org, lastDate, postedDate, location,
               {title}
             </h2>
 
-            <p className="text-sm text-orange-600 font-semibold mt-1">
+            <p className="text-sm text-orange-600 font-semibold mt-1 line-clamp-1" title={org}>
               {org}
             </p>
           </div>

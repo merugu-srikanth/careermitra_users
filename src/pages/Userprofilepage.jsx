@@ -7,6 +7,7 @@ import DOMPurify from "dompurify";
 import SEO from "../components/SEO";
 import { API_BASE_URL, API_ENDPOINTS, getApiMessage, isApiSuccess } from "../utils/api";
 import { calculateProfileCompletion } from "../utils/profileCompletion";
+import ProfileCard from "../components/ProfileCard";
 
 /* ═══════════════════════════════════════════════
    INLINE SVG ICONS  (no external icon library)
@@ -1142,7 +1143,7 @@ const UserProfilePage = () => {
     { id: "profile", label: "My Profile", icon: <Ic.User className="w-3.5 h-3.5" />, desc: "Info & education" },
     { id: "jobs", label: "Job Posts", icon: <Ic.Gov className="w-3.5 h-3.5" />, desc: "Eligible govt jobs", count: jobsNavCount.total, liveCount: jobsNavCount.liveCount, newCount: jobsNavCount.newCount },
     // { id: "announcements", label: "Announcements", icon: <Ic.Bell className="w-3.5 h-3.5" />, desc: "Events & alerts", count: annNavCount.total, newCount: annNavCount.newCount },
-    { id: "media", label: "Media", icon: <Ic.Img className="w-3.5 h-3.5" />, desc: "Uploaded documents" },
+    // { id: "media", label: "Media", icon: <Ic.Img className="w-3.5 h-3.5" />, desc: "Uploaded documents" },
     { id: "settings", label: "Settings", icon: <Ic.Cog className="w-3.5 h-3.5" />, desc: "Account & security" },
   ];
 
@@ -1361,6 +1362,11 @@ const UserProfilePage = () => {
           <div className="flex-1 overflow-y-auto px-4 lg:px-6 py-4" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
             <div />
 
+            {/* Mobile-only Top Profile Card */}
+            <div className="block lg:hidden">
+              <ProfileCard token={token} />
+            </div>
+
             {/* Incomplete profile banner */}
             {profileCompletion < 100 && activeTab === "profile" && (
               <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
@@ -1387,7 +1393,7 @@ const UserProfilePage = () => {
               {activeTab === "profile" && <ProfilePanel sections={sections} profile={profile} age={age} />}
               {activeTab === "jobs" && <JobsPanel token={token} />}
               {activeTab === "announcements" && <AnnouncementsPanel token={token} />}
-              {activeTab === "media" && <MediaPanel profile={profile} />}
+              {/* {activeTab === "media" && <MediaPanel profile={profile} />} */}
               {activeTab === "settings" && <SettingsPanel token={token} email={profile.email} navigate={navigate} handleLogout={handleLogout} />}
             </div>
           </div>
