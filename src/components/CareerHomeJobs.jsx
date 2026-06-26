@@ -525,7 +525,7 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                         { label: "Category", value: job?.categoryName || job?.category, emoji: "📁" },
                                         { label: "Total Posts", value: job?.noOfPosts, emoji: "📊" },
                                         { label: "Age Limit", value: job?.age, emoji: "🎂" },
-                                        { label: "Qualification", value: job?.qualifications, emoji: "🎓" },
+                                        // { label: "Qualification", value: job?.qualifications, emoji: "🎓" },
                                         { label: "Posted Date", value: formatDateDDMMYYYY(job?.postedDate), emoji: "📅" },
                                         {
                                             label: "Last Date",
@@ -555,13 +555,13 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                         </div>
 
                         <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                                    <p className="text-sm font-black text-gray-800 mb-3">All API Keys and Values</p>
+                                    <p className="text-sm font-black text-gray-800 mb-3">Detail View</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                         {[
-                                            ["_id", job?.id],
-                                            ["job_source_id", job?.jobSourceId],
+                                            // ["_id", job?.id],
+                                            // ["job_source_id", job?.jobSourceId],
                                             ["source_name", job?.sourceName || job?.org],
-                                            ["category_id", job?.categoryId],
+                                            // ["category_id", job?.categoryId],
                                             ["category_name", job?.categoryName],
                                             ["title", job?.title],
                                             ["job_type", job?.category],
@@ -573,8 +573,9 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                             ["status", job?.status],
                                             ["createdAt", formatDateTime(job?.createdAt)],
                                             ["updatedAt", formatDateTime(job?.updatedAt)],
-                                            ["apply_link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
                                             ["notification_url", normalizeExternalUrl(job?.notificationUrl) || "Not specified"],
+                                            ["apply_link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
+                                            
                                         ].map(([key, value]) => (
                                             <div key={key} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
                                                 <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{key}</p>
@@ -722,7 +723,7 @@ export default function CareerHomeJobs() {
                     <p className="text-sm text-gray-500 font-medium">
                         {loading ? "Loading jobs..." : `Showing latest ${jobs.length} jobs`}
                     </p>
-                    <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+                    <div className="hidden sm:flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
                         {[
                             { mode: "grid", Icon: GridIcon, label: "Grid" },
                             { mode: "table", Icon: TableIcon, label: "Table" },

@@ -195,31 +195,36 @@ export default function AnnouncementDetail() {
         .ann-prose li{margin-bottom:0.4em;line-height:1.7}
         .ann-prose a{color:#f97316;text-decoration:underline;font-weight:600;word-break:break-word}
         .ann-prose a:hover{color:#ea580c}
-        .ann-prose-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;margin:1em 0;border:1px solid #f3f4f6}
-        .ann-prose table{width:100%;border-collapse:collapse;font-size:0.88rem;table-layout:auto}
+        .ann-prose-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;margin:1em 0;border:1px solid #f3f4f6;width:100%}
+        .ann-prose-table-wrap table{min-width:600px;width:100%;border-collapse:collapse;font-size:0.88rem;table-layout:auto}
         .ann-prose th{background:#fff7ed;color:#c2410c;font-weight:700;padding:10px 14px;text-align:left;border:1px solid #fde8d4;white-space:nowrap;min-width:80px}
         .ann-prose td{padding:9px 14px;border:1px solid #f3f4f6;color:#374151;white-space:normal;word-break:break-word}
         .ann-prose tr:nth-child(even) td{background:#fafafa}
+        .ann-prose tr:hover td{background:#fff7ed/20}
         .ann-prose strong{font-weight:700;color:#111827}
         .ann-prose blockquote{border-left:4px solid #f97316;padding:10px 16px;background:#fff7ed;border-radius:0 8px 8px 0;margin:1em 0;color:#92400e;font-style:italic}
-        .ann-prose img{max-width:100%;height:auto;border-radius:10px;margin:0.5em 0;display:block}
+        .ann-prose img{max-width:100%!important;height:auto!important;border-radius:10px;margin:0.5em 0;display:block}
+        .ann-prose *:not(table):not(thead):not(tbody):not(tr):not(th):not(td) {
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
         @media(max-width:480px){
           .ann-prose th,.ann-prose td{padding:7px 10px;font-size:0.8rem}
         }
       `}</style>
-
+ 
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-
+ 
         {/* ── Hero Banner ── */}
         <div className="bg-white border-b border-gray-100 pt-20 sm:pt-24 pb-5 sm:pb-8 px-4 shadow-sm">
           <div className="max-w-6xl mx-auto">
-
+ 
             {/* Breadcrumb + back */}
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
               <div className="flex items-center gap-1.5 text-xs text-gray-400 flex-wrap min-w-0">
                 <Link to="/" className="hover:text-orange-500 transition shrink-0">Home</Link>
                 <span className="shrink-0">/</span>
-                <span className="text-gray-500 font-medium truncate max-w-50 sm:max-w-sm">{announcement.title}</span>
+                <span className="text-gray-500 font-medium truncate max-w-[200px] sm:max-w-sm">{announcement.title}</span>
               </div>
               <button
                 onClick={() => navigate(-1)}
@@ -231,12 +236,12 @@ export default function AnnouncementDetail() {
                 Back
               </button>
             </div>
-
+ 
             {/* Title block */}
             <div className="flex items-start gap-2.5 sm:gap-3">
               <span className="shrink-0 w-1 sm:w-1.5 h-8 sm:h-10 bg-orange-500 rounded-full mt-1" />
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 leading-tight wrap-break-word">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 leading-tight break-words">
                   {announcement.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2.5">
@@ -287,7 +292,7 @@ export default function AnnouncementDetail() {
 
               {/* Info / HTML content */}
               {announcement.info && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8 w-full overflow-hidden">
                   <div className="flex items-center gap-2 mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-gray-100">
                     <span className="w-1 h-5 bg-orange-500 rounded-full shrink-0" />
                     <h2 className="text-sm sm:text-base font-bold text-gray-800">Announcement Details</h2>
@@ -295,12 +300,12 @@ export default function AnnouncementDetail() {
                   {/* Wrap content so internal tables scroll horizontally on mobile */}
                   <div className="ann-prose">
                     <div
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.info).replace(/<table/g,'<div class="ann-prose-table-wrap"><table').replace(/<\/table>/g,'</table></div>') }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.info).replace(/<table/gi,'<div class="ann-prose-table-wrap"><table').replace(/<\/table>/gi,'</table></div>') }}
                     />
                   </div>
                 </div>
               )}
-
+ 
               {/* ── Details Table ── */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Header */}
@@ -310,7 +315,7 @@ export default function AnnouncementDetail() {
                   </svg>
                   <h2 className="text-xs sm:text-sm font-bold text-white tracking-wide uppercase">Quick Details</h2>
                 </div>
-
+ 
                 {/* Rows */}
                 <div className="divide-y divide-gray-100">
                   {metaItems.map((meta, idx) => (
@@ -329,11 +334,11 @@ export default function AnnouncementDetail() {
                           {meta.value.charAt(0).toUpperCase() + meta.value.slice(1)}
                         </span>
                       ) : (
-                        <span className="text-xs sm:text-sm font-semibold text-gray-800 wrap-break-word min-w-0">{meta.value}</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-800 break-words min-w-0">{meta.value}</span>
                       )}
                     </div>
                   ))}
-
+ 
                   {/* Official link row */}
                   {announcement.url && (
                     <div className={`flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 ${metaItems.length % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
@@ -358,52 +363,35 @@ export default function AnnouncementDetail() {
                   )}
                 </div>
               </div>
-
+ 
             </div>
-
+ 
             {/* ── SIDEBAR ── */}
             <aside className="lg:sticky lg:top-24 space-y-4">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 w-full overflow-hidden">
                 <div className="flex items-center gap-2 mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b border-gray-100">
                   <span className="w-1 h-5 bg-orange-500 rounded-full" />
                   <h3 className="text-sm sm:text-base font-bold text-gray-800">Latest Announcements</h3>
                 </div>
 
                 {latestFive.length ? (
-                  /* Mobile: horizontal scroll cards | Desktop: vertical list */
-                  <>
-                    <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden snap-x snap-mandatory">
-                      {latestFive.map((item) => (
-                        <Link
-                          key={item.id || item.slug}
-                          to={`/announcements/${item.slug}`}
-                          className="shrink-0 w-52 snap-start p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition group"
-                        >
-                          <p className="text-xs font-semibold text-gray-800 group-hover:text-orange-600 transition leading-snug line-clamp-3 mb-1.5">
+                  <div className="flex flex-col gap-2.5">
+                    {latestFive.map((item) => (
+                      <Link
+                        key={item.id || item.slug}
+                        to={`/announcements/${item.slug}`}
+                        className="flex gap-2.5 p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition group"
+                      >
+                        <div className="shrink-0 w-1 bg-orange-200 rounded-full group-hover:bg-orange-400 transition self-stretch" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition leading-snug line-clamp-2">
                             {item.title}
                           </p>
-                          <p className="text-[10px] text-gray-400">{formatDate(item.date)}</p>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="hidden lg:flex flex-col gap-2.5">
-                      {latestFive.map((item) => (
-                        <Link
-                          key={item.id || item.slug}
-                          to={`/announcements/${item.slug}`}
-                          className="flex gap-2.5 p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition group"
-                        >
-                          <div className="shrink-0 w-1 bg-orange-200 rounded-full group-hover:bg-orange-400 transition self-stretch" />
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition leading-snug line-clamp-2">
-                              {item.title}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-0.5">{formatDate(item.date)}</p>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
+                          <p className="text-xs text-gray-400 mt-0.5">{formatDate(item.date)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 ) : (
                   <p className="text-sm text-gray-400 text-center py-4">No other announcements.</p>
                 )}

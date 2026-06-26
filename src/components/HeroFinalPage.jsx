@@ -317,7 +317,7 @@ function VerticalAnnouncements({ list, loading }) {
                             <GrAnnounce className="text-white ann-shake-icon" style={{ fontSize: 28 }} />
                         </div>
                         <div>
-                            <p className="font-black text-white text- leading-none tracking-wide">Announcements</p>
+                            <p className="font-black text-white text- leading-none tracking-wide">Announcements123456789</p>
                             <p className="text-[11px] text-violet-200 mt-0.5 font-medium">
                                 {loading ? "Loading…" : `${list.length} active updates`}
                             </p>

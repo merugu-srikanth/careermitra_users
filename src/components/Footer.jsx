@@ -147,7 +147,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-3 sm:p-6">
             <h3 className="text-base font-bold text-white">Quick Links</h3>
             <div className="mt-2 h-0.5 w-14 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
-            <ul className="mt-4 grid grid-cols-1 gap-3 text-sm">
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-1">
               {quickLinks.map((item) => (
                 <li key={item.to}>
                   <Link to={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
@@ -158,7 +158,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
               ))}
             </ul>
           </section>
-
+ 
           <section className="relative overflow-hidden rounded-2xl border border-green-500/20 md:col-span-4" style={{ background: "linear-gradient(145deg,#0f1e14 0%,#0d1f1a 50%,#0a1a12 100%)" }}>
             {/* glow blobs */}
             <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-green-500/20 blur-2xl" />
@@ -166,7 +166,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
             {/* dot grid */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
               style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
-
+ 
             <div className="relative p-5 sm:p-6">
               {/* Icon badge */}
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5">
@@ -176,7 +176,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 </span>
                 <span className="text-xs font-bold uppercase tracking-widest text-green-400">Live Alerts</span>
               </div>
-
+ 
               <h3 className="text-xl font-black leading-tight text-white">
                 Never Miss {" "}
                 <span className="bg-linear-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
@@ -186,10 +186,10 @@ Your one-stop gateway for government jobs and career guidance across India.     
               <p className="mt-2 text-xs leading-relaxed text-slate-400">
                 Smart job recommendations based on your education and profile details.
               </p>
-
+ 
               {/* divider */}
               <div className="my-4 h-px w-full bg-linear-to-r from-green-500/30 via-slate-700 to-transparent" />
-
+ 
               {/* CTA button */}
               <Link
                 to="/register"
@@ -201,7 +201,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 Subscribe for Job Alerts
                 <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
-
+ 
               {/* account links */}
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {accountLinks.map(({ label, to, Icon }) => (
@@ -219,22 +219,22 @@ Your one-stop gateway for government jobs and career guidance across India.     
           </section>
         </div>
       </div>
-
+ 
       <div className="relative border-t border-slate-800/90 bg-slate-950/80">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
           <p>© {new Date().getFullYear()} Careermitra. All rights reserved.</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:justify-end">
             <Link to="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
-            <span className="text-slate-700">·</span>
+            <span className="hidden sm:inline text-slate-700">·</span>
             <Link to="/privacy-policy" className="hover:text-orange-400 transition-colors duration-200">Privacy Policy</Link>
-            <span className="text-slate-700">·</span>
+            <span className="hidden sm:inline text-slate-700">·</span>
             <Link to="/disclaimer" className="hover:text-orange-400 transition-colors duration-200">Disclaimer</Link>
-            <span className="text-slate-700">·</span>
+            <span className="hidden sm:inline text-slate-700">·</span>
             <Link to="/editorial-policy" className="hover:text-orange-400 transition-colors duration-200">Editorial Policy</Link>
-            <span className="text-slate-700">·</span>
+            <span className="hidden sm:inline text-slate-700">·</span>
             <Link to="/correction-policy" className="hover:text-orange-400 transition-colors duration-200">Correction Policy</Link>
-            <span className="text-slate-700">·</span>
-            <p>Built for aspirants across India.</p>
+            <span className="hidden md:inline text-slate-700">·</span>
+            <p className="w-full md:w-auto mt-1 md:mt-0 text-slate-400/80">Built for aspirants across India.</p>
           </div>
         </div>
       </div>

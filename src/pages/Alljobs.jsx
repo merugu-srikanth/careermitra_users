@@ -4,7 +4,6 @@ import SEO from "../components/SEO";
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "../utils/jobDeadline";
 import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
-import ProfileCard from "../components/ProfileCard";
 
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -446,7 +445,7 @@ export default function AllJobs() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  
+
 
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20">
@@ -464,10 +463,10 @@ export default function AllJobs() {
         <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 text-center mt-9">
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-orange-500/90 text-xs font-bold px-4 py-1.5 rounded-full mb-3 border border-white/25">
+          {/* <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-orange-500/90 text-xs font-bold px-4 py-1.5 rounded-full mb-3 border border-white/25">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             {totalItems} Active Listings • {totalPosts.toLocaleString()} Total Vacancies
-          </div>
+          </div> */}
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-black mb-4 tracking-tight leading-none">
             Government{" "}
@@ -517,7 +516,6 @@ export default function AllJobs() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <ProfileCard token={token} />
 
         {/* ── Job Type Tabs ───────────────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-2 mb-4">
@@ -541,16 +539,16 @@ export default function AllJobs() {
         </div>
 
         {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <p className="text-base text-gray-500">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
             Showing <span className="font-bold text-gray-800">{paginated.length}</span> jobs
             {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
             <span className="text-gray-400"> • Page {page} of {totalPages || 1}</span>
           </p>
-
-          <div className="flex items-center gap-2 flex-wrap">
+ 
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             {/* View Toggle */}
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+            <div className="hidden sm:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "grid" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
@@ -566,35 +564,31 @@ export default function AllJobs() {
                 <TableIcon />
               </button>
             </div>
-
-           
-
-            {/* Category Dropdown */}
-            {/* <select
-              value={selectedCategoryId}
-              onChange={(e) => { setSelectedCategoryId(e.target.value); setPage(1); }}
-              className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
-            >
-              <option value="">All Categories</option>
-              {categoryOptions.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select> */}
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
-            >
-              <option value="active">Active Jobs</option>
-              {/* <option value="expiring_soon">Expiring This Week</option> */}
-              <option value="expired">Expired Jobs</option>
-              <option value="all">All Jobs</option>
-            </select>
+ 
+            {/* Sort Tabs */}
+            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-full sm:w-auto">
+              <button
+                onClick={() => { setSortBy("newest"); setPage(1); }}
+                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "newest"
+                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
+                    : "text-gray-500 hover:text-orange-400"
+                  }`}
+              >
+                Latest Posted
+              </button>
+              <button
+                onClick={() => { setSortBy("deadline"); setPage(1); }}
+                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "deadline"
+                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
+                    : "text-gray-500 hover:text-orange-400"
+                  }`}
+              >
+                Closing within 1 Week
+              </button>
+            </div>
 
             {/* Sort */}
-            <select
+            {/* <select
               value={sortBy}
               onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
               className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
@@ -602,18 +596,18 @@ export default function AllJobs() {
               <option value="newest">Latest Posted</option>
               <option value="oldest">Oldest Posted</option>
               <option value="deadline">Closing Soonest</option>
-            </select>
+            </select> */}
 
 
             {/* Clear */}
-            {hasFilters && (
+            {/* {hasFilters && (
               <button
                 onClick={clearFilters}
                 className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-3 py-2 rounded-xl transition-all duration-200"
               >
                 <XIcon /> Clear All
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -698,7 +692,7 @@ export default function AllJobs() {
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
                   <svg width="14" height="14" fill="none" stroke="#f97316" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </div>
                 <h3 className="text-sm font-bold text-gray-800">Qualification Requirements</h3>
