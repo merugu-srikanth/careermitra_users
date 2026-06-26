@@ -84,7 +84,7 @@ export default function App() {
               />
               <Route path="/government-jobs" element={<BlogList />} />
               <Route path="/about-us" element={<AboutPage />} />
-              <Route path="/meet-our-team" element={<TeamPage />} />
+              {/* <Route path="/meet-our-team" element={<TeamPage />} /> */}
               <Route path="/internship-guide" element={<InternshipGuide />} />
               <Route path="/career-guide" element={<CareerGuide />} />
               <Route path="/events" element={<EventsPage />} />
