@@ -368,7 +368,7 @@ const BlogList = () => {
       />
       <div style={{ background: '#fff' }}>
         <div className="bl-container">
-
+    
           {/* ── CATEGORY FILTER PILLS ── */}
           {/* {dynamicCategories.length > 0 && (
             <div className="bl-filters">
