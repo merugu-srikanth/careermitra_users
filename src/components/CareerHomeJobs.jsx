@@ -347,7 +347,7 @@ const JobGridCard = ({ job }) => {
                             whileTap={{ scale: 0.97 }}
                             href={normalizeExternalUrl(job.notificationUrl) || "#"}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="nofollow noopener noreferrer"
                             className={`py-2.5 text-xs font-bold rounded-xl text-center transition-all ${normalizeExternalUrl(job.notificationUrl)
                                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-lg"
                                 : "bg-gray-200 text-gray-500 cursor-not-allowed"
@@ -362,7 +362,7 @@ const JobGridCard = ({ job }) => {
                             whileTap={{ scale: 0.97 }}
                             href={normalizeExternalUrl(job.applyLink) || "#"}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="nofollow noopener noreferrer"
                             className={`py-2.5 text-xs font-bold rounded-xl text-center transition-all ${normalizeExternalUrl(job.applyLink)
                                 ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg"
                                 : "bg-gray-200 text-gray-500 cursor-not-allowed"
@@ -448,7 +448,7 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
                     whileTap={{ scale: 0.95 }}
                     href={normalizeExternalUrl(job.applyLink) || "#"}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="nofollow noopener noreferrer"
                     className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${normalizeExternalUrl(job.applyLink)
                         ? "bg-green-500 text-white hover:bg-green-600"
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
@@ -591,7 +591,7 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                         whileTap={{ scale: 0.98 }}
                                         href={normalizeExternalUrl(job?.notificationUrl) || "#"}
                                         target="_blank"
-                                        rel="noopener noreferrer"
+                                        rel="nofollow noopener noreferrer"
                                         className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.notificationUrl)
                                             ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl"
                                             : "bg-gray-200 text-gray-500 cursor-not-allowed"
@@ -608,7 +608,7 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                         whileTap={{ scale: 0.98 }}
                                         href={normalizeExternalUrl(job?.applyLink) || "#"}
                                         target="_blank"
-                                        rel="noopener noreferrer"
+                                        rel="nofollow noopener noreferrer"
                                         className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
                                             ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
                                             : "bg-gray-200 text-gray-500 cursor-not-allowed"

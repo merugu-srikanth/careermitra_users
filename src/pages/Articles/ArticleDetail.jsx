@@ -34,8 +34,21 @@ function processContent(html) {
   if (!html) return { html: "" };
   const clean = DOMPurify.sanitize(html);
   let i = 0;
-  const processed = clean.replace(/<h([23])([^>]*)>/gi, (_, level, attrs) => {
+  let processed = clean.replace(/<h([23])([^>]*)>/gi, (_, level, attrs) => {
     return `<h${level}${attrs} id="section-${i++}">`;
+  });
+  // Add rel="nofollow noopener noreferrer" to all external links in the content
+  processed = processed.replace(/<a\s+([^>]*href="([^"]+)"[^>]*)>/gi, (match, attrs, href) => {
+    const isExternal = href && !href.startsWith("/") && !href.startsWith("#") && !href.includes("careermitra.in") && !href.includes("localhost");
+    if (isExternal) {
+      let newAttrs = attrs.replace(/\s*rel="[^"]*"/gi, "");
+      newAttrs += ' rel="nofollow noopener noreferrer"';
+      if (!/target="/gi.test(newAttrs)) {
+        newAttrs += ' target="_blank"';
+      }
+      return `<a ${newAttrs}>`;
+    }
+    return match;
   });
   return { html: processed };
 }
@@ -212,7 +225,7 @@ function ShareBar({ url, title }) {
           key={label}
           href={href}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="nofollow noopener noreferrer"
           onClick={onClick}
           title={`Share on ${label}`}
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 shadow-sm ${color}`}
@@ -694,10 +707,10 @@ export default function ArticleDetail() {
                     {article.author.bio && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{article.author.bio}</p>}
                     <div className="flex gap-3">
                       {article.author.social_links?.linkedin && (
-                        <a href={article.author.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-blue-500 hover:underline">LinkedIn</a>
+                        <a href={article.author.social_links.linkedin} target="_blank" rel="nofollow noopener noreferrer" className="text-[11px] font-bold text-blue-500 hover:underline">LinkedIn</a>
                       )}
                       {article.author.social_links?.twitter && (
-                        <a href={article.author.social_links.twitter} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-sky-500 hover:underline">Twitter</a>
+                        <a href={article.author.social_links.twitter} target="_blank" rel="nofollow noopener noreferrer" className="text-[11px] font-bold text-sky-500 hover:underline">Twitter</a>
                       )}
                     </div>
                   </div>

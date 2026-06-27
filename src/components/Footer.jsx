@@ -131,7 +131,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
               <a
                 href="https://www.youtube.com/@CareerMitraaa"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
                 className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-5 py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
               >

@@ -243,11 +243,27 @@ if (typeof document !== 'undefined' && !document.getElementById('bd-styles')) {
   document.head.appendChild(el);
 }
 
-/* wrap tables */
-const wrapTables = (html) =>
-  (html || '')
+const wrapTables = (html) => {
+  if (!html) return '';
+  let processed = html
     .replace(/<table/g, '<div class="bd-content-table-wrap"><table')
     .replace(/<\/table>/g, '</table></div>');
+  
+  // Add rel="nofollow noopener noreferrer" to all external links
+  processed = processed.replace(/<a\s+([^>]*href="([^"]+)"[^>]*)>/gi, (match, attrs, href) => {
+    const isExternal = href && !href.startsWith("/") && !href.startsWith("#") && !href.includes("careermitra.in") && !href.includes("localhost");
+    if (isExternal) {
+      let newAttrs = attrs.replace(/\s*rel="[^"]*"/gi, "");
+      newAttrs += ' rel="nofollow noopener noreferrer"';
+      if (!/target="/gi.test(newAttrs)) {
+        newAttrs += ' target="_blank"';
+      }
+      return `<a ${newAttrs}>`;
+    }
+    return match;
+  });
+  return processed;
+};
 
 /* fmtDate */
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
