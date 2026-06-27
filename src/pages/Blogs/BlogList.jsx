@@ -53,7 +53,8 @@ const BLOGLIST_STYLES = `
 
 .bl-featured-img {
   position: absolute; inset: 0;
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%; height: 100%; object-fit: contain;
+  background: #fff;
   transition: transform 0.5s ease;
 }
 .bl-featured:hover .bl-featured-img { transform: scale(1.04); }
@@ -292,29 +293,29 @@ const normalizeBlog = (blog) => ({
 
 const CalIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 const ClockIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
   </svg>
 );
 const ArrowIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
   </svg>
 );
 
 
 const CardSkeleton = () => (
-  <div className="bl-card" style={{padding: 0}}>
-    <div className="bl-skeleton" style={{height:200, borderRadius:'16px 16px 0 0'}} />
-    <div style={{padding: '20px'}}>
-      <div className="bl-skeleton" style={{height:11, width:'38%', marginBottom:10}} />
-      <div className="bl-skeleton" style={{height:16, marginBottom:7}} />
-      <div className="bl-skeleton" style={{height:16, width:'70%', marginBottom:14}} />
-      <div className="bl-skeleton" style={{height:11, width:'55%'}} />
+  <div className="bl-card" style={{ padding: 0 }}>
+    <div className="bl-skeleton" style={{ height: 200, borderRadius: '16px 16px 0 0' }} />
+    <div style={{ padding: '20px' }}>
+      <div className="bl-skeleton" style={{ height: 11, width: '38%', marginBottom: 10 }} />
+      <div className="bl-skeleton" style={{ height: 16, marginBottom: 7 }} />
+      <div className="bl-skeleton" style={{ height: 16, width: '70%', marginBottom: 14 }} />
+      <div className="bl-skeleton" style={{ height: 11, width: '55%' }} />
     </div>
   </div>
 );
@@ -387,7 +388,7 @@ const BlogList = () => {
 
           {/* ── FEATURED ── */}
           {featured && !loading && (
-            <div style={{ marginBottom: 0 }}>
+            <div style={{ marginBottom: 0 }} className='mt-5'>
               <div className="bl-section-head" style={{ marginBottom: 20 }}>
                 <h2>Featured Story</h2>
               </div>
@@ -400,8 +401,8 @@ const BlogList = () => {
                     onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
                   />
                   <div className="bl-featured-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor" style={{width:11,height:11}}>
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11 }}>
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                     Featured
                   </div>
@@ -414,8 +415,8 @@ const BlogList = () => {
                   <p className="bl-featured-desc">{featured.short_description}</p>
                   <div className="bl-featured-meta">
                     <span>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{width:13,height:13}}>
-                        <circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}>
+                        <circle cx="12" cy="8" r="4" /><path d="M6 20v-2a6 6 0 0 1 12 0v2" />
                       </svg>
                       <Link to={`/author/${slugify(featured.authorDisplayName)}`} style={{ color: '#111827', textDecoration: 'none' }}>
                         {featured.authorDisplayName}
@@ -450,17 +451,17 @@ const BlogList = () => {
           ) : error ? (
             <div className="bl-empty">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <p>{error}</p>
-              <button className="bl-pag-btn" style={{margin:'0 auto', display:'block'}} onClick={() => fetchBlogs(1, searchTerm)}>
+              <button className="bl-pag-btn" style={{ margin: '0 auto', display: 'block' }} onClick={() => fetchBlogs(1, searchTerm)}>
                 Try Again
               </button>
             </div>
           ) : blogs.length === 0 && !featured ? (
             <div className="bl-empty">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M9 12h6m-3-3v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                <path d="M9 12h6m-3-3v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
               </svg>
               <p>No articles found{searchTerm ? ` for "${searchTerm}"` : ''}. Try a different search term.</p>
             </div>
@@ -481,11 +482,11 @@ const BlogList = () => {
                     </div>
                     <div className="bl-card-body">
                       <div className="bl-card-meta">
-                        <span style={{display:'flex',alignItems:'center',gap:4}}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
                         </span>
-                        <span style={{color:'#e5e7eb'}}>·</span>
-                        <span style={{display:'flex',alignItems:'center',gap:4}}>
+                        <span style={{ color: '#e5e7eb' }}>·</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
                         </span>
                       </div>
@@ -511,7 +512,7 @@ const BlogList = () => {
                               {(blog.authorDisplayName || 'C').charAt(0).toUpperCase()}
                             </span>
                           )}
-                          <span style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {blog.authorDisplayName}
                           </span>
                         </Link>

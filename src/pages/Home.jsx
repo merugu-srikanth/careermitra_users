@@ -16,6 +16,7 @@ import InternshipTable from "./InternshipTable";
 import Heropage from "../components/Heropage";
 import Hero from "../components/Hero";
 import HeroFinalPage from "../components/HeroFinalPage";
+import HomeBlogs from "./Blogs/HomeBlogs.jsx/HomeBlogs";
 
 const ArrowRightIcon = () => (
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -68,6 +69,8 @@ export default function Home() {
       {/* <Heropage /> */}
       {/* <Hero /> */}
       <HeroFinalPage />
+
+      <HomeBlogs />
       
 
       <CareerHomeJobs />
