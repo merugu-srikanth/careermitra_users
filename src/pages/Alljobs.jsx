@@ -307,10 +307,11 @@ export default function AllJobs() {
 
   const [search, setSearch] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [selectedSourceId, setSelectedSourceId] = useState("");
   const [qualModal, setQualModal] = useState(null); // stores qualification text to show in modal
-  const [statusFilter, setStatusFilter] = useState("active");
   const [sortBy, setSortBy] = useState("newest");
   const [jobType, setJobType] = useState("jobs");
+  const [limit, setLimit] = useState(100);
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState(() => (
     typeof window !== "undefined" && window.innerWidth < 768 ? "grid" : "table"
@@ -325,16 +326,27 @@ export default function AllJobs() {
     allJobs.forEach((job) => {
       if (!job.categoryId || seenCatIds.has(job.categoryId)) return;
       seenCatIds.add(job.categoryId);
-      fetchedCategories.push({ id: job.categoryId, name: job.category || "General" });
+      fetchedCategories.push({ id: job.categoryId, name: job.categoryName || job.category || "General" });
     });
     return fetchedCategories.sort((a, b) => a.name.localeCompare(b.name));
+  }, [allJobs]);
+
+  const sourceOptions = useMemo(() => {
+    const fetchedSources = [];
+    const seenSourceIds = new Set();
+    allJobs.forEach((job) => {
+      if (!job.jobSourceId || seenSourceIds.has(job.jobSourceId)) return;
+      seenSourceIds.add(job.jobSourceId);
+      fetchedSources.push({ id: job.jobSourceId, name: job.sourceName || job.org || "Unknown" });
+    });
+    return fetchedSources.sort((a, b) => a.name.localeCompare(b.name));
   }, [allJobs]);
 
   const filteredAndSortedJobs = useMemo(() => {
     let result = [...allJobs];
 
     // 1. Filter by jobType
-    if (jobType) {
+    if (jobType && jobType !== "both") {
       result = result.filter((j) => {
         const type = String(j.jobType || "").toLowerCase();
         if (jobType === "jobs") {
@@ -359,26 +371,20 @@ export default function AllJobs() {
       );
     }
 
-    // 3. Filter by category (State)
+    // 3. Filter by category
     if (selectedCategoryId) {
       result = result.filter((j) => String(j.categoryId) === String(selectedCategoryId));
     }
 
-    // 4. Filter by status
-    if (statusFilter === "active") {
-      result = result.filter((j) => !isDeadlineExpired(j.lastDate));
-    } else if (statusFilter === "expired") {
-      result = result.filter((j) => isDeadlineExpired(j.lastDate));
-    } else if (statusFilter === "expiring_soon") {
-      result = result.filter((j) => {
-        if (isDeadlineExpired(j.lastDate)) return false;
-        const days = getDeadlineDayDifference(j.lastDate);
-        return days !== null && days >= 0 && days <= 7;
-      });
+    // 4. Filter by job source
+    if (selectedSourceId) {
+      result = result.filter((j) => String(j.jobSourceId) === String(selectedSourceId));
     }
 
-    // 5. Sort
-    if (sortBy === "newest" || sortBy === "oldest") {
+    // 5. Sort / Expiry filter
+    if (sortBy === "expired") {
+      result = result.filter((j) => isDeadlineExpired(j.lastDate));
+    } else if (sortBy === "newest" || sortBy === "oldest") {
       const asc = sortBy === "oldest";
       result.sort((a, b) => {
         const dateA = new Date(a.postedDateRaw || a.createdAt || 0);
@@ -395,39 +401,38 @@ export default function AllJobs() {
     }
 
     return result;
-  }, [allJobs, jobType, search, selectedCategoryId, statusFilter, sortBy]);
+  }, [allJobs, jobType, search, selectedCategoryId, selectedSourceId, sortBy]);
 
   // Total items matching filters
   const totalItems = filteredAndSortedJobs.length;
 
   // Total pages
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
   // Paginated subset
   const paginated = useMemo(() => {
-    return filteredAndSortedJobs.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-  }, [filteredAndSortedJobs, page]);
+    return filteredAndSortedJobs.slice((page - 1) * limit, page * limit);
+  }, [filteredAndSortedJobs, page, limit]);
 
   // Total Posts (vacancies sum of matching filtered items)
   const totalPosts = useMemo(() => {
     return filteredAndSortedJobs.reduce((s, j) => s + (Number(j.noOfPosts) || 0), 0);
   }, [filteredAndSortedJobs]);
 
-  // Note: organisationsCount and the reset page useEffect are removed to resolve ESLint issues. Page resetting is handled in event handlers.
-
   const handlePageChange = (p) => {
     setPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const hasFilters = Boolean(search || selectedCategoryId || statusFilter !== "active" || sortBy !== "newest" || jobType !== "jobs");
+  const hasFilters = Boolean(search || selectedCategoryId || selectedSourceId || sortBy !== "newest" || jobType !== "jobs" || limit !== 100);
 
   const clearFilters = () => {
     setSearch("");
     setSelectedCategoryId("");
-    setStatusFilter("active");
+    setSelectedSourceId("");
     setSortBy("newest");
     setJobType("jobs");
+    setLimit(100);
     setPage(1);
   };
 
@@ -517,38 +522,105 @@ export default function AllJobs() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
-        {/* ── Job Type Tabs ───────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {JOB_TYPE_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => {
-                setJobType(tab.key);
-                setSelectedCategoryId("");
-                setPage(1);
-              }}
-              className={`text-sm font-bold px-4 py-2 rounded-xl border transition-all duration-200
-                ${jobType === tab.key
-                  ? "bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-200"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500"
-                }`}
+        {/* ── Filters Grid ────────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
+          {/* Job Type Dropdown */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Job Type</label>
+            <select
+              value={jobType}
+              onChange={(e) => { setJobType(e.target.value); setPage(1); }}
+              className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 font-semibold cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
             >
-              {tab.label}
-            </button>
-          ))}
+              <option value="jobs">Jobs</option>
+              <option value="internship">Internships</option>
+              <option value="skillup">Skillup</option>
+              <option value="both">Both (All)</option>
+            </select>
+          </div>
+
+          {/* Category Dropdown */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Category</label>
+            <select
+              value={selectedCategoryId}
+              onChange={(e) => { setSelectedCategoryId(e.target.value); setPage(1); }}
+              className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 font-semibold cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
+            >
+              <option value="">All Categories</option>
+              {categoryOptions.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Job Source / Organisation Dropdown */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Organisation</label>
+            <select
+              value={selectedSourceId}
+              onChange={(e) => { setSelectedSourceId(e.target.value); setPage(1); }}
+              className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 font-semibold cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
+            >
+              <option value="">All Organisations</option>
+              {sourceOptions.map((src) => (
+                <option key={src.id} value={src.id}>{src.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Sort By</label>
+            <select
+              value={sortBy}
+              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+              className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 font-semibold cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="expired">Expired</option>
+              <option value="deadline">Closing Soonest</option>
+            </select>
+          </div>
+
+          {/* Limit Dropdown */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Show Limit</label>
+            <select
+              value={limit}
+              onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+              className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 font-semibold cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
+            >
+              <option value="10">10 per page</option>
+              <option value="25">25 per page</option>
+              <option value="50">50 per page</option>
+              <option value="100">100 per page</option>
+            </select>
+          </div>
         </div>
 
         {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
-            Showing <span className="font-bold text-gray-800">{paginated.length}</span> jobs
-            {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
-            <span className="text-gray-400"> • Page {page} of {totalPages || 1}</span>
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-gray-100 pb-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-gray-500">
+              Showing <span className="font-bold text-gray-800">{paginated.length}</span> of <span className="font-bold text-gray-800">{totalItems}</span> jobs
+              {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
+              <span className="text-gray-400"> • Page {page} of {totalPages || 1}</span>
+            </p>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-3 py-1 rounded-lg transition-all duration-200"
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
  
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="flex items-center gap-2.5 justify-end">
             {/* View Toggle */}
-            <div className="hidden sm:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "grid" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
@@ -564,50 +636,6 @@ export default function AllJobs() {
                 <TableIcon />
               </button>
             </div>
- 
-            {/* Sort Tabs */}
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-full sm:w-auto">
-              <button
-                onClick={() => { setSortBy("newest"); setPage(1); }}
-                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "newest"
-                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
-                    : "text-gray-500 hover:text-orange-400"
-                  }`}
-              >
-                Latest Posted
-              </button>
-              <button
-                onClick={() => { setSortBy("deadline"); setPage(1); }}
-                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "deadline"
-                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
-                    : "text-gray-500 hover:text-orange-400"
-                  }`}
-              >
-                Closing within 1 Week
-              </button>
-            </div>
-
-            {/* Sort */}
-            {/* <select
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-              className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
-            >
-              <option value="newest">Latest Posted</option>
-              <option value="oldest">Oldest Posted</option>
-              <option value="deadline">Closing Soonest</option>
-            </select> */}
-
-
-            {/* Clear */}
-            {/* {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-3 py-2 rounded-xl transition-all duration-200"
-              >
-                <XIcon /> Clear All
-              </button>
-            )} */}
           </div>
         </div>
 
