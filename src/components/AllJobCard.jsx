@@ -77,7 +77,7 @@ export default function AllJobCard({ title, org, lastDate, postedDate, location,
 
         <div className="mt-4 space-y-2 text-xs text-gray-600">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Posted</span>
+            <span className="text-gray-400">Start Date</span>
             <span className="font-semibold text-green-600">{formatDateDDMMYYYY(postedDate)}</span>
           </div>
 

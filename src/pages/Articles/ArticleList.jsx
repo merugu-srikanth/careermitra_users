@@ -57,11 +57,11 @@ const CardSkeleton = () => (
 
 /* ── Article Card ── */
 const ArticleCard = ({ article }) => {
-  const breadcrumb  = getCategoryBreadcrumb(article);
-  const createdAt   = article.createdAt   || article.published_at;
-  const updatedAt   = article.updatedAt   || article.last_updated_at;
+  const breadcrumb = getCategoryBreadcrumb(article);
+  const createdAt = article.createdAt || article.published_at;
+  const updatedAt = article.updatedAt || article.last_updated_at;
   const showUpdated = !isSameDay(createdAt, updatedAt);
-  const views       = fmtViews(article.views);
+  const views = fmtViews(article.views);
 
   return (
     <Link to={buildArticleUrl(article)} className="group block h-full">
@@ -127,11 +127,11 @@ export default function ArticleList() {
   const navigate = useNavigate();
 
   // Path-based routing takes priority over query params
-  const isPathBased     = !!pathParent;
+  const isPathBased = !!pathParent;
   const parentSlugParam = pathParent || searchParams.get("parent") || "";
-  const childSlugParam  = pathChild || pathSlug || searchParams.get("child") || "";
+  const childSlugParam = pathChild || pathSlug || searchParams.get("child") || "";
 
-  const [search,     setSearch]     = useState(searchParams.get("search") || "");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [filterData, setFilterData] = useState(null); // null = not yet loaded
 
   const debounceRef = useRef(null);
@@ -154,7 +154,7 @@ export default function ArticleList() {
 
   /* ── Resolve URL slugs → category IDs (safe when filterData is null) ── */
   const parentId = filterData ? (filterData.parents.find(p => toSlug(p.name, p.slug) === parentSlugParam)?.id || "") : "";
-  const childId  = filterData ? (filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam)?.id || "") : "";
+  const childId = filterData ? (filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam)?.id || "") : "";
 
   const articles = useMemo(() => {
     if (contextLoading || filterData === null) return [];
@@ -232,12 +232,12 @@ export default function ArticleList() {
     : (filterData?.children || []);
 
   const activeParent = filterData ? filterData.parents.find(p => p.id === parentId) : null;
-  const activeChild  = filterData ? filterData.children.find(c => c.id === childId)  : null;
+  const activeChild = filterData ? filterData.children.find(c => c.id === childId) : null;
   const seoTitle = activeChild?.name
     ? `${activeChild.name} Articles | CareerMitra`
     : activeParent?.name
-    ? `${activeParent.name} Articles | CareerMitra`
-    : "Articles | CareerMitra";
+      ? `${activeParent.name} Articles | CareerMitra`
+      : "Articles | CareerMitra";
 
   if (filterData) {
     if (parentSlugParam && !parentId) {
@@ -303,7 +303,7 @@ export default function ArticleList() {
             {/* Search */}
             <div className="relative flex-1">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input
                 type="text"
@@ -320,7 +320,7 @@ export default function ArticleList() {
               onChange={e => handleParent(e.target.value)}
               className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white min-w-[160px]"
             >
-              <option value="">All Categories</option>
+              <option value="/government-jobs">All Government Jobs</option>
               {(filterData?.parents || []).map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}

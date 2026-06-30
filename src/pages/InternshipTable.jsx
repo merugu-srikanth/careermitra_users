@@ -103,7 +103,7 @@ const DetailModal = ({ item, onClose }) => {
             <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-100 rounded-xl text-sm">
               <Calendar className="w-4 h-4 text-orange-500" />
               <span className="text-gray-700 font-semibold">{formatDate(item.postedDate)}</span>
-              <span className="text-gray-400 text-xs">Posted</span>
+              <span className="text-gray-400 text-xs">Start Date</span>
             </div>
             {item.deadline && (
               <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-xl text-sm">
@@ -245,11 +245,10 @@ const Pagination = ({ current, total, onChange }) => {
           <button
             key={p}
             onClick={() => onChange(p)}
-            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
-              p === current
+            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${p === current
                 ? "bg-orange-500 text-white shadow-md shadow-orange-200"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600"
-            }`}
+              }`}
           >
             {p}
           </button>
@@ -341,21 +340,19 @@ const InternshipTable = () => {
           <div className="self-end md:self-auto inline-flex items-center gap-1.5 p-1 rounded-xl bg-gray-900 shadow-inner">
             <button
               onClick={() => setActiveType("internships")}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeType === "internships"
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${activeType === "internships"
                   ? "bg-linear-to-r from-orange-500 to-amber-500 text-white shadow"
                   : "text-gray-200 hover:bg-white/10"
-              }`}
+                }`}
             >
               <FileText className="w-3.5 h-3.5" /> Internships
             </button>
             <button
               onClick={() => setActiveType("skillups")}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeType === "skillups"
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${activeType === "skillups"
                   ? "bg-linear-to-r from-orange-500 to-amber-500 text-white shadow"
                   : "text-gray-200 hover:bg-white/10"
-              }`}
+                }`}
             >
               <Building2 className="w-3.5 h-3.5" /> Skill Updates
             </button>
@@ -368,7 +365,7 @@ const InternshipTable = () => {
               <table className="w-full">
                 <thead>
                   <tr>
-                    {["#","Title","Organization","Qualification","Posted","Deadline","Action"].map((h) => (
+                    {["#", "Title", "Organization", "Qualification", "Posted", "Deadline", "Action"].map((h) => (
                       <th key={h} className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-gray-500">{h}</th>
                     ))}
                   </tr>
@@ -396,7 +393,7 @@ const InternshipTable = () => {
                 <table className="w-full" style={{ minWidth: 860 }}>
                   <thead>
                     <tr style={{ background: "linear-gradient(to right,#fff7ed,#ffedd5)" }}>
-                      {["#", `${typeLabel} Title`, "Organization", "Qualification", "Posted", "Deadline", "Posts", "Apply"].map((h) => (
+                      {["#", `${typeLabel} Title`, "Organization", "Qualification", "Start Date", "Deadline", "Posts", "Apply"].map((h) => (
                         <th key={h} className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">
                           {h}
                         </th>

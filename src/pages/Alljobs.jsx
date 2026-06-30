@@ -108,6 +108,23 @@ const normalizeExternalUrl = (value) => {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
+const formatDateDDMMYYYY = (value) => {
+  if (!value) return "-";
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  const dd = String(parsed.getDate()).padStart(2, "0");
+  const mm = String(parsed.getMonth() + 1).padStart(2, "0");
+  const yyyy = parsed.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
 // pickFirst and toDateOnly helper functions have been removed since mapping is handled in context
 
 // mapApiJob helper has been removed since jobs are mapped via context
@@ -246,15 +263,15 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
                       <div className="flex items-start gap-1.5 text-gray-600">
                         <span className="mt-0.5 shrink-0"><CalendarIcon /></span>
                         <div className="min-w-0 whitespace-normal wrap-break-word">
-                          <span className="font-semibold text-gray-500">Posted:</span>{" "}
-                          <span className="font-medium text-gray-700">{job.postedDate || "-"}</span>
+                          <span className="font-semibold text-gray-500">Start Date:</span>{" "}
+                          <span className="font-medium text-gray-700">{formatDateDDMMYYYY(job.postedDate)}</span>
                         </div>
                       </div>
                       <div className="flex items-start gap-1.5">
                         <span className="mt-0.5 shrink-0"><CalendarIcon /></span>
                         <div className="min-w-0 flex flex-col gap-1">
                           <span className={`font-semibold whitespace-normal wrap-break-word ${isExpired ? "text-red-600" : "text-orange-700"}`}>
-                            Deadline: {job.lastDate || "-"}
+                            Deadline: {formatDateDDMMYYYY(job.lastDate)}
                           </span>
                           {deadlineStatusText && (
                             <span

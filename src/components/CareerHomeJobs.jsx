@@ -281,7 +281,7 @@ const JobGridCard = ({ job }) => {
                 {/* Meta Section */}
                 <div className="mt-4 space-y-2 text-xs text-gray-600">
                     <div className="flex items-center justify-between">
-                        <span className="text-gray-400">Posted</span>
+                        <span className="text-gray-400">Start Date</span>
                         <span className="font-semibold text-green-600">{formatDateDDMMYYYY(job.postedDate)}</span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -385,83 +385,83 @@ const JobGridCard = ({ job }) => {
 const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
     const isNew = getIsNew(job.postedDate);
     return (
-    <motion.tr
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: idx * 0.04 }}
-        className="border-b border-gray-100 hover:bg-orange-50/50 transition-colors group"
-    >
-        <td className="px-4 py-3.5 max-w-[200px]">
-            <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-gray-900 line-clamp-1">{job.title}</p>
-                {isNew && <span className="shrink-0 text-[9px] font-black px-1.5 py-0.5 rounded-full bg-green-500 text-white uppercase">New</span>}
-            </div>
-            <p className="text-xs text-orange-500 font-medium truncate">{job.org}</p>
-        </td>
-        <td className="px-4 py-3.5 hidden md:table-cell">
-            {/* <Badge label={job.category} /> */}
+        <motion.tr
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.04 }}
+            className="border-b border-gray-100 hover:bg-orange-50/50 transition-colors group"
+        >
+            <td className="px-4 py-3.5 max-w-[200px]">
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-gray-900 line-clamp-1">{job.title}</p>
+                    {isNew && <span className="shrink-0 text-[9px] font-black px-1.5 py-0.5 rounded-full bg-green-500 text-white uppercase">New</span>}
+                </div>
+                <p className="text-xs text-orange-500 font-medium truncate">{job.org}</p>
+            </td>
+            <td className="px-4 py-3.5 hidden md:table-cell">
+                {/* <Badge label={job.category} /> */}
 
 
-            <Badge label=                {job.category && job.category.length > 20
+                <Badge label={job.category && job.category.length > 20
                     ? `${job.category.substring(0, 20)}...`
                     : (job.category || "—")} />
 
 
 
-        </td>
-        <td className="px-4 py-3.5 text-xs text-gray-600 hidden lg:table-cell">
-            {job.noOfPosts || "—"}
-        </td>
-        <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
-            <span className="text-gray-600 max-w-[140px] block">
-                {job.qualifications && job.qualifications.length > 30
-                    ? `${job.qualifications.substring(0, 30)}...`
-                    : (job.qualifications || "—")}
-            </span>
-            {job.qualifications && job.qualifications.length > 30 && (
-                <button
-                    onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
-                    className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors block"
-                >
-                    View More ↓
-                </button>
-            )}
-        </td>
-        <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
-            <span className="text-gray-500">{formatDateDDMMYYYY(job.postedDate)}</span>
-        </td>
-        <td className="px-4 py-3.5 text-xs">
-            <span className={job.lastDate ? "text-red-600 font-semibold" : "text-gray-400"}>
-                {job.lastDate ? `${formatDateDDMMYYYY(job.lastDate)} (${getDaysLeftText(job.lastDate)})` : "—"}
-            </span>
-        </td>
-        <td className="px-4 py-3.5">
-            <div className="flex gap-2">
-                <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onView(job.id)}
-                    className="px-3 py-1.5 text-xs font-bold bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors whitespace-nowrap"
-                >
-                    View
-                </motion.button>
-                <motion.a
-                    whileTap={{ scale: 0.95 }}
-                    href={normalizeExternalUrl(job.applyLink) || "#"}
-                    target="_blank"
-                    rel="nofollow noopener noreferrer"
-                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${normalizeExternalUrl(job.applyLink)
-                        ? "bg-green-500 text-white hover:bg-green-600"
-                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        }`}
-                    onClick={(e) => {
-                        if (!normalizeExternalUrl(job.applyLink)) e.preventDefault();
-                    }}
-                >
-                    Apply Now
-                </motion.a>
-            </div>
-        </td>
-    </motion.tr>
+            </td>
+            <td className="px-4 py-3.5 text-xs text-gray-600 hidden lg:table-cell">
+                {job.noOfPosts || "—"}
+            </td>
+            <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
+                <span className="text-gray-600 max-w-[140px] block">
+                    {job.qualifications && job.qualifications.length > 30
+                        ? `${job.qualifications.substring(0, 30)}...`
+                        : (job.qualifications || "—")}
+                </span>
+                {job.qualifications && job.qualifications.length > 30 && (
+                    <button
+                        onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
+                        className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors block"
+                    >
+                        View More ↓
+                    </button>
+                )}
+            </td>
+            <td className="px-4 py-3.5 text-xs hidden xl:table-cell">
+                <span className="text-gray-500">{formatDateDDMMYYYY(job.postedDate)}</span>
+            </td>
+            <td className="px-4 py-3.5 text-xs">
+                <span className={job.lastDate ? "text-red-600 font-semibold" : "text-gray-400"}>
+                    {job.lastDate ? `${formatDateDDMMYYYY(job.lastDate)} (${getDaysLeftText(job.lastDate)})` : "—"}
+                </span>
+            </td>
+            <td className="px-4 py-3.5">
+                <div className="flex gap-2">
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => onView(job.id)}
+                        className="px-3 py-1.5 text-xs font-bold bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors whitespace-nowrap"
+                    >
+                        View
+                    </motion.button>
+                    <motion.a
+                        whileTap={{ scale: 0.95 }}
+                        href={normalizeExternalUrl(job.applyLink) || "#"}
+                        target="_blank"
+                        rel="nofollow noopener noreferrer"
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap ${normalizeExternalUrl(job.applyLink)
+                            ? "bg-green-500 text-white hover:bg-green-600"
+                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            }`}
+                        onClick={(e) => {
+                            if (!normalizeExternalUrl(job.applyLink)) e.preventDefault();
+                        }}
+                    >
+                        Apply Now
+                    </motion.a>
+                </div>
+            </td>
+        </motion.tr>
     );
 };
 
@@ -521,104 +521,104 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                     {/* Modal Body */}
                     <div className="p-6 space-y-5">
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {[
-                                        { label: "Category", value: job?.categoryName || job?.category, emoji: "📁" },
-                                        { label: "Total Posts", value: job?.noOfPosts, emoji: "📊" },
-                                        { label: "Age Limit", value: job?.age, emoji: "🎂" },
-                                        // { label: "Qualification", value: job?.qualifications, emoji: "🎓" },
-                                        { label: "Posted Date", value: formatDateDDMMYYYY(job?.postedDate), emoji: "📅" },
-                                        {
-                                            label: "Last Date",
-                                            value: job?.lastDate
-                                                ? `${formatDateDDMMYYYY(job?.lastDate)} (${getDaysLeftText(job?.lastDate)})`
-                                                : "Not specified",
-                                            emoji: "⏰",
-                                            highlight: true,
-                                        },
-                                    ].map((item, i) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: i * 0.06 }}
-                                            className={`rounded-xl p-3.5 border ${item.highlight ? "bg-red-50 border-red-100" : "bg-gray-50 border-gray-100"}`}
-                                        >
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-lg">{item.emoji}</span>
-                                                <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">{item.label}</p>
-                                            </div>
-                                            <p className={`text-sm font-bold leading-snug ${item.highlight ? "text-red-600" : "text-gray-800"}`}>
-                                                {item.value || "Not specified"}
-                                            </p>
-                                        </motion.div>
-                                    ))}
+                            {[
+                                { label: "Category", value: job?.categoryName || job?.category, emoji: "📁" },
+                                { label: "Total Posts", value: job?.noOfPosts, emoji: "📊" },
+                                { label: "Age Limit", value: job?.age, emoji: "🎂" },
+                                // { label: "Qualification", value: job?.qualifications, emoji: "🎓" },
+                                { label: "Start Date", value: formatDateDDMMYYYY(job?.postedDate), emoji: "📅" },
+                                {
+                                    label: "Last Date",
+                                    value: job?.lastDate
+                                        ? `${formatDateDDMMYYYY(job?.lastDate)} (${getDaysLeftText(job?.lastDate)})`
+                                        : "Not specified",
+                                    emoji: "⏰",
+                                    highlight: true,
+                                },
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.06 }}
+                                    className={`rounded-xl p-3.5 border ${item.highlight ? "bg-red-50 border-red-100" : "bg-gray-50 border-gray-100"}`}
+                                >
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-lg">{item.emoji}</span>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">{item.label}</p>
+                                    </div>
+                                    <p className={`text-sm font-bold leading-snug ${item.highlight ? "text-red-600" : "text-gray-800"}`}>
+                                        {item.value || "Not specified"}
+                                    </p>
+                                </motion.div>
+                            ))}
                         </div>
 
                         <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                                    <p className="text-sm font-black text-gray-800 mb-3">Detail View</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                        {[
-                                            // ["_id", job?.id],
-                                            // ["job_source_id", job?.jobSourceId],
-                                            ["source_name", job?.sourceName || job?.org],
-                                            // ["category_id", job?.categoryId],
-                                            ["category_name", job?.categoryName],
-                                            ["title", job?.title],
-                                            ["job_type", job?.category],
-                                            ["posted_date", formatDateDDMMYYYY(job?.postedDate)],
-                                            ["application_deadline", formatDateDDMMYYYY(job?.lastDate)],
-                                            ["qualifications", job?.qualifications],
-                                            ["age", job?.age],
-                                            ["no_of_posts", job?.noOfPosts],
-                                            ["status", job?.status],
-                                            ["createdAt", formatDateTime(job?.createdAt)],
-                                            ["updatedAt", formatDateTime(job?.updatedAt)],
-                                            ["notification_url", normalizeExternalUrl(job?.notificationUrl) || "Not specified"],
-                                            ["apply_link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
-                                            
-                                        ].map(([key, value]) => (
-                                            <div key={key} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                                                <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{key}</p>
-                                                <p className="text-gray-800 break-all font-semibold">{value || "Not specified"}</p>
-                                            </div>
-                                        ))}
+                            <p className="text-sm font-black text-gray-800 mb-3">Detail View</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                {[
+                                    // ["_id", job?.id],
+                                    // ["job_source_id", job?.jobSourceId],
+                                    ["source_name", job?.sourceName || job?.org],
+                                    // ["category_id", job?.categoryId],
+                                    ["category_name", job?.categoryName],
+                                    ["title", job?.title],
+                                    ["job_type", job?.category],
+                                    ["posted_date", formatDateDDMMYYYY(job?.postedDate)],
+                                    ["application_deadline", formatDateDDMMYYYY(job?.lastDate)],
+                                    ["qualifications", job?.qualifications],
+                                    ["age", job?.age],
+                                    ["no_of_posts", job?.noOfPosts],
+                                    ["status", job?.status],
+                                    ["createdAt", formatDateTime(job?.createdAt)],
+                                    ["updatedAt", formatDateTime(job?.updatedAt)],
+                                    ["notification_url", normalizeExternalUrl(job?.notificationUrl) || "Not specified"],
+                                    ["apply_link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
+
+                                ].map(([key, value]) => (
+                                    <div key={key} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                                        <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{key}</p>
+                                        <p className="text-gray-800 break-all font-semibold">{value || "Not specified"}</p>
                                     </div>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <motion.a
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        href={normalizeExternalUrl(job?.notificationUrl) || "#"}
-                                        target="_blank"
-                                        rel="nofollow noopener noreferrer"
-                                        className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.notificationUrl)
-                                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl"
-                                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                            }`}
-                                        onClick={(e) => {
-                                            if (!normalizeExternalUrl(job?.notificationUrl)) e.preventDefault();
-                                        }}
-                                    >
-                                        View Notification
-                                    </motion.a>
+                            <motion.a
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                href={normalizeExternalUrl(job?.notificationUrl) || "#"}
+                                target="_blank"
+                                rel="nofollow noopener noreferrer"
+                                className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.notificationUrl)
+                                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl"
+                                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                    }`}
+                                onClick={(e) => {
+                                    if (!normalizeExternalUrl(job?.notificationUrl)) e.preventDefault();
+                                }}
+                            >
+                                View Notification
+                            </motion.a>
 
-                                    <motion.a
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        href={normalizeExternalUrl(job?.applyLink) || "#"}
-                                        target="_blank"
-                                        rel="nofollow noopener noreferrer"
-                                        className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
-                                            ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
-                                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                            }`}
-                                        onClick={(e) => {
-                                            if (!normalizeExternalUrl(job?.applyLink)) e.preventDefault();
-                                        }}
-                                    >
-                                        Apply Now
-                                    </motion.a>
+                            <motion.a
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                href={normalizeExternalUrl(job?.applyLink) || "#"}
+                                target="_blank"
+                                rel="nofollow noopener noreferrer"
+                                className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
+                                    ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
+                                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                    }`}
+                                onClick={(e) => {
+                                    if (!normalizeExternalUrl(job?.applyLink)) e.preventDefault();
+                                }}
+                            >
+                                Apply Now
+                            </motion.a>
                         </div>
                     </div>
                 </>
@@ -697,7 +697,7 @@ export default function CareerHomeJobs() {
                     </div>
 
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                        Latest Government Jobs 
+                        Latest Government Jobs
                     </h2>
 
                     <motion.div
@@ -774,7 +774,7 @@ export default function CareerHomeJobs() {
                                 <table className="w-full min-w-[640px]">
                                     <thead>
                                         <tr className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                                            {["Job Title / Source", "Type", "Posts", "Qualification", "Posted", "Last Date", "Action"].map((h, i) => (
+                                            {["Job Title / Source", "Type", "Posts", "Qualification", "Start Date", "Last Date", "Action"].map((h, i) => (
                                                 <th
                                                     key={h}
                                                     className={`px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider ${i === 1 ? "hidden md:table-cell" :
@@ -852,7 +852,7 @@ export default function CareerHomeJobs() {
                             <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                     </svg>
                                 </div>
                                 <h3 className="text-sm font-black uppercase tracking-wider">Qualification Requirements</h3>
