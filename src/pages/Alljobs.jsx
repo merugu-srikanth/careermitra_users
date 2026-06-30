@@ -164,7 +164,7 @@ function Pagination({ current, total, onChange }) {
 }
 
 // ── Table View Component ──────────────────────────────────────────────────────
-function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
+function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex = 0 }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="overflow-y-auto max-h-[70vh]">
@@ -190,7 +190,7 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual }) {
               const isExpiryAlert = String(deadlineStatusText || "").toLowerCase().includes("expires");
               return (
                 <tr key={job.id} className="hover:bg-orange-50/30 transition-colors duration-150 group">
-                  <td className="px-2 py-3 border border-amber-300 align-top text-sm text-gray-400 font-mono">{idx + 1}</td>
+                  <td className="px-2 py-3 border border-amber-300 align-top text-sm text-gray-400 font-mono">{startIndex + idx + 1}</td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
                     <div className="text-sm font-bold text-gray-800 group-hover:text-orange-600 transition-colors whitespace-normal wrap-break-word leading-snug">
                       {job.title}
@@ -666,7 +666,7 @@ export default function AllJobs() {
             ))}
           </div>
         ) : (
-          <TableView jobs={paginated} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} />
+          <TableView jobs={paginated} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
         )}
 
         {/* ── Pagination ───────────────────────────────────────────────────────── */}
