@@ -3,7 +3,7 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /login
  
-Sitemap: https://careermitra.in/api/sitemap.xml
+Sitemap: https://careermitra.in/sitemap.xml
 
  
 # Note: The following are separate domains/subdomains.
