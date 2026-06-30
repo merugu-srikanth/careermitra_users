@@ -93,7 +93,7 @@ const GraduationIcon = () => (
   </svg>
 );
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 100;
 const JOB_TYPE_TABS = [
   { key: "jobs", label: "Jobs" },
   { key: "internship", label: "Internships" },
