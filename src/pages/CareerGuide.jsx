@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 /* ─── Career categories data ──────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -303,6 +304,14 @@ export default function CareerGuide() {
     return matchFilter && matchSearch;
   });
 
+  const guideSchemas = [
+    generateWebPageSchema({
+      name: "Career Guidance & Job Preparation Tips 2026 - Career Mitra",
+      description: "Explore career guidance, job preparation tips, interview advice, and personalized Govt Jobs updates to build a successful career.",
+      url: "https://careermitra.in/career-guide"
+    })
+  ];
+
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{ background: "#ffffff", fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
       <SEO
@@ -310,6 +319,7 @@ export default function CareerGuide() {
         description="Explore career guidance, job preparation tips, interview advice, and personalized Govt Jobs updates to build a successful career."
         keywords="Career Guidance, Career Guide 2026, Job Preparation Tips, Govt Jobs Preparation, Interview Tips, Career Counselling, Sarkari Naukri Guidance, Career Advice India, Career Mitra"
         url="https://careermitra.in/career-guide"
+        schema={guideSchemas}
       />
 
       {/* ── Animated background ── */}

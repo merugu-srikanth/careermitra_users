@@ -5,6 +5,7 @@ import loginImg from "../assets/bg-images/Login.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AnimatedBg from "../components/Animate";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 import { toast } from "react-toastify";
 
 export default function Login() {
@@ -262,6 +263,14 @@ export default function Login() {
     "forgot-reset": "Enter OTP and set a new password",
   };
 
+  const loginSchemas = [
+    generateWebPageSchema({
+      name: "Career Mitra - Log in",
+      description: "Log in to Career Mitra to access personalized Govt Jobs notifications, Sarkari Naukri alerts, career guidance, and latest updates.",
+      url: "https://careermitra.in/login"
+    })
+  ];
+
   return (
     <>
       <SEO
@@ -269,6 +278,7 @@ export default function Login() {
         description="Log in to Career Mitra to access personalized Govt Jobs notifications, Sarkari Naukri alerts, career guidance, and latest updates."
         keywords="Career Mitra Login, Govt Jobs Login, Sarkari Naukri Login, Free Job Alerts, Latest Govt Jobs Notifications, Career Guidance"
         url="https://careermitra.in/login"
+        schema={loginSchemas}
       />
 
       <div className="min-h-screen relative flex items-center justify-center py-20">

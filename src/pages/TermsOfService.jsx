@@ -1,6 +1,7 @@
 import { FaShieldAlt, FaExclamationTriangle, FaBan, FaGavel, FaEnvelope, FaBuilding, FaHandshake, FaInfoCircle, FaCopyright, FaLink, FaAd, FaPercentage, FaHistory, FaGlobe } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 const Section = ({ icon: Icon, title, children, accent = "orange" }) => {
   const colors = {
@@ -28,11 +29,21 @@ const Section = ({ icon: Icon, title, children, accent = "orange" }) => {
 };
 
 export default function TermsOfService() {
+  const termsSchemas = [
+    generateWebPageSchema({
+      name: "Terms and Conditions - Careermitra",
+      description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
+      url: "https://careermitra.in/terms-of-service"
+    })
+  ];
+
   return (
     <>
       <SEO
         title="Terms and Conditions — Careermitra"
         description="Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers."
+        url="https://careermitra.in/terms-of-service"
+        schema={termsSchemas}
       />
 
       <div className="min-h-screen bg-gray-50/50 pt-20">

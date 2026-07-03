@@ -5,7 +5,9 @@ import loginImg from "../assets/bg-images/Login.webp";
 import { Link, useNavigate } from "react-router-dom";
 import AnimatedBg from "../components/Animate";
 import { toast } from "react-toastify";
-import image from "../assets/IMAGESPAM.png"
+import image from "../assets/IMAGESPAM.png";
+import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 
 export default function Register() {
@@ -244,10 +246,26 @@ export default function Register() {
     }
   };
 
+  const registerSchemas = [
+    generateWebPageSchema({
+      name: "Register - Career Mitra",
+      description: "Create your account on Career Mitra to get latest Govt Jobs notifications and career alerts.",
+      url: "https://careermitra.in/register"
+    })
+  ];
+
   return (
-    <div className="min-h-screen relative flex items-center justify-center py-20">
-      {/* Animated Background */}
-      <AnimatedBg />
+    <>
+      <SEO
+        title="Register — Career Mitra | Get Latest Govt Jobs Alerts"
+        description="Create your account on Career Mitra to get latest Govt Jobs notifications, Sarkari Naukri alerts, and expert career guidance."
+        keywords="Career Mitra Register, Govt Jobs Registration, Sarkari Naukri Register, Free Job Alerts"
+        url="https://careermitra.in/register"
+        schema={registerSchemas}
+      />
+      <div className="min-h-screen relative flex items-center justify-center py-20">
+        {/* Animated Background */}
+        <AnimatedBg />
       
       {/* Main Container */}
       <div className="max-w-7xl bg-white rounded-2xl shadow-xl grid md:grid-cols-2 overflow-hidden relative z-10">
@@ -666,5 +684,6 @@ export default function Register() {
         </div>
       )}
     </div>
+    </>
   );
 }

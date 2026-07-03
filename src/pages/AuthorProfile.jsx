@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generatePersonSchema, generateWebPageSchema } from "../utils/schemaHelpers";
 
 const slugify = (s = '') =>
   String(s).toLowerCase().trim()
@@ -227,6 +228,20 @@ const AuthorProfile = () => {
     })
     .filter(Boolean);
 
+  const authorSchemas = [
+    generatePersonSchema({
+      name: author_name,
+      jobTitle: role || "Author",
+      worksFor: "CareerMitra",
+      sameAs: links.map(l => l.href)
+    }),
+    generateWebPageSchema({
+      name: `${author_name} - Author Profile`,
+      description: bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`,
+      url: `/author/${slugify(author_name || authorId)}`
+    })
+  ];
+
   return (
     <>
       <SEO
@@ -237,6 +252,7 @@ const AuthorProfile = () => {
         image={avatar_url}
         type="profile"
         authorName={author_name}
+        schema={authorSchemas}
       />
 
       <div className="ap-wrap">

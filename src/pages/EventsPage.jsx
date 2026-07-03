@@ -5,6 +5,7 @@ import {
   FaExternalLinkAlt, FaYoutube, FaSearch, FaChevronLeft, FaChevronRight
 } from "react-icons/fa";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 /* ─── Config ──────────────────────────────────────────────── */
 const API_BASE    = "https://careermitra.in/api/media";
@@ -186,9 +187,22 @@ export default function EventsPage() {
     return () => { cancelled = true; };
   }, [page, activeTab, sortOrder, search]);
 
+  const eventsSchemas = [
+    generateWebPageSchema({
+      name: "Events & Media - Career Mitra",
+      description: "Browse the latest media and events shared by Career Mitra.",
+      url: "https://careermitra.in/events"
+    })
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans mt-20">
-      <SEO title="Media & Events" description="Browse the latest media and events shared by Career Mitra." />
+      <SEO
+        title="Media & Events | Career Mitra"
+        description="Browse the latest media and events shared by Career Mitra."
+        url="https://careermitra.in/events"
+        schema={eventsSchemas}
+      />
 
       {/* ── Header ── */}
       <div className="bg-white border-b border-slate-100">

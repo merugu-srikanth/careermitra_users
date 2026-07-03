@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateWebPageSchema, generateFAQSchema } from "../utils/schemaHelpers";
 
 /* ─── All FAQ data (exact content preserved) ───────────────────────────── */
 const FAQS = [
@@ -334,6 +335,15 @@ export default function InternshipGuide() {
     scrollToInternships();
   };
 
+  const guideSchemas = [
+    generateWebPageSchema({
+      name: "Internship Guide 2026 - Career Mitra",
+      description: "Explore internship opportunities, career guidance, resume tips, and internship preparation advice to kickstart your career journey.",
+      url: "https://careermitra.in/internship-guide"
+    }),
+    generateFAQSchema(FAQS.map(faq => ({ q: faq.q, a: faq.a })))
+  ];
+
   return (
     <div
       className="relative min-h-screen overflow-x-hidden"
@@ -344,6 +354,7 @@ export default function InternshipGuide() {
         description="Explore internship opportunities, career guidance, resume tips, and internship preparation advice to kickstart your career journey."
         keywords="Internship Guide 2026, Internship Opportunities, Internship Tips, Career Guidance, Internship Preparation, Resume Tips, Student Internships India, Fresher Career Advice, Career Mitra"
         url="https://careermitra.in/internship-guide"
+        schema={guideSchemas}
       />
 
       {/* ── Ambient animated background ── */}

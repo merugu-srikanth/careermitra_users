@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import DOMPurify from "dompurify";
+import SEO from "../components/SEO";
+import { generateArticleSchema } from "../utils/schemaHelpers";
 
 const ANNOUNCEMENT_API_BASE =
   import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
@@ -182,8 +184,27 @@ export default function AnnouncementDetail() {
     );
   }
 
+  const announcementSchemas = announcement ? [
+    generateArticleSchema({
+      type: "NewsArticle",
+      headline: announcement.title,
+      description: announcement.info ? announcement.info.replace(/<[^>]*>/g, '').slice(0, 160) : announcement.title,
+      image: announcement.image,
+      publishedAt: announcement.publishedAt || announcement.createdAt,
+      modifiedAt: announcement.updatedAt || announcement.publishedAt || announcement.createdAt,
+      url: `/announcements/${announcement.slug}`,
+      authorName: "CareerMitra Editorial Team"
+    })
+  ] : [];
+
   return (
     <>
+      <SEO
+        title={`${announcement.title} | Career Mitra`}
+        description={announcement.info ? announcement.info.replace(/<[^>]*>/g, '').slice(0, 160) : announcement.title}
+        url={`https://careermitra.in/announcements/${announcement.slug}`}
+        schema={announcementSchemas}
+      />
       {/* Prose + responsive styles */}
       <style>{`
         .ann-prose h1,.ann-prose h2,.ann-prose h3,.ann-prose h4{font-weight:700;color:#111827;line-height:1.3;margin:1.2em 0 0.5em}

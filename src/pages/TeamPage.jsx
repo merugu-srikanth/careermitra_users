@@ -1,5 +1,6 @@
 import { FaLinkedin, FaGithub, FaTwitter, FaEnvelope, FaBriefcase, FaCrown, FaUsers } from "react-icons/fa";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 const FOUNDERS = [
   {
@@ -50,11 +51,21 @@ const TEAM_MEMBERS = [
 ];
 
 export default function TeamPage() {
+  const teamSchemas = [
+    generateWebPageSchema({
+      name: "Meet Our Team - Careermitra",
+      description: "Get to know the founders and core experts behind Careermitra who are passionate about building pathways to employment.",
+      url: "https://careermitra.in/meet-our-team"
+    })
+  ];
+
   return (
     <>
       <SEO
         title="Meet Our Team — Careermitra"
         description="Get to know the founders and core experts behind Careermitra who are passionate about building pathways to employment."
+        url="https://careermitra.in/meet-our-team"
+        schema={teamSchemas}
       />
 
       <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50 pt-24 pb-20">

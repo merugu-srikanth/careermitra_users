@@ -5,7 +5,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import loginImg from "../assets/bg-images/Login.webp";
 import AnimatedBg from "../components/Animate";
 import { toast } from "react-toastify";
-import spamGuideImg from "../assets/IMAGESPAM.png"
+import spamGuideImg from "../assets/IMAGESPAM.png";
+import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 export default function VerifyOtp() {
   const { verifyRegisterOtp, sendOtp, loginPendingRegisteredUser, checkProfile, loading } = useAuth();
@@ -115,10 +117,26 @@ export default function VerifyOtp() {
     }
   };
 
+  const verifySchemas = [
+    generateWebPageSchema({
+      name: "Verify OTP - Career Mitra",
+      description: "Verify your email address to complete registration on Career Mitra.",
+      url: "https://careermitra.in/verify-otp"
+    })
+  ];
+
   return (
-    <div className="min-h-screen relative flex items-center justify-center py-20">
-      {/* Animated Background */}
-      <AnimatedBg />
+    <>
+      <SEO
+        title="Verify OTP — Career Mitra"
+        description="Verify your email address to complete registration on Career Mitra."
+        keywords="Career Mitra Verify, OTP Verification"
+        url="https://careermitra.in/verify-otp"
+        schema={verifySchemas}
+      />
+      <div className="min-h-screen relative flex items-center justify-center py-20">
+        {/* Animated Background */}
+        <AnimatedBg />
       
       {/* Main Container */}
       <div className="max-w-7xl bg-white rounded-2xl shadow-xl grid md:grid-cols-2 overflow-hidden relative z-10">
@@ -255,5 +273,6 @@ export default function VerifyOtp() {
         </div>
       </div>
     </div>
+    </>
   );
 }

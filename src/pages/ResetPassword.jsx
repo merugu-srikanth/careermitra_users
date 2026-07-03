@@ -5,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import loginImg from "../assets/bg-images/Login.webp";
 import AnimatedBg from "../components/Animate";
 import { toast } from "react-toastify";
+import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -69,9 +71,25 @@ export default function ResetPassword() {
     if (e.key === "Enter") handleReset();
   };
 
+  const resetSchemas = [
+    generateWebPageSchema({
+      name: "Reset Password - Career Mitra",
+      description: "Reset your account password on Career Mitra.",
+      url: "https://careermitra.in/reset-password"
+    })
+  ];
+
   return (
-    <div className="min-h-screen relative flex items-center justify-center py-20">
-      <AnimatedBg />
+    <>
+      <SEO
+        title="Reset Password — Career Mitra"
+        description="Reset your account password on Career Mitra."
+        keywords="Career Mitra Reset Password, Reset Password"
+        url="https://careermitra.in/reset-password"
+        schema={resetSchemas}
+      />
+      <div className="min-h-screen relative flex items-center justify-center py-20">
+        <AnimatedBg />
 
       <div className="max-w-7xl bg-white rounded-2xl shadow-xl grid md:grid-cols-2 overflow-hidden relative z-10">
 
@@ -214,5 +232,6 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { FaWrench, FaShieldAlt, FaHistory, FaListOl, FaClipboardCheck, FaLink, FaTrashAlt, FaEnvelope, FaCheckCircle, FaInfoCircle, FaGavel, FaExclamationTriangle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 
 const Section = ({ icon: Icon, title, children, accent = "blue" }) => {
   const colors = {
@@ -28,11 +29,21 @@ const Section = ({ icon: Icon, title, children, accent = "blue" }) => {
 };
 
 export default function CorrectionPolicy() {
+  const correctionSchemas = [
+    generateWebPageSchema({
+      name: "Correction Policy - Careermitra",
+      description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
+      url: "https://careermitra.in/correction-policy"
+    })
+  ];
+
   return (
     <>
       <SEO
         title="Correction Policy — Careermitra"
         description="Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications."
+        url="https://careermitra.in/correction-policy"
+        schema={correctionSchemas}
       />
 
       <div className="min-h-screen bg-gray-50/50 pt-20">

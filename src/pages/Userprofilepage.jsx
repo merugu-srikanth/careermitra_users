@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import DOMPurify from "dompurify";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 import { API_BASE_URL, API_ENDPOINTS, getApiMessage, isApiSuccess } from "../utils/api";
 import { calculateProfileCompletion } from "../utils/profileCompletion";
 import ProfileCard from "../components/ProfileCard";
@@ -1147,6 +1148,14 @@ const UserProfilePage = () => {
     { id: "settings", label: "Settings", icon: <Ic.Cog className="w-3.5 h-3.5" />, desc: "Account & security" },
   ];
 
+  const dashboardSchemas = [
+    generateWebPageSchema({
+      name: "Student Dashboard - Career Mitra",
+      description: "Access your personalized dashboard to explore govt jobs, internships, and career resources tailored for students. Stay updated with the latest opportunities and manage your profile effectively.",
+      url: "https://www.careermitra.in/user-dashboard"
+    })
+  ];
+
   return (
     <div className="bg-slate-100 mt-20">
       <SEO
@@ -1154,6 +1163,7 @@ const UserProfilePage = () => {
         description="Access your personalized dashboard to explore govt jobs, internships, and career resources tailored for students. Stay updated with the latest opportunities and manage your profile effectively."
         keywords="student dashboard, govt jobs for students, internships for students, career resources, personalized job recommendations, profile management, career guidance"
         url="https://www.careermitra.in/user-dashboard"
+        schema={dashboardSchemas}
       />
 
       {/* ── DASHBOARD SHELL: fixed below navbar+ticker (top-24 = 96px) ── */}

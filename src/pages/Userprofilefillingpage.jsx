@@ -6,6 +6,7 @@ import Confetti from "react-confetti";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
+import { generateWebPageSchema } from "../utils/schemaHelpers";
 import { API_ENDPOINTS, getApiMessage, isApiSuccess } from "../utils/api";
 import { calculateProfileCompletion } from "../utils/profileCompletion";
 
@@ -1216,6 +1217,14 @@ export default function Userprofilefillingpage({ onClose }) {
 
   // ─── JSX ─────────────────────────────────────────────────────────────────
 
+  const fillingSchemas = [
+    generateWebPageSchema({
+      name: "Complete Your Profile - Career Mitra",
+      description: "Complete your user profile to get personalized job alerts and access exclusive career resources.",
+      url: "https://www.careermitra.in/user-profile-filling"
+    })
+  ];
+
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-100 py-20 pb-16">
 
@@ -1268,6 +1277,7 @@ export default function Userprofilefillingpage({ onClose }) {
         description="Complete your user profile to get personalized job alerts and access exclusive career resources."
         keywords="user profile, job alerts, career resources, personalized dashboard"
         url="https://www.careermitra.in/user-profile-filling"
+        schema={fillingSchemas}
       />
       {showConfetti && (
         <Confetti
