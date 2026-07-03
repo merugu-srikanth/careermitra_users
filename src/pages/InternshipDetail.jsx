@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import SEO from "../components/SEO";
 import {
   Calendar,
@@ -20,8 +20,16 @@ import {
 
 const BASE_URL = "https://careermitra.in/api/internships";
 
+const generateSlug = (title) => {
+  return title
+    ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    : "";
+};
+
 export default function InternshipDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const routerLocation = useLocation();
+  const idFromState = routerLocation.state?.id;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,22 +39,48 @@ export default function InternshipDetail() {
     const fetchDetail = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${BASE_URL}/${id}`);
-        const json = await res.json();
-        if (json.success) {
-          setData(json.data);
-        } else {
-          setError(json.message || "Failed to load internship details.");
+        setError(null);
+
+        // 1. Try fetching directly if ID was passed in location state
+        if (idFromState) {
+          const res = await fetch(`${BASE_URL}/${idFromState}`);
+          const json = await res.json();
+          if (json.success) {
+            setData(json.data);
+            return;
+          }
         }
+
+        // 2. Fallback: Search using clean words from the slug to find the match
+        const searchTerm = slug.replace(/-/g, " ");
+        const listRes = await fetch(`${BASE_URL}?search=${encodeURIComponent(searchTerm)}&limit=30`);
+        const listJson = await listRes.json();
+
+        if (listJson.success && listJson.data && listJson.data.internships) {
+          const matched = listJson.data.internships.find(
+            (item) => generateSlug(item.internship_title) === slug
+          );
+
+          if (matched) {
+            const detailRes = await fetch(`${BASE_URL}/${matched.id}`);
+            const detailJson = await detailRes.json();
+            if (detailJson.success) {
+              setData(detailJson.data);
+              return;
+            }
+          }
+        }
+
+        setError("Internship not found.");
       } catch (err) {
-        console.error("Error fetching internship detail:", err);
+        console.error("Error fetching internship details:", err);
         setError("Unable to connect to the server.");
       } finally {
         setLoading(false);
       }
     };
     fetchDetail();
-  }, [id]);
+  }, [slug, idFromState]);
 
   const toggleFAQ = (index) => {
     setActiveFAQ(activeFAQ === index ? null : index);

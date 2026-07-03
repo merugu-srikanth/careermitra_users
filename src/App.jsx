@@ -89,8 +89,7 @@ export default function App() {
               {/* <Route path="/meet-our-team" element={<TeamPage />} /> */}
               <Route path="/internship-guide" element={<InternshipGuide />} />
               <Route path="/internships" element={<Internships />} />
-              <Route path="/internships/:id" element={<InternshipDetail />} />
-              <Route path="/internships/:id/:slug" element={<InternshipDetail />} />
+              <Route path="/internships/:slug" element={<InternshipDetail />} />
               <Route path="/career-guide" element={<CareerGuide />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/contact-us" element={<Contact />} />

@@ -176,7 +176,7 @@ export default function Internships() {
     const slug = title
       ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
       : "details";
-    navigate(`/internships/${id}/${slug}`);
+    navigate(`/internships/${slug}`, { state: { id } });
   };
 
   const clearFilters = () => {
