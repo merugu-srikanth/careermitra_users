@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import {
-  BookOpen,
-  Award,
-  Calendar,
-  Briefcase,
-  HelpCircle,
-  ChevronDown,
-  UserCheck,
-  MapPin,
-  FileText,
-  MessageSquare,
-  Star,
-  Zap,
-  TrendingUp,
-  AlertCircle,
-  Users,
-  ChevronRight
-} from "lucide-react";
+  FaBookOpen,
+  FaCalendarAlt,
+  FaBriefcase,
+  FaQuestionCircle,
+  FaChevronDown,
+  FaUserCheck,
+  FaMapMarkerAlt,
+  FaFileAlt,
+  FaCommentAlt,
+  FaStar,
+  FaChartLine,
+  FaExclamationCircle,
+  FaChevronRight
+} from "react-icons/fa";
 
 export default function InternshipGuideContent() {
   const [activeFAQ, setActiveFAQ] = useState(null);
@@ -84,7 +81,7 @@ export default function InternshipGuideContent() {
         <aside className="hidden lg:block lg:col-span-1">
           <div className="sticky top-24 bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-orange-500" /> Guide Sections
+              <FaBookOpen size={16} className="text-orange-500" /> Guide Sections
             </h3>
             <nav className="space-y-1">
               {sections.map((section) => (
@@ -94,7 +91,7 @@ export default function InternshipGuideContent() {
                   className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-600 rounded-xl hover:bg-orange-50 hover:text-orange-600 transition-all group"
                 >
                   <span>{section.title}</span>
-                  <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-orange-500" />
+                  <FaChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-orange-500" />
                 </a>
               ))}
             </nav>
@@ -107,7 +104,7 @@ export default function InternshipGuideContent() {
           {/* Section 1: Title Banner */}
           <section id="intro" className="relative border-b border-slate-100 pb-8 scroll-mt-24">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-[10px] font-extrabold uppercase tracking-wider mb-4">
-              <Star className="w-3.5 h-3.5" />
+              <FaStar size={14} />
               Comprehensive 2026 Guide
             </div>
             <h2 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">
@@ -127,7 +124,7 @@ export default function InternshipGuideContent() {
           <section id="what-is-internship" className="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-mt-24">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 uppercase tracking-wide">
-                <Briefcase className="w-4 h-4" /> Basics
+                <FaBriefcase size={16} /> Basics
               </div>
               <h3 className="text-xl md:text-2xl font-black text-slate-800">
                 What is an Internship?
@@ -142,7 +139,7 @@ export default function InternshipGuideContent() {
 
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 uppercase tracking-wide">
-                <TrendingUp className="w-4 h-4" /> Value Addition
+                <FaChartLine size={16} /> Value Addition
               </div>
               <h3 className="text-xl md:text-2xl font-black text-slate-800">
                 Meaning in Career Development
@@ -321,7 +318,7 @@ export default function InternshipGuideContent() {
             {/* Timeline */}
             <div className="space-y-4">
               <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-orange-500" /> Application Timeline
+                <FaCalendarAlt size={20} className="text-orange-500" /> Application Timeline
               </h3>
               <div className="border border-slate-100 rounded-2xl overflow-hidden text-xs">
                 <table className="w-full text-left">
@@ -356,7 +353,7 @@ export default function InternshipGuideContent() {
             {/* How to Find */}
             <div className="lg:col-span-2 space-y-4">
               <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-orange-500" /> Finding Internships in India
+                <FaMapMarkerAlt size={20} className="text-orange-500" /> Finding Internships in India
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
                 There is a rising demand for skilled professionals in various sectors. A lot of students don't know where to look or how to apply effectively. Here are the top ways to start:
@@ -430,7 +427,7 @@ export default function InternshipGuideContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="p-6 border border-slate-100 rounded-2xl space-y-2 hover:shadow-md transition-shadow">
                 <div className="p-2 w-fit bg-orange-50 text-orange-600 rounded-xl">
-                  <UserCheck className="w-5 h-5" />
+                  <FaUserCheck size={20} />
                 </div>
                 <h4 className="font-extrabold text-slate-800 text-sm">For Freshers</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -440,7 +437,7 @@ export default function InternshipGuideContent() {
 
               <div className="p-6 border border-slate-100 rounded-2xl space-y-2 hover:shadow-md transition-shadow">
                 <div className="p-2 w-fit bg-orange-50 text-orange-600 rounded-xl">
-                  <FileText className="w-5 h-5" />
+                  <FaFileAlt size={20} />
                 </div>
                 <h4 className="font-extrabold text-slate-800 text-sm">Resume & Cover Letter</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -450,7 +447,7 @@ export default function InternshipGuideContent() {
 
               <div className="p-6 border border-slate-100 rounded-2xl space-y-2 hover:shadow-md transition-shadow">
                 <div className="p-2 w-fit bg-orange-50 text-orange-600 rounded-xl">
-                  <MessageSquare className="w-5 h-5" />
+                  <FaCommentAlt size={20} />
                 </div>
                 <h4 className="font-extrabold text-slate-800 text-sm">Interview & Skills</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
@@ -462,7 +459,7 @@ export default function InternshipGuideContent() {
             {/* Common Mistakes */}
             <div className="bg-red-50/30 border border-red-100 rounded-2xl p-6 md:p-8 space-y-4">
               <h3 className="text-sm font-extrabold text-red-800 flex items-center gap-2">
-                <AlertCircle className="w-4.5 h-4.5 text-red-600" /> Common Mistakes to Avoid
+                <FaExclamationCircle size={18} className="text-red-600" /> Common Mistakes to Avoid
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold text-slate-600">
                 <div className="flex items-center gap-2">❌ Applying without homework</div>
@@ -481,7 +478,7 @@ export default function InternshipGuideContent() {
           <section id="faq" className="space-y-6 scroll-mt-24">
             <div>
               <h3 className="text-xl md:text-2xl font-black text-slate-800 flex items-center gap-2">
-                <HelpCircle className="w-6 h-6 text-orange-500" /> Frequently Asked Questions
+                <FaQuestionCircle size={24} className="text-orange-500" /> Frequently Asked Questions
               </h3>
               <p className="text-sm text-slate-500 mt-1">Quick answers to common questions about internship processes.</p>
             </div>
@@ -494,8 +491,9 @@ export default function InternshipGuideContent() {
                     className="w-full flex items-center justify-between p-4 text-left font-bold text-sm text-slate-800 hover:bg-slate-50 transition-all"
                   >
                     <span>{faq.q}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                    <FaChevronDown
+                      size={16}
+                      className={`text-slate-400 transition-transform duration-200 ${
                         activeFAQ === index ? "rotate-180 text-orange-500" : ""
                       }`}
                     />

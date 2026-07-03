@@ -486,25 +486,13 @@ export default function ArticleDetail() {
     if (processedHtml && contentRef.current) setTocItems(extractTOCItems(processedHtml));
   }, [processedHtml]);
 
-  if (loading) return <DetailSkeleton />;
-
-  if (error || !article) return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-6 pt-16">
-      <div className="text-8xl font-black text-gray-100">404</div>
-      <p className="text-gray-500 text-lg font-semibold">{error || "Article not found"}</p>
-      <Link to="/" className="px-6 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
-        Back to Home
-      </Link>
-    </div>
-  );
-
-  const tree         = article.categoryTree?.[0];
-  const primaryChild = tree?.children?.find(c => c.id === article.primary_category?._id);
-  const createdAt    = article.createdAt    || article.published_at;
-  const updatedAt    = article.updatedAt    || article.last_updated_at;
+  const tree         = article?.categoryTree?.[0];
+  const primaryChild = tree?.children?.find(c => c.id === article?.primary_category?._id);
+  const createdAt    = article?.createdAt    || article?.published_at;
+  const updatedAt    = article?.updatedAt    || article?.last_updated_at;
   const showUpdated  = !isSameDay(createdAt, updatedAt);
-  const views        = fmtViews(article.views);
-  const canonicalUrl = `https://www.careermitra.in${buildArticleUrl(article)}`;
+  const views        = fmtViews(article?.views);
+  const canonicalUrl = article ? `https://www.careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
   const childHref    = primaryChild ? `${parentHref}/${toSlug(primaryChild.name, primaryChild.slug)}` : null;
   const backHref     = childHref || parentHref;
@@ -537,6 +525,18 @@ export default function ArticleDetail() {
     
     return [articleSchema, personSchema, faqSchema].filter(Boolean);
   }, [article, createdAt, updatedAt]);
+
+  if (loading) return <DetailSkeleton />;
+
+  if (error || !article) return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-6 pt-16">
+      <div className="text-8xl font-black text-gray-100">404</div>
+      <p className="text-gray-500 text-lg font-semibold">{error || "Article not found"}</p>
+      <Link to="/" className="px-6 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
+        Back to Home
+      </Link>
+    </div>
+  );
 
   return (
     <>
