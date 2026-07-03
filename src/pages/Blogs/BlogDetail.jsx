@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import SEO from '../../components/SEO';
+import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from '../../utils/schemaHelpers';
 import BlogAuthor from '../../components/BlogAuthor';
 import blogFallback from '../../assets/blog-sample.png';
 
@@ -456,6 +457,34 @@ const BlogDetail = () => {
   const authorId = blog.author?._id || blog.author_id || blog.authorId || '';
   const primaryCategory = blog.categories?.[0]?.name || blog.category || 'General';
 
+  const blogSchemas = useMemo(() => {
+    if (!blog) return [];
+    
+    // 1. Article Schema
+    const articleSchema = generateArticleSchema({
+      headline: blog.meta_title || blog.title,
+      description: blog.meta_description || blog.short_description,
+      image: blog.featured_image,
+      publishedAt: blog.published_at || blog.createdAt,
+      modifiedAt: blog.updatedAt,
+      authorName: authorName,
+      authorUrl: authorId ? `/author/${authorId}` : undefined,
+      url: getBlogPath(blog)
+    });
+    
+    // 2. Person (Author) Schema
+    const personSchema = generatePersonSchema({
+      name: authorName,
+      jobTitle: "Author",
+      worksFor: "CareerMitra"
+    });
+    
+    // 3. FAQ Schema
+    const faqSchema = generateFAQSchema(blog.faqs);
+    
+    return [articleSchema, personSchema, faqSchema].filter(Boolean);
+  }, [blog, authorName, authorId]);
+
   return (
     <>
       <SEO
@@ -468,6 +497,7 @@ const BlogDetail = () => {
         publishedAt={blog.published_at || blog.createdAt}
         modifiedAt={blog.updatedAt}
         authorName={authorName}
+        schema={blogSchemas}
       />
 
       <ReadingProgress />

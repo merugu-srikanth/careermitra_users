@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateCollectionPageSchema, generateItemListSchema } from "../utils/schemaHelpers";
 import InternshipGuideContent from "../components/InternshipGuideContent";
 import {
   Calendar,
@@ -36,6 +37,33 @@ const normalizeLink = (link) => {
 export default function Internships() {
   const navigate = useNavigate();
   const [internships, setInternships] = useState([]);
+
+  const internshipSchemas = useMemo(() => {
+    if (!internships || internships.length === 0) return [];
+    
+    const collectionSchema = generateCollectionPageSchema({
+      name: "Internship Opportunities 2026, Apply for Verified Internships | Career Mitra",
+      description: "Search and apply for verified internship opportunities across states, sectors, and roles. Find virtual, paid, and unpaid internships.",
+      url: "/internships"
+    });
+    
+    const itemListItems = internships.slice(0, 20).map((item) => ({
+      name: item.internship_title,
+      url: `https://careermitra.in/internships/${item.id}`,
+      item: {
+        title: item.internship_title,
+        description: `Apply for ${item.internship_title} at ${item.company_name}. Location: ${item.location || 'India'}, Duration: ${item.duration || 'Not Specified'}, Stipend: ${item.stipend_category || 'Not Disclosed'}.`,
+        publishedAt: item.created_at || new Date().toISOString(),
+        url: `https://careermitra.in/internships/${item.id}`,
+        authorName: item.company_name
+      }
+    }));
+    
+    const itemListSchema = generateItemListSchema(itemListItems);
+    
+    return [collectionSchema, itemListSchema].filter(Boolean);
+  }, [internships]);
+
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
@@ -197,6 +225,7 @@ export default function Internships() {
         description="Search and apply for verified internship opportunities across states, sectors, and roles. Find virtual, paid, and unpaid internships."
         keywords="Internships, Virtual Internships, Paid Internships, Government Internships, Career Mitra"
         url="https://careermitra.in/internships"
+        schema={internshipSchemas}
       />
 
       <div className="max-w-7xl mx-auto z-10 relative pt-20">

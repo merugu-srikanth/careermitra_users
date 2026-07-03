@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import SEO from "../../components/SEO";
+import { generateCollectionPageSchema, generateItemListSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
 
 const BLOGS_API = "https://careermitra.in/api/blogs";
@@ -121,6 +122,32 @@ export default function BlogCategory() {
   const [hasMore, setHasMore]           = useState(false);
   const [error, setError]               = useState(null);
 
+  const categorySchemas = useMemo(() => {
+    if (!blogs || blogs.length === 0) return [];
+    
+    const collectionSchema = generateCollectionPageSchema({
+      name: `${categoryName || categorySlug} Articles — Careermitra`,
+      description: `Read the latest ${categoryName} articles, guides, job alerts and career tips on Careermitra — India's government jobs platform.`,
+      url: `/${categorySlug}`
+    });
+    
+    const itemListItems = blogs.slice(0, 20).map((blog) => ({
+      name: blog.title,
+      url: `https://www.careermitra.in/${categorySlug}`,
+      item: {
+        title: blog.title,
+        description: blog.meta_description || blog.short_description || blog.content?.substring(0, 150),
+        publishedAt: blog.published_at || blog.created_at,
+        url: `https://www.careermitra.in/${categorySlug}`,
+        authorName: blog.author?.author_name || blog.author_name || "Career Mitra"
+      }
+    }));
+    
+    const itemListSchema = generateItemListSchema(itemListItems);
+    
+    return [collectionSchema, itemListSchema].filter(Boolean);
+  }, [blogs, categoryName, categorySlug]);
+
   /* ── Step 1: Resolve category ID via /api/blogs/filters, then fetch articles ── */
   useEffect(() => {
     setBlogs([]);
@@ -195,6 +222,7 @@ export default function BlogCategory() {
         title={`${categoryName || categorySlug} Articles — Careermitra`}
         description={`Read the latest ${categoryName} articles, guides, job alerts and career tips on Careermitra — India's government jobs platform.`}
         keywords={`${categoryName}, career articles, government jobs, Careermitra, ${categoryName} articles, job alerts India`}
+        schema={categorySchemas}
       />
 
       <div className="min-h-screen w-full bg-white pt-20 ">

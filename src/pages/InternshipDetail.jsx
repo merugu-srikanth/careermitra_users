@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateJobPostingSchema, generateFAQSchema } from "../utils/schemaHelpers";
 import {
   Calendar,
   Building2,
@@ -127,6 +128,75 @@ export default function InternshipDetail() {
   const stipendType = data.stipend_category || "Unpaid";
   const applyLink = data.apply_link ? (data.apply_link.startsWith("http") ? data.apply_link : `https://${data.apply_link}`) : null;
 
+  // FAQ list
+  const faqs = [
+    {
+      q: `What is ${title} Internship?`,
+      a: `The ${title} Internship is a professional training program that is designed to help students and graduates with professional skills and relevant skills.`
+    },
+    {
+      q: "Who can apply for this internship?",
+      a: "Eligible students, fresh graduates, diploma holders and others meeting the criteria laid down by the organization are invited to apply."
+    },
+    {
+      q: "Is this internship paid or unpaid?",
+      a: "The details of stipend are mentioned in the internship Highlights section. The candidates are requested to refer the official internship details for complete information."
+    },
+    {
+      q: "What is the duration of the internship?",
+      a: `The duration of the internship is ${duration}.`
+    },
+    {
+      q: "How many openings are available?",
+      a: `Interested candidates apply for ${openings} Internship Vacancies.`
+    },
+    {
+      q: "Where is the internship?",
+      a: `Internship is at ${location}.`
+    },
+    {
+      q: "How to apply for internship?",
+      a: "Candidates have to apply online through the official internship application portal."
+    },
+    {
+      q: "Do internships help in getting jobs?",
+      a: "Yes, internships offer a great opportunity for candidates to get practical experience, develop their skills, build professional connections and improve their chances of future employment."
+    },
+    {
+      q: "Are freshers allowed to apply for these internships?",
+      a: "Yes, most of the internship programs are aimed at students, recent graduates, and candidates who want to get some exposure to the industry."
+    },
+    {
+      q: "Will I receive a certificate after completing the internship?",
+      a: "Organisation where internship is undertaken is subject to issuance of certificates. Candidates are requested to verify the official internship details."
+    }
+  ];
+
+  const internshipSchemas = [
+    generateJobPostingSchema({
+      title: `${title} Internship`,
+      description: data.internship_description || data.about_internship || `${title} Internship at ${company}`,
+      datePosted: data.created_at || new Date().toISOString(),
+      validThrough: data.application_deadline || data.lastDate,
+      employmentType: "INTERNSHIP",
+      companyName: company,
+      city: data.district_city || "New Delhi",
+      state: data.state || "Delhi",
+      extra: {
+        "baseSalary": {
+          "@type": "MonetaryAmount",
+          "currency": "INR",
+          "value": {
+            "@type": "QuantitativeValue",
+            "value": stipend === "Unpaid" ? 0 : parseFloat(stipend) || 0,
+            "unitText": "MONTH"
+          }
+        }
+      }
+    }),
+    generateFAQSchema(faqs)
+  ].filter(Boolean);
+
   // SEO details
   const seoTitle = `${title} Internship at ${company} in ${location} 2026 | Career Mitra`;
   const seoDescription = `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`;
@@ -139,6 +209,7 @@ export default function InternshipDetail() {
         description={seoDescription}
         keywords={seoKeywords}
         url={`https://careermitra.in/internships/${data.id}`}
+        schema={internshipSchemas}
       />
 
       <div className="max-w-4xl mx-auto space-y-8">
@@ -382,48 +453,7 @@ export default function InternshipDetail() {
               <HelpCircle className="w-6 h-6 text-orange-500" /> Frequently Asked Questions (FAQs)
             </h2>
             <div className="border border-slate-100 rounded-2xl overflow-hidden divide-y divide-slate-100">
-              {[
-                {
-                  q: `What is ${title} Internship?`,
-                  a: `The ${title} Internship is a professional training program that is designed to help students and graduates with professional skills and relevant skills.`
-                },
-                {
-                  q: "Who can apply for this internship?",
-                  a: "Eligible students, fresh graduates, diploma holders and others meeting the criteria laid down by the organization are invited to apply."
-                },
-                {
-                  q: "Is this internship paid or unpaid?",
-                  a: "The details of stipend are mentioned in the internship Highlights section. The candidates are requested to refer the official internship details for complete information."
-                },
-                {
-                  q: "What is the duration of the internship?",
-                  a: `The duration of the internship is ${duration}.`
-                },
-                {
-                  q: "How many openings are available?",
-                  a: `Interested candidates apply for ${openings} Internship Vacancies.`
-                },
-                {
-                  q: "Where is the internship?",
-                  a: `Internship is at ${location}.`
-                },
-                {
-                  q: "How to apply for internship?",
-                  a: "Candidates have to apply online through the official internship application portal."
-                },
-                {
-                  q: "Do internships help in getting jobs?",
-                  a: "Yes, internships offer a great opportunity for candidates to get practical experience, develop their skills, build professional connections and improve their chances of future employment."
-                },
-                {
-                  q: "Are freshers allowed to apply for these internships?",
-                  a: "Yes, most of the internship programs are aimed at students, recent graduates, and candidates who want to get some exposure to the industry."
-                },
-                {
-                  q: "Will I receive a certificate after completing the internship?",
-                  a: "Organisation where internship is undertaken is subject to issuance of certificates. Candidates are requested to verify the official internship details."
-                }
-              ].map((faq, index) => (
+              {faqs.map((faq, index) => (
                 <div key={index} className="bg-white">
                   <button
                     onClick={() => toggleFAQ(index)}

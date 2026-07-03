@@ -8,6 +8,7 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import SEO from "../components/SEO";
+import { generateOrganizationSchema, generateWebPageSchema } from "../utils/schemaHelpers";
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const stats = [
@@ -535,6 +536,15 @@ function CTASection() {
 
 // ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
 export default function AboutPage() {
+  const aboutSchemas = [
+    generateOrganizationSchema(),
+    generateWebPageSchema({
+      name: "About Us - Career Mitra",
+      description: "Learn about Career Mitra, your trusted platform for personalized Govt Jobs notifications, Sarkari Naukri updates, and career guidance.",
+      url: "https://careermitra.in/about-us"
+    })
+  ];
+
   return (
     <div className=" relative min-h-screen bg-white font-sans antialiased">
       <SEO
@@ -542,6 +552,7 @@ export default function AboutPage() {
         description="Learn about Career Mitra, your trusted platform for personalized Govt Jobs notifications, Sarkari Naukri updates, and career guidance."
         keywords="About Us, About Career Mitra, Govt Jobs Notifications, Career Guidance Platform"
         url="https://careermitra.in/about-us"
+        schema={aboutSchemas}
       />
 
       {/* Subtle grid pattern */}

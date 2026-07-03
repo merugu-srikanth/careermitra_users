@@ -4,6 +4,7 @@ import AnimatedSection from "../components/Animatedsection";
 import StudentCareerSession from "../components/Studentcareersession";
 import JobCategories from "../components/Jobcategories";
 import SEO from "../components/SEO";
+import { generateOrganizationSchema, generateWebsiteSchema } from "../utils/schemaHelpers";
 import GovernmentHero from "../components/GovernmentHero";
 import CareerHomeJobs from "../components/CareerHomeJobs";
 // import HeroSection from "../components/HeroSection";
@@ -55,6 +56,11 @@ const topJobCategories = [
 ];
 
 export default function Home() {
+  const homeSchemas = [
+    generateOrganizationSchema(),
+    generateWebsiteSchema()
+  ];
+
   return (
     <div className="py-20" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
 
@@ -63,6 +69,7 @@ export default function Home() {
         description="Get personalized latest Govt Jobs notifications, Sarkari Naukri updates, exam alerts, results, and expert career guidance at Career Mitra."
         keywords="Career Mitra, Latest Govt Jobs Notifications, Sarkari Naukri 2026, Free Job Alert, Career Guidance, Government Jobs India, Latest Job Alerts, Exam Notifications"
         url="https://careermitra.in/"
+        schema={homeSchemas}
       />
 
       {/* <HeroSection /> */}

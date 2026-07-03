@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import AllJobCard from "../components/AllJobCard";
 import SEO from "../components/SEO";
+import { generateCollectionPageSchema, generateItemListSchema } from "../utils/schemaHelpers";
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "../utils/jobDeadline";
 import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
@@ -330,6 +331,34 @@ export default function AllJobs() {
   const { token } = useAuth();
   const { allJobs, loading: contextLoading, error: contextError } = useJobs();
 
+  const jobsSchemas = useMemo(() => {
+    if (!allJobs || allJobs.length === 0) return [];
+    
+    // 1. Collection Page Schema
+    const collectionSchema = generateCollectionPageSchema({
+      name: "Government Jobs 2026: Latest Govt Jobs Notifications in India | Careermitra",
+      description: "Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India.",
+      url: "/latest-job-notifications"
+    });
+    
+    // 2. ItemList Schema (list of jobs)
+    const itemListItems = allJobs.slice(0, 20).map((job) => ({
+      name: job.title,
+      url: `https://www.careermitra.in/latest-job-notifications`,
+      item: {
+        title: job.title,
+        description: `${job.title} at ${job.org}. Vacancies: ${job.noOfPosts || 'Not Disclosed'}, Qualification: ${job.qualifications || 'Refer notification'}, Age Limit: ${job.age || 'Refer notification'}.`,
+        publishedAt: job.postedDate,
+        url: `https://www.careermitra.in/latest-job-notifications`,
+        authorName: job.org
+      }
+    }));
+    
+    const itemListSchema = generateItemListSchema(itemListItems);
+    
+    return [collectionSchema, itemListSchema].filter(Boolean);
+  }, [allJobs]);
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [qualModal, setQualModal] = useState(null); // stores qualification text to show in modal
@@ -490,7 +519,8 @@ export default function AllJobs() {
         title="Government Jobs 2026: Latest Govt Jobs Notifications in India | Careermitra"
         description="Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India."
         keywords="government jobs 2026, latest govt jobs notifications, sarkari naukri 2026, free job alerts, govt job updates, central govt jobs, state govt jobs, latest recruitment notifications"
-        url="https://www.careermitra.in/jobs"
+        url="https://www.careermitra.in/latest-job-notifications"
+        schema={jobsSchemas}
       />
 
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}

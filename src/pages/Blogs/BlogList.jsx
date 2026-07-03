@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../../components/SEO';
+import { generateCollectionPageSchema, generateItemListSchema } from '../../utils/schemaHelpers';
 import blogFallback from '../../assets/blog-sample.png';
 import { useBlogs } from '../../context/BlogContext';
 
@@ -325,6 +326,32 @@ const BlogList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [inputVal, setInputVal] = useState('');
 
+  const blogListSchemas = useMemo(() => {
+    if (!allBlogs || allBlogs.length === 0) return [];
+    
+    const collectionSchema = generateCollectionPageSchema({
+      name: "Articles | Career Mitra — Govt Jobs, Career Guides & More",
+      description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
+      url: "/government-jobs"
+    });
+    
+    const itemListItems = allBlogs.slice(0, 20).map((blog) => ({
+      name: blog.title,
+      url: `https://www.careermitra.in/government-jobs`,
+      item: {
+        title: blog.title,
+        description: blog.short_description || blog.content?.substring(0, 150),
+        publishedAt: blog.published_at || blog.created_at,
+        url: `https://www.careermitra.in/government-jobs`,
+        authorName: blog.author?.author_name || blog.author_name || "Career Mitra"
+      }
+    }));
+    
+    const itemListSchema = generateItemListSchema(itemListItems);
+    
+    return [collectionSchema, itemListSchema].filter(Boolean);
+  }, [allBlogs]);
+
   const loading = contextLoading;
   const error = contextError;
 
@@ -365,6 +392,7 @@ const BlogList = () => {
         url="https://www.careermitra.in/government-jobs"
         type="website"
         image="https://www.careermitra.in/og-articles.png"
+        schema={blogListSchemas}
       />
       <div style={{ background: '#fff' }}>
         <div className="bl-container">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams, useParams, useNavigate, Link } from "react-router-dom";
 import SEO from "../../components/SEO";
+import { generateCollectionPageSchema, generateItemListSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
 import { useBlogs } from "../../context/BlogContext";
 import NotFoundPage from "../../components/NotFoundPage";
@@ -239,6 +240,32 @@ export default function ArticleList() {
       ? `${activeParent.name} Articles | CareerMitra`
       : "Articles | CareerMitra";
 
+  const articleListSchemas = useMemo(() => {
+    if (!articles || articles.length === 0) return [];
+    
+    const collectionSchema = generateCollectionPageSchema({
+      name: seoTitle,
+      description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra.",
+      url: "/articles"
+    });
+    
+    const itemListItems = articles.slice(0, 20).map((art) => ({
+      name: art.title,
+      url: `https://www.careermitra.in${buildArticleUrl(art)}`,
+      item: {
+        title: art.title,
+        description: art.meta_description || art.short_description || art.content?.substring(0, 150),
+        publishedAt: art.published_at || art.created_at,
+        url: `https://www.careermitra.in${buildArticleUrl(art)}`,
+        authorName: art.author?.author_name || art.author_name || "Career Mitra"
+      }
+    }));
+    
+    const itemListSchema = generateItemListSchema(itemListItems);
+    
+    return [collectionSchema, itemListSchema].filter(Boolean);
+  }, [articles, seoTitle]);
+
   if (filterData) {
     if (parentSlugParam && !parentId) {
       return <NotFoundPage />;
@@ -254,6 +281,7 @@ export default function ArticleList() {
         title={seoTitle}
         description="Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra."
         url="https://www.careermitra.in/articles"
+        schema={articleListSchemas}
       />
 
       <div className="min-h-screen bg-gray-50 pt-20">

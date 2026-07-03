@@ -6,6 +6,7 @@ import {
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import SEO from "../components/SEO";
+import { generateOrganizationSchema, generateWebPageSchema } from "../utils/schemaHelpers";
 
 // ─── FLOATING ICONS DATA ──────────────────────────────────────────────────────
 const floatingIcons = [
@@ -211,6 +212,15 @@ export default function ContactSection() {
     setSent(true);
   };
 
+  const contactSchemas = [
+    generateOrganizationSchema(),
+    generateWebPageSchema({
+      name: "Contact Us - Career Mitra",
+      description: "Contact Career Mitra for personalized Govt Jobs notifications, career guidance, support, feedback, and job-related assistance.",
+      url: "https://careermitra.in/contact-us"
+    })
+  ];
+
   return (
     <>
       <SEO
@@ -218,6 +228,7 @@ export default function ContactSection() {
         description="Contact Career Mitra for personalized Govt Jobs notifications, career guidance, support, feedback, and job-related assistance."
         keywords="Contact Us, Contact Career Mitra, Govt Jobs Support, Career Guidance Support, Sarkari Naukri Help, Free Job Alerts, Government Jobs India, Career Counselling, Employment Support"
         url="https://careermitra.in/contact-us"
+        schema={contactSchemas}
       />
 
       <section

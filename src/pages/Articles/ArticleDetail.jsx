@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import SEO from "../../components/SEO";
+import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
 
 const API_BASE = "https://careermitra.in/api";
@@ -509,6 +510,34 @@ export default function ArticleDetail() {
   const backHref     = childHref || parentHref;
   const backLabel    = primaryChild?.name || tree?.parent?.name;
 
+  const articleSchemas = useMemo(() => {
+    if (!article) return [];
+    
+    // 1. Article Schema
+    const articleSchema = generateArticleSchema({
+      headline: article.meta_title || article.title,
+      description: article.meta_description || article.short_description,
+      image: article.featured_image,
+      publishedAt: createdAt,
+      modifiedAt: updatedAt,
+      authorName: article.author?.author_name || "Career Mitra Editorial Team",
+      authorUrl: article.author?._id ? `/author/${article.author?._id}` : undefined,
+      url: buildArticleUrl(article)
+    });
+    
+    // 2. Person (Author) Schema
+    const personSchema = generatePersonSchema({
+      name: article.author?.author_name || "Career Mitra Editorial Team",
+      jobTitle: "Author",
+      worksFor: "CareerMitra"
+    });
+    
+    // 3. FAQ Schema
+    const faqSchema = generateFAQSchema(article.faqs);
+    
+    return [articleSchema, personSchema, faqSchema].filter(Boolean);
+  }, [article, createdAt, updatedAt]);
+
   return (
     <>
       <ReadingProgress />
@@ -526,6 +555,7 @@ export default function ArticleDetail() {
         authorName={article.author?.author_name}
         tags={article.tags || []}
         section={primaryChild?.name || tree?.parent?.name}
+        schema={articleSchemas}
       />
 
       <div className={`min-h-screen pt-26 transition-colors duration-300 ${readingMode ? "bg-amber-50 pb-24" : "bg-white"}`}>

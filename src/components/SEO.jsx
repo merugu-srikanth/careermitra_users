@@ -1,4 +1,6 @@
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
+import { generateBreadcrumbSchema } from "../utils/schemaHelpers";
 
 export default function SEO({
   title,
@@ -13,45 +15,66 @@ export default function SEO({
   authorName,
   tags = [],
   section,
+  schema = null, // Can be a single schema object or an array of schema objects
 }) {
+  const location = useLocation();
+
   const safeTitle       = title       || "CareerMitra";
   const safeDescription = description || "Government Jobs & Career Platform for India";
   const safeImage       = image       || "https://www.careermitra.in/og-default.png";
   const safeImageAlt    = imageAlt    || safeTitle;
 
-  const jsonLd = type === "article" ? JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": safeTitle,
-    "description": safeDescription,
-    "image": safeImage,
-    "url": url,
-    "datePublished": publishedAt,
-    "dateModified": modifiedAt || publishedAt,
-    "author": {
-      "@type": "Person",
-      "name": authorName || "CareerMitra",
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "CareerMitra",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.careermitra.in/logo192.png",
-      },
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": url,
-    },
-  }) : null;
+  // Determine actual absolute URL if not explicitly provided
+  const absoluteCurrentUrl = url || `https://www.careermitra.in${location.pathname}${location.search}`;
+
+  // Assemble dynamic breadcrumbs if not custom provided
+  let autoBreadcrumbSchema = null;
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+  if (pathSegments.length > 0) {
+    const breadcrumbItems = [{ name: "Home", item: "/" }];
+    let accumulatedPath = "";
+    pathSegments.forEach((segment, index) => {
+      accumulatedPath += `/${segment}`;
+      // Clean up segment name for display (e.g. government-jobs -> Government Jobs)
+      const cleanName = segment
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+      breadcrumbItems.push({
+        name: cleanName,
+        item: accumulatedPath
+      });
+    });
+    autoBreadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+  }
+
+  // Normalize schemas: filter out nulls/falsy values
+  const inputSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
+  let mergedSchemas = [...inputSchemas];
+
+  // If there isn't a BreadcrumbList in the user-provided schemas, add the auto-generated one
+  const hasBreadcrumb = mergedSchemas.some(
+    s => s && (s["@type"] === "BreadcrumbList" || s["@type"] === "http://schema.org/BreadcrumbList")
+  );
+  if (!hasBreadcrumb && autoBreadcrumbSchema) {
+    mergedSchemas.push(autoBreadcrumbSchema);
+  }
+
+  // Deduplicate schemas by @type (keeping the last one if duplicates occur, or merging where relevant)
+  const dedupedMap = new Map();
+  mergedSchemas.forEach(s => {
+    if (s && s["@type"]) {
+      dedupedMap.set(s["@type"], s);
+    }
+  });
+  const finalSchemas = Array.from(dedupedMap.values());
 
   return (
     <Helmet>
       <title>{safeTitle}</title>
       <meta name="description" content={safeDescription} />
       {keywords && <meta name="keywords" content={keywords} />}
-      {url && <link rel="canonical" href={url} />}
+      <link rel="canonical" href={absoluteCurrentUrl} />
 
       {/* ── Open Graph ── */}
       <meta property="og:type"        content={type} />
@@ -61,7 +84,7 @@ export default function SEO({
       <meta property="og:image:alt"   content={safeImageAlt} />
       <meta property="og:image:width"  content="1200" />
       <meta property="og:image:height" content="630" />
-      {url && <meta property="og:url"  content={url} />}
+      <meta property="og:url"         content={absoluteCurrentUrl} />
       <meta property="og:site_name"   content="CareerMitra" />
       <meta property="og:locale"      content="en_IN" />
 
@@ -94,9 +117,12 @@ export default function SEO({
       )}
 
       {/* ── JSON-LD Structured Data ── */}
-      {jsonLd && (
-        <script type="application/ld+json">{jsonLd}</script>
-      )}
+      {finalSchemas.map((sch, i) => (
+        <script key={i} type="application/ld+json">
+          {JSON.stringify(sch)}
+        </script>
+      ))}
     </Helmet>
   );
 }
+
