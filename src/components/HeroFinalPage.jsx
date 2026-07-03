@@ -76,7 +76,7 @@ const CARDS = [
         description:
             "Explore internships and skill-up programs to accelerate your career.",
         button: "Explore Now",
-        link: "/internship-guide",
+        link: "/internships",
     },
     {
         id: 4,
