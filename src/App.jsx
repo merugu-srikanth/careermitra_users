@@ -30,6 +30,8 @@ import AllJobs from "./pages/Alljobs";
 import AIChatBot from "./components/AIChatBot";
 import AuthorProfile from "./pages/AuthorProfile";
 import InternshipGuide from "./pages/Internshipguide";
+import Internships from "./pages/Internships";
+import InternshipDetail from "./pages/InternshipDetail";
 import CareerGuide from "./pages/CareerGuide";
 import EventsPage from "./pages/EventsPage";
 import NotFoundPage from "./components/NotFoundPage";
@@ -86,6 +88,9 @@ export default function App() {
               <Route path="/about-us" element={<AboutPage />} />
               {/* <Route path="/meet-our-team" element={<TeamPage />} /> */}
               <Route path="/internship-guide" element={<InternshipGuide />} />
+              <Route path="/internships" element={<Internships />} />
+              <Route path="/internships/:id" element={<InternshipDetail />} />
+              <Route path="/internships/:id/:slug" element={<InternshipDetail />} />
               <Route path="/career-guide" element={<CareerGuide />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/contact-us" element={<Contact />} />

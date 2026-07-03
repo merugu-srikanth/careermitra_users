@@ -44,6 +44,7 @@ const navLinks = [
     dropdown: [
       { name: "Career Overview", path: "/career-guide" },
       { name: "Internship FAQ's", path: "/internship-guide" },
+      { name: "Internship Opportunities", path: "/internships" },
     ],
   },
   { name: "Government Jobs", Icon: FaBlog, blogsDropdown: true },

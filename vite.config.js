@@ -182,9 +182,9 @@ export default defineConfig({
     }),
   ],
 
-  port: 3000,
+  port: 3005,
   server: {
-    port: 3000,
+    port: 3005,
     proxy: {
       '/api': {
         target: 'https://www.careermitra.in',
