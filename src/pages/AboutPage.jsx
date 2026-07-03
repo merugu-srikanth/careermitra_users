@@ -505,7 +505,7 @@ function CTASection() {
               onClick={navigate => navigate("/contact-us")}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={scrollToContact}
+               onClick={scrollToContact}
                 className="flex items-center justify-center gap-2 px-15 py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
               >
                 Get in Touch

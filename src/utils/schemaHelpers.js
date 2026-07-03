@@ -35,8 +35,17 @@ export function generateOrganizationSchema(customData = {}) {
     ],
     "contactPoint": customData.contactPoint || {
       "@type": "ContactPoint",
+      "telephone": "+91 7794045533",
       "email": "info@careermitra.in",
       "contactType": "customer service"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "7th Floor, 806, Vasavi MPM Mall, Ameerpet",
+      "addressLocality": "Hyderabad",
+      "addressRegion": "Telangana",
+      "postalCode": "500016",
+      "addressCountry": "IN"
     },
     ...customData.extra
   };
@@ -146,9 +155,18 @@ export function generateArticleSchema(article = {}) {
     "publisher": {
       "@type": "Organization",
       "name": "CareerMitra",
+      "url": BASE_URL,
       "logo": {
         "@type": "ImageObject",
         "url": DEFAULT_LOGO
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "7th Floor, 806, Vasavi MPM Mall, Ameerpet",
+        "addressLocality": "Hyderabad",
+        "addressRegion": "Telangana",
+        "postalCode": "500016",
+        "addressCountry": "IN"
       }
     },
     "mainEntityOfPage": {
@@ -375,6 +393,23 @@ export function generateWebPageSchema(page = {}) {
     "name": page.name,
     "description": page.description,
     "url": absoluteUrl(page.url),
+    "publisher": {
+      "@type": "Organization",
+      "name": "CareerMitra",
+      "url": BASE_URL,
+      "logo": {
+        "@type": "ImageObject",
+        "url": DEFAULT_LOGO
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "7th Floor, 806, Vasavi MPM Mall, Ameerpet",
+        "addressLocality": "Hyderabad",
+        "addressRegion": "Telangana",
+        "postalCode": "500016",
+        "addressCountry": "IN"
+      }
+    },
     ...page.extra
   };
 }
