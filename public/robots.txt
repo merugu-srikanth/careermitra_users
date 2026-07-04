@@ -5,10 +5,3 @@ Disallow: /login
  
 Sitemap: https://careermitra.in/sitemap.xml
 
- 
-# Note: The following are separate domains/subdomains.
-# They need their OWN robots.txt files placed at each domain root:
-#
-# admin.careermitra.in/robots.txt     → Disallow: /
-# admin.careermitra.in/robots.txt   → Disallow: /
-# careermitra.in/robots.txt         → Disallow: /

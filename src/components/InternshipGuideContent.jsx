@@ -360,19 +360,19 @@ export default function InternshipGuideContent() {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
                 <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-orange-200 hover:bg-white transition-all">
-                  <span className="font-extrabold text-slate-800 block mb-1">💻 Dedicated Portals</span>
+                  <span className="font-extrabold text-slate-800 block mb-1"> Dedicated Portals</span>
                   Platforms like Internshala, Naukri, LinkedIn, and Unstop offer verified posts with quick filter options.
                 </div>
                 <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-orange-200 hover:bg-white transition-all">
-                  <span className="font-extrabold text-slate-800 block mb-1">🎓 College Placement Cells</span>
+                  <span className="font-extrabold text-slate-800 block mb-1"> College Placement Cells</span>
                   University career departments share official notifications for training and campus recruitment drives.
                 </div>
                 <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-orange-200 hover:bg-white transition-all">
-                  <span className="font-extrabold text-slate-800 block mb-1">🤝 LinkedIn Networking</span>
+                  <span className="font-extrabold text-slate-800 block mb-1"> LinkedIn Networking</span>
                   Connect with recruiters, hiring managers, and alumni to ask for referrals and unadvertised openings.
                 </div>
                 <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-orange-200 hover:bg-white transition-all">
-                  <span className="font-extrabold text-slate-800 block mb-1">🏢 Company Careers Page</span>
+                  <span className="font-extrabold text-slate-800 block mb-1"> Company Careers Page</span>
                   Check the official websites of companies you like before listings get distributed to third-party boards.
                 </div>
               </div>
