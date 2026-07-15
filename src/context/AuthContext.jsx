@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+"use client";
+
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
@@ -59,6 +61,7 @@ const normalizeResponse = (raw) => {
 };
 
 const readPendingRegisterCredentials = () => {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(PENDING_REGISTER_KEY);
     return raw ? JSON.parse(raw) : null;
@@ -69,15 +72,22 @@ const readPendingRegisterCredentials = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setToken(localStorage.getItem("token") || null);
+    }
+  }, []);
+
   const storePendingRegisterCredentials = (email, password) => {
-    if (!email || !password) return;
+    if (typeof window === "undefined" || !email || !password) return;
     localStorage.setItem(PENDING_REGISTER_KEY, JSON.stringify({ email, password }));
   };
 
   const clearPendingRegisterCredentials = () => {
+    if (typeof window === "undefined") return;
     localStorage.removeItem(PENDING_REGISTER_KEY);
   };
 
@@ -298,7 +308,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // � CHECK PROFILE COMPLETION
+  // 🔍 CHECK PROFILE COMPLETION
   const checkProfile = async (authToken) => {
     try {
       const res = await axios.get(`${API}/user/profile`, {
@@ -322,12 +332,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // �🚪 LOGOUT
+  // 🚪 LOGOUT
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem(REGISTER_VERIFY_TOKEN_KEY);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem(REGISTER_VERIFY_TOKEN_KEY);
+    }
     toast.success("Logged out");
   };
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 
 export default function AnimatedSection({ children, animation = "fade-up", className = "", delay = 0 }) {

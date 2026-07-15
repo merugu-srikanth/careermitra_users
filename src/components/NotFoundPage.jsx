@@ -1,5 +1,4 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 const NotFoundPage = () => {
@@ -122,7 +121,7 @@ const NotFoundPage = () => {
           whileTap={{ scale: 0.97 }}
         >
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-white text-lg transition-all duration-300"
             style={{
               background: "linear-gradient(135deg, #f97316, #ec4899)",

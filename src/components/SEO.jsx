@@ -1,5 +1,7 @@
-import { Helmet } from "react-helmet-async";
-import { useLocation } from "react-router-dom";
+"use client";
+
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { generateBreadcrumbSchema } from "../utils/schemaHelpers";
 
 export default function SEO({
@@ -15,114 +17,106 @@ export default function SEO({
   authorName,
   tags = [],
   section,
-  schema = null, // Can be a single schema object or an array of schema objects
+  schema = null,
 }) {
-  const location = useLocation();
+  const pathname = usePathname();
 
   const safeTitle       = title       || "CareerMitra";
   const safeDescription = description || "Government Jobs & Career Platform for India";
   const safeImage       = image       || "https://www.careermitra.in/og-default.png";
   const safeImageAlt    = imageAlt    || safeTitle;
 
-  // Determine actual absolute URL if not explicitly provided
-  const absoluteCurrentUrl = url || `https://www.careermitra.in${location.pathname}${location.search}`;
+  useEffect(() => {
+    // Update Title
+    document.title = safeTitle;
 
-  // Assemble dynamic breadcrumbs if not custom provided
-  let autoBreadcrumbSchema = null;
-  const pathSegments = location.pathname.split("/").filter(Boolean);
-  if (pathSegments.length > 0) {
-    const breadcrumbItems = [{ name: "Home", item: "/" }];
-    let accumulatedPath = "";
-    pathSegments.forEach((segment, index) => {
-      accumulatedPath += `/${segment}`;
-      // Clean up segment name for display (e.g. government-jobs -> Government Jobs)
-      const cleanName = segment
-        .split("-")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-      breadcrumbItems.push({
-        name: cleanName,
-        item: accumulatedPath
-      });
-    });
-    autoBreadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
-  }
-
-  // Normalize schemas: filter out nulls/falsy values
-  const inputSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
-  let mergedSchemas = [...inputSchemas];
-
-  // If there isn't a BreadcrumbList in the user-provided schemas, add the auto-generated one
-  const hasBreadcrumb = mergedSchemas.some(
-    s => s && (s["@type"] === "BreadcrumbList" || s["@type"] === "http://schema.org/BreadcrumbList")
-  );
-  if (!hasBreadcrumb && autoBreadcrumbSchema) {
-    mergedSchemas.push(autoBreadcrumbSchema);
-  }
-
-  // Deduplicate schemas by @type (keeping the last one if duplicates occur, or merging where relevant)
-  const dedupedMap = new Map();
-  mergedSchemas.forEach(s => {
-    if (s && s["@type"]) {
-      dedupedMap.set(s["@type"], s);
+    // Update Meta Description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
     }
-  });
-  const finalSchemas = Array.from(dedupedMap.values());
+    metaDesc.content = safeDescription;
 
-  return (
-    <Helmet>
-      <title>{safeTitle}</title>
-      <meta name="description" content={safeDescription} />
-      {keywords && <meta name="keywords" content={keywords} />}
-      <link rel="canonical" href={absoluteCurrentUrl} />
+    // Keywords
+    if (keywords) {
+      let metaKey = document.querySelector('meta[name="keywords"]');
+      if (!metaKey) {
+        metaKey = document.createElement('meta');
+        metaKey.name = "keywords";
+        document.head.appendChild(metaKey);
+      }
+      metaKey.content = keywords;
+    }
 
-      {/* ── Open Graph ── */}
-      <meta property="og:type"        content={type} />
-      <meta property="og:title"       content={safeTitle} />
-      <meta property="og:description" content={safeDescription} />
-      <meta property="og:image"       content={safeImage} />
-      <meta property="og:image:alt"   content={safeImageAlt} />
-      <meta property="og:image:width"  content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:url"         content={absoluteCurrentUrl} />
-      <meta property="og:site_name"   content="CareerMitra" />
-      <meta property="og:locale"      content="en_IN" />
+    // Canonical link
+    const searchString = typeof window !== "undefined" ? window.location.search : "";
+    const absoluteCurrentUrl = url || `https://www.careermitra.in${pathname}${searchString}`;
 
-      {/* ── Article OG ── */}
-      {type === "article" && publishedAt && (
-        <meta property="article:published_time" content={publishedAt} />
-      )}
-      {type === "article" && modifiedAt && (
-        <meta property="article:modified_time" content={modifiedAt} />
-      )}
-      {type === "article" && authorName && (
-        <meta property="article:author" content={authorName} />
-      )}
-      {type === "article" && section && (
-        <meta property="article:section" content={section} />
-      )}
-      {type === "article" && tags.map(tag => (
-        <meta key={tag} property="article:tag" content={tag} />
-      ))}
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = absoluteCurrentUrl;
 
-      {/* ── Twitter Card ── */}
-      <meta name="twitter:card"        content="summary_large_image" />
-      <meta name="twitter:site"        content="@CareerMitraaa" />
-      <meta name="twitter:title"       content={safeTitle} />
-      <meta name="twitter:description" content={safeDescription} />
-      <meta name="twitter:image"       content={safeImage} />
-      <meta name="twitter:image:alt"   content={safeImageAlt} />
-      {authorName && (
-        <meta name="twitter:creator" content={authorName} />
-      )}
+    // Clean up dynamic schemas previously added
+    const schemaScripts = document.querySelectorAll('script[type="application/ld+json"].dynamic-seo-schema');
+    schemaScripts.forEach(s => s.remove());
 
-      {/* ── JSON-LD Structured Data ── */}
-      {finalSchemas.map((sch, i) => (
-        <script key={i} type="application/ld+json">
-          {JSON.stringify(sch)}
-        </script>
-      ))}
-    </Helmet>
-  );
+    // Assemble dynamic breadcrumbs if not custom provided
+    let autoBreadcrumbSchema = null;
+    const pathSegments = pathname.split("/").filter(Boolean);
+    if (pathSegments.length > 0) {
+      const breadcrumbItems = [{ name: "Home", item: "/" }];
+      let accumulatedPath = "";
+      pathSegments.forEach((segment) => {
+        accumulatedPath += `/${segment}`;
+        const cleanName = segment
+          .split("-")
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+        breadcrumbItems.push({
+          name: cleanName,
+          item: accumulatedPath
+        });
+      });
+      autoBreadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+    }
+
+    // Normalize schemas: filter out nulls/falsy values
+    const inputSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
+    let mergedSchemas = [...inputSchemas];
+
+    // If there isn't a BreadcrumbList in the user-provided schemas, add the auto-generated one
+    const hasBreadcrumb = mergedSchemas.some(
+      s => s && (s["@type"] === "BreadcrumbList" || s["@type"] === "http://schema.org/BreadcrumbList")
+    );
+    if (!hasBreadcrumb && autoBreadcrumbSchema) {
+      mergedSchemas.push(autoBreadcrumbSchema);
+    }
+
+    // Deduplicate schemas by @type
+    const dedupedMap = new Map();
+    mergedSchemas.forEach(s => {
+      if (s && s["@type"]) {
+        dedupedMap.set(s["@type"], s);
+      }
+    });
+    const finalSchemas = Array.from(dedupedMap.values());
+
+    // Append new scripts to head
+    finalSchemas.forEach(sch => {
+      const script = document.createElement('script');
+      script.type = "application/ld+json";
+      script.className = "dynamic-seo-schema";
+      script.text = JSON.stringify(sch);
+      document.head.appendChild(script);
+    });
+
+  }, [safeTitle, safeDescription, keywords, url, pathname, schema]);
+
+  return null;
 }
-

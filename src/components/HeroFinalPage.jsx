@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
@@ -20,7 +22,7 @@ import { GrAnnounce } from "react-icons/gr";
 
 
 const ANNOUNCEMENT_API_BASE =
-    import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
+    (process.env.NEXT_PUBLIC_ANNOUNCEMENT_API_BASE || process.env.VITE_ANNOUNCEMENT_API_BASE) || "https://www.careermitra.in";
 
 const fmtDate = (v) => {
     const d = new Date(v);
@@ -115,7 +117,8 @@ const CARDS = [
    COMPACT ANNOUNCEMENTS — mobile / tablet only
 ───────────────────────────────────────── */
 function CompactAnnouncements({ list, loading }) {
-    const navigate = useNavigate();
+    const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
     const [open, setOpen] = useState(true);
 
     return (
@@ -231,7 +234,8 @@ function CompactAnnouncements({ list, loading }) {
    • Pauses on hover, resumes on leave
 ───────────────────────────────────────── */
 function VerticalAnnouncements({ list, loading }) {
-    const navigate = useNavigate();
+    const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
     /* refs for the scroll loop — never cause re-renders */
     const viewportRef = useRef(null); // overflow:hidden container
@@ -436,7 +440,8 @@ function VerticalAnnouncements({ list, loading }) {
    FEATURE CARD  (responsive)
 ───────────────────────────────────────── */
 function FeatureCard({ card }) {
-    const navigate = useNavigate();
+    const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
     const Icon = card.icon;
     const BtnIcon = card.btnIcon;
 
@@ -490,6 +495,7 @@ function FeatureCard({ card }) {
                 <button
                     className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all hover:opacity-90 active:scale-95"
                     style={{ background: card.btnGrad }}
+                    suppressHydrationWarning={true}
                 >
                     <BtnIcon style={{ fontSize: 10 }} />
                     <span className="truncate">{card.button}</span>
@@ -506,9 +512,13 @@ export default function HeroFinalPage() {
     const { token } = useAuth();
     const [annList, setAnnList] = useState([]);
     const [annLoading, setAnnLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const dynamicCards = CARDS.map((card) => {
-        if (card.id === 1 && token) {
+        if (card.id === 1 && mounted && token) {
             return {
                 ...card,
                 button: "Go to Dashboard",

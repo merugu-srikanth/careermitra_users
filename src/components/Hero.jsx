@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react'
 import GovernmentHeroMobile from './GovernmentHeroMobile'
 import IndiaJobsHero from './GovernmentHero'

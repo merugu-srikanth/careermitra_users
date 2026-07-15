@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState, useEffect } from "react";
 
 export default function LazyImage({ src, alt, style = {}, className = "" }) {

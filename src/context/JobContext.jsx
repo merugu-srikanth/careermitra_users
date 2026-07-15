@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useState, useEffect } from "react";
 
 const JobContext = createContext(null);
@@ -56,44 +58,22 @@ export function JobProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      // Fetch first page with limit=100
-      const firstPageRes = await fetch("https://careermitra.in/api/jobs?page=1&limit=100&sort=newest");
-      const firstPageData = await firstPageRes.json();
+      const types = ["jobs", "internship", "skillup"];
+      let fetchedJobs = [];
 
-      if (!firstPageData.success) {
-        setError(firstPageData.message || "Failed to load jobs");
-        setLoading(false);
-        return;
-      }
-
-      let fetchedJobs = firstPageData?.data?.jobs || [];
-      const totalPages = firstPageData?.data?.pagination?.totalPages || 1;
-
-      // If there are more pages, fetch them in parallel
-      if (totalPages > 1) {
-        const promises = [];
-        for (let p = 2; p <= totalPages; p++) {
-          promises.push(
-            fetch(`https://careermitra.in/api/jobs?page=${p}&limit=100&sort=newest`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.success) {
-                  return data?.data?.jobs || [];
-                }
-                console.warn(`Failed to fetch page ${p} in JobContext:`, data.message);
-                return [];
-              })
-              .catch((err) => {
-                console.error(`Error fetching page ${p} in JobContext:`, err);
-                return [];
-              })
-          );
-        }
-        const remainingPagesJobs = await Promise.all(promises);
-        remainingPagesJobs.forEach((pageJobs) => {
-          fetchedJobs = fetchedJobs.concat(pageJobs);
-        });
-      }
+      await Promise.all(
+        types.map(async (type) => {
+          try {
+            const res = await fetch(`https://careermitra.in/api/jobs?page=1&limit=100&sort=newest&job_type=${type}`);
+            const data = await res.json();
+            if (data.success && data.data?.jobs) {
+              fetchedJobs = fetchedJobs.concat(data.data.jobs);
+            }
+          } catch (err) {
+            console.error(`Failed to fetch ${type} in JobContext:`, err);
+          }
+        })
+      );
 
       const mapped = fetchedJobs.map(mapUnifiedJob);
       setAllJobs(mapped);

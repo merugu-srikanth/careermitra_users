@@ -1,10 +1,12 @@
+"use client";
+
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import DOMPurify from "dompurify";
 
 const ANNOUNCEMENT_API_BASE =
-  import.meta.env.VITE_ANNOUNCEMENT_API_BASE || "https://www.careermitra.in";
+  (process.env.NEXT_PUBLIC_ANNOUNCEMENT_API_BASE || process.env.VITE_ANNOUNCEMENT_API_BASE) || "https://www.careermitra.in";
 const ANNOUNCEMENTS_API = `${ANNOUNCEMENT_API_BASE}/api/announcements`;
 const imageBase64Cache = new Map();
 
@@ -221,7 +223,8 @@ function AnnouncementModal({ item, onClose, onNavigate }) {
 }
 
 export default function HeroAnnouncementTicker() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
   const [announcements, setAnnouncements] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState("");

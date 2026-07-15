@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
 const CalIcon = () => (
@@ -49,7 +51,8 @@ function JobGridCard({
   noOfPosts, age, qualifications, category
 }) {
   const { user, token } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
   const isExpired = lastDate && new Date(lastDate) < new Date();
   const isLoggedIn = Boolean(user || token || localStorage.getItem("token"));
@@ -225,7 +228,8 @@ function JobTableRow({
   noOfPosts, age, qualifications, category
 }) {
   const { user, token } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
   const isExpired = lastDate && new Date(lastDate) < new Date();
   const isLoggedIn = Boolean(user || token || localStorage.getItem("token"));

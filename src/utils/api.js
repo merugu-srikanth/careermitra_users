@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://careermitra.in/api";
+export const API_BASE_URL = "https://www.careermitra.in/api";
 
 export const API_ENDPOINTS = {
   USER_PROFILE: `${API_BASE_URL}/user/profile`,

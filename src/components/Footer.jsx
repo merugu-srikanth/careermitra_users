@@ -1,6 +1,8 @@
+"use client";
+
 import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import logo from "../assets/NewLogo.png";
 
@@ -44,13 +46,6 @@ export default function Footer() {
     { label: "Create Account", to: "/register", Icon: FaUserPlus },
   ];
 
-  // const socialLinks = [
-  //   { label: "Facebook", href: "#", Icon: FaFacebookF },
-  //   { label: "Twitter", href: "#", Icon: FaTwitter },
-  //   { label: "Instagram", href: "#", Icon: FaInstagram },
-  //   { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
-  // ];
-
   const trustPoints = [
     "Government jobs only",
     "Daily opportunity updates",
@@ -73,7 +68,7 @@ export default function Footer() {
               {cats.children.map(child => (
                 <Link
                   key={child.id}
-                  to={buildCategoryUrl(child, cats.parents)}
+                  href={buildCategoryUrl(child, cats.parents)}
                   className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-orange-300 transition-colors duration-200 whitespace-normal wrap-break-word"
                 >
                   <span className="w-1 h-1 rounded-full bg-orange-500 shrink-0" />
@@ -95,7 +90,7 @@ export default function Footer() {
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link
-                to="/register"
+                href="/register"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-600"
               >
                 <FaUserPlus />
@@ -103,7 +98,7 @@ export default function Footer() {
                 <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
               <Link
-                to="/login"
+                href="/login"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-900/70 px-5 py-2.5 text-sm font-bold text-slate-100 transition-colors duration-200 hover:border-orange-300 hover:text-orange-300"
               >
                 <FaSignInAlt />
@@ -115,7 +110,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
-             <img src={logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
+             <img src={logo.src || logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
             <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">
 Your one-stop gateway for government jobs and career guidance across India.            </p>
 
@@ -150,7 +145,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
             <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-1">
               {quickLinks.map((item) => (
                 <li key={item.to}>
-                  <Link to={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
+                  <Link href={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
                     <span className="text-orange-400 transition-transform duration-200 group-hover:translate-x-1">→</span>
                     <span>{item.label}</span>
                   </Link>
@@ -192,7 +187,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
  
               {/* CTA button */}
               <Link
-                to="/register"
+                href="/register"
                 className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-green-500/30"
                 style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
               >
@@ -207,7 +202,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 {accountLinks.map(({ label, to, Icon }) => (
                   <Link
                     key={to}
-                    to={to}
+                    href={to}
                     className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-2 py-2.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300 text-center"
                   >
                     <Icon size={12} />
@@ -224,15 +219,15 @@ Your one-stop gateway for government jobs and career guidance across India.     
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
           <p>© {new Date().getFullYear()} Careermitra. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:justify-end">
-            <Link to="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
+            <Link href="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>
             <span className="hidden sm:inline text-slate-700">·</span>
-            <Link to="/privacy-policy" className="hover:text-orange-400 transition-colors duration-200">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-orange-400 transition-colors duration-200">Privacy Policy</Link>
             <span className="hidden sm:inline text-slate-700">·</span>
-            <Link to="/disclaimer" className="hover:text-orange-400 transition-colors duration-200">Disclaimer</Link>
+            <Link href="/disclaimer" className="hover:text-orange-400 transition-colors duration-200">Disclaimer</Link>
             <span className="hidden sm:inline text-slate-700">·</span>
-            <Link to="/editorial-policy" className="hover:text-orange-400 transition-colors duration-200">Editorial Policy</Link>
+            <Link href="/editorial-policy" className="hover:text-orange-400 transition-colors duration-200">Editorial Policy</Link>
             <span className="hidden sm:inline text-slate-700">·</span>
-            <Link to="/correction-policy" className="hover:text-orange-400 transition-colors duration-200">Correction Policy</Link>
+            <Link href="/correction-policy" className="hover:text-orange-400 transition-colors duration-200">Correction Policy</Link>
             <span className="hidden md:inline text-slate-700">·</span>
             <p className="w-full md:w-auto mt-1 md:mt-0 text-slate-400/80">Built for aspirants across India.</p>
           </div>

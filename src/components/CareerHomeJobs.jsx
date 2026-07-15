@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useJobs } from "../context/JobContext";
@@ -815,8 +817,7 @@ export default function CareerHomeJobs() {
                 {/* ── View All Button ── */}
                 <div className="text-center">
                     <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                        <Link
-                            to="/latest-job-notifications"
+                        <Link href="/latest-job-notifications"
                             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-black rounded-full shadow-xl hover:shadow-2xl transition-all text-base group"
                         >
                             <span>View All Opportunities</span>

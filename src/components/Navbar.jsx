@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/NewLogo.png";
 import axios from "axios";
@@ -96,9 +99,16 @@ const normalizeProfilePayload = (payload) => {
 export default function Navbar() {
   const { user, token, logout } = useAuth();
   const [profileData, setProfileData] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [jobsBellCount, setJobsBellCount] = useState({ activeCount: 0, newCount: 0, displayCount: 0, showNew: false });
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -353,9 +363,9 @@ export default function Navbar() {
               <FaBars size={18} />
             </button>
             <div className="flex-1 flex justify-center">
-              <Link to="/" className="flex items-center">
+              <Link href="/" className="flex items-center">
                 <img
-                  src={Logo}
+                  src={Logo.src || Logo}
                   alt="Careermitra"
                   className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-12" : "h-14"}`}
                 />
@@ -375,9 +385,9 @@ export default function Navbar() {
           {/* ── DESKTOP ROW: logo | nav links + auth ── */}
           <div className="hidden lg:flex items-center justify-between w-full">
             {/* LOGO */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
               <img
-                src={Logo}
+                src={Logo.src || Logo}
                 alt="Careermitra"
                 className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-14" : "h-20"}`}
               />
@@ -394,7 +404,7 @@ export default function Navbar() {
                   return (
                     <Link
                       key={link.name}
-                      to={link.path}
+                      href={link.path}
                       title={link.title || link.name}
                       className={`group flex items-center justify-center transition-all duration-200 ${isIconOnly ? "w-12 h-12" : "px-4 py-2"} ${
                         active
@@ -441,7 +451,7 @@ export default function Navbar() {
                           >
                             {/* All Government Jobs */}
                             <Link
-                              to="/government-jobs"
+                              href="/government-jobs"
                               className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition border-b border-orange-100"
                               onClick={() => setOpenDropdown(null)}
                             >
@@ -460,7 +470,7 @@ export default function Navbar() {
                                       className={`flex items-center justify-between px-4 py-2.5 cursor-pointer transition-all border-r-2 ${activeParent?.id === parent.id ? "bg-orange-50 border-orange-500" : "border-transparent hover:bg-slate-50"}`}
                                     >
                                       <Link
-                                        to={`/${parent.slug}`}
+                                        href={`/${parent.slug}`}
                                         className={`flex-1 text-sm font-semibold truncate ${activeParent?.id === parent.id ? "text-orange-600" : "text-slate-700"}`}
                                         onClick={() => setOpenDropdown(null)}
                                       >
@@ -485,7 +495,7 @@ export default function Navbar() {
                                           {activeParent.children.map(child => (
                                             <Link
                                               key={child.id}
-                                              to={`/${activeParent.slug}/${child.slug}`}
+                                              href={`/${activeParent.slug}/${child.slug}`}
                                               className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
                                               onClick={() => setOpenDropdown(null)}
                                             >
@@ -517,7 +527,7 @@ export default function Navbar() {
                                 ) : categoryTree.map(cat => (
                                   <Link
                                     key={cat.id}
-                                    to={`/${cat.slug}`}
+                                    href={`/${cat.slug}`}
                                     className="block px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
                                     onClick={() => setOpenDropdown(null)}
                                   >
@@ -559,7 +569,7 @@ export default function Navbar() {
                             {link.dropdown.map((item) => (
                               <Link
                                 key={item.name}
-                                to={item.path}
+                                href={item.path}
                                 state={item.state}
                                 className="block px-5 py-3 text-sm font-medium text-slate-800 hover:bg-orange-50 hover:text-orange-600 transition"
                               >
@@ -591,7 +601,7 @@ export default function Navbar() {
 
                 <div className="w-px h-5 bg-slate-200/60" />
 
-                {token ? (
+                {mounted && token ? (
                   <>
                     {/* Jobs Bell Button */}
                     <div className="relative flex items-center">
@@ -716,7 +726,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <Link
-                  to="/login"
+                  href="/login"
                   className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
                 >
                   <FaSignInAlt size={11} />Student Login
@@ -725,7 +735,7 @@ export default function Navbar() {
               </div>
             </div>
              {/* <Link
-                  to="/login"
+                  href="/login"
                   className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-full font-semibold text-sm shadow-sm shadow-green-200 hover:shadow-md hover:shadow-green-200 transition-all duration-200"
                 >
                   <FaSignInAlt size={13} /> Vender Login
@@ -776,7 +786,7 @@ export default function Navbar() {
 
                 {/* close + logo row */}
                 <div className="relative flex items-center justify-between">
-                  <img src={Logo} alt="Careermitra" className="h-12 w-auto object-contain" />
+                  <img src={Logo.src || Logo} alt="Careermitra" className="h-12 w-auto object-contain" />
                   <button
                     onClick={() => setDrawerOpen(false)}
                     className="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-all"
@@ -823,7 +833,7 @@ export default function Navbar() {
                     </div>
                   ) : (
                     <Link
-                      to="/login"
+                      href="/login"
                       onClick={() => setDrawerOpen(false)}
                       className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-sm shadow-orange-200"
                     >
@@ -845,7 +855,7 @@ export default function Navbar() {
                         return (
                           <Link
                             key={link.name}
-                            to={link.path}
+                            href={link.path}
                             onClick={() => setDrawerOpen(false)}
                             className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all"
                             style={{
@@ -867,7 +877,7 @@ export default function Navbar() {
                           <div key={link.name}>
                             <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{link.name}</p>
                             <Link
-                              to="/government-jobs"
+                              href="/government-jobs"
                               onClick={() => setDrawerOpen(false)}
                               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all ml-2 mb-1"
                             >
@@ -885,7 +895,7 @@ export default function Navbar() {
                           {link.dropdown.map((item) => (
                             <Link
                               key={item.name}
-                              to={item.path}
+                              href={item.path}
                               state={item.state}
                               onClick={() => setDrawerOpen(false)}
                               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
@@ -901,7 +911,7 @@ export default function Navbar() {
                 </div>
 
                 {/* ACCOUNT SECTION */}
-                {token && (
+                {mounted && token && (
                   <div className="px-3 pb-4 pt-2">
                     <div className="my-3 h-px bg-slate-100" />
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">Account</p>

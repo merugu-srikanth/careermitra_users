@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 /* ── Options ─────────────────────────────────────────────────────────────
    Fan order (left → right matching the image):
@@ -96,7 +98,8 @@ function curvePath(nx, ny) {
 }
 
 export default function HubSpokeDiagram({ onNav }) {
-    const navigate = useNavigate();
+    const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
     const nav = onNav || navigate;
 
     const [shown, setShown] = useState([]);

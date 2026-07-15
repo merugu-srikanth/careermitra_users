@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { motion, useAnimationFrame, useMotionValue, useSpring } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import image from "../assets/Careermitra-hero.webp";
 
 /* ── Google Fonts injection ─────────────────────────────────────────────── */
@@ -193,6 +195,9 @@ const Icons = {
 
 /* ── Particle System ────────────────────────────────────────────────────── */
 function Particles() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
   const particles = Array.from({ length: 36 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -628,7 +633,7 @@ function RightIllustration() {
         }} />
 
         <div style={{ position: "relative", padding: "14px 14px 10px" }}>
-          <img src={image} alt="Government Jobs" style={{ width: "100%", borderRadius: 16, marginBottom: 12, filter: "drop-shadow(0 12px 24px rgba(34,197,94,0.2)) drop-shadow(0 6px 12px rgba(249,115,22,0.15))", display: "block" }}  alt="Government Jobs in Careermitra" />  
+          <img src={image.src || image} alt="Government Jobs" style={{ width: "100%", borderRadius: 16, marginBottom: 12, filter: "drop-shadow(0 12px 24px rgba(34,197,94,0.2)) drop-shadow(0 6px 12px rgba(249,115,22,0.15))", display: "block" }}  alt="Government Jobs in Careermitra" />  
           {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
             <div>
               <div style={{ fontSize: 11, color: "#22c55e", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>
@@ -705,7 +710,8 @@ function RightIllustration() {
 
 /* ── Main Hero ──────────────────────────────────────────────────────────── */
 export default function IndiaJobsHero() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
   const handleNav = (path) => {
     if (typeof path === "string" && path.includes("#")) {

@@ -1,16 +1,18 @@
-import { useRegisterSW } from 'virtual:pwa-register/react'
+"use client";
+
+import { useEffect, useState } from "react";
 
 export default function PWAUpdatePrompt() {
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      if (r) setInterval(() => r.update(), 60 * 60 * 1000) // check every hour
-    },
-  })
+  const [needRefresh, setNeedRefresh] = useState(false);
 
-  if (!needRefresh) return null
+  useEffect(() => {
+    // Standard service worker registration update listener can be configured here
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      // Stub for Next.js PWA update prompt
+    }
+  }, []);
+
+  if (!needRefresh) return null;
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] bg-blue-900 text-white rounded-xl shadow-2xl px-5 py-4 flex items-center gap-4 max-w-sm w-full mx-4">
@@ -26,12 +28,12 @@ export default function PWAUpdatePrompt() {
           Later
         </button>
         <button
-          onClick={() => updateServiceWorker(true)}
+          onClick={() => setNeedRefresh(false)}
           className="bg-white text-blue-900 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition"
         >
           Update
         </button>
       </div>
     </div>
-  )
+  );
 }

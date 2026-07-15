@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+const fs = require("fs");
+const path = require("path");
 
 async function fetchSitemap() {
   try {
@@ -9,7 +9,6 @@ async function fetchSitemap() {
     }
     const xml = await response.text();
     
-    // Save to the public directory so Vite copies it to dist/ during build
     fs.writeFileSync(path.resolve("public/sitemap.xml"), xml);
     console.log("Successfully fetched and saved sitemap.xml to public/ folder!");
   } catch (error) {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import JobCard from "./Jobcard";
 import AnimatedSection from "./Animatedsection";
 import { STATIC_JOBS } from "../data/staticJobs";
@@ -78,8 +78,7 @@ export default function LatestJobsSection() {
 
         {/* CTA */}
         <div className="mt-16 text-center">
-          <Link
-            to="/jobs"
+          <Link href="/jobs"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border-2 border-orange-400 text-orange-600 font-extrabold text-sm hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all duration-300 hover:shadow-lg hover:shadow-orange-200"
           >
             View All {STATIC_JOBS.filter((j) => j.status === 0).length} Opportunities <ArrowRightIcon />

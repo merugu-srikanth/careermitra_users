@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 
 const AUTHOR_STYLES = `
 .ba-card {
@@ -149,7 +149,7 @@ const BlogAuthor = ({ author, views = 0, tagsCount = 0 }) => {
           )}
         </div>
 
-        <Link to={authorPath} className="ba-name">{name}</Link>
+        <Link href={authorPath} className="ba-name">{name}</Link>
         <div className="ba-role">{role}</div>
 
         {bio && <p className="ba-bio">{bio}</p>}
@@ -171,7 +171,7 @@ const BlogAuthor = ({ author, views = 0, tagsCount = 0 }) => {
           </div>
         </div> */}
 
-        <Link to={authorPath} className="ba-profile-link">
+        <Link href={authorPath} className="ba-profile-link">
           View Profile <ArrowIcon />
         </Link>
       </div>

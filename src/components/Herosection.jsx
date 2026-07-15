@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useRef } from 'react';
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion, } from 'framer-motion';
 import { 
   FaBalanceScale, 
@@ -107,13 +109,13 @@ export default function IntegratedHero() {
         </motion.p>
 
           <div className="flex flex-col sm:flex-row gap-5 pt-2">
-            <Link to="#" className="relative group px-5 py-5 rounded-2xl bg-amber-500 text-[#ffffff] font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-[0_20px_40px_-15px_rgba(245,158,11,0.5)]">
+            <Link href="#" className="relative group px-5 py-5 rounded-2xl bg-amber-500 text-[#ffffff] font-black text-lg transition-all hover:scale-105 active:scale-95 shadow-[0_20px_40px_-15px_rgba(245,158,11,0.5)]">
               Let Every Update Find You First.
               <div className="absolute inset-0 rounded-2xl border-2 border-white/30 scale-105 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all" />
             </Link>
 
 
-            <Link to="#" className="px-5 py-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-white font-bold text-lg hover:bg-white/10 transition-all">
+            <Link href="#" className="px-5 py-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-white font-bold text-lg hover:bg-white/10 transition-all">
               Browse Latest Jobs
             </Link>
           </div>
@@ -150,7 +152,7 @@ export default function IntegratedHero() {
               </h2>
               <div className="mt-4 h-1 w-12 bg-amber-500 rounded-full" />
             </div> */}
-            <img src={center} alt="Center Graphic" className="w-full h-full lg:w-80 lg:h-80 object-cover rounded-full shadow-[0_0_80px_rgba(245,158,11,0.3)]" />
+            <img src={center.src || center} alt="Center Graphic" className="w-full h-full lg:w-80 lg:h-80 object-cover rounded-full shadow-[0_0_80px_rgba(245,158,11,0.3)]" />
             </div>
           </motion.div>
 

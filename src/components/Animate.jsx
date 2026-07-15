@@ -1,10 +1,18 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 export default function AnimatedBg() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const circles = Array.from({ length: 10 });
 
   return (
     <div className=" absolute inset-0 -z-10 overflow-hidden bg-gradient-to-b from-[#fad099] to-[#faf7f2]">
-
-      {circles.map((_, i) => (
+      {mounted && circles.map((_, i) => (
         <span
           key={i}
           className="absolute block bg-orange-500/40 bottom-[-150px]"

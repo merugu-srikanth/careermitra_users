@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { motion, useAnimationFrame, useMotionValue, useSpring } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 // import image from "../assets/image.png";
 
 /* ── Google Fonts injection ─────────────────────────────────────────────── */
@@ -261,6 +263,9 @@ const Icons = {
 
 /* ── Particle System ────────────────────────────────────────────────────── */
 function Particles() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
   const particles = Array.from({ length: 36 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -783,7 +788,8 @@ function RightIllustration() {
 
 /* ── Main Hero ──────────────────────────────────────────────────────────── */
 export default function GovernmentHeroMobile() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
   const handleNav = (path) => {
     if (typeof path === "string" && path.includes("#")) {

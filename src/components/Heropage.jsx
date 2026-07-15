@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 /* ─── Icons ─────────────────────────────────────────────────────────────── */
 const BellIcon = () => (
@@ -191,7 +193,8 @@ function FeatureCard({ card, onNav, index }) {
 
 /* ─── Main Hero ──────────────────────────────────────────────────────────── */
 export default function IndiaJobsHero() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
   const handleNav = (path) => {
     if (typeof path === "string" && path.includes("#")) {
@@ -236,7 +239,7 @@ export default function IndiaJobsHero() {
 
       {/* ── Floating particles ── */}
       <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
-        {Array.from({ length: 16 }).map((_, i) => (
+        {mounted && Array.from({ length: 16 }).map((_, i) => (
           <motion.span
             key={i}
             style={{
