@@ -3,7 +3,7 @@ const path = require("path");
 
 async function fetchSitemap() {
   try {
-    const response = await fetch("https://careermitra.in/api/sitemap.xml");
+    const response = await fetch("https://www.careermitra.in/api/sitemap.xml");
     if (!response.ok) {
       throw new Error(`Failed to fetch sitemap: ${response.statusText}`);
     }

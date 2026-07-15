@@ -363,7 +363,7 @@ const RelatedCard = ({ article }) => (
 );
 
 /* ── Loading skeleton ── */
-const DetailSkeleton = () => (
+export const DetailSkeleton = () => (
   <div className="min-h-screen bg-white pt-16 animate-pulse">
     <div className="bg-gray-50 border-b border-gray-100 py-3">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-2">

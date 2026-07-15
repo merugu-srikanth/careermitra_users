@@ -80,8 +80,8 @@ export default function InternshipGuideContent() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Sticky Sidebar Navigation (Desktop) */}
-        <aside className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-24 bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
+        <aside className="hidden lg:block lg:col-span-1 sticky top-28 self-start">
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
               <FaBookOpen size={16} className="text-orange-500" /> Guide Sections
             </h3>
@@ -385,7 +385,7 @@ export default function InternshipGuideContent() {
           <section id="gov-opportunities" className="space-y-6 scroll-mt-24">
             <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-3xl p-6 md:p-8 space-y-4 shadow-lg shadow-orange-100">
               <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-[10px] font-black uppercase tracking-widest">
-                🚨 Public Sector Internships
+                Public Sector Internships
               </span>
               <h3 className="text-2xl md:text-3xl font-black">Government Internship Opportunities</h3>
               <p className="text-xs md:text-sm text-orange-50 leading-relaxed">
@@ -464,14 +464,14 @@ export default function InternshipGuideContent() {
                 <FaExclamationCircle size={18} className="text-red-600" /> Common Mistakes to Avoid
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-semibold text-slate-600">
-                <div className="flex items-center gap-2">❌ Applying without homework</div>
-                <div className="flex items-center gap-2">❌ Using a generic resume template</div>
-                <div className="flex items-center gap-2">❌ Poor/unprofessional communication</div>
-                <div className="flex items-center gap-2">❌ Missing project deadlines</div>
-                <div className="flex items-center gap-2">❌ Not asking questions or clarifications</div>
-                <div className="flex items-center gap-2">❌ Ignoring constructive feedback</div>
-                <div className="flex items-center gap-2">❌ Not networking with colleagues</div>
-                <div className="flex items-center gap-2">❌ Inactive profile on professional networks</div>
+                <div className="flex items-center gap-2"> Applying without homework</div>
+                <div className="flex items-center gap-2"> Using a generic resume template</div>
+                <div className="flex items-center gap-2"> Poor/unprofessional communication</div>
+                <div className="flex items-center gap-2"> Missing project deadlines</div>
+                <div className="flex items-center gap-2"> Not asking questions or clarifications</div>
+                <div className="flex items-center gap-2"> Ignoring constructive feedback</div>
+                <div className="flex items-center gap-2"> Not networking with colleagues</div>
+                <div className="flex items-center gap-2"> Inactive profile on professional networks</div>
               </div>
             </div>
           </section>

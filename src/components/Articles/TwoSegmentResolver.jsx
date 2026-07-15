@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import ArticleList from "./ArticleList";
-import ArticleDetail from "./ArticleDetail";
+import ArticleList, { CardSkeleton } from "./ArticleList";
+import ArticleDetail, { DetailSkeleton } from "./ArticleDetail";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -43,11 +43,19 @@ export default function TwoSegmentResolver() {
       .catch(() => setType("article"));
   }, [parentSlug, slug]);
 
-  if (!type) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-8 h-8 rounded-full border-[3px] border-orange-500 border-t-transparent animate-spin" />
-    </div>
-  );
+  if (!type) {
+    const isLikelyCategory = slug && slug.length < 25 && (slug.split('-').length <= 3 || slug === 'preparation-guide' || slug === 'state-government-jobs' || slug === 'career-guidance');
+    if (isLikelyCategory) {
+      return (
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-24">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
+          </div>
+        </div>
+      );
+    }
+    return <DetailSkeleton />;
+  }
 
   // ArticleList and ArticleDetail both call useParams() internally
   // At route /:parentSlug/:slug, useParams() returns { parentSlug, slug }

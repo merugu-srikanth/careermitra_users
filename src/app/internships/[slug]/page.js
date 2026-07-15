@@ -70,7 +70,7 @@ export default function InternshipDetail() {
         // 2. Fallback: Search using clean words from the slug to find the match
         const normalizedSlug = generateSlug(slug);
         const searchTerm = getCleanSearchTerm(slug);
-        
+
         let matched = null;
 
         if (searchTerm) {
@@ -260,8 +260,8 @@ export default function InternshipDetail() {
         schema={internshipSchemas}
       />
 
-      <div className="max-w-4xl mx-auto space-y-8">
-        
+      <div className="max-w-7xl mx-auto space-y-8">
+
         {/* Back Link */}
         <Link href="/internships"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-orange-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm"
@@ -272,7 +272,7 @@ export default function InternshipDetail() {
         {/* Hero Card */}
         <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl overflow-hidden relative">
           <div className="absolute top-0 right-0 w-48 h-48 bg-orange-50/50 rounded-bl-[120px] -z-0 pointer-events-none" />
-          
+
           <div className="p-6 md:p-10 relative z-10 space-y-6">
             <div className="space-y-3">
               <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold uppercase tracking-wider">
@@ -288,7 +288,7 @@ export default function InternshipDetail() {
             </div>
 
             {/* Dynamic Grid of Info Keys */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-4 border-t border-slate-100">
               {[
                 { label: "Work Mode", value: type, icon: Briefcase },
                 { label: "Location", value: location, icon: MapPin },
@@ -299,7 +299,7 @@ export default function InternshipDetail() {
                 { label: "Category", value: category, icon: Award },
                 { label: "Application Mode", value: "Online", icon: ExternalLink },
                 { label: "Start Date", value: startDate, icon: Calendar },
-                { label: "No. of Credits", value: credits, icon: Award },
+                // { label: "No. of Credits", value: credits, icon: Award },
                 { label: "Posted Date", value: postedDate, icon: Calendar },
                 { label: "Last Date to Apply", value: deadline, icon: Calendar },
                 { label: "Status", value: expiryStatus, icon: CheckCircle, isStatus: true }
@@ -334,10 +334,10 @@ export default function InternshipDetail() {
             )}
           </div>
         </div>
-            
+
         {/* Article-Style Content */}
         <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl p-6 md:p-10 lg:p-12 space-y-10 leading-relaxed text-slate-700">
-          
+
           {/* Section: About Internship */}
           <section className="space-y-4">
             <h2 className="text-xl md:text-2xl font-bold text-slate-900">
@@ -356,7 +356,7 @@ export default function InternshipDetail() {
             <h2 className="text-xl md:text-2xl font-bold text-slate-900">
               {title} Internship 2026 Highlights:
             </h2>
-            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm max-w-xl">
+            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm w-full">
               <table className="w-full text-left text-xs border-collapse">
                 <tbody className="divide-y divide-slate-100 text-slate-600 font-medium">
                   <tr className="bg-slate-50/50">
@@ -379,10 +379,10 @@ export default function InternshipDetail() {
                     <td className="p-3.5 font-bold text-slate-800">Internship Category</td>
                     <td className="p-3.5">{category}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td className="p-3.5 font-bold text-slate-800">Total No. of Openings</td>
                     <td className="p-3.5">{openings}</td>
-                  </tr>
+                  </tr> */}
                   <tr className="bg-slate-50/50">
                     <td className="p-3.5 font-bold text-slate-800">Duration</td>
                     <td className="p-3.5">{duration}</td>
@@ -395,18 +395,18 @@ export default function InternshipDetail() {
                     <td className="p-3.5 font-bold text-slate-800">Stipend type</td>
                     <td className="p-3.5">{stipendType}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td className="p-3.5 font-bold text-slate-800">Application Mode</td>
                     <td className="p-3.5">Online</td>
-                  </tr>
+                  </tr> */}
                   <tr className="bg-slate-50/50">
                     <td className="p-3.5 font-bold text-slate-800">Start Date</td>
                     <td className="p-3.5">{startDate}</td>
                   </tr>
-                  <tr>
+                  {/* <tr>
                     <td className="p-3.5 font-bold text-slate-800">No. of Credits</td>
                     <td className="p-3.5">{credits}</td>
-                  </tr>
+                  </tr> */}
                   <tr className="bg-slate-50/50">
                     <td className="p-3.5 font-bold text-slate-800">Posted Date</td>
                     <td className="p-3.5">{postedDate}</td>
@@ -531,9 +531,8 @@ export default function InternshipDetail() {
                   >
                     <span>{faq.q}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform ${
-                        activeFAQ === index ? "rotate-180 text-orange-500" : ""
-                      }`}
+                      className={`w-4 h-4 text-slate-400 transition-transform ${activeFAQ === index ? "rotate-180 text-orange-500" : ""
+                        }`}
                     />
                   </button>
                   {activeFAQ === index && (
@@ -559,9 +558,7 @@ export default function InternshipDetail() {
         </div>
 
         {/* Internship Guide Section */}
-        <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl overflow-hidden p-6 md:p-10">
-          <InternshipGuideContent />
-        </div>
+        <InternshipGuideContent />
 
       </div>
     </div>

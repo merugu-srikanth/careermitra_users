@@ -47,7 +47,7 @@ const fmtViews = (n) =>
   !n ? null : n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
 
 /* ── Card Skeleton ── */
-const CardSkeleton = () => (
+export const CardSkeleton = () => (
   <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
     <div className="h-48 bg-gray-200" />
     <div className="p-5 space-y-3">
@@ -214,7 +214,7 @@ export default function ArticleList() {
   };
 
   const handleParent = (id) => {
-    if (!id) { navigate(isPathBased ? "/articles" : "/articles"); return; }
+    if (!id) { navigate("/government-jobs"); return; }
     const parent = filterData?.parents.find(p => p.id === id);
     const slug = parent ? toSlug(parent.name, parent.slug) : id;
     navigate(`/${slug}`);
@@ -349,7 +349,7 @@ export default function ArticleList() {
               onChange={e => handleParent(e.target.value)}
               className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 bg-white min-w-[160px]"
             >
-              <option value="/government-jobs">All Government Jobs</option>
+              <option value="">All Government Jobs</option>
               {(filterData?.parents || []).map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}

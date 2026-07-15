@@ -5,6 +5,7 @@ import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import logo from "../assets/NewLogo.png";
+import { useAuth } from "@/context/AuthContext";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -16,6 +17,7 @@ function buildCategoryUrl(child, parents) {
 }
 
 export default function Footer() {
+  const { token } = useAuth();
   const [cats, setCats] = useState({ parents: [], children: [] });
 
   useEffect(() => {
@@ -36,9 +38,9 @@ export default function Footer() {
     { label: "Contact", to: "/contact-us" },
     { label: "Terms of Service", to: "/terms-of-service" },
     { label: "Privacy Policy", to: "/privacy-policy" },
-    { label: "Disclaimer", to: "/disclaimer" },
-    { label: "Editorial Policy", to: "/editorial-policy" },
-    { label: "Correction Policy", to: "/correction-policy" },
+    // { label: "Disclaimer", to: "/disclaimer" },
+    // { label: "Editorial Policy", to: "/editorial-policy" },
+    // { label: "Correction Policy", to: "/correction-policy" },
   ];
 
   const accountLinks = [
@@ -81,32 +83,34 @@ export default function Footer() {
       )}
 
       <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:px-8">
-        <div className="mb-8 rounded-2xl border border-orange-400/30 bg-linear-to-r from-orange-500/15 via-orange-400/10 to-green-500/15 p-5 shadow-lg shadow-black/20 sm:p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-orange-300">Career Mitra Alerts</p>
-              <h3 className="mt-1 text-xl font-black text-white sm:text-2xl">Get matched jobs before everyone else</h3>
-              <p className="mt-1 text-sm text-slate-300">Personalized updates for eligible government opportunities.</p>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Link
-                href="/register"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-600"
-              >
-                <FaUserPlus />
-                Create Free Account
-                <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-900/70 px-5 py-2.5 text-sm font-bold text-slate-100 transition-colors duration-200 hover:border-orange-300 hover:text-orange-300"
-              >
-                <FaSignInAlt />
-                Student Login
-              </Link>
+        {!token && (
+          <div className="mb-8 rounded-2xl border border-orange-400/30 bg-linear-to-r from-orange-500/15 via-orange-400/10 to-green-500/15 p-5 shadow-lg shadow-black/20 sm:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-orange-300">Career Mitra Alerts</p>
+                <h3 className="mt-1 text-xl font-black text-white sm:text-2xl">Get matched jobs before everyone else</h3>
+                <p className="mt-1 text-sm text-slate-300">Personalized updates for eligible government opportunities.</p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Link
+                  href="/register"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-600"
+                >
+                  <FaUserPlus />
+                  Create Free Account
+                  <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-900/70 px-5 py-2.5 text-sm font-bold text-slate-100 transition-colors duration-200 hover:border-orange-300 hover:text-orange-300"
+                >
+                  <FaSignInAlt />
+                  Student Login
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
@@ -187,29 +191,31 @@ Your one-stop gateway for government jobs and career guidance across India.     
  
               {/* CTA button */}
               <Link
-                href="/register"
+                href={token ? "/user-dashboard" : "/register"}
                 className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-green-500/30"
                 style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
               >
                 <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                 <FaUserPlus size={14} />
-                Subscribe for Job Alerts
+                {token ? "Go to Dashboard" : "Subscribe for Job Alerts"}
                 <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
  
               {/* account links */}
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {accountLinks.map(({ label, to, Icon }) => (
-                  <Link
-                    key={to}
-                    href={to}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-2 py-2.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300 text-center"
-                  >
-                    <Icon size={12} />
-                    {label}
-                  </Link>
-                ))}
-              </div>
+              {!token && (
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {accountLinks.map(({ label, to, Icon }) => (
+                    <Link
+                      key={to}
+                      href={to}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-2 py-2.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300 text-center"
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </div>

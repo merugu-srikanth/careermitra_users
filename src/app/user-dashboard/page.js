@@ -765,10 +765,10 @@ const JobsPanel = ({ token }) => {
         const isExp = dObj ? dObj < today : false;
         const dl = daysLeft(selJob.application_deadline);
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setSelJob(null)}>
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md" onClick={() => setSelJob(null)}>
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl h-[70vh] overflow-hidden flex flex-col border border-orange-100/50" onClick={e => e.stopPropagation()}>
               <div className={cx("h-1.5 w-full", isExp ? "bg-slate-300" : "bg-linear-to-r from-orange-400 to-amber-400")} />
-              <div className="flex items-center justify-between px-6 py-4 border-b border-orange-50">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-orange-50 bg-orange-50/10">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full font-semibold">{toTC(selJob.job_type) || "Job"}</span>
                   {isExp
@@ -778,9 +778,9 @@ const JobsPanel = ({ token }) => {
                 </div>
                 <button onClick={() => setSelJob(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-50 hover:bg-orange-100 text-orange-400"><Ic.X className="w-3.5 h-3.5" /></button>
               </div>
-              <div className="overflow-y-auto flex-1 p-6">
-                <h2 className="text-xl font-black text-orange-600 mb-4">{toTC(selJob.title)}</h2>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="overflow-y-auto flex-1 p-5 sm:p-6 space-y-4">
+                <h2 className="text-xl font-black text-orange-600 mb-1 leading-snug">{toTC(selJob.title)}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {[
                     { label: "Organization", val: toTC(selJob.source_name) || "—", icon: <Ic.Bld className="w-3 h-3" /> },
                     { label: "Category", val: toTC(selJob.category_name) || "—", icon: <Ic.Tag className="w-3 h-3" /> },
@@ -790,24 +790,24 @@ const JobsPanel = ({ token }) => {
                     { label: "Deadline", val: fmtDate2(selJob.application_deadline), icon: <Ic.Clock className="w-3 h-3" />, accent: isExp ? "text-red-500" : "text-green-600" },
                     { label: "Qualification", val: safe(selJob.qualifications), icon: <Ic.Grad className="w-3 h-3" />, full: true },
                   ].map(item => (
-                    <div key={item.label} className={cx("bg-orange-50 rounded-xl p-3 border border-orange-100", item.full && "col-span-2")}>
+                    <div key={item.label} className={cx("bg-orange-50/50 rounded-xl p-3 border border-orange-100/60", item.full && "col-span-1 sm:col-span-2")}>
                       <p className="text-xs text-orange-400 flex items-center gap-1.5 mb-1">{item.icon}{item.label}</p>
-                      <p className={cx("text-sm font-normal", item.accent || "text-slate-800")}>{item.val}</p>
+                      <p className={cx("text-sm font-semibold", item.accent || "text-slate-800")}>{item.val}</p>
                       {item.label === "Deadline" && dl !== null && !isExp && <p className="text-xs text-red-500 mt-0.5">{dl} days left</p>}
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="px-6 py-4 border-t border-orange-50 flex gap-3">
-                <button onClick={() => setSelJob(null)} className="flex-1 py-2.5 border border-orange-200 text-orange-500 rounded-xl text-sm font-semibold hover:bg-orange-50 transition-colors">Close</button>
+              <div className="px-5 py-4 border-t border-orange-50 flex flex-col sm:flex-row gap-2.5 bg-slate-50/50">
+                <button onClick={() => setSelJob(null)} className="flex-1 py-2.5 border border-orange-200 text-orange-500 rounded-xl text-sm font-semibold hover:bg-orange-50 transition-colors order-3 sm:order-1">Close</button>
                 {selJob.notification_url && (
-                  <a href={selJob.notification_url} target="_blank" rel="noreferrer" className="flex-1 py-2.5 bg-orange-50 border border-orange-300 text-orange-600 rounded-xl text-sm font-bold text-center hover:bg-orange-100 transition-colors flex items-center justify-center gap-2">
+                  <a href={selJob.notification_url} target="_blank" rel="noreferrer" className="flex-1 py-2.5 bg-orange-50 border border-orange-300 text-orange-600 rounded-xl text-sm font-bold text-center hover:bg-orange-100 transition-colors flex items-center justify-center gap-2 order-2 sm:order-2">
                     Notification <Ic.Ext className="w-3 h-3" />
                   </a>
                 )}
                 {!isExp && selJob.apply_link
-                  ? <a href={selJob.apply_link} target="_blank" rel="noreferrer" className="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold text-center hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-200">Apply Now <Ic.Ext className="w-3 h-3" /></a>
-                  : isExp ? <div className="flex-1 py-2.5 bg-slate-100 text-slate-400 rounded-xl text-sm font-semibold text-center">Applications Closed</div>
+                  ? <a href={selJob.apply_link} target="_blank" rel="noreferrer" className="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold text-center hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-200 order-1 sm:order-3">Apply Now <Ic.Ext className="w-3 h-3" /></a>
+                  : isExp ? <div className="flex-1 py-2.5 bg-slate-100 text-slate-400 rounded-xl text-sm font-semibold text-center order-1 sm:order-3">Applications Closed</div>
                   : null}
               </div>
             </div>

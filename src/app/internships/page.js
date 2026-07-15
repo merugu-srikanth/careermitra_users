@@ -19,7 +19,9 @@ import {
   Award
 } from "lucide-react";
 
-const BASE_URL = "https://careermitra.in/api/internships";
+import { API_BASE_URL } from "@/utils/api";
+
+const BASE_URL = `${API_BASE_URL}/internships`;
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
@@ -327,8 +329,18 @@ export default function Internships() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-4 mt-5 pt-4 border-t border-slate-100">
+          <div className="flex flex-wrap items-center justify-between gap-4 mt-5 pt-4 border-t border-slate-100">
             {/* Actions */}
+            <div>
+              {(selectedType || selectedDomain || selectedState || selectedCity || selectedStipend || searchQuery) && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                >
+                  <X className="w-3.5 h-3.5" /> Clear Filters
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400 font-semibold">{totalItems} results found</span>
             </div>
