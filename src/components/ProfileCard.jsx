@@ -109,7 +109,9 @@ export default function ProfileCard({ token }) {
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
         
         {/* Left: Avatar */}
-        <AvatarSVG size={72} />
+        <div className="hidden sm:block">
+          <AvatarSVG size={72} />
+        </div>
 
         {/* Right: Info + Progress + Stats */}
         <div className="flex-1 w-full min-w-0">

@@ -822,7 +822,7 @@ export default function Navbar() {
                               <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-ping" />
                             )}
                           </div>
-                          Jobs ({jobsBellCount.displayCount})
+                          Jobs ({jobsBellCount.totalCount ?? 0})
                           {jobsBellCount.newCount > 0 && (
                             <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-black animate-bounce">
                               New {jobsBellCount.newCount}
