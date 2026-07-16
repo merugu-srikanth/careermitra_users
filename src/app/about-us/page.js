@@ -89,7 +89,7 @@ const teamMembers = [
     name: "Mr. Merugu Srikanth",
     credentials: "Graduate",
     role: "FULL-STACK DEVELOPER\nSoftware Development & AI Technologies",
-    domain: "Software Development & AI Technologies",
+    domain: "Full-Stack Dev (Web, Mobile & AI)",
     bio: "A passionate software professional with 5+ years of experience in software development, modern web technologies, and AI-driven applications. Passionate about building innovative, scalable, and user-centric digital solutions.",
     highlights: [
       "🟠 5+ Years of software development experience",

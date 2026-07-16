@@ -82,7 +82,7 @@ const teamMembers = [
     name: "Mr. Merugu Srikanth",
     credentials: "Graduate",
     role: "FULL-STACK DEVELOPER\nSoftware Development & AI Technologies",
-    domain: "Software Development & AI Technologies",
+    domain: "Full-Stack Dev (Web, Mobile & AI)",
     bio: "A passionate software professional with 5+ years of experience in software development, modern web technologies, and AI-driven applications. Passionate about building innovative, scalable, and user-centric digital solutions.",
     highlights: [
       "5+ Years of software development experience",
@@ -180,14 +180,19 @@ function TeamCard({ member, variants }) {
         className="relative w-full h-full"
         style={{
           transformStyle: "preserve-3d",
-          transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
+          transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+          willChange: "transform"
         }}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
       >
         {/* Front Tag resting on top of the border */}
         <div 
           className={`absolute -top-3.5 left-8 z-20 px-4 py-1 rounded-full text-xs font-bold shadow-sm border ${member.accentBg} ${member.accentBorder} ${member.accentText}`}
-          style={{ backfaceVisibility: "hidden" }}
+          style={{ 
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "translateZ(2px)"
+          }}
         >
           {member.tag}
         </div>
@@ -197,7 +202,8 @@ function TeamCard({ member, variants }) {
           className={`absolute -top-3.5 left-8 z-20 px-4 py-1 rounded-full text-xs font-bold shadow-sm border border-slate-700 bg-slate-800 text-white/90`}
           style={{ 
             backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)"
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg) translateZ(2px)"
           }}
         >
           {member.tag}
@@ -206,15 +212,17 @@ function TeamCard({ member, variants }) {
         {/* FRONT SIDE */}
         <div
           className={`absolute inset-0 bg-white rounded-3xl border ${member.accentBorder} overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between`}
-          style={{ backfaceVisibility: "hidden" }}
+          style={{ 
+            backfaceVisibility: "hidden", 
+            WebkitBackfaceVisibility: "hidden", 
+            transform: "rotateY(0deg) translateZ(1px)"
+          }}
         >
-
-
           <div className="p-7 pt-8 flex-1 flex flex-col justify-between">
             <div>
               {/* Header without avatar for full visibility */}
               <div className="mb-5">
-                <h3 className="font-black text-slate-800 text-lg leading-snug whitespace-nowrap overflow-hidden text-ellipsis">{member.name}</h3>
+                <h3 className="font-black text-slate-800 text-lg md:text-xl leading-tight">{member.name}</h3>
                 <div className="flex flex-wrap items-center gap-2 mt-1.5">
                   <span className={`text-[10px] font-bold uppercase tracking-wider ${member.accentText} bg-opacity-70 ${member.accentBg} px-2 py-0.5 rounded-md`}>
                     {member.credentials}
@@ -276,16 +284,15 @@ function TeamCard({ member, variants }) {
           className={`absolute inset-0 bg-slate-900 text-white rounded-3xl border ${member.accentBorder} overflow-hidden shadow-2xl flex flex-col justify-between`}
           style={{
             backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)"
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg) translateZ(1px)"
           }}
         >
-
-
           <div className="p-7 flex-1 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
                 <div>
-                  <h4 className="font-black text-white text-base leading-snug">{member.name}</h4>
+                  <h4 className="font-black text-white text-base md:text-lg leading-tight">{member.name}</h4>
                   <p className={`text-[10px] font-bold uppercase tracking-wider ${member.accentText}`}>{member.tag}</p>
                 </div>
               </div>
