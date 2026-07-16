@@ -27,7 +27,7 @@ export default function Footer() {
         const d = data.data || data;
         setCats({ parents: d.parents || [], children: d.children || [] });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
   const quickLinks = [
     { label: "Home", to: "/" },
@@ -36,8 +36,8 @@ export default function Footer() {
     { label: "Internship Guide", to: "/internship-guide" },
     { label: "Articles", to: "/government-jobs" },
     { label: "Contact", to: "/contact-us" },
-    { label: "Terms of Service", to: "/terms-of-service" },
-    { label: "Privacy Policy", to: "/privacy-policy" },
+    // { label: "Terms of Service", to: "/terms-of-service" },
+    // { label: "Privacy Policy", to: "/privacy-policy" },
     // { label: "Disclaimer", to: "/disclaimer" },
     // { label: "Editorial Policy", to: "/editorial-policy" },
     // { label: "Correction Policy", to: "/correction-policy" },
@@ -114,17 +114,11 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
-             <img src={logo.src || logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
+            <img src={logo.src || logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
             <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">
-Your one-stop gateway for government jobs and career guidance across India.            </p>
+              Your one-stop gateway for government jobs and career guidance across India.            </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {trustPoints.map((point) => (
-                <span key={point} className="rounded-full border border-orange-300/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-200">
-                  {point}
-                </span>
-              ))}
-            </div>
+
 
             <div className="mt-5">
               <a
@@ -157,7 +151,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
               ))}
             </ul>
           </section>
- 
+
           <section className="relative overflow-hidden rounded-2xl border border-green-500/20 md:col-span-4" style={{ background: "linear-gradient(145deg,#0f1e14 0%,#0d1f1a 50%,#0a1a12 100%)" }}>
             {/* glow blobs */}
             <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-green-500/20 blur-2xl" />
@@ -165,7 +159,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
             {/* dot grid */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
               style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
- 
+
             <div className="relative p-5 sm:p-6">
               {/* Icon badge */}
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5">
@@ -175,7 +169,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 </span>
                 <span className="text-xs font-bold uppercase tracking-widest text-green-400">Live Alerts</span>
               </div>
- 
+
               <h3 className="text-xl font-black leading-tight text-white">
                 Never Miss {" "}
                 <span className="bg-linear-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
@@ -185,10 +179,17 @@ Your one-stop gateway for government jobs and career guidance across India.     
               <p className="mt-2 text-xs leading-relaxed text-slate-400">
                 Smart job recommendations based on your education and profile details.
               </p>
- 
+
+               <div className="mt-4 flex flex-wrap gap-2">
+              {trustPoints.map((point) => (
+                <span key={point} className="rounded-full border border-orange-300/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-200">
+                  {point}
+                </span>
+              ))}
+            </div>
               {/* divider */}
               <div className="my-4 h-px w-full bg-linear-to-r from-green-500/30 via-slate-700 to-transparent" />
- 
+
               {/* CTA button */}
               <Link
                 href={token ? "/user-dashboard" : "/register"}
@@ -200,7 +201,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
                 {token ? "Go to Dashboard" : "Subscribe for Job Alerts"}
                 <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
- 
+
               {/* account links */}
               {!token && (
                 <div className="mt-4 grid grid-cols-2 gap-2">
@@ -220,7 +221,7 @@ Your one-stop gateway for government jobs and career guidance across India.     
           </section>
         </div>
       </div>
- 
+
       <div className="relative border-t border-slate-800/90 bg-slate-950/80">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
           <p>© {new Date().getFullYear()} Careermitra. All rights reserved.</p>
