@@ -29,7 +29,7 @@ const pillars = [
   { icon: <FaBullseye size={20} />, title: "Goal-Oriented", desc: "Every interaction is designed around your specific goals, background, and aspirations — not a generic template.", color: "rose" },
 ];
 
-const team = [
+const founders = [
   {
     name: "Mrs. Anuradha",
     credentials: "M.Sc (AG)",
@@ -51,7 +51,7 @@ const team = [
     credentials: "MBA",
     role: "Public Relations | Digital Strategist\nTech Collaborator",
     domain: "Youth Engagement & Digital Outreach",
-    bio: "A dynamic 27-year-old professional who blends strategic communication with digital intelligence. He drives impactful public relations and youth-centric outreach across platforms.",
+    bio: "A dynamic  professional who blends strategic communication with digital intelligence. He drives impactful public relations and youth-centric outreach across platforms.",
     highlights: ["Strategic digital communication", "Youth-centric career outreach", "Bridges opportunity with ambition"],
     avatar: "V",
     gradFrom: "from-green-400",
@@ -62,6 +62,89 @@ const team = [
     dotColor: "bg-green-400",
     tag: "Co-Founder",
   },
+];
+
+const teamMembers = [
+  {
+    name: "Mr. Palla Vijaykumar",
+    credentials: "M.COM",
+    role: "University college of commerce and Business Management\nUCC & BM (Osmania University)",
+    domain: "Academic Leadership & Student Mentoring",
+    bio: "A seasoned academic professional with 26+ years of experience in education, student mentoring, and academic leadership. Passionate about guiding students toward academic excellence and career success.",
+    highlights: [
+      "26+ years of academic leadership and mentoring",
+      "Expert in student guidance and career planning",
+      "Committed to empowering learners for long-term success"
+    ],
+    avatar: "P",
+    gradFrom: "from-blue-400",
+    gradTo: "to-blue-600",
+    accentBg: "bg-blue-50",
+    accentBorder: "border-blue-100",
+    accentText: "text-blue-600",
+    dotColor: "bg-blue-400",
+    tag: "Academic Advisor",
+  },
+  {
+    name: "Mr. Merugu Srikanth",
+    credentials: "Graduate",
+    role: "FULL-STACK DEVELOPER\nSoftware Development & AI Technologies",
+    domain: "Software Development & AI Technologies",
+    bio: "A passionate software professional with 5+ years of experience in software development, modern web technologies, and AI-driven applications. Passionate about building innovative, scalable, and user-centric digital solutions.",
+    highlights: [
+      "🟠 5+ Years of software development experience",
+      "🟢 Expert in modern Web & Mobile development and AI-driven applications.",
+      "🟢 Passionate about building innovative digital solutions"
+    ],
+    avatar: "S",
+    gradFrom: "from-orange-400",
+    gradTo: "to-orange-600",
+    accentBg: "bg-orange-50",
+    accentBorder: "border-orange-100",
+    accentText: "text-orange-600",
+    dotColor: "bg-orange-400",
+    tag: "Developer",
+  },
+  {
+    name: "Mr. B. Mani Kumar",
+    credentials: "Graduate",
+    role: "HR & ADMIN EXECUTIVE\nHuman Resources & Administration",
+    domain: "Human Resources & Administration",
+    bio: "A dedicated HR and Admin professional committed to supporting organizational growth through effective people management and administrative excellence. Passionate about fostering a positive, productive, and collaborative workplace.",
+    highlights: [
+      "🟠 HR & Administration - Supporting efficient workforce and office operations",
+      "🟢 Expert in employee coordination, recruitment, and administration",
+      "🟢 Committed to fostering a productive workplace and organizational success"
+    ],
+    avatar: "M",
+    gradFrom: "from-green-400",
+    gradTo: "to-green-600",
+    accentBg: "bg-green-50",
+    accentBorder: "border-green-100",
+    accentText: "text-green-600",
+    dotColor: "bg-green-400",
+    tag: "HR & Admin",
+  },
+  {
+    name: "Mr. Sagar Satuluri",
+    credentials: "B.Tech",
+    role: "CAREER & DIGITAL GROWTH EXPERT\nCareerMitra.in",
+    domain: "SEO & Content Strategy",
+    bio: "A seasoned SEO and digital growth strategist with 12+ years of experience driving organic traffic. Passionate about connecting students with career opportunities through trusted guidance and verified platform content.",
+    highlights: [
+      "🟠 12+ Years of SEO leadership and digital growth expertise",
+      "🟢 Expert in Government Jobs, Education SEO, AI Search Optimization & Content Strategy",
+      "🟢 Committed to empowering students with trusted career guidance, verified opportunities, and a seamless digital learning experience"
+    ],
+    avatar: "S",
+    gradFrom: "from-purple-400",
+    gradTo: "to-purple-600",
+    accentBg: "bg-purple-50",
+    accentBorder: "border-purple-100",
+    accentText: "text-purple-600",
+    dotColor: "bg-purple-400",
+    tag: "SEO & Growth",
+  }
 ];
 
 const timeline = [
@@ -219,7 +302,7 @@ function StatsStrip() {
 // ─── VISION SECTION ──────────────────────────────────────────────────────────
 function VisionSection() {
   return (
-    <section className="relative bg-white py-24 px-6 overflow-hidden">
+    <section className="relative bg-white py-4 px-6 overflow-hidden">
       <motion.div
         className="max-w-5xl mx-auto"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
@@ -309,8 +392,6 @@ function VisionSection() {
 
 // ─── TEAM SECTION ────────────────────────────────────────────────────────────
 function TeamSection() {
-  const [flipped, setFlipped] = useState(null);
-
   return (
     <section className="relative bg-gray-50 border-y border-gray-100 py-24 px-6 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -319,7 +400,7 @@ function TeamSection() {
       </div>
 
       <motion.div
-        className="max-w-5xl mx-auto"
+        className="max-w-6xl mx-auto"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
         variants={stagger}
       >
@@ -330,50 +411,47 @@ function TeamSection() {
             <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Team</span>
           </motion.h2>
           <motion.p variants={fadeUp} className="text-gray-500 text-base max-w-xl mx-auto">
-            Seasoned professionals who turned decades of government experience into a mission to serve youth.
+            Seasoned professionals who turned decades of experience into a mission to serve youth.
           </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-          {team.map((m, i) => (
+        {/* Founders */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
+          {founders.map((m, i) => (
             <motion.div
               key={i}
               variants={i === 0 ? fadeLeft : fadeRight}
               className="group relative"
             >
-              {/* tag */}
               <div className={`absolute -top-3 left-6 z-10 px-3 py-1 rounded-full text-xs font-bold ${m.accentBg} ${m.accentBorder} border ${m.accentText}`}>
                 {m.tag}
               </div>
 
-              <div className={`bg-white rounded-3xl border ${m.accentBorder} overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-400`}>
-                {/* top gradient bar */}
+              <div className={`bg-white rounded-3xl border ${m.accentBorder} overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-400 h-full flex flex-col`}>
                 <div className={`h-1.5 w-full bg-gradient-to-r ${m.gradFrom} ${m.gradTo}`} />
 
-                <div className="p-7 pt-8">
-                  {/* avatar + name */}
-                  <div className="flex items-center gap-4 mb-5">
-                    <motion.div
-                      whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-2xl shadow-lg flex-shrink-0`}
-                    >
-                      {m.avatar}
-                    </motion.div>
-                    <div>
-                      <h3 className="font-black text-gray-900 text-lg leading-tight">{m.name}</h3>
-                      <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
-                      <p className="text-xs text-gray-400 mt-1 font-medium">{m.domain}</p>
+                <div className="p-7 pt-8 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-4 mb-5">
+                      <motion.div
+                        whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
+                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-2xl shadow-lg flex-shrink-0`}
+                      >
+                        {m.avatar}
+                      </motion.div>
+                      <div>
+                        <h3 className="font-black text-gray-900 text-lg leading-tight">{m.name}</h3>
+                        <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
+                        <p className="text-xs text-gray-400 mt-1 font-medium">{m.domain}</p>
+                      </div>
                     </div>
+
+                    <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3 whitespace-pre-line">{m.role}</p>
+
+                    <p className="text-sm text-gray-600 leading-relaxed mb-5">{m.bio}</p>
                   </div>
 
-                  {/* role */}
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3 whitespace-pre-line">{m.role}</p>
-
-                  {/* bio */}
-                  <p className="text-sm text-gray-600 leading-relaxed mb-5">{m.bio}</p>
-
-                  {/* highlights */}
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 mt-auto">
                     {m.highlights.map((h, j) => (
                       <motion.li
                         key={j}
@@ -394,7 +472,73 @@ function TeamSection() {
           ))}
         </div>
 
-        {/* expanding team note */}
+        {/* Team Members */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          {teamMembers.map((m, i) => (
+            <motion.div
+              key={i}
+              variants={fadeUp}
+              className="group relative"
+            >
+              <div className={`absolute -top-3 left-6 z-10 px-3 py-1 rounded-full text-xs font-bold ${m.accentBg} ${m.accentBorder} border ${m.accentText}`}>
+                {m.tag}
+              </div>
+
+              <div className={`bg-white rounded-3xl border ${m.accentBorder} overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-400 h-full flex flex-col`}>
+                <div className={`h-1.5 w-full bg-gradient-to-r ${m.gradFrom} ${m.gradTo}`} />
+
+                <div className="p-7 pt-8 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3.5 mb-5">
+                      <motion.div
+                        whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0`}
+                      >
+                        {m.avatar}
+                      </motion.div>
+                      <div className="min-w-0">
+                        <h3 className="font-black text-gray-900 text-lg leading-tight whitespace-nowrap overflow-hidden text-ellipsis">{m.name}</h3>
+                        <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
+                        <p className="text-xs text-gray-400 mt-1 font-medium">{m.domain}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3 whitespace-pre-line">{m.role}</p>
+
+                    <p className="text-sm text-gray-600 leading-relaxed mb-5">{m.bio}</p>
+                  </div>
+
+                  <ul className="space-y-2 mt-auto">
+                    {m.highlights.map((h, j) => {
+                      const firstChar = h.charAt(0);
+                      const isEmoji = ["🟠", "🟢"].includes(firstChar);
+                      const displayHighlight = isEmoji ? h.substring(1).trim() : h;
+                      const customDot = isEmoji ? firstChar : null;
+                      return (
+                        <motion.li
+                          key={j}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: j * 0.1 + 0.3 }}
+                          viewport={{ once: true }}
+                          className="flex items-start gap-2.5 text-xs text-gray-500"
+                        >
+                          {customDot ? (
+                            <span className="text-xs flex-shrink-0 mt-0.5">{customDot}</span>
+                          ) : (
+                            <span className={`w-1.5 h-1.5 rounded-full ${m.dotColor} mt-1.5 flex-shrink-0`} />
+                          )}
+                          {displayHighlight}
+                        </motion.li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
         <motion.div
           variants={fadeUp}
           initial="hidden" whileInView="show" viewport={{ once: true }}
@@ -504,11 +648,7 @@ function CTASection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/contact-us" 
-              onClick={navigate => navigate("/contact-us")}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-               onClick={scrollToContact}
-                className="flex items-center justify-center gap-2 px-15 py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                className="flex items-center justify-center gap-2 px-12 py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
               >
                 Get in Touch
                 <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
@@ -568,7 +708,7 @@ export default function AboutPage() {
       <AboutHero />
       <StatsStrip />
       <VisionSection />
-      <TeamSection />
+      {/* <TeamSection /> */}
       <TimelineSection />
       <CTASection />
     </div>

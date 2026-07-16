@@ -39,7 +39,7 @@ const socials = [
 const navLinks = [
   { name: "Home", path: "/", Icon: FaHome },
   { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
-  // { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
+  { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   // { name: "Internship Guide", path: "/internship-guide", Icon: FaInfoCircle },
   {
