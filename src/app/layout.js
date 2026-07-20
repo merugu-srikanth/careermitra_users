@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
+import SplashLoader from "@/components/SplashLoader";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -15,7 +16,6 @@ export const metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.png", type: "image/png" }
     ],
     shortcut: "/favicon.png",
@@ -32,6 +32,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <SplashLoader />
         <AuthProvider>
           <JobProvider>
             <BlogProvider>

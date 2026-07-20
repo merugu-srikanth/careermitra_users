@@ -14,10 +14,11 @@ import { API_BASE_URL, API_ENDPOINTS, getApiMessage, isApiSuccess } from "@/util
 import { calculateProfileCompletion } from "@/utils/profileCompletion";
 import ProfileCard from "@/components/ProfileCard";
 import { getDeadlineStatusText, isDeadlineExpired } from "@/utils/jobDeadline";
+import ChatPanel from "@/components/ChatPanel";
 
 /* ═══════════════════════════════════════════════
    INLINE SVG ICONS  (no external icon library)
-═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════ */
 const Ic = {
   User: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" /></svg>,
   Email: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z" /></svg>,
@@ -53,13 +54,14 @@ const Ic = {
   EyeOff: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c2.8 0 5 2.2 5 5 0 .6-.1 1.2-.4 1.8l2.9 2.9c1.5-1.3 2.7-3 3.4-4.7C21.3 7.6 17 4.5 12 4.5c-1.3 0-2.6.3-3.8.7l2.1 2.1c.6-.2 1.1-.3 1.7-.3zM2 4.3l2.3 2.3.4.4C3.1 8.3 1.8 10.1 1 12c1.7 4.4 6 7.5 11 7.5 1.5 0 3-.3 4.3-.8l.4.4 2.7 2.7 1.2-1.2L3.2 3 2 4.3zm5.5 5.5l1.5 1.5c-.1.3-.1.5-.1.7 0 1.7 1.3 3 3 3 .2 0 .5 0 .7-.1l1.5 1.5c-.7.3-1.4.5-2.2.5-2.8 0-5-2.2-5-5 0-.8.2-1.5.6-2.1z" /></svg>,
   Check: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>,
   Alert: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>,
+  Chat: (p) => <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" /></svg>,
 };
 
 const cx = (...a) => a.filter(Boolean).join(" ");
 
 /* ═══════════════ CONSTANTS ═══════════════ */
 const API_BASE = API_BASE_URL;
-const TAB_IDS = ["profile", "jobs", "announcements", "media", "settings"];
+const TAB_IDS = ["profile", "jobs", "announcements", "media", "chat", "settings"];
 
 /* ═══════════════ UTILS ═══════════════ */
 const isEV = (v) => {
@@ -1209,6 +1211,7 @@ const UserProfilePage = () => {
   const NAV = [
     { id: "profile", label: "My Profile", icon: <Ic.User className="w-3.5 h-3.5" />, desc: "Info & education" },
     { id: "jobs", label: "Job Posts", icon: <Ic.Gov className="w-3.5 h-3.5" />, desc: "Eligible govt jobs", count: jobsNavCount.total, liveCount: jobsNavCount.liveCount, newCount: jobsNavCount.newCount },
+    { id: "chat", label: "Chat Support", icon: <Ic.Chat className="w-3.5 h-3.5" />, desc: "Contact CareerMitra Support" },
     // { id: "announcements", label: "Announcements", icon: <Ic.Bell className="w-3.5 h-3.5" />, desc: "Events & alerts", count: annNavCount.total, newCount: annNavCount.newCount },
     // { id: "media", label: "Media", icon: <Ic.Img className="w-3.5 h-3.5" />, desc: "Uploaded documents" },
     { id: "settings", label: "Settings", icon: <Ic.Cog className="w-3.5 h-3.5" />, desc: "Account & security" },
@@ -1468,6 +1471,7 @@ const UserProfilePage = () => {
             <div className="h-[70vh] overflow-y-auto rounded-2xl" style={{ scrollbarWidth: "thin", scrollbarColor: "#e2e8f0 transparent" }}>
               {activeTab === "profile" && <ProfilePanel sections={sections} profile={profile} age={age} />}
               {activeTab === "jobs" && <JobsPanel token={token} />}
+              {activeTab === "chat" && <ChatPanel token={token} />}
               {activeTab === "announcements" && <AnnouncementsPanel token={token} />}
               {/* {activeTab === "media" && <MediaPanel profile={profile} />} */}
               {activeTab === "settings" && <SettingsPanel token={token} email={profile.email} navigate={navigate} handleLogout={handleLogout} />}
