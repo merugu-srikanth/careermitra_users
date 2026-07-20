@@ -18,11 +18,13 @@ export default function ChatPanel({ token, profile }) {
   const [editValue, setEditValue] = useState("");
   const [editing, setEditing] = useState(false);
 
-  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  // Auto-scroll to bottom of messages
+  // Scroll only the chat container to the bottom without scrolling the main window
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   // Fetch or create conversation
@@ -31,9 +33,9 @@ export default function ChatPanel({ token, profile }) {
       const res = await axios.get(`${API_BASE}/user/chat/conversation`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data?.success || res.data) {
-        // Handle standard envelope format
-        const conv = res.data?.data || res.data?.conversation || res.data;
+      const data = res.data;
+      if (data?.success || data) {
+        const conv = data?.data || data?.conversation || data;
         setConversation(conv);
         return conv;
       }
@@ -53,17 +55,21 @@ export default function ChatPanel({ token, profile }) {
       });
       const data = res.data;
       
-      // Robust retrieval of messages array from any API shape
+      // Extract the message array from the verified response structure
       let msgs = null;
       if (data) {
-        if (Array.isArray(data)) msgs = data;
-        else if (data.data && Array.isArray(data.data)) msgs = data.data;
-        else if (data.data?.messages && Array.isArray(data.data.messages)) msgs = data.data.messages;
-        else if (data.messages && Array.isArray(data.messages)) msgs = data.messages;
+        if (data.data?.messages && Array.isArray(data.data.messages)) {
+          msgs = data.data.messages;
+        } else if (data.data && Array.isArray(data.data)) {
+          msgs = data.data;
+        } else if (data.messages && Array.isArray(data.messages)) {
+          msgs = data.messages;
+        } else if (Array.isArray(data)) {
+          msgs = data;
+        }
       }
 
       if (msgs && Array.isArray(msgs)) {
-        // Sort oldest to newest
         const sorted = [...msgs].sort((a, b) => {
           const timeA = new Date(a.createdAt || a.created_at || 0);
           const timeB = new Date(b.createdAt || b.created_at || 0);
@@ -84,7 +90,8 @@ export default function ChatPanel({ token, profile }) {
     const initChat = async () => {
       await fetchConversation();
       await fetchMessages(true);
-      scrollToBottom();
+      // Wait a moment for rendering to scroll
+      setTimeout(scrollToBottom, 100);
     };
     initChat();
   }, [token]);
@@ -99,7 +106,7 @@ export default function ChatPanel({ token, profile }) {
     return () => clearInterval(interval);
   }, [token]);
 
-  // Scroll on message change
+  // Scroll on message length changes
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
@@ -119,7 +126,7 @@ export default function ChatPanel({ token, profile }) {
       if (res.data?.success || res.data?.status || res.data) {
         setNewMessage("");
         await fetchMessages(false);
-        scrollToBottom();
+        setTimeout(scrollToBottom, 50);
       }
     } catch (err) {
       console.error("Error sending message:", err);
@@ -206,7 +213,7 @@ export default function ChatPanel({ token, profile }) {
       <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-xl">
-            💬
+            
           </div>
           <div>
             <p className="font-extrabold text-slate-800 text-sm">CareerMitra Chat Support</p>
@@ -222,7 +229,11 @@ export default function ChatPanel({ token, profile }) {
       </div>
 
       {/* Message History */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50" style={{ scrollbarWidth: "thin" }}>
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50"
+        style={{ scrollbarWidth: "thin", scrollBehavior: "smooth" }}
+      >
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
             <div className="text-4xl mb-2">👋</div>
@@ -231,7 +242,6 @@ export default function ChatPanel({ token, profile }) {
           </div>
         ) : (
           messages.map((msg, idx) => {
-            // Robust check to identify if the sender is the student
             const isStudent =
               msg.sender === "student" ||
               msg.sender === "user" ||
@@ -334,7 +344,6 @@ export default function ChatPanel({ token, profile }) {
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input panel */}
