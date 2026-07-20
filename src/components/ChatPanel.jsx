@@ -8,7 +8,7 @@ import { API_BASE_URL } from "@/utils/api";
 
 const API_BASE = API_BASE_URL;
 
-export default function ChatPanel({ token }) {
+export default function ChatPanel({ token, profile }) {
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -52,17 +52,24 @@ export default function ChatPanel({ token }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = res.data;
-      if (data?.success || data?.status || Array.isArray(data?.data) || Array.isArray(data?.messages) || Array.isArray(data)) {
-        const msgs = data?.data || data?.messages || data;
-        if (Array.isArray(msgs)) {
-          // Sort oldest to newest
-          const sorted = [...msgs].sort((a, b) => {
-            const timeA = new Date(a.createdAt || a.created_at || 0);
-            const timeB = new Date(b.createdAt || b.created_at || 0);
-            return timeA - timeB;
-          });
-          setMessages(sorted);
-        }
+      
+      // Robust retrieval of messages array from any API shape
+      let msgs = null;
+      if (data) {
+        if (Array.isArray(data)) msgs = data;
+        else if (data.data && Array.isArray(data.data)) msgs = data.data;
+        else if (data.data?.messages && Array.isArray(data.data.messages)) msgs = data.data.messages;
+        else if (data.messages && Array.isArray(data.messages)) msgs = data.messages;
+      }
+
+      if (msgs && Array.isArray(msgs)) {
+        // Sort oldest to newest
+        const sorted = [...msgs].sort((a, b) => {
+          const timeA = new Date(a.createdAt || a.created_at || 0);
+          const timeB = new Date(b.createdAt || b.created_at || 0);
+          return timeA - timeB;
+        });
+        setMessages(sorted);
       }
     } catch (err) {
       console.error("Error fetching messages:", err);
@@ -224,19 +231,26 @@ export default function ChatPanel({ token }) {
           </div>
         ) : (
           messages.map((msg, idx) => {
-            const isStudent = msg.sender === "student";
+            // Robust check to identify if the sender is the student
+            const isStudent =
+              msg.sender === "student" ||
+              msg.sender === "user" ||
+              (profile?.id && msg.sender === profile.id) ||
+              (profile?.id && msg.studentId === profile.id);
+
             const msgId = msg.id || msg.messageId || msg._id || `msg-${idx}`;
             const isMsgDeleted = msg.isDeleted || msg.is_deleted;
             const isMsgEdited = msg.isEdited || msg.is_edited;
             const isMsgSeen = msg.isSeen || msg.is_seen;
             const timeStr = msg.createdAt || msg.created_at;
+            const textContent = isMsgDeleted ? "This message was deleted." : (msg.message || msg.text || msg.content);
 
             return (
               <div key={msgId} className={`flex ${isStudent ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] rounded-2xl p-4 shadow-sm border transition-all ${
+                <div className={`max-w-[75%] rounded-2xl p-4 shadow-xs border transition-all ${
                   isStudent
-                    ? "bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-br-none border-orange-400"
-                    : "bg-white text-slate-800 rounded-bl-none border-slate-100"
+                    ? "bg-orange-500 text-white rounded-tr-none border-orange-600"
+                    : "bg-white text-slate-800 rounded-tl-none border-slate-200/60 shadow-xs"
                 }`}>
                   {/* Edited input */}
                   {editingMessageId === msgId ? (
@@ -265,13 +279,15 @@ export default function ChatPanel({ token }) {
                     </div>
                   ) : (
                     <div>
-                      {/* Deleted state vs standard text */}
+                      {/* Message Content */}
                       <p className={`text-sm leading-relaxed ${isMsgDeleted ? "italic opacity-70" : ""}`}>
-                        {msg.message}
+                        {textContent}
                       </p>
 
                       {/* Message details & Actions */}
-                      <div className="flex items-center justify-between gap-4 mt-2 pt-1.5 border-t border-white/10 text-[10px]">
+                      <div className={`flex items-center justify-between gap-4 mt-2 pt-1.5 border-t text-[10px] ${
+                        isStudent ? "border-white/10" : "border-slate-100"
+                      }`}>
                         <span className={isStudent ? "text-orange-100" : "text-slate-400"}>
                           {formatTime(timeStr)}
                           {isMsgEdited && <span className="ml-1 opacity-70">(edited)</span>}
@@ -284,15 +300,15 @@ export default function ChatPanel({ token }) {
                               <button
                                 onClick={() => {
                                   setEditingMessageId(msgId);
-                                  setEditValue(msg.message);
+                                  setEditValue(msg.message || msg.text || msg.content);
                                 }}
-                                className="opacity-80 hover:opacity-100 transition-opacity font-bold underline"
+                                className="opacity-80 hover:opacity-100 transition-opacity font-bold underline cursor-pointer"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteMessage(msgId)}
-                                className="opacity-80 hover:opacity-100 transition-opacity font-bold text-red-100 hover:text-red-200 underline"
+                                className="opacity-80 hover:opacity-100 transition-opacity font-bold text-red-100 hover:text-red-200 underline cursor-pointer"
                               >
                                 Delete
                               </button>
@@ -340,7 +356,7 @@ export default function ChatPanel({ token }) {
             <button
               type="submit"
               disabled={sending || !newMessage.trim()}
-              className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-200 hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5"
+              className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-200 hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {sending ? (
                 <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />

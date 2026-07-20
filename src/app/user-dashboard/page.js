@@ -1037,13 +1037,7 @@ const UserProfilePage = () => {
   }, [router]);
   
   const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window !== "undefined") {
-      const tab = new URLSearchParams(window.location.search).get("tab");
-      return TAB_IDS.includes(tab) ? tab : "profile";
-    }
-    return "profile";
-  });
+  const [activeTab, setActiveTab] = useState("profile");
 
   const [profile, setProfile] = useState(null);
   const [age, setAge] = useState("");
@@ -1471,7 +1465,7 @@ const UserProfilePage = () => {
             <div className="h-[70vh] overflow-y-auto rounded-2xl" style={{ scrollbarWidth: "thin", scrollbarColor: "#e2e8f0 transparent" }}>
               {activeTab === "profile" && <ProfilePanel sections={sections} profile={profile} age={age} />}
               {activeTab === "jobs" && <JobsPanel token={token} />}
-              {activeTab === "chat" && <ChatPanel token={token} />}
+              {activeTab === "chat" && <ChatPanel token={token} profile={profile} />}
               {activeTab === "announcements" && <AnnouncementsPanel token={token} />}
               {/* {activeTab === "media" && <MediaPanel profile={profile} />} */}
               {activeTab === "settings" && <SettingsPanel token={token} email={profile.email} navigate={navigate} handleLogout={handleLogout} />}
