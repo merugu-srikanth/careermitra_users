@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/utils/api";
+import { FaComments } from "react-icons/fa";
 
 const API_BASE = API_BASE_URL;
 
@@ -212,8 +213,8 @@ export default function ChatPanel({ token, profile }) {
       {/* Chat Header */}
       <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-xl">
-            
+          <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-500">
+            <FaComments size={20} />
           </div>
           <div>
             <p className="font-extrabold text-slate-800 text-sm">CareerMitra Chat Support</p>
@@ -246,7 +247,7 @@ export default function ChatPanel({ token, profile }) {
               msg.sender === "student" ||
               msg.sender === "user" ||
               (profile?.id && msg.sender === profile.id) ||
-              (profile?.id && msg.studentId === profile.id);
+              (profile?.id && msg.senderId === profile.id);
 
             const msgId = msg.id || msg.messageId || msg._id || `msg-${idx}`;
             const isMsgDeleted = msg.isDeleted || msg.is_deleted;
