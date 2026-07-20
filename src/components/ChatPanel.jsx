@@ -51,11 +51,16 @@ export default function ChatPanel({ token }) {
       const res = await axios.get(`${API_BASE}/user/chat/conversation/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data?.success || Array.isArray(res.data?.data) || Array.isArray(res.data)) {
-        const msgs = res.data?.data || res.data?.messages || res.data;
+      const data = res.data;
+      if (data?.success || data?.status || Array.isArray(data?.data) || Array.isArray(data?.messages) || Array.isArray(data)) {
+        const msgs = data?.data || data?.messages || data;
         if (Array.isArray(msgs)) {
           // Sort oldest to newest
-          const sorted = [...msgs].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+          const sorted = [...msgs].sort((a, b) => {
+            const timeA = new Date(a.createdAt || a.created_at || 0);
+            const timeB = new Date(b.createdAt || b.created_at || 0);
+            return timeA - timeB;
+          });
           setMessages(sorted);
         }
       }
@@ -104,7 +109,7 @@ export default function ChatPanel({ token }) {
         { message: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (res.data?.success || res.data) {
+      if (res.data?.success || res.data?.status || res.data) {
         setNewMessage("");
         await fetchMessages(false);
         scrollToBottom();
@@ -218,17 +223,23 @@ export default function ChatPanel({ token }) {
             <p className="text-xs text-slate-400 mt-1 max-w-xs">Type your queries or feedback below and support team will reply shortly.</p>
           </div>
         ) : (
-          messages.map((msg) => {
+          messages.map((msg, idx) => {
             const isStudent = msg.sender === "student";
+            const msgId = msg.id || msg.messageId || msg._id || `msg-${idx}`;
+            const isMsgDeleted = msg.isDeleted || msg.is_deleted;
+            const isMsgEdited = msg.isEdited || msg.is_edited;
+            const isMsgSeen = msg.isSeen || msg.is_seen;
+            const timeStr = msg.createdAt || msg.created_at;
+
             return (
-              <div key={msg.id} className={`flex ${isStudent ? "justify-end" : "justify-start"}`}>
+              <div key={msgId} className={`flex ${isStudent ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[75%] rounded-2xl p-4 shadow-sm border transition-all ${
                   isStudent
                     ? "bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-br-none border-orange-400"
                     : "bg-white text-slate-800 rounded-bl-none border-slate-100"
                 }`}>
                   {/* Edited input */}
-                  {editingMessageId === msg.id ? (
+                  {editingMessageId === msgId ? (
                     <div className="space-y-2">
                       <textarea
                         value={editValue}
@@ -244,7 +255,7 @@ export default function ChatPanel({ token }) {
                           Cancel
                         </button>
                         <button
-                          onClick={() => handleEditMessage(msg.id)}
+                          onClick={() => handleEditMessage(msgId)}
                           disabled={editing}
                           className="px-2 py-1 text-[10px] bg-orange-600 text-white rounded-md font-bold"
                         >
@@ -255,24 +266,24 @@ export default function ChatPanel({ token }) {
                   ) : (
                     <div>
                       {/* Deleted state vs standard text */}
-                      <p className={`text-sm leading-relaxed ${msg.isDeleted ? "italic opacity-70" : ""}`}>
+                      <p className={`text-sm leading-relaxed ${isMsgDeleted ? "italic opacity-70" : ""}`}>
                         {msg.message}
                       </p>
 
                       {/* Message details & Actions */}
                       <div className="flex items-center justify-between gap-4 mt-2 pt-1.5 border-t border-white/10 text-[10px]">
                         <span className={isStudent ? "text-orange-100" : "text-slate-400"}>
-                          {formatTime(msg.createdAt)}
-                          {msg.isEdited && <span className="ml-1 opacity-70">(edited)</span>}
+                          {formatTime(timeStr)}
+                          {isMsgEdited && <span className="ml-1 opacity-70">(edited)</span>}
                         </span>
 
                         <div className="flex items-center gap-2">
                           {/* Student can edit/delete their own NOT deleted messages */}
-                          {isStudent && !msg.isDeleted && (
+                          {isStudent && !isMsgDeleted && (
                             <>
                               <button
                                 onClick={() => {
-                                  setEditingMessageId(msg.id);
+                                  setEditingMessageId(msgId);
                                   setEditValue(msg.message);
                                 }}
                                 className="opacity-80 hover:opacity-100 transition-opacity font-bold underline"
@@ -280,7 +291,7 @@ export default function ChatPanel({ token }) {
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeleteMessage(msg.id)}
+                                onClick={() => handleDeleteMessage(msgId)}
                                 className="opacity-80 hover:opacity-100 transition-opacity font-bold text-red-100 hover:text-red-200 underline"
                               >
                                 Delete
@@ -291,7 +302,7 @@ export default function ChatPanel({ token }) {
                           {/* Seen status for student messages */}
                           {isStudent && (
                             <span className="flex items-center gap-0.5">
-                              {msg.isSeen ? (
+                              {isMsgSeen ? (
                                 <span className="text-[10px] text-green-200 font-bold">✓✓ Seen</span>
                               ) : (
                                 <span className="text-[10px] text-orange-200 font-semibold">✓ Sent</span>
