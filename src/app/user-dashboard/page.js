@@ -88,6 +88,19 @@ const toDateOrNull = (d) => {
   return dt && !isNaN(dt) ? dt : null;
 };
 
+const decodeJwt = (t) => {
+  try {
+    const base64Url = t.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
 /* ═══════════════ EDUCATION ═══════════════ */
 const flattenEducation = (edu) => {
   if (!edu) return {};
@@ -1041,6 +1054,7 @@ const UserProfilePage = () => {
 
   const [profile, setProfile] = useState(null);
   const [age, setAge] = useState("");
+  const [isEmailVerified, setIsEmailVerified] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [jobsNavCount, setJobsNavCount] = useState({ total: 0, liveCount: 0, newCount: 0 });
@@ -1073,6 +1087,14 @@ const UserProfilePage = () => {
           media: d.media || d.documents || d.files || []
         });
         setAge(calcAge(d.date_of_birth));
+
+        const decoded = decodeJwt(token);
+        const verifiedVal = d.isEmailVerified !== undefined ? d.isEmailVerified : (decoded?.isEmailVerified ?? true);
+        setIsEmailVerified(verifiedVal);
+        
+        if (verifiedVal === false) {
+          toast.warning("Your email is not verified. Please verify your email address.");
+        }
       } catch (e) {
         const msg = e?.response?.data?.message || e?.message || "Error";
         setError(msg); toast.error(msg);
@@ -1440,6 +1462,33 @@ const UserProfilePage = () => {
               <ProfileCard token={token} />
             </div>
 
+            {/* Unverified email banner */}
+            {isEmailVerified === false && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold text-red-800 text-sm">Email Verification Pending</p>
+                    <p className="text-xs text-red-500">Please verify your email address to secure your account and unlock all options</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    localStorage.setItem("registerEmail", profile?.email || "");
+                    localStorage.setItem("registerVerificationToken", token);
+                    navigate("/verify-otp", { state: { email: profile?.email } });
+                  }}
+                  className="shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1 shadow-md shadow-red-100"
+                >
+                  Verify Now <Ic.ChevR className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+
             {/* Incomplete profile banner */}
             {profileCompletion < 100 && activeTab === "profile" && (
               <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
@@ -1477,4 +1526,10 @@ const UserProfilePage = () => {
   );
 };
 
-export default UserProfilePage;
+export default function ProtectedUserProfilePage() {
+  return (
+    <ProtectedRoute>
+      <UserProfilePage />
+    </ProtectedRoute>
+  );
+}

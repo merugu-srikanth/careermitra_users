@@ -101,10 +101,15 @@ export const AuthProvider = ({ children }) => {
       const data = normalizeResponse(res.data);
 
       if (data.success && data.token) {
-        setToken(data.token);
-        localStorage.setItem("token", data.token);
-        setUser(data.user || { email });
-        toast.success("Login successful");
+        if (data.data?.isEmailVerified === false) {
+          localStorage.setItem(REGISTER_VERIFY_TOKEN_KEY, data.token);
+          localStorage.setItem("registerEmail", email);
+        } else {
+          setToken(data.token);
+          localStorage.setItem("token", data.token);
+          setUser(data.user || { email });
+          toast.success("Login successful");
+        }
       } else {
         toast.error(data.message || "Login failed");
       }
@@ -163,10 +168,15 @@ export const AuthProvider = ({ children }) => {
       const data = normalizeResponse(res.data);
 
       if (data.success && data.token) {
-        setToken(data.token);
-        localStorage.setItem("token", data.token);
-        setUser(data.user || { email });
-        toast.success("Login successful");
+        if (data.data?.isEmailVerified === false) {
+          localStorage.setItem(REGISTER_VERIFY_TOKEN_KEY, data.token);
+          localStorage.setItem("registerEmail", email);
+        } else {
+          setToken(data.token);
+          localStorage.setItem("token", data.token);
+          setUser(data.user || { email });
+          toast.success("Login successful");
+        }
       } else {
         toast.error(data.message || "Invalid OTP");
       }

@@ -48,6 +48,11 @@ export default function Login() {
         } else {
           localStorage.removeItem("rememberedEmail");
         }
+        if (res.data?.isEmailVerified === false) {
+          toast.warning("Email not verified. Please verify your email.");
+          navigate("/verify-otp", { state: { email } });
+          return;
+        }
         const profileComplete = await checkProfile(res.token);
         if (profileComplete) {
           navigate("/");
@@ -97,6 +102,11 @@ export default function Login() {
       if (!res?.success || !res?.token) {
         setError("Invalid OTP. Please try again");
       } else {
+        if (res.data?.isEmailVerified === false) {
+          toast.warning("Email not verified. Please verify your email.");
+          navigate("/verify-otp", { state: { email } });
+          return;
+        }
         const profileComplete = await checkProfile(res.token);
         if (profileComplete) {
           navigate("/");
