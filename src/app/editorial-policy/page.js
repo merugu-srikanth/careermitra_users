@@ -1,7 +1,16 @@
 import { FaBookOpen, FaBullseye, FaListOl, FaLink, FaRobot, FaHandshake, FaAd, FaWrench, FaEnvelope, FaUserCheck, FaClipboardCheck, FaHistory, FaGavel, FaExclamationTriangle } from "react-icons/fa";
 import Link from "next/link";
-import SEO from '@/components/SEO';
+
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
+export const metadata = {
+  title: "Editorial Policy — Careermitra",
+  description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
+  
+  alternates: {
+    canonical: "https://careermitra.in/editorial-policy",
+  },
+};
+
 
 const Section = ({ icon: Icon, title, children, accent = "blue" }) => {
   const colors = {
@@ -39,12 +48,13 @@ export default function EditorialPolicy() {
 
   return (
     <>
-      <SEO
-        title="Editorial Policy — Careermitra"
-        description="Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics."
-        url="https://careermitra.in/editorial-policy"
-        schema={editorialSchemas}
-      />
+      {editorialSchemas.map((s, idx) => (
+        <script
+          key={idx}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
 
       <div className="min-h-screen bg-gray-50/50 pt-20">
 

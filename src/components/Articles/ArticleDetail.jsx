@@ -481,7 +481,7 @@ export default function ArticleDetail() {
             .then(r => r.json())
             .then(rd => {
               const list = (rd.data || rd).articles || [];
-              setRelated(list.filter(a => a.slug !== slug).slice(0, 5));
+              setRelated(list.filter(a => a.slug !== slug).slice(0, 7));
             })
             .catch(() => {});
         }
@@ -806,34 +806,10 @@ export default function ArticleDetail() {
                   <div>
                     {related.map(a => <RelatedCard key={a._id} article={a} />)}
                   </div>
-                  {tree && (
-                    <Link href={parentHref} className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-orange-500 hover:underline">
-                      View all {tree.parent.name} →
-                    </Link>
-                  )}
                 </div>
               )}
 
-              {/* Quick Links */}
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Quick Links</p>
-                <div className="space-y-1">
-                  {[
-                    { to: "/latest-job-notifications", label: "Latest Govt Jobs" },
-                    { to: "/career-guide",             label: "Career Guide" },
-                    { to: "/articles",                 label: "All Articles" },
-                    { to: "/internship-guide",         label: "Internship Guide" },
-                  ].map(({ to, label }) => (
-                    <Link key={to}
-                      href={to}
-                      className="flex items-center gap-2 text-sm text-gray-600 hover:text-orange-500 transition-colors py-1.5 border-b border-gray-50 last:border-0"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+
 
             </aside>
           </div>

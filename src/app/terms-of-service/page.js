@@ -1,7 +1,16 @@
 import { FaShieldAlt, FaExclamationTriangle, FaBan, FaGavel, FaEnvelope, FaBuilding, FaHandshake, FaInfoCircle, FaCopyright, FaLink, FaAd, FaPercentage, FaHistory, FaGlobe } from "react-icons/fa";
 import Link from "next/link";
-import SEO from '@/components/SEO';
+
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
+export const metadata = {
+  title: "Terms and Conditions — Careermitra",
+  description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
+  
+  alternates: {
+    canonical: "https://careermitra.in/terms-of-service",
+  },
+};
+
 
 const Section = ({ icon: Icon, title, children, accent = "orange" }) => {
   const colors = {
@@ -39,12 +48,13 @@ export default function TermsOfService() {
 
   return (
     <>
-      <SEO
-        title="Terms and Conditions — Careermitra"
-        description="Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers."
-        url="https://careermitra.in/terms-of-service"
-        schema={termsSchemas}
-      />
+      {termsSchemas.map((s, idx) => (
+        <script
+          key={idx}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
 
       <div className="min-h-screen bg-gray-50/50 pt-20">
 

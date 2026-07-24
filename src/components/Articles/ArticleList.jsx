@@ -144,7 +144,7 @@ export default function ArticleList() {
 
   const { blogs: allArticles, loading: contextLoading, error: contextError } = useBlogs();
 
-  const loading = contextLoading;
+  const loading = contextLoading || filterData === null;
   const error = contextError;
 
   /* ── Load filter options once ── */

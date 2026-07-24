@@ -1,7 +1,16 @@
 import { FaShieldAlt, FaDatabase, FaUserLock, FaCookieBite, FaEnvelope, FaGavel, FaAd, FaLink, FaChild, FaExclamationTriangle, FaHistory, FaBuilding, FaClipboardList } from "react-icons/fa";
 import Link from "next/link";
-import SEO from '@/components/SEO';
+
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
+export const metadata = {
+  title: "Privacy Policy — Careermitra",
+  description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
+  
+  alternates: {
+    canonical: "https://careermitra.in/privacy-policy",
+  },
+};
+
 
 const Section = ({ icon: Icon, title, children, accent = "blue" }) => {
   const colors = {
@@ -39,12 +48,13 @@ export default function PrivacyPolicy() {
 
   return (
     <>
-      <SEO
-        title="Privacy Policy — Careermitra"
-        description="Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly."
-        url="https://careermitra.in/privacy-policy"
-        schema={policySchemas}
-      />
+      {policySchemas.map((s, idx) => (
+        <script
+          key={idx}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
 
       <div className="min-h-screen pt-20 bg-gray-50/50">
 

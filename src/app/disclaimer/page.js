@@ -1,7 +1,16 @@
 import { FaShieldAlt, FaExclamationTriangle, FaBan, FaGavel, FaEnvelope, FaBuilding, FaHandshake, FaInfoCircle, FaLink, FaAd, FaPercentage, FaHistory, FaUserLock, FaClipboardList } from "react-icons/fa";
 import Link from "next/link";
-import SEO from '@/components/SEO';
+
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
+export const metadata = {
+  title: "Disclaimer — Careermitra",
+  description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
+  
+  alternates: {
+    canonical: "https://careermitra.in/disclaimer",
+  },
+};
+
 
 const Section = ({ icon: Icon, title, children, accent = "orange" }) => {
   const colors = {
@@ -39,12 +48,13 @@ export default function Disclaimer() {
 
   return (
     <>
-      <SEO
-        title="Disclaimer — Careermitra"
-        description="Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees."
-        url="https://careermitra.in/disclaimer"
-        schema={disclaimerSchemas}
-      />
+      {disclaimerSchemas.map((s, idx) => (
+        <script
+          key={idx}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
 
       <div className="min-h-screen bg-gray-50/50 pt-20">
 
