@@ -12,7 +12,7 @@ export const metadata = {
     title: "Terms and Conditions - Career Mitra",
     description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
     url: "https://careermitra.in/terms-of-service",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

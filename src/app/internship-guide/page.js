@@ -12,7 +12,7 @@ export const metadata = {
     title: "Internship Guide 2026, Internship Tips, Opportunities, Career Guidance - Career Mitra",
     description: "Explore internship opportunities, career guidance, resume tips, and internship preparation advice to kickstart your career journey.",
     url: "https://careermitra.in/internship-guide",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

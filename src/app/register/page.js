@@ -12,7 +12,7 @@ export const metadata = {
     title: "Register - Career Mitra",
     description: "Create your account on Career Mitra to get latest Govt Jobs notifications, Sarkari Naukri alerts, and expert career guidance.",
     url: "https://careermitra.in/register",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

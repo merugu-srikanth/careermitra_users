@@ -11,7 +11,7 @@ export const metadata = {
     title: "Media & Events - Career Mitra",
     description: "Browse the latest media and events shared by Career Mitra.",
     url: "https://careermitra.in/events",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

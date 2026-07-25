@@ -12,7 +12,7 @@ export const metadata = {
     title: "Log In - Career Mitra",
     description: "Log in to Career Mitra to access personalized Govt Jobs notifications, Sarkari Naukri alerts, career guidance, and latest updates.",
     url: "https://careermitra.in/login",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

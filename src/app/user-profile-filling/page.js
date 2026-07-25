@@ -12,7 +12,7 @@ export const metadata = {
     title: "User Profile Filling - Career Mitra",
     description: "Complete your user profile to get personalized job alerts and access exclusive career resources.",
     url: "https://www.careermitra.in/user-profile-filling",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

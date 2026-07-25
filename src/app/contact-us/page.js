@@ -12,7 +12,7 @@ export const metadata = {
     title: "Contact Us - Career Mitra",
     description: "Contact Career Mitra for personalized Govt Jobs notifications, career guidance, support, feedback, and job-related assistance.",
     url: "https://careermitra.in/contact-us",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

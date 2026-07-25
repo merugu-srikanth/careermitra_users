@@ -10,7 +10,7 @@ export const metadata = {
     title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
     description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
     url: "https://www.careermitra.in/government-jobs",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

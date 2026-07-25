@@ -12,7 +12,7 @@ export const metadata = {
     title: "Reset Password - Career Mitra",
     description: "Reset your account password on Career Mitra.",
     url: "https://careermitra.in/reset-password",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

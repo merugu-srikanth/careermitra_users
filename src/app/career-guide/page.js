@@ -12,7 +12,7 @@ export const metadata = {
     title: "Career Guidance, Job Preparation Tips 2026 - Career Mitra",
     description: "Explore career guidance, job preparation tips, interview advice, and personalized Govt Jobs updates to build a successful career.",
     url: "https://careermitra.in/career-guide",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

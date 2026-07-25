@@ -12,7 +12,7 @@ export const metadata = {
     title: "Student Dashboard - Career Mitra",
     description: "Access your personalized dashboard to explore govt jobs, internships, and career resources tailored for students. Stay updated with the latest opportunities and manage your profile effectively.",
     url: "https://www.careermitra.in/user-dashboard",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

@@ -12,7 +12,7 @@ export const metadata = {
     title: "Verify OTP - Career Mitra",
     description: "Verify your email address to complete registration on Career Mitra.",
     url: "https://careermitra.in/verify-otp",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

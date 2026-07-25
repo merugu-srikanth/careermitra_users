@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
         title,
         description: desc,
         url: `https://www.careermitra.in/${parentSlug}/${slug}`,
-        images: [{ url: "https://careermitra.in/favicon.png" }],
+        images: [{ url: "https://careermitra.in/default_og_image.png" }],
       },
     };
   }
@@ -63,7 +63,10 @@ export async function generateMetadata({ params }) {
 
   const title = art.meta_title || art.title || "Article";
   const desc = art.meta_description || art.short_description || "";
-  const image = art.featured_image || "https://careermitra.in/favicon.png";
+  let image = art.featured_image || "";
+  if (!image || image.startsWith("data:image")) {
+    image = "https://careermitra.in/default_og_image.png";
+  }
 
   return {
     title: `${title} - Career Mitra`,

@@ -12,7 +12,7 @@ export const metadata = {
     title: "Government Jobs 2026: Latest Govt Jobs Notifications in India - Career Mitra",
     description: "Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India.",
     url: "https://www.careermitra.in/latest-job-notifications",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

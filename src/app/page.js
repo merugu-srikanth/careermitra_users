@@ -12,7 +12,7 @@ export const metadata = {
     title: "Personalized Latest Govt Jobs Notifications & Career Guidance in India - Career Mitra",
     description: "Get personalized latest Govt Jobs notifications, Sarkari Naukri updates, exam alerts, results, and expert career guidance at Career Mitra.",
     url: "https://careermitra.in/",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

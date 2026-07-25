@@ -12,7 +12,7 @@ export const metadata = {
     title: "Correction Policy - Career Mitra",
     description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
     url: "https://careermitra.in/correction-policy",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

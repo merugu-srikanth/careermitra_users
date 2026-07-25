@@ -12,7 +12,7 @@ export const metadata = {
     title: "Internship Opportunities 2026, Apply for Verified Internships - Career Mitra",
     description: "Search and apply for verified internship opportunities across states, sectors, and roles. Find virtual, paid, and unpaid internships.",
     url: "https://careermitra.in/internships",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

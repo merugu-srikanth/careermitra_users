@@ -29,7 +29,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     siteName: "Career Mitra",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

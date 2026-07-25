@@ -40,7 +40,10 @@ export async function generateMetadata({ params }) {
   }
   const author_name = data.author_name || data.name || "Author";
   const bio = data.bio || "";
-  const avatar_url = data.avatar_url || "https://careermitra.in/favicon.png";
+  let avatar_url = data.avatar_url || "";
+  if (!avatar_url || avatar_url.startsWith("data:image")) {
+    avatar_url = "https://careermitra.in/default_og_image.png";
+  }
 
   const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 

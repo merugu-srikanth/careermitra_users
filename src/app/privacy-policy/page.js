@@ -12,7 +12,7 @@ export const metadata = {
     title: "Privacy Policy - Career Mitra",
     description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
     url: "https://careermitra.in/privacy-policy",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 

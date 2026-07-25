@@ -45,7 +45,7 @@ export async function generateMetadata({ params }) {
       title: pageTitle,
       description: info,
       url: `https://careermitra.in/announcements/${data.slug}`,
-      images: [{ url: "https://careermitra.in/favicon.png" }],
+      images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
   };
 }

@@ -96,7 +96,7 @@ export async function generateMetadata({ params }) {
       title: pageTitle,
       description: desc,
       url: `https://careermitra.in/internships/${data.id}`,
-      images: [{ url: "https://careermitra.in/favicon.png" }],
+      images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
   };
 }

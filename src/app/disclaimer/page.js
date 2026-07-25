@@ -12,7 +12,7 @@ export const metadata = {
     title: "Disclaimer - Career Mitra",
     description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
     url: "https://careermitra.in/disclaimer",
-    images: [{ url: "https://careermitra.in/favicon.png" }],
+    images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
 };
 
