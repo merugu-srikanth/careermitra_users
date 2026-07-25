@@ -12,7 +12,8 @@ import {
   FaSignInAlt, FaSignOutAlt, FaTachometerAlt,
   FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
-  FaUser, FaEnvelope, FaBell, FaCalendarAlt
+  FaUser, FaEnvelope, FaBell, FaCalendarAlt,
+  FaBriefcase, FaGraduationCap
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
@@ -44,13 +45,14 @@ const navLinks = [
   // { name: "Internship Guide", path: "/internship-guide", Icon: FaInfoCircle },
   {
     name: "Career",
+    Icon: FaGraduationCap,
     dropdown: [
       { name: "Career Overview", path: "/career-guide" },
       // { name: "Internship FAQ's", path: "/internship-guide" },
       { name: "Internship Opportunities", path: "/internships" },
     ],
   },
-  { name: "Government Jobs", Icon: FaBlog, blogsDropdown: true },
+  { name: "Government Jobs", Icon: FaBriefcase, blogsDropdown: true },
   { name: "Events", path: "/events", Icon: FaCalendarAlt },
   { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },
 
@@ -118,6 +120,10 @@ export default function Navbar() {
   const [hoveredParentId, setHoveredParentId] = useState(null);
   const [openMobileParent, setOpenMobileParent] = useState(null);
   const [isPWA, setIsPWA] = useState(false);
+  const [openMobileMenus, setOpenMobileMenus] = useState({});
+  const toggleMobileMenu = (name) => {
+    setOpenMobileMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
 
   const dropdownRef = useRef();
 
@@ -807,25 +813,20 @@ export default function Navbar() {
                       <div className="grid grid-cols-2 gap-3 px-1">
                         <button
                           onClick={() => { navigate("/user-dashboard"); setDrawerOpen(false); }}
-                          className="flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 shadow-xs transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-semibold text-xs bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 transition-all"
                         >
-                          <FaTachometerAlt size={14} />
+                          <FaTachometerAlt size={12} />
                           Dashboard
                         </button>
                         <button
                           onClick={() => { goToJobPostsTab(); setDrawerOpen(false); }}
-                          className="relative flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 shadow-xs transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-semibold text-xs bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-all"
                         >
-                          <div className="relative">
-                            <FaBell size={14} />
-                            {jobsBellCount.newCount > 0 && (
-                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-ping" />
-                            )}
-                          </div>
-                          Jobs ({jobsBellCount.totalCount ?? 0})
+                          <FaBell size={12} />
+                          <span>Jobs ({jobsBellCount.totalCount ?? 0})</span>
                           {jobsBellCount.newCount > 0 && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-black animate-bounce">
-                              New {jobsBellCount.newCount}
+                            <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-bold">
+                              +{jobsBellCount.newCount}
                             </span>
                           )}
                         </button>
@@ -873,37 +874,120 @@ export default function Navbar() {
 
                       // CATEGORIES → accordion mega menu in mobile drawer
                       if (link.blogsDropdown) {
+                        const isOpen = !!openMobileMenus["Government Jobs"];
                         return (
-                          <div key={link.name}>
-                            <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{link.name}</p>
-                            <Link
-                              href="/government-jobs"
-                              onClick={() => setDrawerOpen(false)}
-                              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all ml-2 mb-1"
+                          <div key={link.name} className="space-y-1">
+                            <button
+                              onClick={() => toggleMobileMenu("Government Jobs")}
+                              className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
                             >
-                              Government Jobs
-                            </Link>
+                              <div className="flex items-center gap-3">
+                                {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
+                                <span className="text-sm font-semibold">{link.name}</span>
+                              </div>
+                              <FaChevronDown
+                                size={12}
+                                className={`text-slate-400 transition-transform duration-200 ${
+                                  isOpen ? "rotate-180" : ""
+                                }`}
+                              />
+                            </button>
+
+                            <AnimatePresence>
+                              {isOpen && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden pl-4 pr-2 space-y-1"
+                                >
+                                  <Link
+                                    href="/government-jobs"
+                                    onClick={() => setDrawerOpen(false)}
+                                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all mb-1"
+                                  >
+                                    All Government Jobs
+                                  </Link>
+
+                                  <div className="max-h-64 overflow-y-auto space-y-1 pr-1" style={{ scrollbarWidth: "thin" }}>
+                                    {categoryTree.map((cat) => (
+                                      <div key={cat.id} className="space-y-0.5">
+                                        <Link
+                                          href={`/${cat.slug}`}
+                                          onClick={() => setDrawerOpen(false)}
+                                          className="block px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-orange-600 rounded-lg transition-all"
+                                        >
+                                          {cat.name}
+                                        </Link>
+
+                                        {cat.children && cat.children.length > 0 && (
+                                          <div className="pl-4 space-y-0.5 border-l border-slate-100 ml-3">
+                                            {cat.children.map((child) => (
+                                              <Link
+                                                key={child.id}
+                                                href={`/${cat.slug}/${child.slug}`}
+                                                onClick={() => setDrawerOpen(false)}
+                                                className="block px-3 py-1.5 text-xs text-slate-500 hover:text-orange-600 rounded-lg transition-all"
+                                              >
+                                                {child.name}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         );
                       }
 
+                      const isCareerOpen = !!openMobileMenus[link.name];
                       return (
-                        <div key={link.name}>
-                          <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
-                            {link.name}
-                          </p>
-                          {link.dropdown.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.path}
-                              state={item.state}
-                              onClick={() => setDrawerOpen(false)}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
-                              {item.name}
-                            </Link>
-                          ))}
+                        <div key={link.name} className="space-y-1">
+                          <button
+                            onClick={() => toggleMobileMenu(link.name)}
+                            className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
+                          >
+                            <div className="flex items-center gap-3">
+                              {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
+                              <span className="text-sm font-semibold">{link.name}</span>
+                            </div>
+                            <FaChevronDown
+                              size={12}
+                              className={`text-slate-400 transition-transform duration-200 ${
+                                isCareerOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+
+                          <AnimatePresence>
+                            {isCareerOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden pl-4 pr-2 space-y-1"
+                              >
+                                {link.dropdown.map((item) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.path}
+                                    state={item.state}
+                                    onClick={() => setDrawerOpen(false)}
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 transition-all ml-2"
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
+                                    {item.name}
+                                  </Link>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       );
                     })}

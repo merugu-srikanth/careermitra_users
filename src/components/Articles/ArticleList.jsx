@@ -286,7 +286,7 @@ export default function ArticleList() {
       <SEO
         title={seoTitle}
         description="Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra."
-        url="https://www.careermitra.in/articles"
+        url={`https://www.careermitra.in${childSlugParam ? `/${parentSlugParam}/${childSlugParam}` : (parentSlugParam ? `/${parentSlugParam}` : "/articles")}`}
         schema={articleListSchemas}
       />
 
@@ -294,7 +294,7 @@ export default function ArticleList() {
 
         {/* ── Page Header ── */}
         <div className="bg-white border-b border-gray-100">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-8">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-3 flex-wrap">
               <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
@@ -327,7 +327,7 @@ export default function ArticleList() {
 
         {/* ── Filter Bar ── */}
         <div className="bg-white border-b border-gray-100 sticky top-[64px] z-30 shadow-sm">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
+          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
 
             {/* Search */}
             <div className="relative flex-1">
@@ -371,7 +371,7 @@ export default function ArticleList() {
         </div>
 
         {/* ── Articles Grid ── */}
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-8">
           {error ? (
             <div className="text-center py-16">
               <p className="text-gray-400 mb-4">{error}</p>

@@ -7,6 +7,7 @@ import DOMPurify from "dompurify";
 import SEO from "../../components/SEO";
 import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE = "https://careermitra.in/api";
 
@@ -414,8 +415,20 @@ export default function ArticleDetail() {
   const [processedHtml, setProcessedHtml] = useState("");
   const [readingMode,   setReadingMode]   = useState(false);
   const [ttsRate,       setTtsRate]       = useState(1);
+  const [shareDropdownOpen, setShareDropdownOpen] = useState(false);
   const contentRef = useRef(null);
+  const shareRef = useRef(null);
   const { ttsState, speak, pause, resume, stop } = useTTS();
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (shareRef.current && !shareRef.current.contains(e.target)) {
+        setShareDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   /* ── Plain text for TTS (strips HTML tags) ── */
   const plainText = useMemo(() => {
@@ -570,35 +583,36 @@ export default function ArticleDetail() {
 
         {/* ── Breadcrumb bar ── */}
         <div className="bg-gray-50 border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5">
-            <nav className="flex items-center flex-wrap gap-1.5 text-[11px] text-gray-400">
-              <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-2.5">
+            <nav className="flex items-center gap-1.5 text-[11px] text-gray-400 overflow-hidden whitespace-nowrap">
+              <Link href="/" className="hover:text-orange-500 transition-colors shrink-0">Home</Link>
               {tree && (
                 <>
-                  <span className="text-gray-300">›</span>
-                  <Link href={parentHref} className="hover:text-orange-500 transition-colors">{tree.parent.name}</Link>
+                  <span className="text-gray-300 shrink-0">›</span>
+                  <Link href={parentHref} className="hover:text-orange-500 transition-colors truncate shrink-0 max-w-[90px] xs:max-w-[140px] sm:max-w-none">{tree.parent.name}</Link>
                 </>
               )}
               {primaryChild && (
                 <>
-                  <span className="text-gray-300">›</span>
-                  <Link href={childHref} className="hover:text-orange-500 transition-colors">{primaryChild.name}</Link>
+                  <span className="text-gray-300 shrink-0">›</span>
+                  <Link href={childHref} className="hover:text-orange-500 transition-colors truncate shrink-0 max-w-[90px] xs:max-w-[140px] sm:max-w-none">{primaryChild.name}</Link>
                 </>
               )}
-              <span className="text-gray-300">›</span>
-              <span className="text-gray-500 truncate max-w-60 sm:max-w-sm">{article.title}</span>
+              <span className="text-gray-300 shrink-0">›</span>
+              <span className="text-gray-500 truncate shrink min-w-0 max-w-[80px] xs:max-w-[120px] sm:max-w-xs md:max-w-sm">{article.title}</span>
             </nav>
           </div>
         </div>
 
         {/* ── Main two-column layout ── */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className={`grid gap-8 items-start ${readingMode ? "lg:grid-cols-1 max-w-3xl mx-auto" : "lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px]"}`}>
 
             {/* ══════ LEFT — Main Article ══════ */}
             <main>
 
-              {/* ← Back to category */}
+              {/* ← Back to category (hidden as breadcrumbs are enough) */}
+              {/*
               {backLabel && (
                 <button
                   onClick={() => navigate(backHref)}
@@ -610,11 +624,9 @@ export default function ArticleDetail() {
                   {backLabel}
                 </button>
               )}
+              */}
 
-              {/* Share bar */}
-              <ShareBar url={canonicalUrl} title={article.title} />
-
-                 {/* Title */}
+                  {/* Title */}
               <h1 className="text-2xl sm:text-3xl font-black text-orange-500 leading-snug mb-3">
                 {article.title}
               </h1>
@@ -649,21 +661,33 @@ export default function ArticleDetail() {
 
               {/* Author + Meta */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500 pb-4 border-b border-gray-100 mb-5">
-                <div className="flex items-center gap-2">
-                  {article.author?.avatar_url ? (
-                    <img
-                      src={article.author.avatar_url}
-                      alt={article.author.author_name}
-                      className="w-7 h-7 rounded-full object-cover border border-gray-200"
-                      onError={e => { e.target.style.display = "none"; }}
-                    />
-                  ) : (
-                    <span className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-xs font-black text-orange-500">
-                      {(article.author?.author_name || "C")[0].toUpperCase()}
+                {article.author ? (
+                  <Link
+                    href={`/author/${toSlug(article.author.author_name || article.author.name || "")}`}
+                    className="flex items-center gap-2 hover:text-orange-500 transition-colors group"
+                  >
+                    {article.author.avatar_url ? (
+                      <img
+                        src={article.author.avatar_url}
+                        alt={article.author.author_name || article.author.name}
+                        className="w-7 h-7 rounded-full object-cover border border-gray-200"
+                        onError={e => { e.target.style.display = "none"; }}
+                      />
+                    ) : (
+                      <span className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-xs font-black text-orange-500">
+                        {(article.author.author_name || article.author.name || "C")[0].toUpperCase()}
+                      </span>
+                    )}
+                    <span className="font-semibold text-gray-700 group-hover:text-orange-500 transition-colors text-sm">
+                      {article.author.author_name || article.author.name}
                     </span>
-                  )}
-                  <span className="font-semibold text-gray-700 text-sm">{article.author?.author_name || "CareerMitra"}</span>
-                </div>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-xs font-black text-orange-500">C</span>
+                    <span className="font-semibold text-gray-700 text-sm">CareerMitra</span>
+                  </div>
+                )}
 
                 <span className="flex items-center gap-1.5">
                   <svg className="w-3.5 h-3.5 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -677,20 +701,95 @@ export default function ArticleDetail() {
                   <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedAt)}</span>
                 )}
 
-                {/* Reading Mode toggle */}
-                <button
-                  onClick={() => setReadingMode(v => !v)}
-                  className={`ml-auto flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
-                    readingMode
-                      ? "bg-amber-50 border-amber-300 text-amber-700"
-                      : "bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                  </svg>
-                  {readingMode ? "Exit Reading" : "Reading Mode"}
-                </button>
+                {/* Actions container (Reading Mode & Share Dropdown) */}
+                <div className="ml-auto flex items-center gap-2 relative" ref={shareRef}>
+                  {/* Reading Mode toggle */}
+                  <button
+                    onClick={() => setReadingMode(v => !v)}
+                    className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
+                      readingMode
+                        ? "bg-amber-50 border-amber-300 text-amber-700"
+                        : "bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                    }`}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    {readingMode ? "Exit Reading" : "Reading Mode"}
+                  </button>
+
+                  {/* Share button */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShareDropdownOpen(v => !v)}
+                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
+                        shareDropdownOpen
+                          ? "bg-orange-50 border-orange-300 text-orange-700"
+                          : "bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                      }`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                        <polyline points="16 6 12 2 8 6" />
+                        <line x1="12" y1="2" x2="12" y2="15" />
+                      </svg>
+                      Share
+                    </button>
+
+                    <AnimatePresence>
+                      {shareDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 w-44"
+                        >
+                          <a
+                            href={`https://wa.me/?text=${encodeURIComponent(article.title + " " + canonicalUrl)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShareDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
+                          >
+                            <span className="text-[#25D366]">🟢</span> WhatsApp
+                          </a>
+
+                          <a
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShareDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
+                          >
+                            <span className="text-[#1877F2]">🔵</span> Facebook
+                          </a>
+
+                          <a
+                            href={`https://t.me/share/url?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(article.title)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShareDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition"
+                          >
+                            <span className="text-[#0088cc]">✈️</span> Telegram
+                          </a>
+
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(canonicalUrl);
+                              setShareDropdownOpen(false);
+                              alert("Link copied to clipboard!");
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition text-left font-sans"
+                          >
+                            <span>🔗</span> Copy Link
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
               </div>
 
              

@@ -117,7 +117,9 @@ export default function ProfileCard({ token }) {
         <div className="flex-1 w-full min-w-0">
           <div className="text-center sm:text-left">
             <h2 className="text-slate-800 font-black text-lg truncate leading-tight">
-              {profile.name || "Student User"}
+              {profile.name
+                ? profile.name.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+                : "Student User"}
             </h2>
             <p className="text-slate-500 text-xs truncate mt-0.5">
               {profile.email}
@@ -125,6 +127,7 @@ export default function ProfileCard({ token }) {
           </div>
 
           {/* Progress Bar Row */}
+          {/*
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs font-bold mb-1.5">
               <span className="text-slate-500">Profile</span>
@@ -146,6 +149,7 @@ export default function ProfileCard({ token }) {
                 : "Profile fully complete ✓"}
             </p>
           </div>
+          */}
 
           {/* Bottom Stats boxes removed */}
 
