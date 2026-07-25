@@ -371,7 +371,7 @@ export default function JobList(props) {
   }, [viewMode]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6">
+    <div className="w-full w-full mx-auto px-4 py-6">
       {/* View Toggle Buttons */}
       <div className="flex justify-end mb-4 gap-2">
         <button

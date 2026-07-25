@@ -111,9 +111,22 @@ const ArticleCard = ({ article }) => {
             </span>
 
             <span>{fmtDateTime(createdAt)}</span>
-            {views && <span>👁 {views}</span>}
+            {views && (
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                {views}
+              </span>
+            )}
             {showUpdated && (
-              <span className="text-orange-400">🔄 {fmtDateTime(updatedAt)}</span>
+              <span className="flex items-center gap-1 text-orange-500">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                {fmtDateTime(updatedAt)}
+              </span>
             )}
           </div>
         </div>
@@ -294,7 +307,7 @@ export default function ArticleList() {
 
         {/* ── Page Header ── */}
         <div className="bg-white border-b border-gray-100">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-8">
+          <div className="mx-auto w-full px-4 md:px-15 py-8">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-3 flex-wrap">
               <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
@@ -327,7 +340,7 @@ export default function ArticleList() {
 
         {/* ── Filter Bar ── */}
         <div className="bg-white border-b border-gray-100 sticky top-[64px] z-30 shadow-sm">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
+          <div className="mx-auto w-full px-4 md:px-15 py-3 flex flex-col sm:flex-row gap-3">
 
             {/* Search */}
             <div className="relative flex-1">
@@ -371,7 +384,7 @@ export default function ArticleList() {
         </div>
 
         {/* ── Articles Grid ── */}
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-8">
+        <div className="mx-auto w-full px-4 md:px-15 py-8">
           {error ? (
             <div className="text-center py-16">
               <p className="text-gray-400 mb-4">{error}</p>

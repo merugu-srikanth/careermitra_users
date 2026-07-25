@@ -63,7 +63,7 @@ export default function Footer() {
       {/* ── Popular Categories ── */}
       {cats.children.length > 0 && (
         <div className="border-b border-slate-800/70">
-          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full px-4 md:px-15 py-8">
             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Popular Categories</h3>
             <div className="h-0.5 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400 mb-6" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2.5">
@@ -82,7 +82,7 @@ export default function Footer() {
         </div>
       )}
 
-      <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full px-4 md:px-15 pb-12 pt-10">
         {!token && (
           <div className="mb-8 rounded-2xl border border-orange-400/30 bg-linear-to-r from-orange-500/15 via-orange-400/10 to-green-500/15 p-5 shadow-lg shadow-black/20 sm:p-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -223,7 +223,7 @@ export default function Footer() {
       </div>
 
       <div className="relative border-t border-slate-800/90 bg-slate-950/80">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-4 text-center text-xs text-slate-400 sm:px-6 md:flex-row md:text-left lg:px-8">
+        <div className="mx-auto flex w-full flex-col items-center justify-between gap-3 px-4 md:px-15 py-4 text-center text-xs text-slate-400 md:flex-row md:text-left lg:px-8">
           <p>© {new Date().getFullYear()} Careermitra. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:justify-end">
             <Link href="/terms-of-service" className="hover:text-orange-400 transition-colors duration-200">Terms of Service</Link>

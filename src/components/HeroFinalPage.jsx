@@ -554,7 +554,7 @@ export default function HeroFinalPage() {
 
     return (
         <section className="bg-white w-full py-8 sm:py-12 xl:py-16">
-            <div className="w-full px-4 sm:px-6 xl:px-10">
+            <div className="w-full px-4 md:px-15 mx-auto">
 
                 {/* ── Section heading ── */}
                 <div className="text-center mb-6 sm:mb-8 xl:mb-10">

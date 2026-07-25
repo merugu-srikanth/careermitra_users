@@ -43,7 +43,7 @@ const getCleanSearchTerm = (slug) => {
 
 const InternshipDetailSkeleton = () => (
   <div className="min-h-screen bg-slate-50/50 pt-28 pb-16 px-4 md:px-8 font-sans animate-pulse">
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="w-full mx-auto space-y-8">
       <div className="h-9 w-36 bg-white rounded-xl border border-slate-100 shadow-sm" />
 
       <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl p-6 md:p-10 space-y-6">
@@ -296,7 +296,7 @@ export default function InternshipDetail({ initialData = null }) {
     <div className="min-h-screen bg-slate-50/50 pt-28 pb-16 px-4 md:px-8 font-sans">
 
 
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="w-full mx-auto space-y-8">
 
         {/* Back Link */}
         <Link href="/internships"

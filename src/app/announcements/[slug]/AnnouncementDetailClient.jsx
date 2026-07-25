@@ -50,7 +50,7 @@ const sanitizeHtml = (html) => {
 /* ── Skeleton loader ── */
 const Skeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pt-24 pb-16 px-4">
-    <div className="max-w-6xl mx-auto">
+    <div className="w-full mx-auto">
       <div className="h-9 w-28 rounded-xl bg-gray-200 animate-pulse mb-6" />
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
         <div className="space-y-4">
@@ -181,7 +181,7 @@ export default function AnnouncementDetail({ initialData = null }) {
           <p className="text-gray-500 text-sm mb-6">{error || "The announcement you're looking for doesn't exist."}</p>
           <button
             onClick={() => navigate(-1)}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-xl transition"
+            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 md:px-15 py-2.5 rounded-xl transition"
           >
             Go Back
           </button>
@@ -238,7 +238,7 @@ export default function AnnouncementDetail({ initialData = null }) {
  
         {/* ── Hero Banner ── */}
         <div className="bg-white border-b border-gray-100 pt-20 sm:pt-24 pb-5 sm:pb-8 px-4 shadow-sm">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full mx-auto">
  
             {/* Breadcrumb + back */}
             <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
@@ -293,7 +293,7 @@ export default function AnnouncementDetail({ initialData = null }) {
         </div>
 
         {/* ── Body ── */}
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
+        <div className="w-full mx-auto px-4 md:px-15 py-5 sm:py-8">
           <div className="grid lg:grid-cols-[1fr_290px] gap-5 sm:gap-6 items-start">
 
             {/* ── MAIN CONTENT ── */}
@@ -330,7 +330,7 @@ export default function AnnouncementDetail({ initialData = null }) {
               {/* ── Details Table ── */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center gap-2 px-4 sm:px-6 py-3.5 bg-linear-to-r from-orange-500 to-orange-400">
+                <div className="flex items-center gap-2 px-4 md:px-15 py-3.5 bg-linear-to-r from-orange-500 to-orange-400">
                   <svg className="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -342,7 +342,7 @@ export default function AnnouncementDetail({ initialData = null }) {
                   {metaItems.map((meta, idx) => (
                     <div
                       key={meta.label}
-                      className={`flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                      className={`flex items-center gap-3 sm:gap-4 px-4 md:px-15 py-3 sm:py-3.5 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
                     >
                       <span className="text-sm sm:text-base w-6 sm:w-7 text-center shrink-0">{meta.icon}</span>
                       <span className="w-20 sm:w-28 shrink-0 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">
@@ -362,7 +362,7 @@ export default function AnnouncementDetail({ initialData = null }) {
  
                   {/* Official link row */}
                   {announcement.url && (
-                    <div className={`flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-3.5 ${metaItems.length % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                    <div className={`flex items-center gap-3 sm:gap-4 px-4 md:px-15 py-3 sm:py-3.5 ${metaItems.length % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
                       <span className="text-sm sm:text-base w-6 sm:w-7 text-center shrink-0">🔗</span>
                       <span className="w-20 sm:w-28 shrink-0 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider leading-tight">
                         Official

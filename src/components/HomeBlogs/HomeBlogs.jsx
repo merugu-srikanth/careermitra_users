@@ -379,8 +379,8 @@ const HomeBlogs = () => {
                 type="website"
                 image="https://www.careermitra.in/og-articles.png"
             /> */}
-            <div style={{ background: '#fff' }} >
-                <div className="w-[90%] mx-auto">
+            <div  >
+                <div className="w-full px-4 md:px-15 mx-auto py-8">
 
                     {/* ── CATEGORY FILTER PILLS ── */}
                     {/* {dynamicCategories.length > 0 && (
@@ -453,39 +453,39 @@ const HomeBlogs = () => {
                         {!loading && totalCount > 0 && (
                             <span>{totalCount} article{totalCount !== 1 ? 's' : ''}</span>
                         )} */}
-                    </div>  
+                    </div>
 
 
                     {/* ── Header ── */}
-                <div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-6"
-                >
-                    {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-5">
+                    <div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-6"
+                    >
+                        {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-5">
                         <span className="text-sm">✨</span>
                         <span className="text-orange-700 font-bold text-xs uppercase tracking-widest">
                             All Government Jobs
                         </span>
                     </div> */}
 
-                    <h2 className="text-4xl md:text-5xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                        All Government Jobs Notifications
-                    </h2>
+                        <h1 className="text-4xl md:text-5xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
+                            All Government Jobs Notifications
+                        </h1>
 
-                    <div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                        className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full"
-                    />
+                        <div
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full"
+                        />
 
-                    <p className="text-gray-500 max-w-xl mx-auto text-base">
-                        Discover the latest government job opportunities across India.
-                        Updated daily with new positions in various sectors.
-                    </p>
-                </div>
+                        <p className="text-gray-500 max-w-xl mx-auto text-base">
+                            Discover the latest government job opportunities across India.
+                            Updated daily with new positions in various sectors.
+                        </p>
+                    </div>
 
                     {/* ── GRID / STATES ── */}
                     {loading ? (

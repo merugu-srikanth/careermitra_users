@@ -155,7 +155,7 @@ const JobTableSkeleton = () => (
       <thead className="bg-gray-50">
         <tr>
           {[...Array(5)].map((_, i) => (
-            <th key={i} className="px-6 py-4"><div className="h-4 bg-gray-200 rounded-full w-20" /></th>
+            <th key={i} className="px-4 md:px-15 py-4"><div className="h-4 bg-gray-200 rounded-full w-20" /></th>
           ))}
         </tr>
       </thead>
@@ -163,7 +163,7 @@ const JobTableSkeleton = () => (
         {[...Array(5)].map((_, r) => (
           <tr key={r}>
             {[...Array(5)].map((_, c) => (
-              <td key={c} className="px-6 py-5">
+              <td key={c} className="px-4 md:px-15 py-5">
                 <div className="space-y-2">
                   <div className="h-4 bg-gray-200 rounded-full w-3/4" />
                   {c === 0 && <div className="h-3 bg-gray-200 rounded-full w-1/2" />}
@@ -519,7 +519,7 @@ export default function AllJobs() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 text-center mt-9">
+        <div className="relative z-10 w-full mx-auto px-4 md:px-15 py-16 text-center mt-9">
           {/* <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-orange-500/90 text-xs font-bold px-4 py-1.5 rounded-full mb-3 border border-white/25">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             {totalItems} Active Listings • {totalPosts.toLocaleString()} Total Vacancies
@@ -551,7 +551,7 @@ export default function AllJobs() {
                   </button>
                 )}
               </div>
-              <button suppressHydrationWarning={true} className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-6 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto">
+              <button suppressHydrationWarning={true} className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto">
                 Search
               </button>
             </div>
@@ -573,7 +573,7 @@ export default function AllJobs() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full mx-auto px-4 md:px-15 py-8">
 
         {/* ── Job Type Tabs ───────────────────────────────────────────────────── */}
         {/* <div className="flex flex-wrap gap-2 mb-4">
@@ -699,7 +699,7 @@ export default function AllJobs() {
             <p className="text-gray-500 text-sm mb-6 max-w-xs">{error}</p>
             <button
               onClick={() => setPage(1)}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all duration-200"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200"
             >
               Retry
             </button>
@@ -716,7 +716,7 @@ export default function AllJobs() {
             {hasFilters && (
               <button
                 onClick={clearFilters}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all duration-200"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200"
               >
                 Clear All Filters
               </button>

@@ -340,7 +340,7 @@ export default function CareerGuide() {
           <div className="absolute right-0 top-0 w-125 h-125 rounded-full -translate-y-1/2 translate-x-1/3 opacity-10" style={{ background: "white", animation: "heroPulse 8s ease-in-out infinite" }} />
           <div className="absolute left-1/3 bottom-0 w-64 h-64 rounded-full translate-y-1/2 opacity-10" style={{ background: "white", animation: "heroPulse 10s ease-in-out infinite 2s" }} />
 
-          <div className="relative max-w-5xl mx-auto px-5 md:px-8 pt-24 pb-16 text-center">
+          <div className="relative w-full mx-auto px-4 md:px-15 pt-24 pb-16 text-center">
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full mb-8"
@@ -391,7 +391,7 @@ export default function CareerGuide() {
 
       {/* ── Sticky search & filter ── */}
       <div className="sticky top-0 z-20 bg-white/96 border-b border-orange-100" style={{ backdropFilter: "blur(12px)", boxShadow: "0 4px 24px rgba(249,115,22,0.07)" }}>
-        <div className="max-w-6xl mx-auto px-5 md:px-8 py-4">
+        <div className="w-full mx-auto px-4 md:px-15 py-4">
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -431,7 +431,7 @@ export default function CareerGuide() {
       </div>
 
       {/* ── Results count ── */}
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-8 pb-2" style={{ zIndex: 1 }}>
+      <div className="relative w-full mx-auto px-4 md:px-15 pt-8 pb-2" style={{ zIndex: 1 }}>
         <div className="flex items-center gap-3">
           <div className="h-6 w-1.5 rounded-full" style={{ background: "linear-gradient(to bottom, #f97316, #ea580c)" }} />
           <span className="font-black text-gray-900" style={{ fontSize: "1.15rem", fontFamily: "'Georgia', serif" }}>
@@ -444,7 +444,7 @@ export default function CareerGuide() {
       </div>
 
       {/* ── Cards grid ── */}
-      <div className="relative w-full md:max-w-6xl mx-auto px-5 md:px-8 py-8" style={{ zIndex: 1 }}>
+      <div className="relative w-full md:w-full mx-auto px-4 md:px-15 py-8" style={{ zIndex: 1 }}>
         {displayed.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🔍</div>
@@ -462,7 +462,7 @@ export default function CareerGuide() {
 
       {/* ── Bottom CTA ── */}
       <div
-        className="relative z-10 mx-5 md:mx-8 max-w-5xl lg:mx-auto mb-16 rounded-3xl overflow-hidden"
+        className="relative z-10 mx-5 md:mx-8 w-full lg:mx-auto mb-16 rounded-3xl overflow-hidden"
         style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 60%, #c2410c 100%)" }}
       >
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle, white 1.5px, transparent 1.5px)", backgroundSize: "24px 24px" }} />

@@ -255,7 +255,7 @@ export default function AuthorProfilePage({ initialData = null }) {
           <div className="pointer-events-none absolute -left-24 top-4 h-64 w-64 rounded-full bg-[#34d399]/15 blur-3xl" />
           <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-[#fb7185]/20 blur-3xl" />
 
-          <div className="relative mx-auto grid max-w-6xl overflow-hidden rounded-[34px] border border-[#ece9e2] bg-white/80 shadow-[0_30px_60px_rgba(17,24,39,0.12)] backdrop-blur-sm md:grid-cols-[260px_1fr]">
+          <div className="relative mx-auto grid w-full overflow-hidden rounded-[34px] border border-[#ece9e2] bg-white/80 shadow-[0_30px_60px_rgba(17,24,39,0.12)] backdrop-blur-sm md:grid-cols-[260px_1fr]">
             <div className="relative flex min-h-56 items-center justify-center p-5 md:min-h-82.5 md:p-0">
               <div className="absolute inset-0 translate-x-4 rounded-4xl bg-[linear-gradient(170deg,#f59e0b,#fb7185)] opacity-35" />
               <div className="absolute inset-0 translate-x-2 rounded-4xl bg-[linear-gradient(170deg,#10b981,#f97316)] opacity-25" />

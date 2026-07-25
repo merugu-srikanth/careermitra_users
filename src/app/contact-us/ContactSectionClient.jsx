@@ -228,14 +228,14 @@ export default function ContactSection() {
 
       <section
         id="contact"
-        className="relative bg-white py-24 px-6 overflow-hidden"
+        className="relative bg-white py-24 px-4 md:px-15 overflow-hidden"
       >
         <FloatingBg />
 
       {/* subtle top divider line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-orange-300 to-transparent" />
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 w-full mx-auto">
 
         {/* ── HEADER ── */}
         <motion.div

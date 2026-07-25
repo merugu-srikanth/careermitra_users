@@ -227,7 +227,7 @@ export default function Internships() {
   return (
     <div className="relative min-h-screen bg-slate-50/50 py-8 px-4 md:px-8 font-sans">
 
-      <div className="max-w-7xl mx-auto z-10 relative pt-20">
+      <div className="w-full mx-auto z-10 relative pt-20">
         {/* Header Block */}
         <div className="mb-8 text-center md:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wider mb-3 animate-pulse">

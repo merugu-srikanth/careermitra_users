@@ -47,7 +47,7 @@ export default function TwoSegmentResolver() {
     const isLikelyCategory = slug && slug.length < 25 && (slug.split('-').length <= 3 || slug === 'preparation-guide' || slug === 'state-government-jobs' || slug === 'career-guidance');
     if (isLikelyCategory) {
       return (
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-24">
+        <div className="mx-auto w-full px-4 md:px-15 py-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
           </div>

@@ -23,7 +23,7 @@ export default function LatestJobsSection() {
 
   return (
     <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="w-full mx-auto px-4 md:px-15">
         <AnimatedSection animation="fade-up">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-600 text-xs font-bold px-4 py-1.5 rounded-full mb-5 border border-orange-100">

@@ -77,7 +77,7 @@ export default function InternshipGuideContent() {
 
   return (
     <div className="w-full bg-slate-50/30 py-4 font-sans">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="w-full mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Sticky Sidebar Navigation (Desktop) */}
         <aside className="hidden lg:block lg:col-span-1 sticky top-28 self-start">

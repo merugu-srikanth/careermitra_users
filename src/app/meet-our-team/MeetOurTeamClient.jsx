@@ -398,7 +398,7 @@ export default function MeetOurTeam() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-20"
+            className="grid md:grid-cols-2 gap-8 w-full mx-auto mb-20"
           >
             {founders.map((member) => (
               <motion.div
@@ -519,7 +519,7 @@ export default function MeetOurTeam() {
             transition={{ delay: 0.6 }}
             className="text-center max-w-2xl mx-auto"
           >
-            <div className="inline-flex items-center gap-3.5 px-6 py-4.5 bg-white border border-slate-100 rounded-3xl shadow-sm">
+            <div className="inline-flex items-center gap-3.5 px-4 md:px-15 py-4.5 bg-white border border-slate-100 rounded-3xl shadow-sm">
               <span className="text-2xl">🌱</span>
               <p className="text-sm text-slate-600 text-left leading-relaxed">
                 <span className="font-bold text-slate-800">Growing Team</span> — We are actively building our network across India by adding subject matter experts, retired advisors, and technology consultants.

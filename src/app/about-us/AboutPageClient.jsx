@@ -228,7 +228,7 @@ function SectionLabel({ text, color = "orange" }) {
 // ─── HERO SECTION ────────────────────────────────────────────────────────────
 function AboutHero() {
   return (
-    <section className="relative bg-white pt-24 pb-20 px-6 overflow-hidden">
+    <section className="relative bg-white pt-24 pb-20 px-4 md:px-15 overflow-hidden">
       <FloatingBg />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
 
@@ -274,9 +274,9 @@ function AboutHero() {
 // ─── STATS STRIP ─────────────────────────────────────────────────────────────
 function StatsStrip() {
   return (
-    <section className="relative bg-gray-50 border-y border-gray-100 py-10 px-6 overflow-hidden">
+    <section className="relative bg-gray-50 border-y border-gray-100 py-10 px-4 md:px-15 overflow-hidden">
       <motion.div
-        className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4"
+        className="w-full mx-auto grid grid-cols-2 md:grid-cols-4 gap-4"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
         variants={stagger}
       >
@@ -302,9 +302,9 @@ function StatsStrip() {
 // ─── VISION SECTION ──────────────────────────────────────────────────────────
 function VisionSection() {
   return (
-    <section className="relative bg-white py-4 px-6 overflow-hidden">
+    <section className="relative bg-white py-4 px-4 md:px-15 overflow-hidden">
       <motion.div
-        className="max-w-5xl mx-auto"
+        className="w-full mx-auto"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
         variants={stagger}
       >
@@ -393,14 +393,14 @@ function VisionSection() {
 // ─── TEAM SECTION ────────────────────────────────────────────────────────────
 function TeamSection() {
   return (
-    <section className="relative bg-gray-50 border-y border-gray-100 py-24 px-6 overflow-hidden">
+    <section className="relative bg-gray-50 border-y border-gray-100 py-24 px-4 md:px-15 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-300 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
       </div>
 
       <motion.div
-        className="max-w-6xl mx-auto"
+        className="w-full mx-auto"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
         variants={stagger}
       >
@@ -473,7 +473,7 @@ function TeamSection() {
         </div>
 
         {/* Team Members */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mx-auto">
           {teamMembers.map((m, i) => (
             <motion.div
               key={i}
@@ -544,7 +544,7 @@ function TeamSection() {
           initial="hidden" whileInView="show" viewport={{ once: true }}
           className="mt-12 text-center"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+          <div className="inline-flex items-center gap-3 px-4 md:px-15 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
             <span className="text-2xl">🌐</span>
             <p className="text-sm text-gray-600">
               <span className="font-bold text-gray-800">Growing team</span> — adding subject experts, technical consultants & regional coordinators across India.
@@ -559,7 +559,7 @@ function TeamSection() {
 // ─── TIMELINE SECTION ────────────────────────────────────────────────────────
 function TimelineSection() {
   return (
-    <section className="relative bg-white py-24 px-6 overflow-hidden">
+    <section className="relative bg-white py-24 px-4 md:px-15 overflow-hidden">
       <motion.div
         className="max-w-4xl mx-auto"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
@@ -621,13 +621,13 @@ function CTASection() {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section className="relative  bg-gray-50 border-t border-gray-100 py-24 px-6 overflow-hidden">
+    <section className="relative  bg-gray-50 border-t border-gray-100 py-24 px-4 md:px-15 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
       </div>
 
       <motion.div
-        className="max-w-6xl mx-auto text-center"
+        className="w-full mx-auto text-center"
         initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
         variants={stagger}
       >

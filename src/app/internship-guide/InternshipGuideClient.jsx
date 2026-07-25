@@ -403,7 +403,7 @@ export default function InternshipGuide() {
             style={{ background: "white", animation: "heroPulse 10s ease-in-out infinite 2s" }}
           />
 
-          <div className="relative max-w-5xl mx-auto px-5 md:px-8 pt-20 pb-16 text-center">
+          <div className="relative w-full mx-auto px-4 md:px-15 pt-20 pb-16 text-center">
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full mb-8"
@@ -470,7 +470,7 @@ export default function InternshipGuide() {
         className="sticky top-0 z-20 bg-white/96 border-b border-orange-100"
         style={{ backdropFilter: "blur(12px)", boxShadow: "0 4px 24px rgba(249,115,22,0.07)" }}
       >
-        <div className="max-w-6xl mx-auto px-5 md:px-8 py-4">
+        <div className="w-full mx-auto px-4 md:px-15 py-4">
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -516,7 +516,7 @@ export default function InternshipGuide() {
       </div>
 
       {/* ── Results count strip ── */}
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-8 pb-2" style={{ zIndex: 1 }}>
+      <div className="relative w-full mx-auto px-4 md:px-15 pt-8 pb-2" style={{ zIndex: 1 }}>
         <div className="flex items-center gap-3">
           <div
             className="h-6 w-1.5 rounded-full"
@@ -535,7 +535,7 @@ export default function InternshipGuide() {
       </div>
 
       {/* ── FAQ Grid ── */}
-      <div className="relative w-full md:max-w-6xl mx-auto px-5 md:px-8 py-8" style={{ zIndex: 1 }}>
+      <div className="relative w-full md:w-full mx-auto px-4 md:px-15 py-8" style={{ zIndex: 1 }}>
         {displayed.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🔍</div>
@@ -554,7 +554,7 @@ export default function InternshipGuide() {
       </div>
 
       {/* ── Bottom CTA banner ── */}
-      <div className="relative z-10 mx-5 md:mx-8 max-w-5xl lg:mx-auto mb-16 rounded-3xl overflow-hidden"
+      <div className="relative z-10 mx-5 md:mx-8 w-full lg:mx-auto mb-16 rounded-3xl overflow-hidden"
         style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 60%, #c2410c 100%)" }}>
         <div
           className="absolute inset-0 opacity-[0.07]"

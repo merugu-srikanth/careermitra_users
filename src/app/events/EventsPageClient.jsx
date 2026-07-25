@@ -202,7 +202,7 @@ export default function EventsPage() {
 
       {/* ── Header ── */}
       <div className="bg-white border-b border-slate-100">
-        <div className="max-w-full mx-auto px-5 sm:px-8 py-8 text-center">
+        <div className="w-full mx-auto px-4 md:px-15 py-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -235,7 +235,7 @@ export default function EventsPage() {
 
       {/* ── Controls ── */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="max-w-full mx-auto px-5 sm:px-8 py-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] items-center">
+        <div className="w-full mx-auto px-4 md:px-15 py-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] items-center">
 
           {/* Tabs */}
           <div className="grid w-full grid-cols-2 gap-1 rounded-3xl border border-slate-200/80 bg-slate-100/90 p-1 shadow-sm sm:grid-cols-4">
@@ -293,7 +293,7 @@ export default function EventsPage() {
       </div>
 
       {/* ── Content ── */}
-      <main className="max-w-full mx-auto px-5 sm:px-8 py-8">
+      <main className="w-full mx-auto px-4 md:px-15 py-8">
 
         {/* Count line */}
         {!loading && !error && (

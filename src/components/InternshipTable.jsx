@@ -344,7 +344,7 @@ const InternshipTable = () => {
 
   return (
     <section style={{ background: "linear-gradient(160deg,#fff7ed 0%,#ffffff 50%,#fff7ed 100%)" }}>
-      <div className="md:max-w-7xl w-full mx-auto px-1 md:px-6">
+      <div className="md:w-full w-full mx-auto px-1 md:px-4 md:px-15">
 
         {/* ── Tabs bar ── */}
         <div className="mb-4 md:mb-6 bg-white/90 backdrop-blur rounded-2xl border border-orange-100 p-3 md:p-4 flex flex-col lg:flex-row items-center lg:justify-between shadow-sm">
@@ -392,7 +392,7 @@ const InternshipTable = () => {
             </div>
           </>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-64 bg-white rounded-3xl border border-gray-200 shadow-sm px-6 text-center">
+          <div className="flex flex-col items-center justify-center min-h-64 bg-white rounded-3xl border border-gray-200 shadow-sm px-4 md:px-15 text-center">
             <div className="p-4 rounded-full bg-gray-100 text-gray-400 mb-4">
               <Search className="w-7 h-7" />
             </div>

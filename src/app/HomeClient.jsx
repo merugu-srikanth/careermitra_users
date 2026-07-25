@@ -123,7 +123,7 @@ export default function HomeClient() {
 
       {/* States Grid (Temporarily Commented Out)
       <section style={{ padding: "80px 0 96px", background: "#ffffff" }}>
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto w-full px-4 md:px-15">
           <AnimatedSection animation="fade-up">
             <div style={{ textAlign: "center", marginBottom: 50 }}>
               <span className="inline-block px-3 py-1 bg-green-50 border border-green-100 text-green-700 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
@@ -153,7 +153,7 @@ export default function HomeClient() {
                       <Link
                         key={sIdx}
                         href={`/government-jobs?state=${encodeURIComponent(state)}`}
-                        className="px-6 py-3.5 bg-orange-50/30 hover:bg-orange-50/70 border border-orange-100 hover:border-orange-300 rounded-2xl text-sm font-bold text-gray-800 transition-all flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer shrink-0"
+                        className="px-4 md:px-15 py-3.5 bg-orange-50/30 hover:bg-orange-50/70 border border-orange-100 hover:border-orange-300 rounded-2xl text-sm font-bold text-gray-800 transition-all flex items-center gap-2 shadow-sm hover:shadow-md cursor-pointer shrink-0"
                       >
                         📍 {state}
                       </Link>
@@ -169,7 +169,7 @@ export default function HomeClient() {
 
       {/* Grid of Categories (Temporarily Commented Out)
       <section style={{ padding: "96px 0", background: "#fcfaf8", borderTop: "1px solid #f1f5f9" }}>
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto w-full px-4 md:px-15">
           <AnimatedSection animation="fade-up">
             <div style={{ textAlign: "center", marginBottom: 56 }}>
               <span className="inline-block px-3 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
@@ -220,7 +220,7 @@ export default function HomeClient() {
 
       {/* Popular Recruiters (Temporarily Commented Out)
       <section style={{ padding: "96px 0", background: "#ffffff" }}>
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto w-full px-4 md:px-15">
           <AnimatedSection animation="fade-up">
             <div style={{ textAlign: "center", marginBottom: 56 }}>
               <span className="inline-block px-3 py-1 bg-amber-50 border border-amber-100 text-amber-700 text-xs font-bold uppercase tracking-widest rounded-full mb-3">

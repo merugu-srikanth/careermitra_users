@@ -63,7 +63,7 @@ export default function IntegratedHero() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900/10 blur-[120px] rounded-full pointer-events-none" />
 
       {/* 3. The Content Grid */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+      <div className="relative z-20 w-full mx-auto px-4 md:px-15 w-full grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
         
         {/* Left Column: Typography */}
         <motion.div 

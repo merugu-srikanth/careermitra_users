@@ -367,13 +367,13 @@ const RelatedCard = ({ article }) => (
 export const DetailSkeleton = () => (
   <div className="min-h-screen bg-white pt-16 animate-pulse">
     <div className="bg-gray-50 border-b border-gray-100 py-3">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-2">
+      <div className="w-full mx-auto px-4 md:px-15 flex gap-2">
         {[80, 140, 200].map(w => (
           <div key={w} className="h-3 bg-gray-200 rounded" style={{ width: w }} />
         ))}
       </div>
     </div>
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+    <div className="w-full mx-auto px-4 md:px-15 py-6">
       <div className="grid lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px] gap-8">
         <div>
           <div className="h-5 w-36 bg-gray-200 rounded mb-3" />
@@ -550,10 +550,10 @@ export default function ArticleDetail() {
   if (loading) return <DetailSkeleton />;
 
   if (error || !article) return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-6 pt-16">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-4 md:px-15 pt-16">
       <div className="text-8xl font-black text-gray-100">404</div>
       <p className="text-gray-500 text-lg font-semibold">{error || "Article not found"}</p>
-      <Link href="/" className="px-6 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
+      <Link href="/" className="px-4 md:px-15 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
         Back to Home
       </Link>
     </div>
@@ -583,7 +583,7 @@ export default function ArticleDetail() {
 
         {/* ── Breadcrumb bar ── */}
         <div className="bg-gray-50 border-b border-gray-100">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-2.5">
+          <div className="w-full mx-auto px-4 md:px-15 py-2.5">
             <nav className="flex items-center gap-1.5 text-[11px] text-gray-400 overflow-hidden whitespace-nowrap">
               <Link href="/" className="hover:text-orange-500 transition-colors shrink-0">Home</Link>
               {tree && (
@@ -605,7 +605,7 @@ export default function ArticleDetail() {
         </div>
 
         {/* ── Main two-column layout ── */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="w-full mx-auto px-4 md:px-15 py-6 sm:py-8">
           <div className={`grid gap-8 items-start ${readingMode ? "lg:grid-cols-1 max-w-3xl mx-auto" : "lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px]"}`}>
 
             {/* ══════ LEFT — Main Article ══════ */}
@@ -919,7 +919,7 @@ export default function ArticleDetail() {
       {/* ── TTS Player bar (fixed bottom, only in reading mode) ── */}
       {readingMode && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 border-t border-gray-800 shadow-2xl">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+          <div className="max-w-3xl mx-auto px-4 md:px-15 py-3 flex items-center gap-4">
 
             {/* Sound wave animation */}
             <div className="flex items-end gap-0.5 shrink-0 h-6">

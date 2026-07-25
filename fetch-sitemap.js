@@ -8,7 +8,6 @@ async function fetchSitemap() {
       throw new Error(`Failed to fetch sitemap: ${response.statusText}`);
     }
     const xml = await response.text();
-    
     fs.writeFileSync(path.resolve("public/sitemap.xml"), xml);
     console.log("Successfully fetched and saved sitemap.xml to public/ folder!");
   } catch (error) {

@@ -682,7 +682,7 @@ export default function CareerHomeJobs() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto">
+            <div className="relative z-10 w-full mx-auto">
 
                 {/* ── Header ── */}
                 <motion.div
@@ -849,7 +849,7 @@ export default function CareerHomeJobs() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                        <div className="flex items-center justify-between px-4 md:px-15 py-5 border-b border-gray-100 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                             <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
                                     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -866,15 +866,15 @@ export default function CareerHomeJobs() {
                             </button>
                         </div>
                         {/* Body */}
-                        <div className="overflow-y-auto px-6 py-5">
+                        <div className="overflow-y-auto px-4 md:px-15 py-5">
                             <h4 className="text-base font-bold text-gray-900 mb-3">{qualModal.title}</h4>
                             <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{qualModal.qualifications}</p>
                         </div>
                         {/* Footer */}
-                        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                        <div className="px-4 md:px-15 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
                             <button
                                 onClick={() => setQualModal(null)}
-                                className="px-6 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 shadow-md hover:shadow-lg transition-all"
+                                className="px-4 md:px-15 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 shadow-md hover:shadow-lg transition-all"
                             >
                                 Close
                             </button>
