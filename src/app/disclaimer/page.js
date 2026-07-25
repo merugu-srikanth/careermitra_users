@@ -3,11 +3,16 @@ import Link from "next/link";
 
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
-  title: "Disclaimer — Careermitra",
+  title: "Disclaimer - Career Mitra",
   description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
-  
   alternates: {
     canonical: "https://careermitra.in/disclaimer",
+  },
+  openGraph: {
+    title: "Disclaimer - Career Mitra",
+    description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
+    url: "https://careermitra.in/disclaimer",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

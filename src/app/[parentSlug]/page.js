@@ -22,11 +22,11 @@ export async function generateMetadata({ params }) {
   const name = await getCategoryName(parentSlug);
   if (!name) {
     return {
-      title: "Government Jobs | Career Mitra",
+      title: "Government Jobs - Career Mitra",
     };
   }
 
-  const title = `${name} 2026: Latest Notifications & Updates | Career Mitra`;
+  const title = `${name} 2026: Latest Notifications & Updates - Career Mitra`;
   const desc = `Apply for the latest ${name} notifications in 2026. Find direct recruitment updates, guidelines, exam patterns and syllabi on Career Mitra.`;
 
   return {
@@ -39,6 +39,7 @@ export async function generateMetadata({ params }) {
       title,
       description: desc,
       url: `https://www.careermitra.in/${parentSlug}`,
+      images: [{ url: "https://careermitra.in/favicon.png" }],
     },
   };
 }

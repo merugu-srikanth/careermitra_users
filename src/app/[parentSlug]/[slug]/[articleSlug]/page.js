@@ -18,24 +18,24 @@ export async function generateMetadata({ params }) {
   const art = await getArticle(articleSlug);
   if (!art) {
     return {
-      title: "Articles | Career Mitra",
+      title: "Articles - Career Mitra",
     };
   }
   const title = art.meta_title || art.title || "Article";
   const desc = art.meta_description || art.short_description || "";
-  const image = art.featured_image || "";
+  const image = art.featured_image || "https://careermitra.in/favicon.png";
 
   return {
-    title: `${title} | Career Mitra`,
+    title: `${title} - Career Mitra`,
     description: desc,
     alternates: {
       canonical: `https://www.careermitra.in/${parentSlug}/${slug}/${articleSlug}`,
     },
     openGraph: {
-      title: `${title} | Career Mitra`,
+      title: `${title} - Career Mitra`,
       description: desc,
       url: `https://www.careermitra.in/${parentSlug}/${slug}/${articleSlug}`,
-      images: image ? [{ url: image }] : [],
+      images: [{ url: image }],
       type: "article",
     },
   };

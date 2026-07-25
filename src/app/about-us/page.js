@@ -8,6 +8,12 @@ export const metadata = {
   alternates: {
     canonical: "https://careermitra.in/about-us",
   },
+  openGraph: {
+    title: "About Us - Career Mitra",
+    description: "Learn about Career Mitra, your trusted platform for personalized Govt Jobs notifications, Sarkari Naukri updates, and career guidance.",
+    url: "https://careermitra.in/about-us",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
+  },
 };
 
 export default function Page() {

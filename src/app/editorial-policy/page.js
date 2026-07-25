@@ -3,11 +3,16 @@ import Link from "next/link";
 
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
-  title: "Editorial Policy — Careermitra",
+  title: "Editorial Policy - Career Mitra",
   description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
-  
   alternates: {
     canonical: "https://careermitra.in/editorial-policy",
+  },
+  openGraph: {
+    title: "Editorial Policy - Career Mitra",
+    description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
+    url: "https://careermitra.in/editorial-policy",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

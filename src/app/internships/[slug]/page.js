@@ -71,7 +71,7 @@ export async function generateMetadata({ params }) {
   const data = await getInternshipData(slug);
   if (!data) {
     return {
-      title: "Internship | Career Mitra",
+      title: "Internship - Career Mitra",
     };
   }
   const title = data.internship_title || "";
@@ -82,12 +82,21 @@ export async function generateMetadata({ params }) {
   const stipend = data.stipend || "";
   const category = data.category || "";
 
+  const pageTitle = `${title} Internship at ${company} in ${location} 2026 - Career Mitra`;
+  const desc = `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`;
+
   return {
-    title: `${title} Internship at ${company} in ${location} 2026 | Career Mitra`,
-    description: `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`,
+    title: pageTitle,
+    description: desc,
     keywords: `${title} Internship, ${company} Internship, Internship in ${location}, ${category} Internship, Career Mitra`,
     alternates: {
       canonical: `https://careermitra.in/internships/${data.id}`,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: desc,
+      url: `https://careermitra.in/internships/${data.id}`,
+      images: [{ url: "https://careermitra.in/favicon.png" }],
     },
   };
 }

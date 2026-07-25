@@ -2,11 +2,17 @@ import InternshipsClient from "./InternshipsClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
-  title: "Internship Opportunities 2026, Apply for Verified Internships | Career Mitra",
+  title: "Internship Opportunities 2026, Apply for Verified Internships - Career Mitra",
   description: "Search and apply for verified internship opportunities across states, sectors, and roles. Find virtual, paid, and unpaid internships.",
   keywords: "Internships, Virtual Internships, Paid Internships, Government Internships, Career Mitra",
   alternates: {
     canonical: "https://careermitra.in/internships",
+  },
+  openGraph: {
+    title: "Internship Opportunities 2026, Apply for Verified Internships - Career Mitra",
+    description: "Search and apply for verified internship opportunities across states, sectors, and roles. Find virtual, paid, and unpaid internships.",
+    url: "https://careermitra.in/internships",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

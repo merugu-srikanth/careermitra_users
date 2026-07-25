@@ -2,11 +2,17 @@ import InternshipGuideClient from "./InternshipGuideClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
-  title: "Internship Guide 2026, Internship Tips, Opportunities, Career Guidance | Career Mitra",
+  title: "Internship Guide 2026, Internship Tips, Opportunities, Career Guidance - Career Mitra",
   description: "Explore internship opportunities, career guidance, resume tips, and internship preparation advice to kickstart your career journey.",
   keywords: "Internship Guide 2026, Internship Opportunities, Internship Tips, Career Guidance, Internship Preparation, Resume Tips, Student Internships India, Fresher Career Advice, Career Mitra",
   alternates: {
     canonical: "https://careermitra.in/internship-guide",
+  },
+  openGraph: {
+    title: "Internship Guide 2026, Internship Tips, Opportunities, Career Guidance - Career Mitra",
+    description: "Explore internship opportunities, career guidance, resume tips, and internship preparation advice to kickstart your career journey.",
+    url: "https://careermitra.in/internship-guide",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

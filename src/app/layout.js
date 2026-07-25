@@ -26,11 +26,16 @@ export const metadata = {
     statusBarStyle: "default",
     title: "Career Mitra",
   },
+  openGraph: {
+    type: "website",
+    siteName: "Career Mitra",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-IN" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <SplashLoader />
         <AuthProvider>

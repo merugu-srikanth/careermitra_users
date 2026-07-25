@@ -3,11 +3,16 @@ import Link from "next/link";
 
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
-  title: "Privacy Policy — Careermitra",
+  title: "Privacy Policy - Career Mitra",
   description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
-  
   alternates: {
     canonical: "https://careermitra.in/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy - Career Mitra",
+    description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
+    url: "https://careermitra.in/privacy-policy",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

@@ -2,11 +2,17 @@ import ResetPasswordClient from "./ResetPasswordClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
-  title: "Reset Password — Career Mitra",
+  title: "Reset Password - Career Mitra",
   description: "Reset your account password on Career Mitra.",
   keywords: "Career Mitra Reset Password, Reset Password",
   alternates: {
     canonical: "https://careermitra.in/reset-password",
+  },
+  openGraph: {
+    title: "Reset Password - Career Mitra",
+    description: "Reset your account password on Career Mitra.",
+    url: "https://careermitra.in/reset-password",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

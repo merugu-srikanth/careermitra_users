@@ -27,17 +27,25 @@ export async function generateMetadata({ params }) {
   const data = await getAnnouncementData(slug);
   if (!data) {
     return {
-      title: "Announcement | Career Mitra",
+      title: "Announcement - Career Mitra",
     };
   }
   const title = data.title || "Announcement";
   const info = data.info ? data.info.replace(/<[^>]*>/g, '').slice(0, 160) : title;
 
+  const pageTitle = `${title} - Career Mitra`;
+
   return {
-    title: `${title} | Career Mitra`,
+    title: pageTitle,
     description: info,
     alternates: {
       canonical: `https://careermitra.in/announcements/${data.slug}`,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: info,
+      url: `https://careermitra.in/announcements/${data.slug}`,
+      images: [{ url: "https://careermitra.in/favicon.png" }],
     },
   };
 }

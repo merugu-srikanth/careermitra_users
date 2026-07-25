@@ -3,11 +3,16 @@ import Link from "next/link";
 
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
-  title: "Correction Policy — Careermitra",
+  title: "Correction Policy - Career Mitra",
   description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
-  
   alternates: {
     canonical: "https://careermitra.in/correction-policy",
+  },
+  openGraph: {
+    title: "Correction Policy - Career Mitra",
+    description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
+    url: "https://careermitra.in/correction-policy",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

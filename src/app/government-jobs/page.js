@@ -2,12 +2,15 @@ import BlogList from "./BlogListClient";
 import { generateCollectionPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
-  title: "Articles | Career Mitra — Govt Jobs, Career Guides & More",
+  title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
   description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
   keywords: "govt jobs 2026, career guide, exam tips, sarkari naukri, government jobs",
   openGraph: {
     type: "website",
-    images: [{ url: "https://www.careermitra.in/og-articles.png" }],
+    title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
+    description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
+    url: "https://www.careermitra.in/government-jobs",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

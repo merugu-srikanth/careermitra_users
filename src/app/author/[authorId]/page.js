@@ -35,17 +35,17 @@ export async function generateMetadata({ params }) {
   const data = await getAuthorData(authorId);
   if (!data) {
     return {
-      title: "Author | Career Mitra",
+      title: "Author - Career Mitra",
     };
   }
   const author_name = data.author_name || data.name || "Author";
   const bio = data.bio || "";
-  const avatar_url = data.avatar_url || "";
+  const avatar_url = data.avatar_url || "https://careermitra.in/favicon.png";
 
   const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 
   return {
-    title: `${author_name} — Author at Career Mitra`,
+    title: `${author_name} - Author at Career Mitra`,
     description: bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`,
     keywords: `${author_name}, career mitra author, career blog, government jobs`,
     alternates: {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }) {
     },
     openGraph: {
       type: "profile",
-      images: avatar_url ? [{ url: avatar_url }] : [],
+      images: [{ url: avatar_url }],
     },
   };
 }

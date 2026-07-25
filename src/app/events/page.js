@@ -2,11 +2,16 @@ import EventsPageClient from "./EventsPageClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
-  title: "Media & Events | Career Mitra",
+  title: "Media & Events - Career Mitra",
   description: "Browse the latest media and events shared by Career Mitra.",
-  
   alternates: {
     canonical: "https://careermitra.in/events",
+  },
+  openGraph: {
+    title: "Media & Events - Career Mitra",
+    description: "Browse the latest media and events shared by Career Mitra.",
+    url: "https://careermitra.in/events",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
   },
 };
 

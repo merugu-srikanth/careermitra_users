@@ -8,6 +8,12 @@ export const metadata = {
   alternates: {
     canonical: "https://careermitra.in/contact-us",
   },
+  openGraph: {
+    title: "Contact Us - Career Mitra",
+    description: "Contact Career Mitra for personalized Govt Jobs notifications, career guidance, support, feedback, and job-related assistance.",
+    url: "https://careermitra.in/contact-us",
+    images: [{ url: "https://careermitra.in/favicon.png" }],
+  },
 };
 
 export default function Page() {
