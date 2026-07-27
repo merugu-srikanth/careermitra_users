@@ -294,7 +294,12 @@ export default function InternshipDetail({ initialData = null }) {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pt-28 pb-16 px-4 md:px-8 font-sans">
-
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        url={`https://careermitra.in/internships/${generateSlug(title) || slug}`}
+      />
 
       <div className="w-full mx-auto space-y-8">
 

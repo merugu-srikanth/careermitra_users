@@ -38,6 +38,12 @@ const normalizeLink = (link) => {
   return link.startsWith("http") ? link : `https://${link}`;
 };
 
+const generateSlug = (title) => {
+  return title
+    ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    : "";
+};
+
 export default function Internships() {
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
@@ -54,12 +60,12 @@ export default function Internships() {
     
     const itemListItems = internships.slice(0, 20).map((item) => ({
       name: item.internship_title,
-      url: `https://careermitra.in/internships/${item.id}`,
+      url: `https://careermitra.in/internships/${generateSlug(item.internship_title)}`,
       item: {
         title: item.internship_title,
         description: `Apply for ${item.internship_title} at ${item.company_name}. Location: ${item.location || 'India'}, Duration: ${item.duration || 'Not Specified'}, Stipend: ${item.stipend_category || 'Not Disclosed'}.`,
         publishedAt: item.created_at || new Date().toISOString(),
-        url: `https://careermitra.in/internships/${item.id}`,
+        url: `https://careermitra.in/internships/${generateSlug(item.internship_title)}`,
         authorName: item.company_name
       }
     }));
@@ -210,7 +216,7 @@ export default function Internships() {
     const slug = title
       ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
       : "details";
-    navigate(`/internships/${slug}?id=${id}`);
+    navigate(`/internships/${slug}`);
   };
 
   const clearFilters = () => {

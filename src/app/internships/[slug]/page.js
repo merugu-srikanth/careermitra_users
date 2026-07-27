@@ -3,11 +3,11 @@ import { generateJobPostingSchema, generateFAQSchema } from '@/utils/schemaHelpe
 
 const BASE_URL = "https://careermitra.in/api/internships";
 
-async function getInternshipData(slug) {
-  const generateSlug = (title) => {
-    return title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "";
-  };
+const generateSlug = (title) => {
+  return title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "";
+};
 
+async function getInternshipData(slug) {
   const getCleanSearchTerm = (slug) => {
     if (!slug) return "";
     const stopWords = new Set(["and", "or", "for", "in", "at", "of", "with", "the", "a", "an", "internship", "internships"]);
@@ -85,17 +85,19 @@ export async function generateMetadata({ params }) {
   const pageTitle = `${title} Internship at ${company} in ${location} 2026 - Career Mitra`;
   const desc = `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`;
 
+  const canonicalUrl = `https://careermitra.in/internships/${generateSlug(title) || slug}`;
+
   return {
     title: pageTitle,
     description: desc,
     keywords: `${title} Internship, ${company} Internship, Internship in ${location}, ${category} Internship, Career Mitra`,
     alternates: {
-      canonical: `https://careermitra.in/internships/${data.id}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: pageTitle,
       description: desc,
-      url: `https://careermitra.in/internships/${data.id}`,
+      url: canonicalUrl,
       images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
   };
