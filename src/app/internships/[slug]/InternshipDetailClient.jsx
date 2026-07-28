@@ -298,6 +298,7 @@ export default function InternshipDetail({ initialData = null }) {
         title={seoTitle}
         description={seoDescription}
         keywords={seoKeywords}
+        image="https://careermitra.in/default_og_image.png"
         url={`https://careermitra.in/internships/${generateSlug(title) || slug}`}
       />
 

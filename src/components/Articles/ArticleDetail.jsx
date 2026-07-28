@@ -513,7 +513,7 @@ export default function ArticleDetail() {
   const updatedAt    = article?.updatedAt    || article?.last_updated_at;
   const showUpdated  = !isSameDay(createdAt, updatedAt);
   const views        = fmtViews(article?.views);
-  const canonicalUrl = article ? `https://www.careermitra.in${buildArticleUrl(article)}` : "";
+  const canonicalUrl = article ? `https://careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
   const childHref    = primaryChild ? `${parentHref}/${toSlug(primaryChild.name, primaryChild.slug)}` : null;
   const backHref     = childHref || parentHref;
@@ -530,7 +530,7 @@ export default function ArticleDetail() {
       publishedAt: createdAt,
       modifiedAt: updatedAt,
       authorName: article.author?.author_name || "Career Mitra Editorial Team",
-      authorUrl: article.author?._id ? `/author/${article.author?._id}` : undefined,
+      authorUrl: article.author?.author_name ? `/author/${toSlug(article.author.author_name)}` : undefined,
       url: buildArticleUrl(article)
     });
     

@@ -43,12 +43,12 @@ export async function generateMetadata({ params }) {
       title,
       description: desc,
       alternates: {
-        canonical: `https://www.careermitra.in/${parentSlug}/${slug}`,
+        canonical: `https://careermitra.in/${parentSlug}/${slug}`,
       },
       openGraph: {
         title,
         description: desc,
-        url: `https://www.careermitra.in/${parentSlug}/${slug}`,
+        url: `https://careermitra.in/${parentSlug}/${slug}`,
         images: [{ url: "https://careermitra.in/default_og_image.png" }],
       },
     };
@@ -72,12 +72,12 @@ export async function generateMetadata({ params }) {
     title: `${title} - Career Mitra`,
     description: desc,
     alternates: {
-      canonical: `https://www.careermitra.in/${parentSlug}/${slug}`,
+      canonical: `https://careermitra.in/${parentSlug}/${slug}`,
     },
     openGraph: {
       title: `${title} - Career Mitra`,
       description: desc,
-      url: `https://www.careermitra.in/${parentSlug}/${slug}`,
+      url: `https://careermitra.in/${parentSlug}/${slug}`,
       images: [{ url: image }],
       type: "article",
     },

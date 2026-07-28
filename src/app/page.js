@@ -14,6 +14,12 @@ export const metadata = {
     url: "https://careermitra.in/",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Personalized Latest Govt Jobs Notifications & Career Guidance in India - Career Mitra",
+    description: "Get personalized latest Govt Jobs notifications, Sarkari Naukri updates, exam alerts, results, and expert career guidance at Career Mitra.",
+    images: ["https://careermitra.in/default_og_image.png"],
+  },
 };
 
 export default function Home() {

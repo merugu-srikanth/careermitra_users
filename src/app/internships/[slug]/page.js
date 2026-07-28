@@ -100,6 +100,12 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitle,
+      description: desc,
+      images: ["https://careermitra.in/default_og_image.png"],
+    },
   };
 }
 

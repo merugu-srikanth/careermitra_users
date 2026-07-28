@@ -270,12 +270,12 @@ export default function ArticleList() {
     
     const itemListItems = articles.slice(0, 20).map((art) => ({
       name: art.title,
-      url: `https://www.careermitra.in${buildArticleUrl(art)}`,
+      url: `https://careermitra.in${buildArticleUrl(art)}`,
       item: {
         title: art.title,
         description: art.meta_description || art.short_description || art.content?.substring(0, 150),
         publishedAt: art.published_at || art.created_at,
-        url: `https://www.careermitra.in${buildArticleUrl(art)}`,
+        url: `https://careermitra.in${buildArticleUrl(art)}`,
         authorName: art.author?.author_name || art.author_name || "Career Mitra"
       }
     }));
@@ -299,7 +299,7 @@ export default function ArticleList() {
       <SEO
         title={seoTitle}
         description="Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra."
-        url={`https://www.careermitra.in${childSlugParam ? `/${parentSlugParam}/${childSlugParam}` : (parentSlugParam ? `/${parentSlugParam}` : "/articles")}`}
+        url={`https://careermitra.in${childSlugParam ? `/${parentSlugParam}/${childSlugParam}` : (parentSlugParam ? `/${parentSlugParam}` : "/articles")}`}
         schema={articleListSchemas}
       />
 

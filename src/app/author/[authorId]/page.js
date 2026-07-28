@@ -52,7 +52,7 @@ export async function generateMetadata({ params }) {
     description: bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`,
     keywords: `${author_name}, career mitra author, career blog, government jobs`,
     alternates: {
-      canonical: `https://www.careermitra.in/author/${slugify(author_name || authorId)}`,
+      canonical: `https://careermitra.in/author/${slugify(author_name || authorId)}`,
     },
     openGraph: {
       type: "profile",
@@ -76,7 +76,7 @@ export default async function Page({ params }) {
       name: author_name,
       description: bio,
       image: avatar_url,
-      url: `https://www.careermitra.in/author/${slugify(author_name || authorId)}`
+      url: `https://careermitra.in/author/${slugify(author_name || authorId)}`
     });
 
     const webPageSchema = generateWebPageSchema({

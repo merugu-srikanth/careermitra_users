@@ -16,10 +16,11 @@ export const metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
       { url: "/favicon.png", type: "image/png" },
       { url: "/favicon.svg", type: "image/svg+xml" }
     ],
-    shortcut: "/favicon.png",
+    shortcut: "/favicon.ico",
     apple: "/favicon.png",
   },
   appleWebApp: {
@@ -31,6 +32,12 @@ export const metadata = {
     type: "website",
     siteName: "Career Mitra",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Career Mitra - India's Job & Career Portal",
+    description: "Government jobs, internships, events and career guidance portal for students and job seekers in India.",
+    images: ["https://careermitra.in/default_og_image.png"],
   },
 };
 

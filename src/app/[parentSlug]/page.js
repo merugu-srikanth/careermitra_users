@@ -33,12 +33,12 @@ export async function generateMetadata({ params }) {
     title,
     description: desc,
     alternates: {
-      canonical: `https://www.careermitra.in/${parentSlug}`,
+      canonical: `https://careermitra.in/${parentSlug}`,
     },
     openGraph: {
       title,
       description: desc,
-      url: `https://www.careermitra.in/${parentSlug}`,
+      url: `https://careermitra.in/${parentSlug}`,
       images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
   };

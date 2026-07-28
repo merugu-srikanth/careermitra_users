@@ -246,6 +246,12 @@ export default function AuthorProfilePage({ initialData = null }) {
 
   return (
     <>
+      <SEO
+        title={`${author_name} - Author at Career Mitra`}
+        description={bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`}
+        url={`https://careermitra.in/author/${slugify(author_name || authorId)}`}
+        schema={authorSchemas}
+      />
       <style dangerouslySetInnerHTML={{ __html: AP_STYLES }} />
 
       <div className="ap-wrap mt-20">
