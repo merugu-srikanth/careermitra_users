@@ -25,22 +25,23 @@ export default function VerifyOtp() {
   // Get email from location state or localStorage
   const email = location.state?.email || localStorage.getItem("registerEmail") || "";
 
+  // Avoid duplicate sends in React StrictMode
   useEffect(() => {
     if (!email) {
       setError("Email not found. Please register again.");
       setTimeout(() => navigate("/register"), 2000);
       return;
     }
-    // Auto-trigger OTP send to the email on load
-    const triggerInitialOtp = async () => {
-      try {
-        await sendOtp(email, "email_verification");
-      } catch (err) {
-        console.error("Failed to automatically request verification OTP:", err);
-      }
-    };
-    triggerInitialOtp();
-  }, [email, navigate]);
+    
+    if (window.__otpSentForSession === email) {
+      return;
+    }
+    window.__otpSentForSession = email;
+
+    sendOtp(email, "email_verification").catch((err) => {
+      console.error("Failed to automatically request verification OTP:", err);
+    });
+  }, [email]);
 
   // Timer for OTP expiry
   useEffect(() => {
