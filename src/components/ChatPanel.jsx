@@ -115,13 +115,18 @@ export default function ChatPanel({ token, profile }) {
   // Send message
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || sending) return;
+    const cleanMessage = newMessage.trim();
+    if (!cleanMessage) {
+      toast.error("Please type anything in the input message");
+      return;
+    }
+    if (sending) return;
 
     setSending(true);
     try {
       const res = await axios.post(
         `${API_BASE}/user/chat/conversation/messages`,
-        { message: newMessage },
+        { message: cleanMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data?.success || res.data?.status || res.data) {
@@ -365,8 +370,8 @@ export default function ChatPanel({ token, profile }) {
             />
             <button
               type="submit"
-              disabled={sending || !newMessage.trim()}
-              className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-200 hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              disabled={sending}
+              className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-200 hover:opacity-95 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {sending ? (
                 <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />

@@ -17,6 +17,7 @@ import {
     FaUserTie,
     FaFire,
     FaCompass,
+    FaWhatsapp,
 } from "react-icons/fa";
 import { GrAnnounce } from "react-icons/gr";
 
@@ -67,36 +68,53 @@ const CARDS = [
     },
     {
         id: 3,
-        title: "Internship & SkillUp",
+        title: "Internship",
         icon: FaGraduationCap,
         iconBg: "#d1fae5",
         iconColor: "#059669",
         accentColor: "#059669",
-        badgeBg: "linear-gradient(135deg,#059669,#10b981)",
-        btnGrad: "linear-gradient(135deg,#059669,#16a34a)",
+        badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
+        btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
+        // badgeBg: "linear-gradient(135deg,#059669,#10b981)",
+        // btnGrad: "linear-gradient(135deg,#059669,#16a34a)",
         btnIcon: FaChartLine,
         description:
-            "Explore internships and skill-up programs to accelerate your career.",
+            "Explore internships to accelerate your career.",
         button: "Explore Now",
         link: "/internships",
     },
+    // {
+    //     id: 4,
+    //     title: "Career Guidance",
+    //     icon: FaCompass,
+    //     iconBg: "#ffedd5",
+    //     iconColor: "#ea580c",
+    //     accentColor: "#f97316",
+    //     badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
+    //     btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
+    //     btnIcon: FaArrowRight,
+    //     description:
+    //         "Expert guidance for career planning, education and job readiness.",
+    //     button: "Get Guidance",
+    //     link: "/contact-us",
+    // },
     {
-        id: 4,
-        title: "Career Guidance",
-        icon: FaCompass,
-        iconBg: "#ffedd5",
-        iconColor: "#ea580c",
-        accentColor: "#f97316",
-        badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
-        btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
+        id: 5,
+        title: "WhatsApp Channel",
+        icon: FaWhatsapp,
+        iconBg: "#dcfce7",
+        iconColor: "#25D366",
+        accentColor: "#25D366",
+        badgeBg: "linear-gradient(135deg,#25D366,#16a34a)",
+        btnGrad: "linear-gradient(135deg,#25D366,#128C7E)",
         btnIcon: FaArrowRight,
         description:
-            "Expert guidance for career planning, education and job readiness.",
-        button: "Get Guidance",
-        link: "/contact-us",
-    },
+            "Latest Government Job Notifications & Career Updates in the Government Sector ",
+        button: "Follow Channel",
+        link: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37",
+    }
     // {
-    //     id: 5,
+    //     id: 6,
     //     title: "Vendor Registration",
     //     icon: FaHandshake,
     //     iconBg: "#ffedd5",
@@ -118,7 +136,7 @@ const CARDS = [
 ───────────────────────────────────────── */
 function CompactAnnouncements({ list, loading }) {
     const router = useRouter();
-  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
+    const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
     const [open, setOpen] = useState(true);
 
     return (
@@ -235,7 +253,7 @@ function CompactAnnouncements({ list, loading }) {
 ───────────────────────────────────────── */
 function VerticalAnnouncements({ list, loading }) {
     const router = useRouter();
-  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
+    const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
     /* refs for the scroll loop — never cause re-renders */
     const viewportRef = useRef(null); // overflow:hidden container
@@ -441,7 +459,7 @@ function VerticalAnnouncements({ list, loading }) {
 ───────────────────────────────────────── */
 function FeatureCard({ card }) {
     const router = useRouter();
-  const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
+    const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
     const Icon = card.icon;
     const BtnIcon = card.btnIcon;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
-import React, {  useEffect, useMemo, useState, useCallback, useRef  } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import axios from "axios";
@@ -92,8 +92,8 @@ const decodeJwt = (t) => {
   try {
     const base64Url = t.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     return JSON.parse(jsonPayload);
   } catch (e) {
@@ -498,7 +498,7 @@ const ProfilePanel = ({ sections, profile, age }) => {
 
 /* ═══════════════ JOBS PANEL ═══════════════ */
 const JobsPanel = ({ token }) => {
-  
+
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 1, hasNextPage: false, hasPrevPage: false });
   const [page, setPage] = useState(1);
@@ -511,11 +511,23 @@ const JobsPanel = ({ token }) => {
   const [view, setView] = useState("cards");
   const today = useMemo(() => new Date(), []);
 
+  const [allJobs, setAllJobs] = useState([]);
+
   useEffect(() => {
     if (!token) return;
     (async () => {
       try {
         setLoading(true); setError("");
+        // Fetch all jobs first to count active/expired across all recommendations
+        const resAll = await axios.get(`${API_BASE}/user/recommended-jobs`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+          params: { page: 1, limit: 1000 },
+        });
+        if (resAll.data?.success === true) {
+          const list = resAll.data?.data?.jobs || [];
+          setAllJobs(list);
+        }
+
         const res = await axios.get(`${API_BASE}/user/recommended-jobs`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
           params: { page, limit: LIMIT },
@@ -551,18 +563,38 @@ const JobsPanel = ({ token }) => {
     });
   }, [jobs, search, status, today]);
 
-  const stats = useMemo(() => ({
-    total: pagination.total || jobs.length,
-    active: jobs.filter(j => { const d = parseDate(j.application_deadline); return d && d >= today; }).length,
-    expired: jobs.filter(j => { const d = parseDate(j.application_deadline); return d && d < today; }).length,
-  }), [jobs, today, pagination.total]);
+  const stats = useMemo(() => {
+    const listToCount = allJobs.length ? allJobs : jobs;
+    return {
+      total: pagination.total || listToCount.length,
+      active: listToCount.filter(j => { const d = parseDate(j.application_deadline); return !d || d >= today; }).length,
+      expired: listToCount.filter(j => { const d = parseDate(j.application_deadline); return d && d < today; }).length,
+    };
+  }, [allJobs, jobs, today, pagination.total]);
 
   const STATUS_BADGE_BASE = "inline-flex items-center justify-center min-w-[60px] text-xs px-2.5 py-1 rounded-full font-semibold";
   const LIVE_BADGE_CLASS = `${STATUS_BADGE_BASE} bg-green-300 text-green-950 border border-green-500`;
   const LIVE_BADGE_STYLE = { animation: "liveBadgeBlink 1s ease-in-out infinite" };
   const CLOSED_BADGE_CLASS = `${STATUS_BADGE_BASE} bg-red-100 text-red-600`;
 
-  if (loading) return <div className="flex flex-col items-center py-20 gap-3"><div className="w-10 h-10 rounded-full border-4 border-orange-100 border-t-orange-500 animate-spin" /><p className="text-orange-400 text-sm">Finding recommended jobs…</p></div>;
+  if (loading) return (
+    <div className="space-y-4 animate-pulse">
+      {/* Stats row skeleton */}
+      <div className="grid grid-cols-3 gap-3">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-2xl p-4 h-20" />
+        ))}
+      </div>
+      {/* Filters skeleton */}
+      <div className="bg-white border border-slate-100 rounded-2xl p-4 h-16" />
+      {/* List skeleton */}
+      <div className="space-y-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 h-44" />
+        ))}
+      </div>
+    </div>
+  );
   if (error) return (
     <div className="flex flex-col items-center py-16 gap-4 text-center">
       <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center"><Ic.Bag className="w-7 h-7 text-orange-400" /></div>
@@ -666,7 +698,7 @@ const JobsPanel = ({ token }) => {
                               : isExp
                                 ? "bg-red-100 text-red-700 border-red-300"
                                 : "bg-green-100 text-green-700 border-green-300"
-                            }`}
+                              }`}
                           >
                             {statusText}
                           </span>
@@ -823,7 +855,7 @@ const JobsPanel = ({ token }) => {
                 {!isExp && selJob.apply_link
                   ? <a href={selJob.apply_link} target="_blank" rel="noreferrer" className="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold text-center hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-200 order-1 sm:order-3">Apply Now <Ic.Ext className="w-3 h-3" /></a>
                   : isExp ? <div className="flex-1 py-2.5 bg-slate-100 text-slate-400 rounded-xl text-sm font-semibold text-center order-1 sm:order-3">Applications Closed</div>
-                  : null}
+                    : null}
               </div>
             </div>
           </div>
@@ -1038,7 +1070,7 @@ const UserProfilePage = () => {
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const handleTabSwitch = useCallback((tabId, updateUrl = true) => {
     if (!TAB_IDS.includes(tabId)) return;
     setActiveTab(tabId);
@@ -1048,7 +1080,7 @@ const UserProfilePage = () => {
       router.replace(`${window.location.pathname}?${params.toString()}`);
     }
   }, [router]);
-  
+
   const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -1091,7 +1123,7 @@ const UserProfilePage = () => {
         const decoded = decodeJwt(token);
         const verifiedVal = d.isEmailVerified !== undefined ? d.isEmailVerified : (decoded?.isEmailVerified ?? true);
         setIsEmailVerified(verifiedVal);
-        
+
         if (verifiedVal === false) {
           toast.warning("Your email is not verified. Please verify your email address.");
         }
@@ -1204,6 +1236,11 @@ const UserProfilePage = () => {
     );
   };
 
+  const formatCapitalizedName = (name) => {
+    if (!name) return "";
+    return name.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  };
+
   if (loading) return <div className="mt-10 min-h-screen bg-orange-50/30"><Spinner /></div>;
   if (error) return (
     <div className="mt-10 min-h-screen bg-orange-50/30 flex items-center justify-center p-4">
@@ -1213,9 +1250,9 @@ const UserProfilePage = () => {
         <p className="text-slate-500 text-sm mb-4">{error}</p>
         {error === "Authentication required" ? <a href="/signin" className="inline-block px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-200">Sign In</a> : <button onClick={() => window.location.reload()} className="px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-200">Try Again</button>}
       </div>
-    </div>     
+    </div>
 
-    
+
   );
   if (!profile) return null;
 
@@ -1251,7 +1288,7 @@ const UserProfilePage = () => {
             <div className="flex items-center gap-3 mb-4">
               <AvatarSVG size={46} />
               <div className="min-w-0">
-                <p className="text-sm font-black text-slate-800 truncate leading-tight">{profile.name || "User"}</p>
+                <p className="text-sm font-black text-slate-800 truncate leading-tight">{formatCapitalizedName(profile.name) || "User"}</p>
                 <p className="text-[11px] text-slate-400 truncate mt-0.5">{profile.email}</p>
                 <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-orange-500 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full">
                   Student
@@ -1382,31 +1419,34 @@ const UserProfilePage = () => {
             <div className="min-w-0">
               <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Student Dashboard</p>
               <h2 className="text-base font-black text-slate-800 leading-tight truncate">
-                Welcome back, <span className="text-orange-500">{profile.name?.split(" ")[0] || "User"}</span> 👋
+                Welcome back, <span className="text-orange-500">{formatCapitalizedName(profile.name?.split(" ")[0]) || "User"}</span>
               </h2>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {/* <div className="hidden sm:flex items-center gap-2">
-                <span className="text-[11px] bg-orange-50 text-orange-600 border border-orange-100 px-2.5 py-1 rounded-full font-semibold whitespace-nowrap">
-                  {NAV.find(n => n.id === "jobs")?.count || 0} Jobs
-                </span>
-                <span className="text-[11px] bg-slate-50 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full font-semibold whitespace-nowrap">
-                  {NAV.find(n => n.id === "announcements")?.count || 0} Events
-                </span>
-              </div> */}
+              <button
+                onClick={() => handleTabSwitch("chat")}
+                className={cx(
+                  "hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r text-white font-bold rounded-xl hover:opacity-95 transition-all shadow-lg",
+                  activeTab === "chat"
+                    ? "from-orange-500 via-orange-400 to-amber-400"
+                    : "from-orange-500 via-orange-400 to-amber-400"
+                )}
+              >
+                <Ic.Chat className="w-4 h-4 text-white" /> Chat Support
+              </button>
               {profileCompletion < 100 ? (
                 <button
                   onClick={() => navigate("/user-profile-filling")}
-                  className="px-3 py-1.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 text-white text-xl font-bold rounded-xl hover:opacity-95 transition-all shadow-lg shadow-orange-200"
+                  className="px-3 py-1.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 text-white font-bold rounded-xl hover:opacity-95 transition-all shadow-lg shadow-orange-200 flex items-center gap-1.5"
                 >
-                  Complete Profile
+                  <Ic.User className="w-4 h-4 text-white" /> Complete Profile
                 </button>
               ) : (
                 <button
                   onClick={() => navigate("/user-profile-filling")}
-                  className="px-3 py-1.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 text-white text-xl font-bold rounded-xl hover:opacity-95 transition-all shadow-lg shadow-orange-200"
+                  className="px-3 py-1.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 text-white font-bold rounded-xl hover:opacity-95 transition-all shadow-lg shadow-orange-200 flex items-center gap-1.5"
                 >
-                  Edit Profile
+                  <Ic.Edit className="w-4 h-4 text-white" /> Edit Profile
                 </button>
               )}
             </div>
@@ -1414,7 +1454,7 @@ const UserProfilePage = () => {
 
           {/* ── Mobile horizontal tab bar ── */}
           <div className="lg:hidden shrink-0 bg-white border-b border-slate-200 px-3 py-2">
-            <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "thin" }}>
               {NAV.map(t => (
                 <button
                   key={t.id}
@@ -1504,6 +1544,17 @@ const UserProfilePage = () => {
               {/* {activeTab === "media" && <MediaPanel profile={profile} />} */}
               {activeTab === "settings" && <SettingsPanel token={token} email={profile.email} navigate={navigate} handleLogout={handleLogout} />}
             </div>
+
+            {/* Mobile floating action support button */}
+            {activeTab !== "chat" && (
+              <button
+                onClick={() => handleTabSwitch("chat")}
+                className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-orange-300/60 hover:scale-105 transition-transform z-50 cursor-pointer animate-bounce"
+                title="Chat Support"
+              >
+                <Ic.Chat className="w-6 h-6" />
+              </button>
+            )}
           </div>
         </div>
       </div>
