@@ -1,4 +1,5 @@
 import TwoSegmentResolver from "@/components/Articles/TwoSegmentResolver";
+import NotFoundPage from "@/components/NotFoundPage";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -84,6 +85,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
+export default async function Page({ params }) {
+  const { parentSlug, slug } = await params;
+  if (!parentSlug || parentSlug.includes(".") || !slug || slug.includes(".")) {
+    return <NotFoundPage />;
+  }
   return <TwoSegmentResolver />;
 }
