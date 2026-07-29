@@ -2,6 +2,22 @@ User-agent: *
 Disallow: /admin/
 Disallow: /admin/login
 Disallow: /login
- 
+Disallow: /signin
+Disallow: /signup
+Disallow: /verify-otp
+Disallow: /reset-password
+Disallow: /user-dashboard
+Disallow: /user-profile-filling
+Disallow: /test-careermitra-parent/
+Disallow: /articles?search=
+Disallow: /blog/ssb-sports-quota-recruitment-2026-apply-online-for-404-constable-gd-posts
+Disallow: /results/board
+Disallow: /results/rrb-ntpc-result-2025
+Disallow: /results/upsc-prelims-result-2025
+Disallow: /results/sbi-clerk-result-2025
+Disallow: /results/university
+Disallow: /answer-key/rrb-ntpc-answer-key-2025
+Disallow: /answer-key/upsc-prelims-answer-key-2025
+
 Sitemap: https://careermitra.in/sitemap.xml
 
