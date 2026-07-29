@@ -29,7 +29,17 @@ export default function VerifyOtp() {
     if (!email) {
       setError("Email not found. Please register again.");
       setTimeout(() => navigate("/register"), 2000);
+      return;
     }
+    // Auto-trigger OTP send to the email on load
+    const triggerInitialOtp = async () => {
+      try {
+        await sendOtp(email, "email_verification");
+      } catch (err) {
+        console.error("Failed to automatically request verification OTP:", err);
+      }
+    };
+    triggerInitialOtp();
   }, [email, navigate]);
 
   // Timer for OTP expiry
