@@ -4,6 +4,7 @@ const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
 
 async function getCategoryName(parentSlug) {
+  if (parentSlug === "sitemap.xml") return null;
   try {
     const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
     const filterJson = await filterRes.json();
@@ -19,6 +20,11 @@ async function getCategoryName(parentSlug) {
 
 export async function generateMetadata({ params }) {
   const { parentSlug } = await params;
+  if (parentSlug === "sitemap.xml") {
+    return {
+      title: "Sitemap - Career Mitra",
+    };
+  }
   const name = await getCategoryName(parentSlug);
   if (!name) {
     return {
@@ -44,6 +50,12 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
+import NotFoundPage from "@/components/NotFoundPage";
+
+export default async function Page({ params }) {
+  const { parentSlug } = await params;
+  if (parentSlug === "sitemap.xml") {
+    return <NotFoundPage />;
+  }
   return <ArticleList />;
 }

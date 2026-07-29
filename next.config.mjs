@@ -1,14 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async redirects() {
-    return [
-      {
-        source: '/api/sitemap.xml',
-        destination: '/sitemap.xml',
-        permanent: true,
-      },
-    ];
-  },
+  /* Config options here */
 };
 
 export default nextConfig;
