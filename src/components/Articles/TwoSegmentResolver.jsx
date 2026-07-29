@@ -28,6 +28,10 @@ export default function TwoSegmentResolver() {
   const [type, setType] = useState(null); // null | 'category' | 'article'
 
   useEffect(() => {
+    if (parentSlug === "internships") {
+      // Do nothing, let the /internships/[slug] handle it
+      return;
+    }
     setType(null);
     getFilters()
       .then(({ parents, children }) => {

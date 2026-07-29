@@ -104,58 +104,23 @@ export default function InternshipDetail({ initialData = null }) {
         setLoading(true);
         setError(null);
 
-        // 1. Try fetching directly if ID was passed in query params
-        if (idFromState) {
-          const res = await fetch(`${BASE_URL}/${idFromState}`);
-          const json = await res.json();
-          if (json.success) {
-            setData(json.data);
-            return;
-          }
-        }
-
-        // 2. Fallback: Search using clean words from the slug to find the match
-        const normalizedSlug = generateSlug(slug);
-        const searchTerm = getCleanSearchTerm(slug);
-
-        let matched = null;
-
-        if (searchTerm) {
-          const listRes = await fetch(`${BASE_URL}?search=${encodeURIComponent(searchTerm)}&limit=100`);
-          const listJson = await listRes.json();
-
-          if (listJson.success && listJson.data && listJson.data.internships) {
-            matched = listJson.data.internships.find(
-              (item) => generateSlug(item.internship_title) === normalizedSlug || item.id === slug
-            );
-          }
-        }
-
-        // If not matched, try search with a raw decoded space-separated query as secondary fallback
-        if (!matched && slug) {
-          const rawSearchTerm = decodeURIComponent(slug).replace(/-/g, " ");
-          const listRes = await fetch(`${BASE_URL}?search=${encodeURIComponent(rawSearchTerm)}&limit=100`);
-          const listJson = await listRes.json();
-          if (listJson.success && listJson.data && listJson.data.internships) {
-            matched = listJson.data.internships.find(
-              (item) => generateSlug(item.internship_title) === normalizedSlug || item.id === slug
-            );
-          }
-        }
-
-        if (matched) {
-          const detailRes = await fetch(`${BASE_URL}/${matched.id}`);
-          const detailJson = await detailRes.json();
-          if (detailJson.success) {
-            setData(detailJson.data);
-            return;
-          }
-        }
-
-        // 3. Last fallback: Try slug as ID directly ONLY if it looks like a valid Mongo ObjectId (24 hex chars)
         const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(slug);
-        if (slug && isValidObjectId) {
-          const res = await fetch(`${BASE_URL}/${slug}`);
+        let id = idFromState || (isValidObjectId ? slug : null);
+
+        if (!id && slug) {
+          try {
+            const mapRes = await fetch("/internships-map.json");
+            if (mapRes.ok) {
+              const map = await mapRes.json();
+              id = map[slug];
+            }
+          } catch (err) {
+            console.error("Error reading sitemap mapping on client:", err);
+          }
+        }
+
+        if (id) {
+          const res = await fetch(`${BASE_URL}/${id}`);
           const json = await res.json();
           if (json.success) {
             setData(json.data);
@@ -172,7 +137,7 @@ export default function InternshipDetail({ initialData = null }) {
       }
     };
     fetchDetail();
-  }, [slug, idFromState]);
+  }, [slug, idFromState, initialData]);
 
   const toggleFAQ = (index) => {
     setActiveFAQ(activeFAQ === index ? null : index);

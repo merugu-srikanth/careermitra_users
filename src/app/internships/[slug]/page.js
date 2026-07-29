@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import InternshipDetail from "./InternshipDetailClient";
 import { generateJobPostingSchema, generateFAQSchema } from '@/utils/schemaHelpers';
 
@@ -8,53 +10,50 @@ const generateSlug = (title) => {
 };
 
 async function getInternshipData(slug) {
-  const getCleanSearchTerm = (slug) => {
-    if (!slug) return "";
-    const stopWords = new Set(["and", "or", "for", "in", "at", "of", "with", "the", "a", "an", "internship", "internships"]);
-    return slug
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter(word => word.length > 1 && !stopWords.has(word))
-      .join(" ");
-  };
-
   try {
-    const normalizedSlug = generateSlug(slug);
-    const searchTerm = getCleanSearchTerm(slug);
-    let matched = null;
-
-    if (searchTerm) {
-      const listRes = await fetch(`${BASE_URL}?search=${encodeURIComponent(searchTerm)}&limit=100`);
-      const listJson = await listRes.json();
-      if (listJson.success && listJson.data && listJson.data.internships) {
-        matched = listJson.data.internships.find(
-          (item) => generateSlug(item.internship_title) === normalizedSlug || item.id === slug
-        );
-      }
-    }
-
-    if (!matched && slug) {
-      const rawSearchTerm = decodeURIComponent(slug).replace(/-/g, " ");
-      const listRes = await fetch(`${BASE_URL}?search=${encodeURIComponent(rawSearchTerm)}&limit=100`);
-      const listJson = await listRes.json();
-      if (listJson.success && listJson.data && listJson.data.internships) {
-        matched = listJson.data.internships.find(
-          (item) => generateSlug(item.internship_title) === normalizedSlug || item.id === slug
-        );
-      }
-    }
-
-    if (matched) {
-      const detailRes = await fetch(`${BASE_URL}/${matched.id}`);
-      const detailJson = await detailRes.json();
-      if (detailJson.success) {
-        return detailJson.data;
-      }
-    }
-
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(slug);
-    if (slug && isValidObjectId) {
-      const res = await fetch(`${BASE_URL}/${slug}`);
+    let id = isValidObjectId ? slug : null;
+
+    if (!id) {
+      const mapPath = path.resolve("public/internships-map.json");
+      
+      // Auto-generate map in dev mode if missing
+      if (!fs.existsSync(mapPath)) {
+        console.log("internships-map.json not found, rebuilding on the fly...");
+        try {
+          let page = 1;
+          let totalPages = 1;
+          const tempMap = {};
+          do {
+            const res = await fetch(`${BASE_URL}?page=${page}&limit=100`);
+            const json = await res.json();
+            if (json.success && json.data && json.data.internships) {
+              for (const item of json.data.internships) {
+                if (item.internship_title && item.id) {
+                  const s = generateSlug(item.internship_title);
+                  tempMap[s] = item.id;
+                }
+              }
+              totalPages = json.data.pagination?.totalPages || 1;
+              page++;
+            } else {
+              break;
+            }
+          } while (page <= totalPages);
+          fs.writeFileSync(mapPath, JSON.stringify(tempMap, null, 2));
+        } catch (err) {
+          console.error("Failed to auto-generate mapping:", err);
+        }
+      }
+
+      if (fs.existsSync(mapPath)) {
+        const map = JSON.parse(fs.readFileSync(mapPath, "utf-8"));
+        id = map[slug];
+      }
+    }
+
+    if (id) {
+      const res = await fetch(`${BASE_URL}/${id}`);
       const json = await res.json();
       if (json.success) {
         return json.data;

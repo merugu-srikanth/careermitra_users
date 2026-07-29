@@ -448,6 +448,7 @@ export default function ArticleDetail() {
   }, [readingMode]); // intentionally only on readingMode toggle
 
   useEffect(() => {
+    if (parentSlug === "internships") return;
     setLoading(true); setError(null); setArticle(null);
     setRelated([]); setTocItems([]); setProcessedHtml("");
     window.scrollTo(0, 0);
