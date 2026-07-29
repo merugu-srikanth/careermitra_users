@@ -410,15 +410,54 @@ export default function Login() {
           {/* ── OTP LOGIN ── */}
           {step === "otp" && (
             <>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                className="w-full py-2 px-3 border rounded-xl mb-3 focus:ring-2 focus:ring-green-400 focus:outline-none focus:border-green-400 transition text-center text-2xl tracking-widest"
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                onKeyPress={handleKeyPress}
-                value={otp}
-                maxLength="6"
-              />
+              <div className="mb-4">
+                <div className="flex justify-center gap-2 max-w-xs mx-auto">
+                  {[...Array(6)].map((_, idx) => (
+                    <input
+                      key={idx}
+                      id={`login-otp-input-${idx}`}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength="1"
+                      className="w-11 h-11 text-center text-xl font-bold border rounded-xl focus:ring-2 focus:ring-green-400 focus:border-green-400 focus:outline-none transition bg-slate-50"
+                      value={otp[idx] || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val !== "" && isNaN(Number(val))) return;
+                        
+                        const otpArr = otp.split("");
+                        otpArr[idx] = val.slice(-1);
+                        const newOtp = otpArr.join("");
+                        setOtp(newOtp);
+
+                        // Auto focus next field
+                        if (val !== "" && idx < 5) {
+                          document.getElementById(`login-otp-input-${idx + 1}`)?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace") {
+                          if (!otp[idx] && idx > 0) {
+                            const otpArr = otp.split("");
+                            otpArr[idx - 1] = "";
+                            const newOtp = otpArr.join("");
+                            setOtp(newOtp);
+                            document.getElementById(`login-otp-input-${idx - 1}`)?.focus();
+                          } else {
+                            const otpArr = otp.split("");
+                            otpArr[idx] = "";
+                            const newOtp = otpArr.join("");
+                            setOtp(newOtp);
+                          }
+                        }
+                      }}
+                      onKeyPress={handleKeyPress}
+                      autoFocus={idx === 0}
+                    />
+                  ))}
+                </div>
+              </div>
 
               <button
                 onClick={handleVerifyOtp}
@@ -473,15 +512,54 @@ export default function Login() {
 
           {step === "forgot-reset" && (
             <>
-              <input
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                className="w-full py-2 px-3 border rounded-xl mb-3 focus:ring-2 focus:ring-orange-400 focus:outline-none focus:border-orange-400 transition text-center text-2xl tracking-widest"
-                onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
-                onKeyPress={handleKeyPress}
-                value={resetOtp}
-                maxLength="6"
-              />
+              <div className="mb-4">
+                <div className="flex justify-center gap-2 max-w-xs mx-auto">
+                  {[...Array(6)].map((_, idx) => (
+                    <input
+                      key={idx}
+                      id={`reset-otp-input-${idx}`}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength="1"
+                      className="w-11 h-11 text-center text-xl font-bold border rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 focus:outline-none transition bg-slate-50"
+                      value={resetOtp[idx] || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val !== "" && isNaN(Number(val))) return;
+                        
+                        const otpArr = resetOtp.split("");
+                        otpArr[idx] = val.slice(-1);
+                        const newOtp = otpArr.join("");
+                        setResetOtp(newOtp);
+
+                        // Auto focus next field
+                        if (val !== "" && idx < 5) {
+                          document.getElementById(`reset-otp-input-${idx + 1}`)?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace") {
+                          if (!resetOtp[idx] && idx > 0) {
+                            const otpArr = resetOtp.split("");
+                            otpArr[idx - 1] = "";
+                            const newOtp = otpArr.join("");
+                            setResetOtp(newOtp);
+                            document.getElementById(`reset-otp-input-${idx - 1}`)?.focus();
+                          } else {
+                            const otpArr = resetOtp.split("");
+                            otpArr[idx] = "";
+                            const newOtp = otpArr.join("");
+                            setResetOtp(newOtp);
+                          }
+                        }
+                      }}
+                      onKeyPress={handleKeyPress}
+                      autoFocus={idx === 0}
+                    />
+                  ))}
+                </div>
+              </div>
 
               <input
                 type="password"
