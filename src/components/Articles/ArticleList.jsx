@@ -64,7 +64,8 @@ const ArticleCard = ({ article }) => {
   const breadcrumb = getCategoryBreadcrumb(article);
   const createdAt = article.createdAt || article.published_at;
   const updatedAt = article.updatedAt || article.last_updated_at;
-  const showUpdated = !isSameDay(createdAt, updatedAt);
+  const hasUpdateKey = Boolean(article && ('updatedAt' in article || 'last_updated_at' in article) && (article.updatedAt || article.last_updated_at));
+  const showUpdated = hasUpdateKey && !isSameDay(createdAt, updatedAt);
   const views = fmtViews(article.views);
 
   return (
@@ -111,7 +112,7 @@ const ArticleCard = ({ article }) => {
             </span>
 
             <span>{fmtDateTime(createdAt)}</span>
-            {views && (
+            {/* {views && (
               <span className="flex items-center gap-1">
                 <svg className="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -119,15 +120,15 @@ const ArticleCard = ({ article }) => {
                 </svg>
                 {views}
               </span>
-            )}
-            {showUpdated && (
+            )} */}
+            {/* {showUpdated && (
               <span className="flex items-center gap-1 text-orange-500">
                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                 </svg>
                 {fmtDateTime(updatedAt)}
               </span>
-            )}
+            )} */}
           </div>
         </div>
       </article>

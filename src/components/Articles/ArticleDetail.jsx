@@ -512,7 +512,8 @@ export default function ArticleDetail() {
   const primaryChild = tree?.children?.find(c => c.id === article?.primary_category?._id);
   const createdAt    = article?.createdAt    || article?.published_at;
   const updatedAt    = article?.updatedAt    || article?.last_updated_at;
-  const showUpdated  = !isSameDay(createdAt, updatedAt);
+  const hasUpdateKey = Boolean(article && ('updatedAt' in article || 'last_updated_at' in article) && (article.updatedAt || article.last_updated_at));
+  const showUpdated  = hasUpdateKey && !isSameDay(createdAt, updatedAt);
   const views        = fmtViews(article?.views);
   const canonicalUrl = article ? `https://careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
@@ -638,22 +639,14 @@ export default function ArticleDetail() {
               )}
 
               {/* Featured image — full width of this column */}
-              <div className="relative rounded-xl overflow-hidden mb-5 bg-gray-100">
+              <div className="relative rounded-xl overflow-hidden mb-5 bg-gray-100 w-full h-[50%] pb-[56.25%]">
                 <img
                   src={article.featured_image || blogFallback}
                   alt={article.image_alt_text || article.title}
-                  className="w-full object-cover"
-                  style={{ maxHeight: "460px", minHeight: "220px" }}
+                  className="absolute inset-0 w-full h-full object-cove"
                   onError={e => { e.target.src = blogFallback; }}
                 />
-                {/* Category overlay badge */}
-                {(primaryChild || tree) && (
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-gray-900/85 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded">
-                      {primaryChild?.name || tree?.parent?.name}
-                    </span>
-                  </div>
-                )}
+               
               </div>
 
            
@@ -689,6 +682,14 @@ export default function ArticleDetail() {
                     <span className="font-semibold text-gray-700 text-sm">CareerMitra</span>
                   </div>
                 )}
+                {/* Category overlay badge */}
+                {/* {(primaryChild || tree) && (
+                  <div className="">
+                    <span className="bg-gray-900/85 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded">
+                      {primaryChild?.name || tree?.parent?.name}
+                    </span>
+                  </div>
+                )} */}
 
                 <span className="flex items-center gap-1.5">
                   <svg className="w-3.5 h-3.5 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -698,9 +699,9 @@ export default function ArticleDetail() {
                   {fmtDateTime(createdAt)}
                 </span>
 
-                {showUpdated && (
+                {/* {showUpdated && (
                   <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedAt)}</span>
-                )}
+                )} */}
 
                 {/* Actions container (Reading Mode & Share Dropdown) */}
                 <div className="ml-auto flex items-center gap-2 relative" ref={shareRef}>
