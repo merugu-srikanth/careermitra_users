@@ -64,7 +64,7 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { authorId } = await params;
   const data = await getAuthorData(authorId);
-  
+
   let schemas = [];
   if (data) {
     const author_name = data.author_name || data.name || "Author";

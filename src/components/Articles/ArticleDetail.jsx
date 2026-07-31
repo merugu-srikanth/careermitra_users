@@ -566,7 +566,6 @@ export default function ArticleDetail() {
       <ReadingProgress />
 
       <SEO
-        title={`${article.meta_title || article.title} | CareerMitra`}
         description={article.meta_description || article.short_description}
         keywords={(article.meta_keywords || article.tags || []).join(", ")}
         url={canonicalUrl}
@@ -639,14 +638,13 @@ export default function ArticleDetail() {
               )}
 
               {/* Featured image — full width of this column */}
-              <div className="relative rounded-xl overflow-hidden mb-5 bg-gray-100 w-full h-[50%] pb-[56.25%]">
+              <div className="relative rounded-xl overflow-hidden mb-5 bg-gray-100 w-full pb-[56.25%]">
                 <img
                   src={article.featured_image || blogFallback}
                   alt={article.image_alt_text || article.title}
-                  className="absolute inset-0 w-full h-full object-cove"
+                  className="absolute inset-0 w-full h-full object-cover"
                   onError={e => { e.target.src = blogFallback; }}
                 />
-               
               </div>
 
            

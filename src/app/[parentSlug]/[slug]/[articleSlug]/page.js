@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
   const art = await getArticle(articleSlug);
   if (!art) {
     return {
-      title: "Articles - Career Mitra",
+      title: "Government Jobs",
     };
   }
   const title = art.meta_title || art.title || "Article";

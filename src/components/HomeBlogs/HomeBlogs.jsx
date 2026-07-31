@@ -371,14 +371,7 @@ const HomeBlogs = () => {
 
     return (
         <>
-            {/* <SEO
-                title="Articles | Career Mitra — Govt Jobs, Career Guides & More"
-                description="Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra."
-                keywords="govt jobs 2026, career guide, exam tips, sarkari naukri, government jobs"
-                url="https://www.careermitra.in/government-jobs"
-                type="website"
-                image="https://www.careermitra.in/og-articles.png"
-            /> */}
+            
             <div  >
                 <div className="w-full px-4 md:px-15 mx-auto py-8">
 
@@ -507,7 +500,7 @@ const HomeBlogs = () => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                 <path d="M9 12h6m-3-3v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
                             </svg>
-                            <p>No articles found{searchTerm ? ` for "${searchTerm}"` : ''}. Try a different search term.</p>
+                            <p>No government jobs found{searchTerm ? ` for "${searchTerm}"` : ''}. Try a different search term.</p>
                         </div>
                     ) : (
                         <>
@@ -522,17 +515,24 @@ const HomeBlogs = () => {
                                                 loading="lazy"
                                                 onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
                                             />
-                                            {blog.primaryCategory && <span className="bl-card-cat-badge">{blog.primaryCategory}</span>}
                                         </div>
                                         <div className="bl-card-body">
                                             <div className="bl-card-meta">
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                                                     <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
                                                 </span>
-                                                <span style={{ color: '#e5e7eb' }}>·</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                                                     <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
                                                 </span>
+                                                {blog.primaryCategory && (
+                                                    <>
+                                                        <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                                                        <span className="truncate max-w-[100px] sm:max-w-none text-[10px] font-bold text-orange-500 uppercase tracking-wider" title={blog.primaryCategory}>
+                                                            {blog.primaryCategory}
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
                                             <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-title">
                                                 {blog.title}

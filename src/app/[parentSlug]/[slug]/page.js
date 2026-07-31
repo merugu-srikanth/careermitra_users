@@ -58,7 +58,7 @@ export async function generateMetadata({ params }) {
   const art = result.data;
   if (!art) {
     return {
-      title: "Articles - Career Mitra",
+      title: "Government Jobs",
     };
   }
 

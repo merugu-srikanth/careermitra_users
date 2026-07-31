@@ -27,19 +27,23 @@ export default function SEO({
   const safeImageAlt    = imageAlt    || safeTitle;
 
   useEffect(() => {
-    // Update Title
-    document.title = safeTitle;
-
-    // Update Meta Description
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.name = "description";
-      document.head.appendChild(metaDesc);
+    // Update Title if explicitly provided
+    if (title) {
+      document.title = title;
     }
-    metaDesc.content = safeDescription;
 
-    // Keywords
+    // Update Meta Description if explicitly provided
+    if (description) {
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.content = description;
+    }
+
+    // Keywords if explicitly provided
     if (keywords) {
       let metaKey = document.querySelector('meta[name="keywords"]');
       if (!metaKey) {

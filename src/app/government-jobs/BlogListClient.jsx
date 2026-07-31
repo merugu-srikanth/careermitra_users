@@ -133,7 +133,7 @@ const BLOGLIST_STYLES = `
   position: absolute; bottom: -2px; left: 0;
   width: 60px; height: 2px; background: #f97316;
 }
-.bl-section-head h2 {
+.bl-section-head h2, .bl-section-head h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(1.2rem, 2.5vw, 1.75rem); font-weight: 800; color: #111827; margin: 0;
 }
@@ -332,7 +332,7 @@ const BlogList = () => {
     if (!allBlogs || allBlogs.length === 0) return [];
     
     const collectionSchema = generateCollectionPageSchema({
-      name: "Articles | Career Mitra — Govt Jobs, Career Guides & More",
+      name: "Government Jobs | Career Mitra — Govt Jobs, Career Guides & More",
       description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
       url: "/government-jobs"
     });
@@ -457,7 +457,7 @@ const BlogList = () => {
 
           {/* ── All Government Jobs HEADING ── */}
           <div className="bl-section-head">
-            <h2>{searchTerm ? 'Search Results' : 'All Government Jobs'}</h2>
+            <h1>{searchTerm ? 'Search Results' : 'All Government Jobs'}</h1>
             {!loading && totalCount > 0 && (
               <span>{totalCount} article{totalCount !== 1 ? 's' : ''}</span>
             )}
@@ -498,17 +498,24 @@ const BlogList = () => {
                         loading="lazy"
                         onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
                       />
-                      {blog.primaryCategory && <span className="bl-card-cat-badge">{blog.primaryCategory}</span>}
                     </div>
                     <div className="bl-card-body">
                       <div className="bl-card-meta">
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                           <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
                         </span>
-                        <span style={{ color: '#e5e7eb' }}>·</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                           <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
                         </span>
+                        {blog.primaryCategory && (
+                          <>
+                            <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                            <span className="truncate max-w-[100px] sm:max-w-none text-[10px] font-bold text-orange-500 uppercase tracking-wider" title={blog.primaryCategory}>
+                              {blog.primaryCategory}
+                            </span>
+                          </>
+                        )}
                       </div>
                       <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-title">
                         {blog.title}

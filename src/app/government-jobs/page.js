@@ -5,6 +5,9 @@ export const metadata = {
   title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
   description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
   keywords: "govt jobs 2026, career guide, exam tips, sarkari naukri, government jobs",
+  alternates: {
+    canonical: "https://careermitra.in/government-jobs",
+  },
   openGraph: {
     type: "website",
     title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
@@ -16,7 +19,7 @@ export const metadata = {
 
 export default function GovernmentJobsPage() {
   const schema = generateCollectionPageSchema({
-    name: "Articles | Career Mitra — Govt Jobs, Career Guides & More",
+    name: "Government Jobs | Career Mitra — Govt Jobs, Career Guides & More",
     description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
     url: "https://www.careermitra.in/government-jobs"
   });

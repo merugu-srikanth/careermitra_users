@@ -82,10 +82,6 @@ const ArticleCard = ({ article }) => {
         </div>
 
         <div className="p-5 flex-1 flex flex-col gap-2">
-          {breadcrumb && (
-            <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">{breadcrumb}</span>
-          )}
-
           <h2 className="text-base font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-orange-500 transition-colors">
             {article.title}
           </h2>
@@ -95,7 +91,7 @@ const ArticleCard = ({ article }) => {
           )}
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 border-t border-gray-50 text-[11px] text-gray-400 mt-auto">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 shrink-0">
               {article.author?.avatar_url ? (
                 <img
                   src={article.author.avatar_url}
@@ -111,24 +107,14 @@ const ArticleCard = ({ article }) => {
               {article.author?.author_name || "Career Mitra"}
             </span>
 
-            <span>{fmtDateTime(createdAt)}</span>
-            {/* {views && (
-              <span className="flex items-center gap-1">
-                <svg className="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                {views}
-              </span>
-            )} */}
-            {/* {showUpdated && (
-              <span className="flex items-center gap-1 text-orange-500">
-                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                </svg>
-                {fmtDateTime(updatedAt)}
-              </span>
-            )} */}
+            <span className="shrink-0">{fmtDateTime(createdAt)}</span>
+
+            {breadcrumb && (
+              <>
+                <span className="text-gray-300 select-none shrink-0">·</span>
+                <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider truncate max-w-[120px] sm:max-w-none" title={breadcrumb}>{breadcrumb}</span>
+              </>
+            )}
           </div>
         </div>
       </article>
@@ -255,10 +241,10 @@ export default function ArticleList() {
   const activeParent = filterData ? filterData.parents.find(p => p.id === parentId) : null;
   const activeChild = filterData ? filterData.children.find(c => c.id === childId) : null;
   const seoTitle = activeChild?.name
-    ? `${activeChild.name} Articles | CareerMitra`
+    ? `${activeChild.name} Government Jobs | CareerMitra`
     : activeParent?.name
-      ? `${activeParent.name} Articles | CareerMitra`
-      : "Articles | CareerMitra";
+      ? `${activeParent.name} Government Jobs | CareerMitra`
+      : "Government Jobs | CareerMitra";
 
   const articleListSchemas = useMemo(() => {
     if (!articles || articles.length === 0) return [];
@@ -266,7 +252,7 @@ export default function ArticleList() {
     const collectionSchema = generateCollectionPageSchema({
       name: seoTitle,
       description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra.",
-      url: "/articles"
+      url: "/government-jobs"
     });
     
     const itemListItems = articles.slice(0, 20).map((art) => ({
@@ -298,9 +284,7 @@ export default function ArticleList() {
   return (
     <>
       <SEO
-        title={seoTitle}
-        description="Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra."
-        url={`https://careermitra.in${childSlugParam ? `/${parentSlugParam}/${childSlugParam}` : (parentSlugParam ? `/${parentSlugParam}` : "/articles")}`}
+        url={`https://careermitra.in${childSlugParam ? `/${parentSlugParam}/${childSlugParam}` : (parentSlugParam ? `/${parentSlugParam}` : "/government-jobs")}`}
         schema={articleListSchemas}
       />
 
