@@ -9,8 +9,31 @@ export default function PWAUpdatePrompt() {
     // Standard service worker registration update listener can be configured here
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       // Stub for Next.js PWA update prompt
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        let hasUnregisteredAny = false;
+        for (let registration of registrations) {
+          const scriptURL = registration.active?.scriptURL ||
+            registration.installing?.scriptURL ||
+            registration.waiting?.scriptURL || "";
+
+          // Target and unregister the old 'sw.js' (leaving firebase-messaging-sw.js alone)
+          if (scriptURL.endsWith('/sw.js') || (scriptURL.includes('sw.js') && !scriptURL.includes('firebase-messaging-sw.js'))) {
+            console.log("Removing old/stale PWA service worker:", scriptURL);
+            registration.unregister();
+            hasUnregisteredAny = true;
+          }
+        }
+
+        // Refresh the page to load new files directly from network
+        if (hasUnregisteredAny) {
+          window.location.reload();
+        }
+      }).catch(err => {
+        console.error("Error checking service workers:", err);
+      });
     }
   }, []);
+
 
   if (!needRefresh) return null;
 
