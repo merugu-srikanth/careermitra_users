@@ -41,7 +41,9 @@ const formatDate = (value) => {
 
 const sanitizeHtml = (html) => {
   if (!html) return "";
-  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
+  if (typeof window === "undefined") return html;
+  const purify = DOMPurify.sanitize ? DOMPurify : (DOMPurify.default || DOMPurify);
+  return purify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
     /<a /g,
     '<a target="_blank" rel="noopener noreferrer" '
   );
