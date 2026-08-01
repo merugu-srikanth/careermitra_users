@@ -293,7 +293,21 @@ const normalizeBlog = (blog) => ({
     authorAvatar: blog?.author?.avatar_url || null,
 });
 
+const buildArticleUrl = (article) => {
+    const tree = article.categoryTree?.[0];
+    if (!tree) return `/${article.slug}`;
+    const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);
+    const childId = article.primary_category?._id || article.primary_category;
+    const child = tree.children?.find(c => c.id === childId || c._id === childId);
+    if (child) {
+        const childSlug = slugify(child.name || child.slug);
+        return `/${parentSlug}/${childSlug}/${article.slug}`;
+    }
+    return `/${parentSlug}/${article.slug}`;
+};
+
 const CalIcon = () => (
+
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
     </svg>
@@ -316,7 +330,6 @@ const CardSkeleton = () => (
         <div style={{ padding: '20px' }}>
             <div className="bl-skeleton" style={{ height: 11, width: '38%', marginBottom: 10 }} />
             <div className="bl-skeleton" style={{ height: 16, marginBottom: 7 }} />
-            <div className="bl-skeleton" style={{ height: 16, width: '70%', marginBottom: 14 }} />
             <div className="bl-skeleton" style={{ height: 11, width: '55%' }} />
         </div>
     </div>
@@ -325,152 +338,86 @@ const CardSkeleton = () => (
 const HomeBlogs = () => {
     const { blogs: allBlogs, loading: contextLoading, error: contextError } = useBlogs();
     const [mounted, setMounted] = useState(false);
+    const [filterData, setFilterData] = useState(null);
+
     useEffect(() => {
         setMounted(true);
+        // Load parent/child category configurations for robust mapping
+        fetch("https://careermitra.in/api/blogs/filters")
+            .then(r => r.json())
+            .then(data => {
+                const d = data.data || data;
+                setFilterData({ parents: d.parents || [], children: d.children || [] });
+            })
+            .catch(() => setFilterData({ parents: [], children: [] }));
     }, []);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [inputVal, setInputVal] = useState('');
 
-    const loading = contextLoading;
+    const loading = contextLoading || filterData === null;
     const error = contextError;
 
-    const filteredBlogs = useMemo(() => {
-        if (contextLoading) return [];
-        let list = [...allBlogs];
+    // Helper to check if a blog belongs to a parent category slug
+    const belongsToParentCategory = (blog, parentSlug) => {
+        if (filterData && filterData.parents.length > 0) {
+            const parentCat = filterData.parents.find(p => slugify(p.name) === parentSlug);
+            if (parentCat) {
+                const tree = blog.categoryTree?.[0];
+                const pId = parentCat.id;
+                if (tree?.parent?.id === pId || tree?.parent?._id === pId) {
+                    return true;
+                }
+            }
+        }
+        // Fallback: match by slugified primary category name
+        return slugify(blog.primaryCategory) === parentSlug;
+    };
 
-        // Sort by created date (newest first)
-        list.sort((a, b) => {
+    // Normalize and sort all blogs (newest first)
+    const sortedBlogs = useMemo(() => {
+        if (!allBlogs) return [];
+        const list = allBlogs.map(normalizeBlog);
+        return list.sort((a, b) => {
             const dateA = new Date(a.createdAt || a.created_at || a.published_at || 0);
             const dateB = new Date(b.createdAt || b.created_at || b.published_at || 0);
             return dateB - dateA;
         });
+    }, [allBlogs]);
 
-        if (searchTerm.trim()) {
-            const q = searchTerm.trim().toLowerCase();
-            list = list.filter(
-                (b) =>
-                    String(b.title || "").toLowerCase().includes(q) ||
-                    String(b.short_description || "").toLowerCase().includes(q)
-            );
-        }
-        return list;
-    }, [allBlogs, searchTerm, contextLoading]);
+    // Define the 4 target categories and their slugs
+    const SECTIONS = [
+        { name: "Career Guidance", slug: "career-guidance" },
+        { name: "Central Government Jobs", slug: "central-government-jobs" },
+        { name: "State Government Jobs", slug: "state-government-jobs" },
+        { name: "Defence Jobs", slug: "defence-jobs" }
+    ];
 
-    const featured = useMemo(() => {
-        if (searchTerm.trim() || filteredBlogs.length === 0) return null;
-        return filteredBlogs[0];
-    }, [filteredBlogs, searchTerm]);
+    // Map sorted blogs into their respective categories (limit to 8)
+    const categorizedSections = useMemo(() => {
+        if (loading) return [];
+        return SECTIONS.map(sec => {
+            const sectionBlogs = sortedBlogs
+                .filter(blog => belongsToParentCategory(blog, sec.slug))
+                .slice(0, 8);
+            return {
+                ...sec,
+                blogs: sectionBlogs
+            };
+        });
+    }, [sortedBlogs, loading, filterData]);
 
-    const blogs = useMemo(() => {
-        return filteredBlogs.slice(0, 8);
-    }, [filteredBlogs]);
-
-    const totalCount = blogs.length;
-
-    const handleSearch = (e) => { e.preventDefault(); setSearchTerm(inputVal); };
+    const hasAnyBlogs = categorizedSections.some(sec => sec.blogs.length > 0);
 
     return (
         <>
-            
-            <div  >
+            <div>
                 <div className="w-full px-4 md:px-15 mx-auto py-8">
 
-                    {/* ── CATEGORY FILTER PILLS ── */}
-                    {/* {dynamicCategories.length > 0 && (
-            <div className="bl-filters">
-              <Link href="/blogs" className="bl-pill active">All</Link>
-              {dynamicCategories.map(cat => (
-                <Link key={cat}
-                  href={`/${slugify(cat)}`}
-                  state={{ categoryName: cat }}
-                  className="bl-pill"
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
-          )} */}
-
-                    {/* ── FEATURED ── */}
-                    {/* {featured && !loading && (
-                        <div style={{ marginBottom: 0 }}>
-                            <div className="bl-section-head" style={{ marginBottom: 20 }}>
-                                <h2>Featured Story</h2>
-                            </div>
-                            <div className="bl-featured">
-                                <div className="bl-featured-img-wrap">
-                                    <img
-                                        src={featured.featured_image || blogFallback}
-                                        alt={featured.image_alt_text || featured.title}
-                                        className="bl-featured-img"
-                                        onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
-                                    />
-                                    <div className="bl-featured-badge">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11 }}>
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        Featured
-                                    </div>
-                                </div>
-                                <div className="bl-featured-body">
-                                    <div className="bl-featured-cat">{featured.primaryCategory}</div>
-                                    <Link href={`/${slugify(featured.primaryCategory)}/${featured.slug}`} className="bl-featured-title">
-                                        {featured.title}
-                                    </Link>
-                                    <p className="bl-featured-desc">{featured.short_description}</p>
-                                    <div className="bl-featured-meta">
-                                        <span>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}>
-                                                <circle cx="12" cy="8" r="4" /><path d="M6 20v-2a6 6 0 0 1 12 0v2" />
-                                            </svg>
-                                            <Link href={`/author/${slugify(featured.authorDisplayName)}`} style={{ color: '#111827', textDecoration: 'none' }}>
-                                                {featured.authorDisplayName}
-                                            </Link>
-                                        </span>
-                                        <span><CalIcon />{fmtDate(featured.createdAt || featured.created_at || featured.published_at)}</span>
-                                        <span><ClockIcon />{fmtTime(featured.createdAt || featured.created_at || featured.published_at)}</span>
-                                    </div>
-                                    <Link href={`/${slugify(featured.primaryCategory)}/${featured.slug}`} className="bl-read-btn">
-                                        Read Full Article <ArrowIcon />
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
-
-                    {mounted && featured && !loading && <div style={{ height: 48 }} />}
-
                     {/* ── All Government Jobs HEADING ── */}
-                    <div className="text-center">
-                        {/* <h2>{searchTerm ? 'Search Results' : 'All Government Jobs'}</h2>
-                        {!loading && totalCount > 0 && (
-                            <span>{totalCount} article{totalCount !== 1 ? 's' : ''}</span>
-                        )} */}
-                    </div>
-
-
-                    {/* ── Header ── */}
-                    <div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-6"
-                    >
-                        {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-5">
-                        <span className="text-sm">✨</span>
-                        <span className="text-orange-700 font-bold text-xs uppercase tracking-widest">
-                            All Government Jobs
-                        </span>
-                    </div> */}
-
+                    <div className="text-center mb-10">
                         <h1 className="text-4xl md:text-5xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
                             All Government Jobs Notifications
                         </h1>
 
                         <div
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ delay: 0.3, duration: 0.8 }}
                             className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full"
                         />
 
@@ -482,8 +429,17 @@ const HomeBlogs = () => {
 
                     {/* ── GRID / STATES ── */}
                     {loading ? (
-                        <div className="bl-grid">
-                            {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
+                        <div className="space-y-12">
+                            {SECTIONS.map((sec, idx) => (
+                                <div key={idx}>
+                                    <div className="bl-section-head">
+                                        <h2>{sec.name}</h2>
+                                    </div>
+                                    <div className="bl-grid">
+                                        {[...Array(4)].map((_, i) => <CardSkeleton key={i} />)}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : error ? (
                         <div className="bl-empty">
@@ -491,95 +447,95 @@ const HomeBlogs = () => {
                                 <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                             <p>{error}</p>
-                            <button className="bl-pag-btn" style={{ margin: '0 auto', display: 'block' }} onClick={() => fetchBlogs(1, searchTerm)}>
-                                Try Again
-                            </button>
                         </div>
-                    ) : blogs.length === 0 && !featured ? (
+                    ) : !hasAnyBlogs ? (
                         <div className="bl-empty">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                 <path d="M9 12h6m-3-3v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
                             </svg>
-                            <p>No government jobs found{searchTerm ? ` for "${searchTerm}"` : ''}. Try a different search term.</p>
+                            <p>No government jobs found. Try again later.</p>
                         </div>
                     ) : (
-                        <>
-                            <div className="bl-grid">
-                                {blogs.map((blog) => (
-                                    <article key={blog._id} className="bl-card">
-                                        <div className="bl-card-img-wrap">
-                                            <img
-                                                src={blog.featured_image || blogFallback}
-                                                alt={blog.image_alt_text || blog.title}
-                                                className="bl-card-img"
-                                                loading="lazy"
-                                                onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
-                                            />
-                                        </div>
-                                        <div className="bl-card-body">
-                                            <div className="bl-card-meta">
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                                                    <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
-                                                </span>
-                                                <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                                                    <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
-                                                </span>
-                                                {blog.primaryCategory && (
-                                                    <>
-                                                        <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
-                                                        <span className="truncate max-w-[100px] sm:max-w-none text-[10px] font-bold text-orange-500 uppercase tracking-wider" title={blog.primaryCategory}>
-                                                            {blog.primaryCategory}
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </div>
-                                            <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-title">
-                                                {blog.title}
+                        <div className="space-y-16">
+                            {categorizedSections.map((sec) => {
+                                if (sec.blogs.length === 0) return null;
+                                return (
+                                    <section key={sec.slug} className="relative">
+                                        {/* Section Header */}
+                                        <div className="bl-section-head">
+                                            <h2>{sec.name}</h2>
+                                            <Link href={`/${sec.slug}`}>
+                                                View More <ArrowIcon />
                                             </Link>
-                                            {/* <p className="bl-card-desc">{blog.short_description}</p> */}
-                                            <div className="bl-card-footer">
-                                                <Link href={`/author/${slugify(blog.authorDisplayName)}`}
-                                                    className="bl-card-author"
-                                                    style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}
-                                                >
-                                                    {blog.authorAvatar ? (
-                                                        <img
-                                                            src={blog.authorAvatar}
-                                                            alt={blog.authorDisplayName}
-                                                            style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid #f3f4f6' }}
-                                                            onError={(e) => { e.target.style.display = 'none'; }}
-                                                        />
-                                                    ) : (
-                                                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 9, fontWeight: 700, color: '#f97316' }}>
-                                                            {(blog.authorDisplayName || 'C').charAt(0).toUpperCase()}
-                                                        </span>
-                                                    )}
-                                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {blog.authorDisplayName}
-                                                    </span>
-                                                </Link>
-                                                <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-link">
-                                                    Read More <ArrowIcon />
-                                                </Link>
-                                            </div>
                                         </div>
-                                    </article>
-                                ))}
-                            </div>
 
-                            <div className="text-center my-12 ">
-                                <Link href="/government-jobs"
-                                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
-                                    style={{ textDecoration: 'none' }}
-                                >
-                                    <span>View More Notifications</span>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', width: 14, height: 14 }}>
-                                        <ArrowIcon />
-                                    </span>
-                                </Link>
-                            </div>
-                        </>
+                                        {/* Grid of Cards */}
+                                        <div className="bl-grid">
+                                            {sec.blogs.map((blog) => (
+                                                <article key={blog._id} className="bl-card">
+                                                    <div className="bl-card-img-wrap">
+                                                        <img
+                                                            src={blog.featured_image || blogFallback}
+                                                            alt={blog.image_alt_text || blog.title}
+                                                            className="bl-card-img"
+                                                            loading="lazy"
+                                                            onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
+                                                        />
+                                                    </div>
+                                                    <div className="bl-card-body">
+                                                        <div className="bl-card-meta">
+                                                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                                                                <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
+                                                            </span>
+                                                            <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                                                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                                                                <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
+                                                            </span>
+                                                            {blog.primaryCategory && (
+                                                                <>
+                                                                    <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
+                                                                    <span className="truncate max-w-[100px] sm:max-w-none text-[10px] font-bold text-orange-500 uppercase tracking-wider" title={blog.primaryCategory}>
+                                                                        {blog.primaryCategory}
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <Link href={buildArticleUrl(blog)} className="bl-card-title">
+                                                            {blog.title}
+                                                        </Link>
+                                                        <div className="bl-card-footer">
+                                                            <Link href={`/author/${slugify(blog.authorDisplayName)}`}
+                                                                className="bl-card-author"
+                                                                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}
+                                                            >
+                                                                {blog.authorAvatar ? (
+                                                                    <img
+                                                                        src={blog.authorAvatar}
+                                                                        alt={blog.authorDisplayName}
+                                                                        style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid #f3f4f6' }}
+                                                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                                                    />
+                                                                ) : (
+                                                                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 9, fontWeight: 700, color: '#f97316' }}>
+                                                                        {(blog.authorDisplayName || 'C').charAt(0).toUpperCase()}
+                                                                    </span>
+                                                                )}
+                                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                    {blog.authorDisplayName}
+                                                                </span>
+                                                            </Link>
+                                                            <Link href={buildArticleUrl(blog)} className="bl-card-link">
+                                                                Read More <ArrowIcon />
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            ))}
+                                        </div>
+                                    </section>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </div>

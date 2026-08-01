@@ -323,6 +323,25 @@ const CardSkeleton = () => (
   </div>
 );
 
+const slugify = (value = '') =>
+  String(value).toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+const buildArticleUrl = (article) => {
+  const tree = article?.categoryTree?.[0];
+  if (!tree) return `/${article?.slug}`;
+  const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);
+  const childId = article.primary_category?._id || article.primary_category;
+  const child = tree.children?.find(c => c.id === childId || c._id === childId);
+  if (child) {
+    const childSlug = slugify(child.name || child.slug);
+    return `/${parentSlug}/${childSlug}/${article.slug}`;
+  }
+  return `/${parentSlug}/${article.slug}`;
+};
+
 const BlogList = () => {
   const { blogs: allBlogs, loading: contextLoading, error: contextError } = useBlogs();
   const [searchTerm, setSearchTerm] = useState('');
@@ -429,7 +448,7 @@ const BlogList = () => {
                 </div>
                 <div className="bl-featured-body">
                   <div className="bl-featured-cat">{featured.primaryCategory}</div>
-                  <Link href={`/${slugify(featured.primaryCategory)}/${featured.slug}`} className="bl-featured-title">
+                  <Link href={buildArticleUrl(featured)} className="bl-featured-title">
                     {featured.title}
                   </Link>
                   <p className="bl-featured-desc">{featured.short_description}</p>
@@ -445,7 +464,7 @@ const BlogList = () => {
                     <span><CalIcon />{fmtDate(featured.createdAt || featured.created_at || featured.published_at)}</span>
                     <span><ClockIcon />{fmtTime(featured.createdAt || featured.created_at || featured.published_at)}</span>
                   </div>
-                  <Link href={`/${slugify(featured.primaryCategory)}/${featured.slug}`} className="bl-read-btn">
+                  <Link href={buildArticleUrl(featured)} className="bl-read-btn">
                     Read Full Article <ArrowIcon />
                   </Link>
                 </div>
@@ -517,7 +536,7 @@ const BlogList = () => {
                           </>
                         )}
                       </div>
-                      <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-title">
+                      <Link href={buildArticleUrl(blog)} className="bl-card-title">
                         {blog.title}
                       </Link>
                       {/* <p className="bl-card-desc">{blog.short_description}</p> */}
@@ -542,7 +561,7 @@ const BlogList = () => {
                             {blog.authorDisplayName}
                           </span>
                         </Link>
-                        <Link href={`/${slugify(blog.primaryCategory)}/${blog.slug}`} className="bl-card-link">
+                        <Link href={buildArticleUrl(blog)} className="bl-card-link">
                           Read More <ArrowIcon />
                         </Link>
                       </div>

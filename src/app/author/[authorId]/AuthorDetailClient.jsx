@@ -15,11 +15,22 @@ const slugify = (s = '') =>
 const isMongoId = (s) => /^[a-f0-9]{24}$/i.test(s);
 
 const getBlogPath = (blog, detail) => {
-  const cat = slugify(
-    detail?.categories?.[0]?.name || detail?.category ||
-    blog?.categories?.[0]?.name || blog?.category || 'general'
-  );
-  return `/${cat}/${blog.slug}`;
+  const art = detail || blog;
+  const tree = art?.categoryTree?.[0];
+  if (!tree) {
+    const cat = slugify(
+      art?.categories?.[0]?.name || art?.category || 'general'
+    );
+    return `/${cat}/${art.slug}`;
+  }
+  const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);
+  const childId = art.primary_category?._id || art.primary_category;
+  const child = tree.children?.find(c => c.id === childId || c._id === childId);
+  if (child) {
+    const childSlug = slugify(child.name || child.slug);
+    return `/${parentSlug}/${childSlug}/${art.slug}`;
+  }
+  return `/${parentSlug}/${art.slug}`;
 };
 
 /* ─── Styles ──────────────────────────────────────────────────────────────── */

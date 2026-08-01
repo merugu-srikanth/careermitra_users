@@ -610,7 +610,7 @@ export default function ArticleDetail() {
           <div className={`grid gap-8 items-start ${readingMode ? "lg:grid-cols-1 max-w-3xl mx-auto" : "lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px]"}`}>
 
             {/* ══════ LEFT — Main Article ══════ */}
-            <main>
+            <main className="min-w-0 w-full overflow-hidden">
 
               {/* ← Back to category (hidden as breadcrumbs are enough) */}
               {/*
@@ -821,7 +821,7 @@ export default function ArticleDetail() {
 
               {/* Author card at bottom of article */}
               {article.author && (
-                <div className="mt-6 bg-orange-50 rounded-xl p-5 border border-orange-100 flex gap-4">
+                <div className="mt-6 bg-orange-50 rounded-xl p-5 border border-orange-100 flex flex-col sm:flex-row gap-4 items-center sm:items-start text-center sm:text-left">
                   <div className="shrink-0">
                     {article.author.avatar_url ? (
                       <img
@@ -836,11 +836,11 @@ export default function ArticleDetail() {
                       </span>
                     )}
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-bold text-orange-500 uppercase tracking-wider mb-0.5">Written by</p>
                     <p className="font-black text-gray-900 text-sm mb-1">{article.author.author_name}</p>
                     {article.author.bio && <p className="text-xs text-gray-500 line-clamp-2 mb-2">{article.author.bio}</p>}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 justify-center sm:justify-start">
                       {article.author.social_links?.linkedin && (
                         <a href={article.author.social_links.linkedin} target="_blank" rel="nofollow noopener noreferrer" className="text-[11px] font-bold text-blue-500 hover:underline">LinkedIn</a>
                       )}
@@ -1034,6 +1034,8 @@ export default function ArticleDetail() {
         .article-body .table-responsive {
           width: 100%; overflow-x: auto; margin: 1.5rem 0;
           border: 1px solid #f3f4f6; border-radius: 0.75rem;
+          display: block;
+          max-width: 100%;
         }
         .article-body table {
           width: 100%; border-collapse: collapse; margin: 0;
@@ -1050,7 +1052,8 @@ export default function ArticleDetail() {
         }
         .article-body tr:nth-child(even) td { background: #fafafa; }
         .article-body tr:hover td { background: #fff7ed; }
-        .article-body img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem auto; display: block; }
+        .article-body img { max-width: 100% !important; height: auto !important; border-radius: 0.75rem; margin: 1rem auto; display: block; }
+        .article-body iframe, .article-body video { max-width: 100% !important; height: auto; border-radius: 0.75rem; margin: 1rem auto; display: block; }
         .article-body pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.75rem; overflow-x: auto; font-size: 0.85rem; margin: 1rem 0; }
         .article-body code { background: #f1f5f9; color: #dc2626; padding: 0.15rem 0.4rem; border-radius: 0.3rem; font-size: 0.85rem; }
         .article-body pre code { background: transparent; color: inherit; padding: 0; }

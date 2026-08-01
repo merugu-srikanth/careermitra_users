@@ -76,7 +76,7 @@ const Skeleton = () => (
 export default function AnnouncementDetail({ initialData = null }) {
   const params = useParams();
   const { slug } = params;
-  const { state: navState } = useLocation(); // { id } passed from navigate()
+  const navState = null; // Next.js uses SSR initialData, react-router state is not needed
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
@@ -237,7 +237,7 @@ export default function AnnouncementDetail({ initialData = null }) {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
  
         {/* ── Hero Banner ── */}
-        <div className="bg-white border-b border-gray-100 pt-20 sm:pt-24 pb-5 sm:pb-8 px-4 shadow-sm">
+        <div className="bg-white border-b border-gray-100 pt-26 sm:pt-30 pb-5 sm:pb-8 px-4 shadow-sm">
           <div className="w-full mx-auto">
  
             {/* Breadcrumb + back */}
