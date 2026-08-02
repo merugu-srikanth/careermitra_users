@@ -323,11 +323,6 @@ const CardSkeleton = () => (
   </div>
 );
 
-const slugify = (value = '') =>
-  String(value).toLowerCase().trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
 
 const buildArticleUrl = (article) => {
   const tree = article?.categoryTree?.[0];
