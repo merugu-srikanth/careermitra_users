@@ -248,13 +248,13 @@ export default function ArticleList() {
 
   const articleListSchemas = useMemo(() => {
     if (!articles || articles.length === 0) return [];
-    
+
     const collectionSchema = generateCollectionPageSchema({
       name: seoTitle,
       description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra.",
       url: "/government-jobs"
     });
-    
+
     const itemListItems = articles.slice(0, 20).map((art) => ({
       name: art.title,
       url: `https://careermitra.in${buildArticleUrl(art)}`,
@@ -266,9 +266,9 @@ export default function ArticleList() {
         authorName: art.author?.author_name || art.author_name || "Career Mitra"
       }
     }));
-    
+
     const itemListSchema = generateItemListSchema(itemListItems);
-    
+
     return [collectionSchema, itemListSchema].filter(Boolean);
   }, [articles, seoTitle]);
 
@@ -317,9 +317,12 @@ export default function ArticleList() {
             <h1 className="text-3xl font-black text-gray-900 mb-1">
               {activeChild?.name || activeParent?.name || "Government Jobs"}
             </h1>
-            <p className="text-sm text-gray-400">
-              {loading ? "Loading…" : `${total} article${total !== 1 ? "s" : ""}`}
+            <p className="text-justify mb-1">
+              {activeChild?.description || activeParent?.description || ""}
             </p>
+            {/* <p className="text-sm text-gray-400">
+              {loading ? "Loading…" : `${total} article${total !== 1 ? "s" : ""}`}
+            </p> */}
           </div>
         </div>
 
