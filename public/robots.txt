@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /admin/login
+Disallow: /careermitra.tech
 Disallow: /login
 Disallow: /signin
 Disallow: /signup
