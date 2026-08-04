@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import SplashLoader from "@/components/SplashLoader";
+import FloatingChatSupport from "@/components/FloatingChatSupport";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
                 <main>{children}</main>
               </Suspense>
               <Footer />
+              <FloatingChatSupport />
               <PWAUpdatePrompt />
             </BlogProvider>
           </JobProvider>
