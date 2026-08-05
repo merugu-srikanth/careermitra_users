@@ -5,6 +5,10 @@ async function getAuthorData(authorId) {
   const isMongoId = (s) => /^[a-f0-9]{24}$/i.test(s);
   const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 
+  if (isMongoId(authorId)) {
+    return null;
+  }
+
   try {
     let resolvedId = authorId;
     if (!isMongoId(authorId)) {

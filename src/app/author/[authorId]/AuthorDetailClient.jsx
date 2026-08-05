@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import SEO from "@/components/SEO";
 import { generatePersonSchema, generateWebPageSchema } from "@/utils/schemaHelpers";
+import blogFallback from "@/assets/blog-sample.png";
 
 const slugify = (s = '') =>
   String(s).toLowerCase().trim()
@@ -38,7 +39,18 @@ const AP_STYLES = `
 .ap-wrap { background:#f9fafb;min-height:100vh; }
 
 /* container */
-.ap-container { max-width:1100px;margin:0 auto;padding:40px 20px 80px; }
+.ap-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 48px 16px 80px;
+}
+@media (min-width: 768px) {
+  .ap-container {
+    padding-left: 3.75rem; /* px-15 */
+    padding-right: 3.75rem;
+  }
+}
 
 /* section header */
 .ap-section-head { display:flex;align-items:center;gap:12px;margin-bottom:24px; }
@@ -142,11 +154,13 @@ export default function AuthorProfilePage({ initialData = null }) {
     setLoading(true);
     setError("");
     try {
+      if (isMongoId(authorId)) {
+        throw new Error("Author not found");
+      }
       let resolvedId = authorId;
 
       // If param is a slug (not a 24-char MongoDB hex ID), resolve to _id via blog data
-      if (!isMongoId(authorId)) {
-        const blogsRes = await fetch("https://careermitra.in/api/blogs");
+      const blogsRes = await fetch("https://careermitra.in/api/blogs");
         const blogsData = await blogsRes.json();
         const blogs = blogsData.data?.articles || [];
         const match = blogs
@@ -155,7 +169,6 @@ export default function AuthorProfilePage({ initialData = null }) {
           .find((a) => slugify(a.author_name || a.name || "") === authorId);
         if (!match?._id) throw new Error("Author not found");
         resolvedId = match._id;
-      }
 
       const res = await fetch(`https://careermitra.in/api/authors/${resolvedId}`);
       const data = await res.json();
@@ -259,28 +272,26 @@ export default function AuthorProfilePage({ initialData = null }) {
     <>
       <style dangerouslySetInnerHTML={{ __html: AP_STYLES }} />
 
-      <div className="ap-wrap mt-20">
+      <div className="ap-wrap">
 
         {/* ── Hero ── */}
-        <div className="relative overflow-hidden border-b border-[#e8ebdc] bg-[radial-gradient(circle_at_6%_8%,rgba(14,116,144,0.15),transparent_36%),radial-gradient(circle_at_94%_90%,rgba(234,88,12,0.18),transparent_36%),linear-gradient(145deg,#edf3e5_0%,#f8fbf5_45%,#f7f4ea_100%)] px-4 pb-12 pt-20 sm:px-5 sm:pt-22">
+        <div className="relative overflow-hidden border-b border-[#e8ebdc] bg-[radial-gradient(circle_at_6%_8%,rgba(14,116,144,0.15),transparent_36%),radial-gradient(circle_at_94%_90%,rgba(234,88,12,0.18),transparent_36%),linear-gradient(145deg,#edf3e5_0%,#f8fbf5_45%,#f7f4ea_100%)] px-4 md:px-15 pb-10 pt-24 md:pt-32 md:pb-12">
           <div className="pointer-events-none absolute -left-24 top-4 h-64 w-64 rounded-full bg-[#34d399]/15 blur-3xl" />
           <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-[#fb7185]/20 blur-3xl" />
 
-          <div className="relative mx-auto grid w-full overflow-hidden rounded-[34px] border border-[#ece9e2] bg-white/80 shadow-[0_30px_60px_rgba(17,24,39,0.12)] backdrop-blur-sm md:grid-cols-[260px_1fr]">
-            <div className="relative flex min-h-56 items-center justify-center p-5 md:min-h-82.5 md:p-0">
-              <div className="absolute inset-0 translate-x-4 rounded-4xl bg-[linear-gradient(170deg,#f59e0b,#fb7185)] opacity-35" />
-              <div className="absolute inset-0 translate-x-2 rounded-4xl bg-[linear-gradient(170deg,#10b981,#f97316)] opacity-25" />
-              <div className="relative z-10 flex h-full w-full items-center justify-center rounded-4xl bg-[linear-gradient(160deg,#f472b6_0%,#a21caf_100%)]">
-                <div className="relative flex h-33 w-33 items-center justify-center overflow-hidden rounded-full bg-[#f4e4d4] p-1 shadow-[0_12px_28px_rgba(17,24,39,0.35)]">
-                  <div className="absolute inset-0.75 z-1 flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#f97316,#c2410c)] text-5xl font-extrabold text-white" aria-hidden="true">
+          <div className="relative mx-auto grid w-full overflow-hidden rounded-[24px] border border-[#ece9e2] bg-white/90 shadow-[0_20px_50px_rgba(0,0,0,0.06)] backdrop-blur-sm grid-cols-1 md:grid-cols-[240px_1fr] p-6 md:p-8 gap-6 md:gap-8 items-center max-w-[1300px]">
+            {/* Avatar Column */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-full p-1 bg-gradient-to-tr from-[#f97316] via-[#ea580c] to-[#e11d48] shadow-lg">
+                <div className="h-full w-full rounded-full overflow-hidden bg-white flex items-center justify-center relative">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#fed7aa] to-[#fecdd3] text-4xl md:text-5xl font-extrabold text-[#ea580c]" aria-hidden="true">
                     {author_name?.charAt(0)?.toUpperCase()}
                   </div>
-
                   {avatar_url && (
                     <img
                       src={avatar_url}
                       alt={author_name}
-                      className="relative z-2 h-full w-full rounded-full object-cover bg-white"
+                      className="relative z-10 h-full w-full rounded-full object-cover bg-white"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
@@ -290,37 +301,65 @@ export default function AuthorProfilePage({ initialData = null }) {
               </div>
             </div>
 
-            <div className="grid items-stretch gap-4 px-5 py-6 sm:px-7 md:grid-cols-[1fr_64px] md:px-10 md:py-7">
-              <div className="min-w-0">
-                <p className="mb-2 text-[0.72rem] font-bold uppercase tracking-widest text-[#9ca3af]">Career Mitra Author</p>
-                <h1 className="mb-1.5 font-serif text-[clamp(1.6rem,3.2vw,2.3rem)] font-extrabold tracking-[-0.01em] text-[#111827]">{author_name}</h1>
-                <p className="mb-3 text-[0.8rem] font-semibold text-[#6b7280]">{authorHandle}</p>
+            {/* Details Column */}
+            <div className="flex flex-col justify-between h-full text-center md:text-left">
+              <div>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mb-3">
+                  <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#f97316] bg-[#fff7ed] px-2.5 py-1 rounded-full border border-orange-100">
+                    {role || "Author"}
+                  </span>
+                  {createdAt && (
+                    <span className="text-[0.7rem] font-semibold text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
+                      Joined {fmtDate(createdAt)}
+                    </span>
+                  )}
+                </div>
 
-                <p className="mb-4 text-[0.95rem] leading-[1.72] text-[#4b5563] md:pr-3">
-                  {bio || "This author writes practical, student-friendly content on careers, education, and job opportunities."}
+                <h1 className="mb-1 font-serif text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111827]">
+                  {author_name}
+                </h1>
+                <p className="mb-4 text-xs font-semibold text-gray-400">
+                  {authorHandle}
                 </p>
 
-                {/* Info blocks if needed */}
+                <p className="mb-6 text-[0.95rem] leading-[1.65] text-gray-600 max-w-2xl">
+                  {bio || "This author writes practical, student-friendly content on careers, education, and job opportunities."}
+                </p>
               </div>
 
-              {/* Social links */}
-              {normalizedSocials.length > 0 && (
-                <div className="flex flex-row items-start justify-start gap-2.5 border-t border-[#efede8] pt-3 md:flex-col md:items-center md:justify-center md:border-l md:border-t-0 md:pt-0">
-                  {normalizedSocials.map(({ key, label, icon: Icon, href }) => (
-                    <a
-                      key={key}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#111827] transition hover:-translate-y-px hover:border-[#ea580c] hover:bg-[#ea580c] hover:text-white [&_svg]:h-3.5 [&_svg]:w-3.5"
-                      aria-label={label}
-                      title={label}
-                    >
-                      <Icon />
-                    </a>
-                  ))}
+              {/* Stats & Social links row */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#efede8] pt-4 mt-auto">
+                <div className="flex gap-6 items-center">
+                  <div className="text-center sm:text-left">
+                    <span className="block text-xl font-bold text-gray-900">{assignedBlogs.length}</span>
+                    <span className="text-xs text-gray-400 font-medium">Articles</span>
+                  </div>
+                  {totalViews > 0 && (
+                    <div className="text-center sm:text-left border-l border-gray-200 pl-6">
+                      <span className="block text-xl font-bold text-gray-900">{totalViews.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400 font-medium">Total Views</span>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {normalizedSocials.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {normalizedSocials.map(({ key, label, icon: Icon, href }) => (
+                      <a
+                        key={key}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:-translate-y-0.5 hover:border-[#ea580c] hover:bg-[#fff7ed] hover:text-[#ea580c] shadow-sm [&_svg]:h-4 [&_svg]:w-4"
+                        aria-label={label}
+                        title={label}
+                      >
+                        <Icon />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -340,23 +379,21 @@ export default function AuthorProfilePage({ initialData = null }) {
               <div className="ap-blogs-grid">
                 {assignedBlogs.map((blog) => {
                   const detail = blogDetails[blog.slug];
+                  const imgUrl = blog.featured_image || detail?.featured_image;
                   return (
                     <Link key={blog._id || blog.slug} href={getBlogPath(blog, detail)} className="ap-blog-card">
-                      {detail?.featured_image ? (
-                        <img
-                          src={detail.featured_image}
-                          alt={blog.title}
-                          className="ap-blog-img"
-                          onError={(e) => { e.currentTarget.style.display = "none"; }}
-                        />
-                      ) : (
-                        <div className="ap-blog-img-placeholder">
-                          <BookIcon />
-                        </div>
-                      )}
+                      <img
+                        src={imgUrl || blogFallback.src || blogFallback}
+                        alt={blog.title}
+                        className="ap-blog-img"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = blogFallback.src || blogFallback;
+                        }}
+                      />
                       <div className="ap-blog-body">
-                        {detail?.category && (
-                          <div className="ap-blog-cat">{detail.category}</div>
+                        {(detail?.category || blog.category) && (
+                          <div className="ap-blog-cat">{detail?.category || blog.category}</div>
                         )}
                         <div className="ap-blog-title">{blog.title}</div>
                         <div className="ap-blog-arrow">
@@ -383,16 +420,15 @@ export default function AuthorProfilePage({ initialData = null }) {
               <div className="ap-suggest-grid">
                 {suggestedBlogs.map((blog) => (
                   <Link key={blog._id} href={getBlogPath(blog, null)} className="ap-suggest-card">
-                    {blog.featured_image ? (
-                      <img
-                        src={blog.featured_image}
-                        alt={blog.title}
-                        className="ap-suggest-img"
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                    ) : (
-                      <div className="ap-suggest-img-placeholder" />
-                    )}
+                    <img
+                      src={blog.featured_image || blogFallback.src || blogFallback}
+                      alt={blog.title}
+                      className="ap-suggest-img"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = blogFallback.src || blogFallback;
+                      }}
+                    />
                     <div className="ap-suggest-title">{blog.title}</div>
                     <div className="ap-suggest-author">
                       By {blog.author?.author_name || blog.author_name || "Career Mitra"}

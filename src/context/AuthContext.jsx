@@ -81,6 +81,21 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!token) return;
+    const registerFCM = async () => {
+      try {
+        const { requestFcmToken } = await import("@/utils/firebase");
+        await requestFcmToken(token);
+      } catch (err) {
+        console.error("Error setting up Firebase FCM:", err);
+      }
+    };
+    // Defer registration slightly to ensure browser is ready
+    const timer = setTimeout(registerFCM, 2000);
+    return () => clearTimeout(timer);
+  }, [token]);
+
   const storePendingRegisterCredentials = (email, password) => {
     if (typeof window === "undefined" || !email || !password) return;
     localStorage.setItem(PENDING_REGISTER_KEY, JSON.stringify({ email, password }));
