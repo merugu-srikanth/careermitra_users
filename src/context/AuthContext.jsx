@@ -82,7 +82,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
     const registerFCM = async () => {
       try {
         const { requestFcmToken } = await import("@/utils/firebase");

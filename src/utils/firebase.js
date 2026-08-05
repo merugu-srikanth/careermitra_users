@@ -17,8 +17,10 @@ let messaging;
 
 if (typeof window !== "undefined") {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  console.log("Firebase initialized successfully on client.");
   try {
     messaging = getMessaging(app);
+    console.log("Firebase Messaging service connected and ready.");
   } catch (err) {
     console.warn("Firebase Messaging is not supported in this browser:", err);
   }
@@ -42,10 +44,8 @@ export const requestFcmToken = async (userToken) => {
     if (fcmToken) {
       console.log("FCM Device Token retrieved:", fcmToken);
 
-      // Save token to backend API if user token is provided
-      if (userToken) {
-        await saveTokenToBackend(fcmToken, userToken);
-      }
+      // Save token to backend API
+      await saveTokenToBackend(fcmToken, userToken);
       return fcmToken;
     } else {
       console.warn("No registration token available. Request permission to generate one.");
@@ -59,14 +59,25 @@ export const requestFcmToken = async (userToken) => {
 
 // Send device token to backend endpoints (fallback tries standard routes)
 const saveTokenToBackend = async (fcmToken, userToken) => {
-  const headers = { Authorization: `Bearer ${userToken}` };
+  const headers = userToken ? { Authorization: `Bearer ${userToken}` } : {};
   
-  // Try to register the device token on standard user endpoints
-  const endpoints = [
-    `${process.env.NEXT_PUBLIC_API_URL}/user/fcm-token`,
-    `${process.env.NEXT_PUBLIC_API_URL}/user/device-token`,
-    `${process.env.NEXT_PUBLIC_API_URL}/user/profile`,
-  ];
+  // Try to register the device token on both guest and user endpoints
+  const endpoints = [];
+  
+  // Guest endpoints
+  endpoints.push(
+    `${process.env.NEXT_PUBLIC_API_URL}/fcm-token`,
+    `${process.env.NEXT_PUBLIC_API_URL}/device-token`
+  );
+  
+  // Authenticated user endpoints
+  if (userToken) {
+    endpoints.push(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/fcm-token`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/device-token`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/profile`
+    );
+  }
 
   for (const url of endpoints) {
     try {
