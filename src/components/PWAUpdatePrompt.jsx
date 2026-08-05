@@ -41,7 +41,7 @@ export default function PWAUpdatePrompt() {
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] bg-blue-900 text-white rounded-xl shadow-2xl px-5 py-4 flex items-center gap-4 max-w-sm w-full mx-4">
       <div className="flex-1">
         <p className="font-semibold text-sm">App Update Available</p>
-        <p className="text-xs text-blue-200 mt-0.5">A new version of CareerMitra is ready.</p>
+        <p className="text-xs text-blue-200 mt-0.5">A new version of Careermitra is ready.</p>
       </div>
       <div className="flex gap-2">
         <button

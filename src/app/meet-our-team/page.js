@@ -3,13 +3,13 @@ import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
   title: "Our Team - Career Mitra",
-  description: "Meet the core team and visionaries behind CareerMitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
+  description: "Meet the core team and visionaries behind Careermitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
   alternates: {
     canonical: "https://careermitra.in/meet-our-team",
   },
   openGraph: {
     title: "Our Team - Career Mitra",
-    description: "Meet the core team and visionaries behind CareerMitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
+    description: "Meet the core team and visionaries behind Careermitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
     url: "https://careermitra.in/meet-our-team",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -19,7 +19,7 @@ export default function Page() {
   const schemas = [
     generateWebPageSchema({
       name: "Our Team - Career Mitra",
-      description: "Meet the core team and visionaries behind CareerMitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
+      description: "Meet the core team and visionaries behind Careermitra — dedicated educators and retired officials working to bridge the career gap for rural youth.",
       url: "https://careermitra.in/meet-our-team"
     })
   ];

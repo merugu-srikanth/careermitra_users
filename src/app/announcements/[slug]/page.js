@@ -63,7 +63,7 @@ export default async function Page({ params }) {
       publishedAt: data.publishedAt || data.createdAt,
       modifiedAt: data.updatedAt || data.publishedAt || data.createdAt,
       url: `/announcements/${data.slug}`,
-      authorName: "CareerMitra Editorial Team"
+      authorName: "Careermitra Editorial Team"
     });
     schemas = [articleSchema].filter(Boolean);
   }

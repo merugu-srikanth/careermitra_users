@@ -4,13 +4,13 @@ import Link from "next/link";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
   title: "Correction Policy - Career Mitra",
-  description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
+  description: "Read the Correction Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
   alternates: {
     canonical: "https://careermitra.in/correction-policy",
   },
   openGraph: {
     title: "Correction Policy - Career Mitra",
-    description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
+    description: "Read the Correction Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
     url: "https://careermitra.in/correction-policy",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -46,7 +46,7 @@ export default function CorrectionPolicy() {
   const correctionSchemas = [
     generateWebPageSchema({
       name: "Correction Policy - Careermitra",
-      description: "Read the Correction Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
+      description: "Read the Correction Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn how we handle and update errors in our publications.",
       url: "https://careermitra.in/correction-policy"
     })
   ];
@@ -72,7 +72,7 @@ export default function CorrectionPolicy() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Correction Policy</h1>
             <p className="text-gray-500 text-base max-w-2xl mx-auto">
-              At CareerMitra, we are committed to providing accurate, reliable, and up-to-date information about jobs, internships, apprenticeships, admissions, scholarships, examinations, and career opportunities.
+              At Careermitra, we are committed to providing accurate, reliable, and up-to-date information about jobs, internships, apprenticeships, admissions, scholarships, examinations, and career opportunities.
             </p>
             <p className="mt-4 text-xs text-gray-400 font-semibold">Last Updated: June 2026</p>
           </div>
@@ -83,12 +83,12 @@ export default function CorrectionPolicy() {
 
           <p className="text-sm text-gray-600 text-center italic mb-6">
             Despite our best efforts, errors may occasionally occur. When inaccuracies are identified, we take appropriate steps to review, correct, and update the information as quickly as possible.<br />
-            CareerMitra is owned and operated by Sootradhara Venture Pvt Ltd.
+            Careermitra is owned and operated by Sootradhara Venture Pvt Ltd.
           </p>
 
           {/* Our Commitment to Accuracy */}
           <Section icon={FaCheckCircle} title="Our Commitment to Accuracy" accent="blue">
-            <p>We strive to ensure that all content published on CareerMitra is:</p>
+            <p>We strive to ensure that all content published on Careermitra is:</p>
             <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
               <li>Accurate</li>
               <li>Relevant</li>
@@ -182,7 +182,7 @@ export default function CorrectionPolicy() {
 
           {/* Content Removal Policy */}
           <Section icon={FaTrashAlt} title="Content Removal Policy" accent="red">
-            <p>In certain circumstances, CareerMitra may remove or substantially revise content when:</p>
+            <p>In certain circumstances, Careermitra may remove or substantially revise content when:</p>
             <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
               <li>Information becomes obsolete</li>
               <li>Content is found to be inaccurate</li>
@@ -194,14 +194,14 @@ export default function CorrectionPolicy() {
 
           {/* Editorial Responsibility */}
           <Section icon={FaShieldAlt} title="Editorial Responsibility" accent="orange">
-            <p>All correction decisions are made independently by the CareerMitra editorial team.</p>
+            <p>All correction decisions are made independently by the Careermitra editorial team.</p>
             <p>Advertisers, sponsors, affiliate partners, and third parties do not influence correction decisions or editorial updates.</p>
             <p className="font-semibold text-gray-800">Our primary responsibility is to provide readers with accurate and trustworthy information.</p>
           </Section>
 
           {/* Limitation of Liability Disclaimer */}
           <Section icon={FaExclamationTriangle} title="Limitation of Liability" accent="red">
-            <p>While we make every effort to maintain accurate information, CareerMitra cannot guarantee that all content will always remain current due to the dynamic nature of the content related to recruitment, admissions, examinations, and other educational announcements.</p>
+            <p>While we make every effort to maintain accurate information, Careermitra cannot guarantee that all content will always remain current due to the dynamic nature of the content related to recruitment, admissions, examinations, and other educational announcements.</p>
             <p className="mt-2 font-semibold">Users are strongly encouraged to verify information through official sources before making decisions or submitting applications.</p>
           </Section>
 
@@ -211,7 +211,7 @@ export default function CorrectionPolicy() {
               <FaWrench /> Our Editorial Promise
             </h4>
             <p className="text-xs text-blue-700 leading-relaxed">
-              CareerMitra is committed to maintaining the highest standards of editorial accuracy, transparency, and accountability. We value reader trust and continuously work to ensure that our content remains accurate, updated, and beneficial for students, job seekers, and professionals.
+              Careermitra is committed to maintaining the highest standards of editorial accuracy, transparency, and accountability. We value reader trust and continuously work to ensure that our content remains accurate, updated, and beneficial for students, job seekers, and professionals.
             </p>
           </div>
 

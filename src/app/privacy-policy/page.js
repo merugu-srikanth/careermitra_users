@@ -4,13 +4,13 @@ import Link from "next/link";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
   title: "Privacy Policy - Career Mitra",
-  description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
+  description: "Welcome to Careermitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
   alternates: {
     canonical: "https://careermitra.in/privacy-policy",
   },
   openGraph: {
     title: "Privacy Policy - Career Mitra",
-    description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
+    description: "Welcome to Careermitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
     url: "https://careermitra.in/privacy-policy",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
   const policySchemas = [
     generateWebPageSchema({
       name: "Privacy Policy - Careermitra",
-      description: "Welcome to CareerMitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
+      description: "Welcome to Careermitra privacy policy. Learn how Sootradhara Venture Pvt Ltd protects and handles your personal information securely and responsibly.",
       url: "https://careermitra.in/privacy-policy"
     })
   ];
@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Privacy Policy</h1>
             <p className="text-gray-500 text-base max-w-2xl mx-auto">
-              Welcome to CareerMitra. CareerMitra is owned and operated by Sootradhara Venture Pvt Ltd. We are committed to protecting your privacy and ensuring that your personal information is handled securely and responsibly.
+              Welcome to Careermitra. Careermitra is owned and operated by Sootradhara Venture Pvt Ltd. We are committed to protecting your privacy and ensuring that your personal information is handled securely and responsibly.
             </p>
             <p className="mt-4 text-xs text-gray-400 font-semibold">Last Updated: June 2026</p>
           </div>
@@ -94,7 +94,7 @@ export default function PrivacyPolicy() {
               Ameerpet, Hyderabad, Telangana – 500016, India
             </p>
             <p className="mt-2">
-              <strong>Website:</strong> <a href="https://CareerMitra.in" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">CareerMitra.in</a>
+              <strong>Website:</strong> <a href="https://Careermitra.in" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Careermitra.in</a>
             </p>
           </Section>
 
@@ -155,7 +155,7 @@ export default function PrivacyPolicy() {
 
           {/* Cookies Policy */}
           <Section icon={FaCookieBite} title="Cookies Policy" accent="purple">
-            <p>CareerMitra uses cookies and similar technologies to improve user experience.</p>
+            <p>Careermitra uses cookies and similar technologies to improve user experience.</p>
             <p className="mt-2"><strong>Cookies help us:</strong></p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
               <li>Remember user preferences</li>
@@ -197,7 +197,7 @@ export default function PrivacyPolicy() {
 
           {/* Third-Party Links */}
           <Section icon={FaLink} title="Third-Party Links" accent="orange">
-            <p>CareerMitra may contain links to external websites, government recruitment portals, educational institutions, employers, and other third-party resources.</p>
+            <p>Careermitra may contain links to external websites, government recruitment portals, educational institutions, employers, and other third-party resources.</p>
             <p className="mt-3"><strong>We are not responsible for:</strong></p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
               <li>Content on external websites</li>
@@ -226,7 +226,7 @@ export default function PrivacyPolicy() {
 
           {/* Children's Privacy */}
           <Section icon={FaChild} title="Children's Privacy" accent="purple">
-            <p>CareerMitra does not knowingly collect personal information from children under the age of 13 years.</p>
+            <p>Careermitra does not knowingly collect personal information from children under the age of 13 years.</p>
             <p>If a parent or guardian believes that a child has provided personal information, please contact us immediately, and we will remove such information promptly.</p>
           </Section>
 
@@ -260,7 +260,7 @@ export default function PrivacyPolicy() {
           {/* Disclaimer */}
           <Section icon={FaExclamationTriangle} title="Disclaimer" accent="red">
             <p>
-              CareerMitra provides information related to government jobs, private jobs, internships, admissions, career opportunities, and educational updates. While we make every effort to provide accurate and timely information, we do not guarantee the completeness, accuracy, or reliability of any information published on this website.
+              Careermitra provides information related to government jobs, private jobs, internships, admissions, career opportunities, and educational updates. While we make every effort to provide accurate and timely information, we do not guarantee the completeness, accuracy, or reliability of any information published on this website.
             </p>
             <p className="mt-2 font-semibold">
               Users are advised to verify information through official sources before making decisions.

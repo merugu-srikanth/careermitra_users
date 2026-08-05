@@ -786,9 +786,9 @@ export default function IndiaJobsHero() {
                   // letterSpacing: "0.02em",
                 }}
               >
-                <span className="shimmer-grad" style={{ whiteSpace: "nowrap" }}>Welcome to CareerMitra</span>
+                <span className="shimmer-grad" style={{ whiteSpace: "nowrap" }}>Welcome to Careermitra</span>
               
-                {/* <span className="shimmer-grad">CareerMitra</span> */}
+                {/* <span className="shimmer-grad">Careermitra</span> */}
               </motion.h1>
 
               {/* Tagline */}

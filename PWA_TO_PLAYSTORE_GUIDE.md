@@ -1,4 +1,4 @@
-# CareerMitra – PWA → APK → Google Play Store Guide
+# Careermitra – PWA → APK → Google Play Store Guide
 
 ## What Was Done (PWA Setup)
 
@@ -67,7 +67,7 @@ PWABuilder creates a **TWA (Trusted Web Activity)** — a thin native Android sh
 1. Enable **"Install Unknown Apps"** in Android Settings → Security
 2. Transfer the `.apk` file to your phone via USB / Google Drive / WhatsApp
 3. Tap the file to install
-4. Open "CareerMitra" from your app drawer — it should open like a native app
+4. Open "Careermitra" from your app drawer — it should open like a native app
 
 ---
 
@@ -115,7 +115,7 @@ https://careermitra.in/.well-known/assetlinks.json
 
 2. **Create New App:**
    - Click "Create app"
-   - App name: `CareerMitra – Govt Job Alerts`
+   - App name: `Careermitra – Govt Job Alerts`
    - Language: Hindi / English
    - App type: App
    - Free / Paid: Free
@@ -199,7 +199,7 @@ npm run build
 - [x] HTTPS (careermitra.in)
 - [x] App icons (72px → 512px)
 - [x] Maskable icons (for Android adaptive icons)
-- [x] Theme color set (#1e3a8a – CareerMitra blue)
+- [x] Theme color set (#1e3a8a – Careermitra blue)
 - [x] App shortcuts (Latest Jobs, Login)
 - [x] Auto-update prompt for users
 - [x] API response caching (24hr)

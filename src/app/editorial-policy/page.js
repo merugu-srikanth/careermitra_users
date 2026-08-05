@@ -4,13 +4,13 @@ import Link from "next/link";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
   title: "Editorial Policy - Career Mitra",
-  description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
+  description: "Read the Editorial Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
   alternates: {
     canonical: "https://careermitra.in/editorial-policy",
   },
   openGraph: {
     title: "Editorial Policy - Career Mitra",
-    description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
+    description: "Read the Editorial Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
     url: "https://careermitra.in/editorial-policy",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -46,7 +46,7 @@ export default function EditorialPolicy() {
   const editorialSchemas = [
     generateWebPageSchema({
       name: "Editorial Policy - Careermitra",
-      description: "Read the Editorial Policy for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
+      description: "Read the Editorial Policy for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about our content principles, verification process, and ethics.",
       url: "https://careermitra.in/editorial-policy"
     })
   ];
@@ -72,7 +72,7 @@ export default function EditorialPolicy() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Editorial Policy</h1>
             <p className="text-gray-500 text-base max-w-2xl mx-auto">
-              At CareerMitra, we are committed to publishing accurate, reliable, transparent, and user-focused content related to jobs, internships, apprenticeships, admissions, scholarships, examinations, career opportunities and other educational-related information.
+              At Careermitra, we are committed to publishing accurate, reliable, transparent, and user-focused content related to jobs, internships, apprenticeships, admissions, scholarships, examinations, career opportunities and other educational-related information.
             </p>
             <p className="mt-4 text-xs text-gray-400 font-semibold">Last Updated: June 2026</p>
           </div>
@@ -82,7 +82,7 @@ export default function EditorialPolicy() {
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 space-y-6">
 
           <p className="text-sm text-gray-600 text-center italic mb-6">
-            CareerMitra is owned and operated by Sootradhara Venture Pvt Ltd.
+            Careermitra is owned and operated by Sootradhara Venture Pvt Ltd.
           </p>
 
           {/* Our Mission */}
@@ -114,7 +114,7 @@ export default function EditorialPolicy() {
 
           {/* Sources of Information */}
           <Section icon={FaLink} title="Sources of Information" accent="orange">
-            <p>The information published on CareerMitra is gathered from publicly available and credible sources, including:</p>
+            <p>The information published on Careermitra is gathered from publicly available and credible sources, including:</p>
             <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
               <li>Official Government Websites</li>
               <li>Public Sector Organizations</li>
@@ -164,19 +164,19 @@ export default function EditorialPolicy() {
 
           {/* AI-Assisted Content */}
           <Section icon={FaRobot} title="AI-Assisted Content" accent="purple">
-            <p>CareerMitra may use AI-assisted tools to support content research, formatting, content structuring, grammar improvement, and editorial workflows.</p>
+            <p>Careermitra may use AI-assisted tools to support content research, formatting, content structuring, grammar improvement, and editorial workflows.</p>
             <p className="mt-2"><strong>However:</strong></p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>All content is reviewed by human editors before publication.</li>
               <li>AI-generated content is not published without editorial oversight.</li>
-              <li>Editorial responsibility remains with CareerMitra's content team.</li>
+              <li>Editorial responsibility remains with Careermitra's content team.</li>
             </ul>
             <p className="mt-2">We prioritize accuracy, relevance, and user value regardless of the tools used during content creation.</p>
           </Section>
 
           {/* Editorial Independence */}
           <Section icon={FaHandshake} title="Editorial Independence" accent="orange">
-            <p>CareerMitra maintains complete editorial independence.</p>
+            <p>Careermitra maintains complete editorial independence.</p>
             <p className="mt-2"><strong>Advertisers, sponsors, affiliate partners, and external organizations do not influence:</strong></p>
             <ul className="list-disc list-inside space-y-0.5 pl-2 text-xs text-gray-600">
               <li>Article topics</li>
@@ -223,13 +223,13 @@ export default function EditorialPolicy() {
 
           {/* Content Ownership */}
           <Section icon={FaClipboardCheck} title="Content Ownership" accent="blue">
-            <p>Unless otherwise stated, all original content published on CareerMitra, including text, graphics, and website materials, is protected by applicable copyright and intellectual property laws.</p>
+            <p>Unless otherwise stated, all original content published on Careermitra, including text, graphics, and website materials, is protected by applicable copyright and intellectual property laws.</p>
             <p className="font-semibold text-red-600">Unauthorized copying, reproduction, or republication of content without permission is prohibited.</p>
           </Section>
 
           {/* No Guarantee of Outcomes */}
           <Section icon={FaExclamationTriangle} title="No Guarantee of Outcomes" accent="red">
-            <p>While we strive to provide accurate and useful information, CareerMitra cannot guarantee:</p>
+            <p>While we strive to provide accurate and useful information, Careermitra cannot guarantee:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Employment opportunities</li>
               <li>Examination success</li>
@@ -246,7 +246,7 @@ export default function EditorialPolicy() {
               <FaBookOpen /> Editorial Commitment
             </h4>
             <p className="text-xs text-blue-700 leading-relaxed">
-              At CareerMitra, we are committed to maintaining high editorial standards, publishing trustworthy information, and helping our readers make informed educational and career decisions through accurate, transparent, and responsible content.
+              At Careermitra, we are committed to maintaining high editorial standards, publishing trustworthy information, and helping our readers make informed educational and career decisions through accurate, transparent, and responsible content.
             </p>
           </div>
 

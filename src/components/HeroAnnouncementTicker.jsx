@@ -391,7 +391,7 @@ export default function HeroAnnouncementTicker() {
             </div>
           ) : noAnnouncements ? (
             <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12.5, fontWeight: 600 }}>
-              CareerMitra: No announcements available right now.
+              Careermitra: No announcements available right now.
             </div>
           ) : loadError ? (
             <div style={{ color: "#fca5a5", fontSize: 12 }}>{loadError}</div>

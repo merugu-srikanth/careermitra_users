@@ -128,7 +128,7 @@ const teamMembers = [
   {
     name: "Mr. Sagar Satuluri",
     credentials: "B.Tech",
-    role: "CAREER & DIGITAL GROWTH EXPERT\nCareerMitra.in",
+    role: "CAREER & DIGITAL GROWTH EXPERT\nCareermitra.in",
     domain: "SEO & Content Strategy",
     bio: "A seasoned SEO and digital growth strategist with 12+ years of experience driving organic traffic. Passionate about connecting students with career opportunities through trusted guidance and verified platform content.",
     highlights: [

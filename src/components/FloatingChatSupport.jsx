@@ -329,7 +329,7 @@ export default function FloatingChatSupport() {
                 </div>
                 <div>
                   <h3 className="text-white font-black text-sm tracking-wide leading-none">
-                    {mode === "live" ? "Live CareerMitra Chat" : "CareerMitra Help Desk"}
+                    {mode === "live" ? "Live Careermitra Chat" : "Careermitra Help Desk"}
                   </h3>
                   <div className="flex items-center gap-1 mt-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />

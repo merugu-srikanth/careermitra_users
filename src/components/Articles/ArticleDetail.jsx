@@ -540,7 +540,7 @@ export default function ArticleDetail() {
     const personSchema = generatePersonSchema({
       name: article.author?.author_name || "Career Mitra Editorial Team",
       jobTitle: "Author",
-      worksFor: "CareerMitra"
+      worksFor: "Careermitra"
     });
     
     // 3. FAQ Schema
@@ -677,7 +677,7 @@ export default function ArticleDetail() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-xs font-black text-orange-500">C</span>
-                    <span className="font-semibold text-gray-700 text-sm">CareerMitra</span>
+                    <span className="font-semibold text-gray-700 text-sm">Careermitra</span>
                   </div>
                 )}
                 {/* Category overlay badge */}

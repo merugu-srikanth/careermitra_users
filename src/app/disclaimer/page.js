@@ -4,13 +4,13 @@ import Link from "next/link";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
   title: "Disclaimer - Career Mitra",
-  description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
+  description: "Read the Disclaimer for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
   alternates: {
     canonical: "https://careermitra.in/disclaimer",
   },
   openGraph: {
     title: "Disclaimer - Career Mitra",
-    description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
+    description: "Read the Disclaimer for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
     url: "https://careermitra.in/disclaimer",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -46,7 +46,7 @@ export default function Disclaimer() {
   const disclaimerSchemas = [
     generateWebPageSchema({
       name: "Disclaimer - Careermitra",
-      description: "Read the Disclaimer for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
+      description: "Read the Disclaimer for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about information accuracy, links, and job guarantees.",
       url: "https://careermitra.in/disclaimer"
     })
   ];
@@ -72,7 +72,7 @@ export default function Disclaimer() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Disclaimer</h1>
             <p className="text-gray-500 text-base max-w-2xl mx-auto">
-              Welcome to CareerMitra. By accessing and using this website, you acknowledge and agree to the terms of this Disclaimer. If you do not agree with any part of this disclaimer, please discontinue using our website.
+              Welcome to Careermitra. By accessing and using this website, you acknowledge and agree to the terms of this Disclaimer. If you do not agree with any part of this disclaimer, please discontinue using our website.
             </p>
             <p className="mt-4 text-xs text-gray-400 font-semibold">Last Updated: June 2026</p>
           </div>
@@ -82,12 +82,12 @@ export default function Disclaimer() {
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 space-y-6">
 
           <p className="text-sm text-gray-600 text-center italic mb-6">
-            CareerMitra is owned and operated by Sootradhara Venture Pvt Ltd.
+            Careermitra is owned and operated by Sootradhara Venture Pvt Ltd.
           </p>
 
           {/* General Information */}
           <Section icon={FaInfoCircle} title="General Information" accent="blue">
-            <p>The information provided on CareerMitra (<a href="https://www.careermitra.in" className="text-blue-600 hover:underline">https://www.careermitra.in</a>) is published in good faith and for general informational and educational purposes only. Our website primarily provides information related to:</p>
+            <p>The information provided on Careermitra (<a href="https://www.careermitra.in" className="text-blue-600 hover:underline">https://www.careermitra.in</a>) is published in good faith and for general informational and educational purposes only. Our website primarily provides information related to:</p>
             <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
               <li>Government Job Notifications</li>
               <li>Private Job Opportunities</li>
@@ -101,12 +101,12 @@ export default function Disclaimer() {
               <li>Educational News and Updates</li>
             </ul>
             <p className="mt-3">While we strive to ensure that the information published is accurate, complete, and up to date, we make no guarantees regarding the completeness, reliability, suitability, or accuracy of any information available on this website.</p>
-            <p className="font-semibold text-gray-800">Any action you take based on the information found on CareerMitra is strictly at your own risk.</p>
+            <p className="font-semibold text-gray-800">Any action you take based on the information found on Careermitra is strictly at your own risk.</p>
           </Section>
 
           {/* No Employment Guarantee */}
           <Section icon={FaHandshake} title="No Employment Guarantee" accent="red">
-            <p>CareerMitra is an independent information platform and is not a recruitment agency, government organization, employer, examination authority, or educational institution.</p>
+            <p>Careermitra is an independent information platform and is not a recruitment agency, government organization, employer, examination authority, or educational institution.</p>
             <p className="mt-2 font-semibold">We do not:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Conduct recruitment processes</li>
@@ -128,7 +128,7 @@ export default function Disclaimer() {
               <li>Verify eligibility criteria</li>
               <li>Confirm important dates and application procedures</li>
             </ul>
-            <p className="mt-3 font-semibold text-red-600">CareerMitra shall not be held responsible for any loss or inconvenience resulting from reliance on information published on this website.</p>
+            <p className="mt-3 font-semibold text-red-600">Careermitra shall not be held responsible for any loss or inconvenience resulting from reliance on information published on this website.</p>
           </Section>
 
           {/* External Links Disclaimer */}
@@ -142,16 +142,16 @@ export default function Disclaimer() {
               <li>Their terms of service</li>
               <li>Their accuracy or reliability</li>
             </ul>
-            <p className="mt-3">The inclusion of any external link does not imply endorsement or recommendation by CareerMitra.</p>
+            <p className="mt-3">The inclusion of any external link does not imply endorsement or recommendation by Careermitra.</p>
             <p className="font-semibold">Users access third-party websites at their own discretion and risk.</p>
           </Section>
 
           {/* Advertisement Disclaimer */}
           <Section icon={FaAd} title="Advertisement Disclaimer" accent="blue">
-            <p>CareerMitra may display advertisements through third-party advertising partners, including Google AdSense and other advertising networks.</p>
+            <p>Careermitra may display advertisements through third-party advertising partners, including Google AdSense and other advertising networks.</p>
             <p className="mt-2"><strong>Advertisements displayed on our website:</strong></p>
             <ul className="list-disc list-inside space-y-1 pl-2">
-              <li>Do not constitute endorsements by CareerMitra</li>
+              <li>Do not constitute endorsements by Careermitra</li>
               <li>Are served automatically by advertising partners</li>
               <li>May be based on user interests and browsing behavior</li>
             </ul>
@@ -161,14 +161,14 @@ export default function Disclaimer() {
 
           {/* Affiliate Disclosure */}
           <Section icon={FaPercentage} title="Affiliate Disclosure" accent="green">
-            <p>CareerMitra may occasionally participate in affiliate marketing programs.</p>
+            <p>Careermitra may occasionally participate in affiliate marketing programs.</p>
             <p>This means that some links on our website may be affiliate links, and we may earn a commission if users purchase products or services through those links at no additional cost to them.</p>
             <p className="text-xs text-gray-500">Such affiliate relationships do not influence our editorial content, recommendations, or opinions.</p>
           </Section>
 
           {/* Educational and Career Guidance Disclaimer */}
           <Section icon={FaHandshake} title="Educational and Career Guidance Disclaimer" accent="orange">
-            <p>The career advice, preparation tips, educational guidance, and informational content available on CareerMitra are intended for general informational purposes only.</p>
+            <p>The career advice, preparation tips, educational guidance, and informational content available on Careermitra are intended for general informational purposes only.</p>
             <p className="mt-2"><strong>We do not guarantee:</strong></p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Examination success</li>
@@ -184,7 +184,7 @@ export default function Disclaimer() {
           {/* Content Accuracy */}
           <Section icon={FaHistory} title="Content Accuracy" accent="green">
             <p>Despite our efforts to maintain accurate and updated information, errors, omissions, or outdated content may occasionally occur.</p>
-            <p className="mt-2"><strong>CareerMitra reserves the right to:</strong></p>
+            <p className="mt-2"><strong>Careermitra reserves the right to:</strong></p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Modify content at any time</li>
               <li>Update information without notice</li>
@@ -196,7 +196,7 @@ export default function Disclaimer() {
 
           {/* Limitation of Liability */}
           <Section icon={FaExclamationTriangle} title="Limitation of Liability" accent="red">
-            <p>Under no circumstances shall CareerMitra, Sootradhara Venture Pvt Ltd, its directors, employees, authors, editors, or affiliates be held liable for any direct, indirect, incidental, consequential, or special damages arising from:</p>
+            <p>Under no circumstances shall Careermitra, Sootradhara Venture Pvt Ltd, its directors, employees, authors, editors, or affiliates be held liable for any direct, indirect, incidental, consequential, or special damages arising from:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Use of this website</li>
               <li>Reliance on information published on this website</li>
@@ -210,7 +210,7 @@ export default function Disclaimer() {
 
           {/* Consent */}
           <Section icon={FaShieldAlt} title="Consent" accent="purple">
-            <p>By using CareerMitra, you hereby consent to this Disclaimer and agree to its terms.</p>
+            <p>By using Careermitra, you hereby consent to this Disclaimer and agree to its terms.</p>
           </Section>
 
           {/* Updates to This Disclaimer */}
@@ -226,7 +226,7 @@ export default function Disclaimer() {
               <FaExclamationTriangle /> Important Note
             </h4>
             <p className="text-xs text-red-700 leading-relaxed">
-              CareerMitra is an independent career and recruitment information portal and is not affiliated with any government authority, recruitment board, public sector undertaking, university, or examination conducting body unless explicitly stated. Official notifications and websites should always be considered the primary source of information.
+              Careermitra is an independent career and recruitment information portal and is not affiliated with any government authority, recruitment board, public sector undertaking, university, or examination conducting body unless explicitly stated. Official notifications and websites should always be considered the primary source of information.
             </p>
           </div>
 

@@ -21,7 +21,7 @@ export default function SEO({
 }) {
   const pathname = usePathname();
 
-  const safeTitle       = title       || "CareerMitra";
+  const safeTitle       = title       || "Careermitra";
   const safeDescription = description || "Government Jobs & Career Platform for India";
   const safeImage       = image       || "https://www.careermitra.in/og-default.png";
   const safeImageAlt    = imageAlt    || safeTitle;

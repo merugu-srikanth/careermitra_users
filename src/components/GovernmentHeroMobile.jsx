@@ -864,7 +864,7 @@ export default function GovernmentHeroMobile() {
               >
                 <span className="shimmer-grad">Build Your Government Career Path</span>
               
-                {/* <span className="shimmer-grad">CareerMitra</span> */}
+                {/* <span className="shimmer-grad">Careermitra</span> */}
               </motion.h1>
 
               {/* Tagline */}

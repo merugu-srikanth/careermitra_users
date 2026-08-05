@@ -4,13 +4,13 @@ import Link from "next/link";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 export const metadata = {
   title: "Terms and Conditions - Career Mitra",
-  description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
+  description: "Read the Terms and Conditions for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
   alternates: {
     canonical: "https://careermitra.in/terms-of-service",
   },
   openGraph: {
     title: "Terms and Conditions - Career Mitra",
-    description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
+    description: "Read the Terms and Conditions for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
     url: "https://careermitra.in/terms-of-service",
     images: [{ url: "https://careermitra.in/default_og_image.png" }],
   },
@@ -46,7 +46,7 @@ export default function TermsOfService() {
   const termsSchemas = [
     generateWebPageSchema({
       name: "Terms and Conditions - Careermitra",
-      description: "Read the Terms and Conditions for CareerMitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
+      description: "Read the Terms and Conditions for Careermitra, operated by Sootradhara Venture Pvt Ltd. Learn about user responsibilities, guidelines, and disclaimers.",
       url: "https://careermitra.in/terms-of-service"
     })
   ];
@@ -72,7 +72,7 @@ export default function TermsOfService() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">Terms & Conditions</h1>
             <p className="text-gray-500 text-base max-w-2xl mx-auto">
-              Welcome to CareerMitra. These Terms & Conditions govern your use of our website, <a href="https://www.careermitra.in" className="text-orange-600 hover:underline">https://www.careermitra.in</a> ("Website"). By accessing or using CareerMitra, you agree to comply with and be bound by these Terms & Conditions.
+              Welcome to Careermitra. These Terms & Conditions govern your use of our website, <a href="https://www.careermitra.in" className="text-orange-600 hover:underline">https://www.careermitra.in</a> ("Website"). By accessing or using Careermitra, you agree to comply with and be bound by these Terms & Conditions.
             </p>
             <p className="mt-4 text-xs text-gray-400 font-semibold">Last Updated: June 2026</p>
           </div>
@@ -83,18 +83,18 @@ export default function TermsOfService() {
 
           <p className="text-sm text-gray-600 text-center italic mb-6">
             If you do not agree with any part of these terms, please discontinue the use of our Website.<br />
-            CareerMitra is owned and operated by Sootradhara Venture Pvt Ltd.
+            Careermitra is owned and operated by Sootradhara Venture Pvt Ltd.
           </p>
 
           {/* 1. Acceptance of Terms */}
           <Section icon={FaShieldAlt} title="1. Acceptance of Terms" accent="orange">
-            <p>By accessing, browsing, or using CareerMitra, you acknowledge that you have read, understood, and agreed to these Terms & Conditions, along with our Privacy Policy and Disclaimer.</p>
+            <p>By accessing, browsing, or using Careermitra, you acknowledge that you have read, understood, and agreed to these Terms & Conditions, along with our Privacy Policy and Disclaimer.</p>
             <p>These terms apply to all visitors, users, subscribers, and anyone accessing the Website.</p>
           </Section>
 
-          {/* 2. About CareerMitra */}
-          <Section icon={FaInfoCircle} title="2. About CareerMitra" accent="blue">
-            <p>CareerMitra is an online platform that provides information related to:</p>
+          {/* 2. About Careermitra */}
+          <Section icon={FaInfoCircle} title="2. About Careermitra" accent="blue">
+            <p>Careermitra is an online platform that provides information related to:</p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
               <li>Government Job Notifications</li>
               <li>Private Job Opportunities</li>
@@ -112,7 +112,7 @@ export default function TermsOfService() {
 
           {/* 3. No Recruitment or Employment Relationship */}
           <Section icon={FaHandshake} title="3. No Recruitment or Employment Relationship" accent="red">
-            <p>CareerMitra is not:</p>
+            <p>Careermitra is not:</p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
               <li>A recruitment agency</li>
               <li>A government organization</li>
@@ -141,7 +141,7 @@ export default function TermsOfService() {
 
           {/* 5. Intellectual Property Rights */}
           <Section icon={FaCopyright} title="5. Intellectual Property Rights" accent="green">
-            <p>Unless otherwise stated, all content available on CareerMitra, including:</p>
+            <p>Unless otherwise stated, all content available on Careermitra, including:</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-2 pl-2">
               {["Articles", "Text", "Graphics", "Logos", "Website Design", "Images", "Layouts", "Branding Elements"].map((item) => (
                 <div key={item} className="bg-gray-50 border border-gray-100 rounded-lg p-2 text-center text-xs font-semibold text-gray-700">
@@ -149,7 +149,7 @@ export default function TermsOfService() {
                 </div>
               ))}
             </div>
-            <p>is the property of CareerMitra or its respective content owners and is protected by applicable copyright, trademark, and intellectual property laws.</p>
+            <p>is the property of Careermitra or its respective content owners and is protected by applicable copyright, trademark, and intellectual property laws.</p>
             
             <div className="mt-3">
               <p className="font-bold text-gray-900">You may:</p>
@@ -185,7 +185,7 @@ export default function TermsOfService() {
               <li>The content is not defamatory, offensive, or misleading</li>
               <li>The content does not infringe third-party rights</li>
             </ul>
-            <p className="mt-2 text-xs text-gray-500">CareerMitra reserves the right to review, edit, or remove user-generated content at its sole discretion.</p>
+            <p className="mt-2 text-xs text-gray-500">Careermitra reserves the right to review, edit, or remove user-generated content at its sole discretion.</p>
           </Section>
 
           {/* 8. Third-Party Links */}
@@ -205,10 +205,10 @@ export default function TermsOfService() {
 
           {/* 9. Advertisements and Sponsored Content */}
           <Section icon={FaAd} title="9. Advertisements and Sponsored Content" accent="blue">
-            <p>CareerMitra may display advertisements from third-party advertising partners, including Google AdSense and other advertising networks.</p>
+            <p>Careermitra may display advertisements from third-party advertising partners, including Google AdSense and other advertising networks.</p>
             <p><strong>Advertisements displayed on our Website:</strong></p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
-              <li>Do not imply endorsement by CareerMitra</li>
+              <li>Do not imply endorsement by Careermitra</li>
               <li>Are served by third-party advertising providers</li>
               <li>May be personalized based on user preferences and browsing behavior</li>
             </ul>
@@ -218,13 +218,13 @@ export default function TermsOfService() {
           {/* 10. Affiliate Disclosure */}
           <Section icon={FaPercentage} title="10. Affiliate Disclosure" accent="green">
             <p>Some pages may contain affiliate links.</p>
-            <p>If users purchase products or services through affiliate links, CareerMitra may receive a commission at no additional cost to the user.</p>
+            <p>If users purchase products or services through affiliate links, Careermitra may receive a commission at no additional cost to the user.</p>
             <p className="text-xs text-gray-500">Affiliate partnerships do not influence our editorial decisions, recommendations, or content accuracy.</p>
           </Section>
 
           {/* 11. Limitation of Liability */}
           <Section icon={FaExclamationTriangle} title="11. Limitation of Liability" accent="red">
-            <p>To the maximum extent permitted by law, CareerMitra, Sootradhara Venture Pvt Ltd, its directors, employees, authors, and affiliates shall not be liable for:</p>
+            <p>To the maximum extent permitted by law, Careermitra, Sootradhara Venture Pvt Ltd, its directors, employees, authors, and affiliates shall not be liable for:</p>
             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
               <li>Any direct or indirect losses</li>
               <li>Business interruptions</li>
@@ -239,7 +239,7 @@ export default function TermsOfService() {
 
           {/* 12. Privacy */}
           <Section icon={FaShieldAlt} title="12. Privacy" accent="purple">
-            <p>Your use of CareerMitra is also governed by our <Link href="/privacy-policy" className="text-purple-600 hover:underline font-semibold">Privacy Policy</Link>.</p>
+            <p>Your use of Careermitra is also governed by our <Link href="/privacy-policy" className="text-purple-600 hover:underline font-semibold">Privacy Policy</Link>.</p>
             <p>By using the Website, you consent to the collection and use of information as described in our Privacy Policy.</p>
           </Section>
 

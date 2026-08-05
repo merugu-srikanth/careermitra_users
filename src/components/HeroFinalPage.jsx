@@ -72,7 +72,7 @@ const CARDS = [
         icon: FaGraduationCap,
         iconBg: "#d1fae5",
         iconColor: "#059669",
-        accentColor: "#059669",
+        accentColor: "#ea580c",
         badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
         btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
         // badgeBg: "linear-gradient(135deg,#059669,#10b981)",

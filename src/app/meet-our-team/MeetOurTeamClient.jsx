@@ -123,7 +123,7 @@ const teamMembers = [
   {
     name: "Mr. Sagar Satuluri",
     credentials: "B.Tech",
-    role: "CAREER & DIGITAL GROWTH EXPERT\nCareerMitra.in",
+    role: "CAREER & DIGITAL GROWTH EXPERT\nCareermitra.in",
     domain: "SEO & Content Strategy",
     bio: "A seasoned SEO and digital growth strategist with 12+ years of experience driving organic traffic. Passionate about connecting students with career opportunities through trusted guidance and verified platform content.",
     highlights: [
@@ -380,7 +380,7 @@ export default function MeetOurTeam() {
             >
               The Minds Behind{" "}
               <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-600 bg-clip-text text-transparent">
-                CareerMitra
+                Careermitra
               </span>
             </motion.h1>
             <motion.p

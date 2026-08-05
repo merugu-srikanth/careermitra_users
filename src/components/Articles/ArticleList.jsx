@@ -241,17 +241,17 @@ export default function ArticleList() {
   const activeParent = filterData ? filterData.parents.find(p => p.id === parentId) : null;
   const activeChild = filterData ? filterData.children.find(c => c.id === childId) : null;
   const seoTitle = activeChild?.name
-    ? `${activeChild.name} Government Jobs | CareerMitra`
+    ? `${activeChild.name} Government Jobs | Careermitra`
     : activeParent?.name
-      ? `${activeParent.name} Government Jobs | CareerMitra`
-      : "Government Jobs | CareerMitra";
+      ? `${activeParent.name} Government Jobs | Careermitra`
+      : "Government Jobs | Careermitra";
 
   const articleListSchemas = useMemo(() => {
     if (!articles || articles.length === 0) return [];
 
     const collectionSchema = generateCollectionPageSchema({
       name: seoTitle,
-      description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on CareerMitra.",
+      description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on Careermitra.",
       url: "/government-jobs"
     });
 

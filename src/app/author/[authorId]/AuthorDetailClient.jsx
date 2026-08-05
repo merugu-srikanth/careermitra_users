@@ -258,7 +258,7 @@ export default function AuthorProfilePage({ initialData = null }) {
     generatePersonSchema({
       name: author_name,
       jobTitle: role || "Author",
-      worksFor: "CareerMitra",
+      worksFor: "Careermitra",
       sameAs: normalizedSocials.map(l => l.href)
     }),
     generateWebPageSchema({

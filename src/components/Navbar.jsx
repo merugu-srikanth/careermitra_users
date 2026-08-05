@@ -381,7 +381,7 @@ export default function Navbar() {
               href="https://www.youtube.com/@CareerMitraaa"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="CareerMitra YouTube Channel"
+              aria-label="Careermitra YouTube Channel"
               className="flex-none inline-flex items-center justify-center rounded-2xl border border-red-500/40 bg-red-600/10 p-2 text-red-400 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
             >
               <FaYoutube size={24} className="text-red-500" />

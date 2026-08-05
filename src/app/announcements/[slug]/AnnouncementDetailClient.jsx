@@ -201,7 +201,7 @@ export default function AnnouncementDetail({ initialData = null }) {
       publishedAt: announcement.publishedAt || announcement.createdAt,
       modifiedAt: announcement.updatedAt || announcement.publishedAt || announcement.createdAt,
       url: `/announcements/${announcement.slug}`,
-      authorName: "CareerMitra Editorial Team"
+      authorName: "Careermitra Editorial Team"
     })
   ] : [];
 

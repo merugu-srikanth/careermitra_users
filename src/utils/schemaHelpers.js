@@ -1,5 +1,5 @@
 /**
- * Schema.org JSON-LD generator helper functions for CareerMitra.
+ * Schema.org JSON-LD generator helper functions for Careermitra.
  * All helper functions return clean JS objects that can be serialized.
  */
 
@@ -22,7 +22,7 @@ export function generateOrganizationSchema(customData = {}) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": customData.name || "CareerMitra",
+    "name": customData.name || "Careermitra",
     "url": customData.url || BASE_URL,
     "logo": {
       "@type": "ImageObject",
@@ -58,7 +58,7 @@ export function generateWebsiteSchema(customData = {}) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": customData.name || "CareerMitra",
+    "name": customData.name || "Careermitra",
     "url": customData.url || BASE_URL,
     "potentialAction": {
       "@type": "SearchAction",
@@ -117,7 +117,7 @@ export function generateCourseSchema(course = {}) {
     "description": course.description || "Learn core software skills.",
     "provider": {
       "@type": "Organization",
-      "name": course.providerName || "CareerMitra",
+      "name": course.providerName || "Careermitra",
       "sameAs": BASE_URL
     },
     "hasCourseInstance": course.lessons ? course.lessons.map(lesson => ({
@@ -149,12 +149,12 @@ export function generateArticleSchema(article = {}) {
     "dateModified": modified,
     "author": {
       "@type": article.authorType || "Person",
-      "name": article.authorName || "CareerMitra Editorial Team",
+      "name": article.authorName || "Careermitra Editorial Team",
       "url": article.authorUrl ? absoluteUrl(article.authorUrl) : undefined
     },
     "publisher": {
       "@type": "Organization",
-      "name": "CareerMitra",
+      "name": "Careermitra",
       "url": BASE_URL,
       "logo": {
         "@type": "ImageObject",
@@ -311,7 +311,7 @@ export function generateJobPostingSchema(job = {}) {
     "employmentType": job.employmentType || "FULL_TIME",
     "hiringOrganization": {
       "@type": "Organization",
-      "name": job.companyName || job.org || "CareerMitra",
+      "name": job.companyName || job.org || "Careermitra",
       "sameAs": BASE_URL,
       "logo": DEFAULT_LOGO
     },
@@ -335,7 +335,7 @@ export function generateEducationalOrganizationSchema(org = {}) {
   return {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
-    "name": org.name || "CareerMitra Academy",
+    "name": org.name || "Careermitra Academy",
     "url": org.url || BASE_URL,
     "logo": DEFAULT_LOGO,
     ...org.extra
@@ -395,7 +395,7 @@ export function generateWebPageSchema(page = {}) {
     "url": absoluteUrl(page.url),
     "publisher": {
       "@type": "Organization",
-      "name": "CareerMitra",
+      "name": "Careermitra",
       "url": BASE_URL,
       "logo": {
         "@type": "ImageObject",

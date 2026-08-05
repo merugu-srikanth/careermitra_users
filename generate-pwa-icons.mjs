@@ -1,5 +1,5 @@
 /**
- * CareerMitra PWA Icon Generator
+ * Careermitra PWA Icon Generator
  *
  * Run once: node generate-pwa-icons.mjs
  * Requires: npm install sharp --save-dev
@@ -24,7 +24,7 @@ if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true })
 const SIZES = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512]
 
 async function generate() {
-  console.log('Generating CareerMitra icons from', SOURCE, '\n')
+  console.log('Generating Careermitra icons from', SOURCE, '\n')
 
   // Standard icons — white background so logo is visible on any background
   for (const size of SIZES) {
@@ -63,7 +63,7 @@ async function generate() {
     .toFile(join(PUBLIC_DIR, 'favicon.png'))
   console.log('\n  Created public/favicon.png (browser tab favicon)')
 
-  console.log('\nDone! All CareerMitra icons generated.')
+  console.log('\nDone! All Careermitra icons generated.')
   console.log('React SVG favicon is now replaced — run `npm run build` to see changes.')
 }
 

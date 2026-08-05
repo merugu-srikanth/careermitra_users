@@ -1264,7 +1264,7 @@ const UserProfilePage = () => {
   const NAV = [
     { id: "profile", label: "My Profile", icon: <Ic.User className="w-3.5 h-3.5" />, desc: "Info & education" },
     { id: "jobs", label: "Job Posts", icon: <Ic.Gov className="w-3.5 h-3.5" />, desc: "Eligible govt jobs", count: jobsNavCount.total, liveCount: jobsNavCount.liveCount, newCount: jobsNavCount.newCount },
-    { id: "chat", label: "Chat Support", icon: <Ic.Chat className="w-3.5 h-3.5" />, desc: "Contact CareerMitra Support" },
+    { id: "chat", label: "Chat Support", icon: <Ic.Chat className="w-3.5 h-3.5" />, desc: "Contact Careermitra Support" },
     // { id: "announcements", label: "Announcements", icon: <Ic.Bell className="w-3.5 h-3.5" />, desc: "Events & alerts", count: annNavCount.total, newCount: annNavCount.newCount },
     // { id: "media", label: "Media", icon: <Ic.Img className="w-3.5 h-3.5" />, desc: "Uploaded documents" },
     { id: "settings", label: "Settings", icon: <Ic.Cog className="w-3.5 h-3.5" />, desc: "Account & security" },

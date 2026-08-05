@@ -222,7 +222,7 @@ export default function ChatPanel({ token, profile }) {
             <FaComments size={20} />
           </div>
           <div>
-            <p className="font-extrabold text-slate-800 text-sm">CareerMitra Chat Support</p>
+            <p className="font-extrabold text-slate-800 text-sm">Careermitra Chat Support</p>
             <p className="text-xs text-slate-400">Ask us anything about jobs, exams, or your profile</p>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function ChatPanel({ token, profile }) {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-6">
             <div className="text-4xl mb-2">👋</div>
-            <p className="text-slate-600 font-bold text-sm">Start a conversation with CareerMitra Support.</p>
+            <p className="text-slate-600 font-bold text-sm">Start a conversation with Careermitra Support.</p>
             <p className="text-xs text-slate-400 mt-1 max-w-xs">Type your queries or feedback below and support team will reply shortly.</p>
           </div>
         ) : (
