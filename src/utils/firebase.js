@@ -103,3 +103,10 @@ export const onMessageListener = () =>
       resolve(payload);
     });
   });
+
+export const subscribeToForegroundMessages = (callback) => {
+  if (typeof window === "undefined" || !messaging) return null;
+  return onMessage(messaging, (payload) => {
+    callback(payload);
+  });
+};

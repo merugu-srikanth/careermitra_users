@@ -139,6 +139,43 @@ export const AuthProvider = ({ children }) => {
     return () => clearTimeout(timer);
   }, [token]);
 
+  useEffect(() => {
+    let unsubscribe = null;
+    const setupForegroundListener = async () => {
+      try {
+        const { subscribeToForegroundMessages } = await import("@/utils/firebase");
+        const unsub = subscribeToForegroundMessages((payload) => {
+          console.log("Foreground notification received:", payload);
+          const title = payload.notification?.title || "Careermitra Update";
+          const body = payload.notification?.body || "You have a new update.";
+          
+          toast.info(
+            <div>
+              <p className="font-bold text-sm text-slate-900">{title}</p>
+              <p className="text-xs text-slate-600 mt-0.5">{body}</p>
+            </div>,
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
+        });
+        if (unsub) unsubscribe = unsub;
+      } catch (err) {
+        console.warn("FCM foreground listener setup failed:", err);
+      }
+    };
+
+    setupForegroundListener();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   const storePendingRegisterCredentials = (email, password) => {
     if (typeof window === "undefined" || !email || !password) return;
     localStorage.setItem(PENDING_REGISTER_KEY, JSON.stringify({ email, password }));
