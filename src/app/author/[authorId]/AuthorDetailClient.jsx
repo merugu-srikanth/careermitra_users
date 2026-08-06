@@ -379,18 +379,8 @@ export default function AuthorProfilePage({ initialData = null }) {
               <div className="ap-blogs-grid">
                 {assignedBlogs.map((blog) => {
                   const detail = blogDetails[blog.slug];
-                  const imgUrl = blog.featured_image || detail?.featured_image;
                   return (
                     <Link key={blog._id || blog.slug} href={getBlogPath(blog, detail)} className="ap-blog-card">
-                      <img
-                        src={imgUrl || blogFallback.src || blogFallback}
-                        alt={blog.title}
-                        className="ap-blog-img"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = blogFallback.src || blogFallback;
-                        }}
-                      />
                       <div className="ap-blog-body">
                         {(detail?.category || blog.category) && (
                           <div className="ap-blog-cat">{detail?.category || blog.category}</div>

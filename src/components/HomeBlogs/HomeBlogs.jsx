@@ -491,14 +491,6 @@ const HomeBlogs = () => {
                                                             <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                                                                 <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
                                                             </span>
-                                                            {blog.primaryCategory && (
-                                                                <>
-                                                                    <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
-                                                                    <span className="truncate max-w-[100px] sm:max-w-none text-[10px] font-bold text-orange-500 uppercase tracking-wider" title={blog.primaryCategory}>
-                                                                        {blog.primaryCategory}
-                                                                    </span>
-                                                                </>
-                                                            )}
                                                         </div>
                                                         <Link href={buildArticleUrl(blog)} className="bl-card-title">
                                                             {blog.title}

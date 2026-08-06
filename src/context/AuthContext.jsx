@@ -84,14 +84,58 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const registerFCM = async () => {
       try {
+        if (typeof window === "undefined" || !("Notification" in window)) return;
+
         const { requestFcmToken } = await import("@/utils/firebase");
-        await requestFcmToken(token);
+
+        // If permission is already granted, register silently
+        if (Notification.permission === "granted") {
+          await requestFcmToken(token);
+          return;
+        }
+
+        // If permission is default (not yet prompted), show a Toast prompt
+        if (Notification.permission === "default") {
+          const toastId = toast.info(
+            <div>
+              <p className="mb-2 text-sm font-semibold text-slate-800">
+                Would you like to allow notifications from Careermitra to get latest job updates?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold transition hover:bg-orange-600"
+                  onClick={async () => {
+                    toast.dismiss(toastId);
+                    await requestFcmToken(token);
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  className="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition hover:bg-slate-300"
+                  onClick={() => {
+                    toast.dismiss(toastId);
+                  }}
+                >
+                  No
+                </button>
+              </div>
+            </div>,
+            {
+              position: "top-right",
+              autoClose: false,
+              closeOnClick: false,
+              draggable: false,
+              closeButton: false,
+            }
+          );
+        }
       } catch (err) {
         console.error("Error setting up Firebase FCM:", err);
       }
     };
     // Defer registration slightly to ensure browser is ready
-    const timer = setTimeout(registerFCM, 2000);
+    const timer = setTimeout(registerFCM, 3000);
     return () => clearTimeout(timer);
   }, [token]);
 
