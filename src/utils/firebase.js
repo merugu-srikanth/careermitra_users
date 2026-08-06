@@ -57,41 +57,21 @@ export const requestFcmToken = async (userToken) => {
   }
 };
 
-// Send device token to backend endpoints (fallback tries standard routes)
+// Send device token to backend endpoints
 const saveTokenToBackend = async (fcmToken, userToken) => {
-  const headers = userToken ? { Authorization: `Bearer ${userToken}` } : {};
-  
-  // Try to register the device token on both guest and user endpoints
-  const endpoints = [];
-  
-  // Guest endpoints
-  endpoints.push(
-    `${process.env.NEXT_PUBLIC_API_URL}/fcm-token`,
-    `${process.env.NEXT_PUBLIC_API_URL}/device-token`
-  );
-  
-  // Authenticated user endpoints
-  if (userToken) {
-    endpoints.push(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/fcm-token`,
-      `${process.env.NEXT_PUBLIC_API_URL}/user/device-token`,
-      `${process.env.NEXT_PUBLIC_API_URL}/user/profile`
-    );
+  if (!userToken) {
+    console.warn("FCM registration skipped: user is not logged in.");
+    return;
   }
 
-  for (const url of endpoints) {
-    try {
-      if (url.endsWith("/profile")) {
-        // Send as fcmToken inside profile update payload
-        await axios.put(url, { fcmToken }, { headers });
-      } else {
-        await axios.post(url, { token: fcmToken, deviceToken: fcmToken, fcmToken }, { headers });
-      }
-      console.log(`Successfully registered device token at: ${url}`);
-      break; // Stop at first successful registration
-    } catch (err) {
-      console.warn(`Failed to register token at ${url}, trying next endpoint...`);
-    }
+  const headers = { Authorization: `Bearer ${userToken}` };
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/user/fcm-token`;
+
+  try {
+    await axios.post(url, { token: fcmToken, platform: "web" }, { headers });
+    console.log(`Successfully registered device token at: ${url}`);
+  } catch (err) {
+    console.warn(`Failed to register token at ${url}:`, err);
   }
 };
 

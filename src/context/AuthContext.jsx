@@ -82,6 +82,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!token) return;
     const registerFCM = async () => {
       try {
         if (typeof window === "undefined" || !("Notification" in window)) return;
