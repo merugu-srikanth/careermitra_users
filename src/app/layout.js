@@ -12,6 +12,7 @@ import FloatingChatSupport from "@/components/FloatingChatSupport";
 import { Suspense } from "react";
 
 export const metadata = {
+  metadataBase: new URL("https://careermitra.in"),
   title: "Career Mitra - India's Job & Career Portal",
   description: "Government jobs, internships, events and career guidance portal for students and job seekers in India.",
   manifest: "/manifest.json",

@@ -51,16 +51,37 @@ export async function generateMetadata({ params }) {
 
   const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 
+  const canonicalUrl = `https://careermitra.in/author/${slugify(author_name || authorId)}`;
+  const titleText = `${author_name} - Author at Career Mitra`;
+  const descriptionText = bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`;
+
   return {
-    title: `${author_name} - Author at Career Mitra`,
-    description: bio || `Read articles written by ${author_name} on Career Mitra — career guidance, govt jobs, and more.`,
+    title: titleText,
+    description: descriptionText,
     keywords: `${author_name}, career mitra author, career blog, government jobs`,
     alternates: {
-      canonical: `https://careermitra.in/author/${slugify(author_name || authorId)}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
+      title: titleText,
+      description: descriptionText,
+      url: canonicalUrl,
       type: "profile",
-      images: [{ url: avatar_url }],
+      siteName: "Career Mitra",
+      images: [
+        {
+          url: avatar_url,
+          width: 400,
+          height: 400,
+          alt: author_name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary",
+      title: titleText,
+      description: descriptionText,
+      images: [avatar_url],
     },
   };
 }
