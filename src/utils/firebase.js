@@ -3,12 +3,12 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import axios from "axios";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyBfq9fV-N0yBqvKhjO90rrIappeJ7m3R5U",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "careermitra-dc94b.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "careermitra-dc94b",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "careermitra-dc94b.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "105306688720",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:105306688720:web:487137105590210179e2d5",
 };
 
 // Initialize Firebase client-side
@@ -38,7 +38,7 @@ export const requestFcmToken = async (userToken) => {
     }
 
     const fcmToken = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || "BEnvb3SgRrg66-JjMsFEWR9yEqCYrzX9arZ-QQsq83jg6XxLu7C41_i8OmqH_3gNYNIy6Bn6e0J4cEhXm_7rsv0",
     });
 
     if (fcmToken) {
