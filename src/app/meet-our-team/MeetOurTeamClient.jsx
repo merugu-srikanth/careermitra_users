@@ -6,6 +6,7 @@ import { FaUsers, FaArrowRight, FaLinkedin, FaTwitter, FaEnvelope, FaGraduationC
 import Link from "next/link";
 
 import { generateOrganizationSchema } from "@/utils/schemaHelpers";
+import MentorsSection from "@/components/MentorsSection";
 
 const founders = [
   {
@@ -512,7 +513,12 @@ export default function MeetOurTeam() {
               <TeamCard key={member.name} member={member} variants={itemVariants} />
             ))}
           </motion.div>
+        </div>
 
+        {/* Mentors Section */}
+        <MentorsSection />
+
+        <div className="w-full px-4 md:px-15 relative z-10 mt-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
