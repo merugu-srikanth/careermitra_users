@@ -17,7 +17,7 @@ const messaging = firebase.messaging();
 // Customize background message handling
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  
+
   const notificationTitle = payload.notification?.title || "Career Mitra Update";
   const notificationOptions = {
     body: payload.notification?.body || "You have a new notification from Career Mitra.",

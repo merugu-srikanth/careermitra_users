@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import SplashLoader from "@/components/SplashLoader";
 import FloatingChatSupport from "@/components/FloatingChatSupport";
+import FirebaseNotificationHelper from "@/components/FirebaseNotificationHelper";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -60,6 +61,7 @@ export default function RootLayout({ children }) {
               </Suspense>
               <Footer />
               <FloatingChatSupport />
+              <FirebaseNotificationHelper />
               <PWAUpdatePrompt />
             </BlogProvider>
           </JobProvider>
