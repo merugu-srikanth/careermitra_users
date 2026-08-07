@@ -37,8 +37,14 @@ export const requestFcmToken = async (userToken) => {
       return null;
     }
 
+    // Explicitly register the service worker for Firebase Messaging.
+    // This resolves the missing service worker registry issue on mobile browsers (Chrome / Safari / Firefox)
+    const swRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    console.log("Firebase Service Worker registered successfully:", swRegistration.scope);
+
     const fcmToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || "BEnvb3SgRrg66-JjMsFEWR9yEqCYrzX9arZ-QQsq83jg6XxLu7C41_i8OmqH_3gNYNIy6Bn6e0J4cEhXm_7rsv0",
+      serviceWorkerRegistration: swRegistration,
     });
 
     if (fcmToken) {

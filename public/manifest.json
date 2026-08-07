@@ -2,6 +2,7 @@
   "name": "Careermitra – Govt Job Alerts 2026",
   "short_name": "Careermitra",
   "description": "Find the latest Government Jobs, Internships & Career Opportunities across India. Get real-time alerts and apply directly.",
+  "gcm_sender_id": "103953800507",
   "theme_color": "#1e3a8a",
   "background_color": "#ffffff",
   "display": "standalone",
