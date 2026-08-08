@@ -65,13 +65,12 @@ export const requestFcmToken = async (userToken) => {
 
 // Send device token to backend endpoints
 const saveTokenToBackend = async (fcmToken, userToken) => {
-  if (!userToken) {
-    console.warn("FCM registration skipped: user is not logged in.");
-    return;
-  }
-
-  const headers = { Authorization: `Bearer ${userToken}` };
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/user/fcm-token`;
+  // /fcm-token works with or without login (optionalJwtAuth on the backend),
+  // registering anonymous visitors and linking the token to their account
+  // once they do log in. Do NOT switch this to /user/fcm-token — that route
+  // requires a JWT and silently drops every anonymous visitor's token.
+  const headers = userToken ? { Authorization: `Bearer ${userToken}` } : {};
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/fcm-token`;
 
   try {
     await axios.post(url, { token: fcmToken, platform: "web" }, { headers });
