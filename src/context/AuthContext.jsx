@@ -81,101 +81,12 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!token) return;
-    const registerFCM = async () => {
-      try {
-        if (typeof window === "undefined" || !("Notification" in window)) return;
-
-        const { requestFcmToken } = await import("@/utils/firebase");
-
-        // If permission is already granted, register silently
-        if (Notification.permission === "granted") {
-          await requestFcmToken(token);
-          return;
-        }
-
-        // If permission is default (not yet prompted), show a Toast prompt
-        if (Notification.permission === "default") {
-          const toastId = toast.info(
-            <div>
-              <p className="mb-2 text-sm font-semibold text-slate-800">
-                Would you like to allow notifications from Careermitra to get latest job updates?
-              </p>
-              <div className="flex gap-2">
-                <button
-                  className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold transition hover:bg-orange-600"
-                  onClick={async () => {
-                    toast.dismiss(toastId);
-                    await requestFcmToken(token);
-                  }}
-                >
-                  Yes
-                </button>
-                <button
-                  className="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition hover:bg-slate-300"
-                  onClick={() => {
-                    toast.dismiss(toastId);
-                  }}
-                >
-                  No
-                </button>
-              </div>
-            </div>,
-            {
-              position: "top-right",
-              autoClose: false,
-              closeOnClick: false,
-              draggable: false,
-              closeButton: false,
-            }
-          );
-        }
-      } catch (err) {
-        console.error("Error setting up Firebase FCM:", err);
-      }
-    };
-    // Defer registration slightly to ensure browser is ready
-    const timer = setTimeout(registerFCM, 3000);
-    return () => clearTimeout(timer);
-  }, [token]);
-
-  useEffect(() => {
-    let unsubscribe = null;
-    const setupForegroundListener = async () => {
-      try {
-        const { subscribeToForegroundMessages } = await import("@/utils/firebase");
-        const unsub = subscribeToForegroundMessages((payload) => {
-          console.log("Foreground notification received:", payload);
-          const title = payload.notification?.title || "Careermitra Update";
-          const body = payload.notification?.body || "You have a new update.";
-          
-          toast.info(
-            <div>
-              <p className="font-bold text-sm text-slate-900">{title}</p>
-              <p className="text-xs text-slate-600 mt-0.5">{body}</p>
-            </div>,
-            {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            }
-          );
-        });
-        if (unsub) unsubscribe = unsub;
-      } catch (err) {
-        console.warn("FCM foreground listener setup failed:", err);
-      }
-    };
-
-    setupForegroundListener();
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
+  // FCM registration, the enable-notifications prompt, and the foreground
+  // message listener all live in <FirebaseNotificationHelper> (mounted once
+  // in layout.js). Do not duplicate that logic here — this provider mounts
+  // on every page, and a second copy of those effects previously caused
+  // duplicate "enable notifications" toasts and duplicate push toasts for
+  // every single incoming message.
 
   const storePendingRegisterCredentials = (email, password) => {
     if (typeof window === "undefined" || !email || !password) return;
