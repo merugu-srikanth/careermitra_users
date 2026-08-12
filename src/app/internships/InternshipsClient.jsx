@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { generateCollectionPageSchema, generateItemListSchema } from '@/utils/schemaHelpers';
@@ -99,12 +99,9 @@ export default function Internships() {
 
   // Pagination & Sorting
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-
-  // Sentinel ref for infinite scroll
-  const sentinelRef = useRef(null);
 
   // Debounce search query
   useEffect(() => {
@@ -186,31 +183,10 @@ export default function Internships() {
     fetchInternships();
   }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, debouncedSearch]);
 
-  // Infinite Scroll Observer Effect
-  useEffect(() => {
-    if (loading || loadingMore) return;
-    if (page >= totalPages) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-
-    const currentSentinel = sentinelRef.current;
-    if (currentSentinel) {
-      observer.observe(currentSentinel);
-    }
-
-    return () => {
-      if (currentSentinel) {
-        observer.unobserve(currentSentinel);
-      }
-    };
-  }, [loading, loadingMore, page, totalPages]);
+  const handleLoadMore = () => {
+    if (loadingMore || page >= totalPages) return;
+    setPage((prev) => prev + 1);
+  };
 
   const handleViewDetails = (id, title) => {
     const slug = title
@@ -402,7 +378,7 @@ export default function Internships() {
                     {internships.map((intern, idx) => (
                       <tr key={intern.id} className="hover:bg-orange-50/30 transition-all duration-150 group">
                         <td className="px-5 py-4 text-xs font-bold text-slate-400">
-                          {(page - 1) * limit + idx + 1}
+                          {idx + 1}
                         </td>
                         <td className="px-5 py-4 max-w-xs">
                           <h3
@@ -549,13 +525,23 @@ export default function Internships() {
               ))}
             </div>
 
-            {/* Infinite Scroll Sentinel and Load More Loading indicator */}
-            <div ref={sentinelRef} className="h-4 w-full" />
-
-            {loadingMore && (
-              <div className="flex justify-center items-center py-6 mt-4 bg-white rounded-2xl border border-orange-100/50 shadow-sm">
-                <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-2 text-xs font-bold text-slate-500">Loading more internships...</span>
+            {/* Load More */}
+            {page < totalPages && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="flex items-center gap-2 px-8 py-3 text-sm font-bold text-orange-600 bg-white border-2 border-orange-200 hover:bg-orange-50 hover:border-orange-300 rounded-2xl transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>Load More Internships</>
+                  )}
+                </button>
               </div>
             )}
           </>

@@ -647,7 +647,7 @@ export default function AllJobs() {
             </div>
 
             {/* Category Dropdown */}
-            <select
+            {/* <select
               value={selectedCategory}
               onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
               className="text-xs font-bold border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 cursor-pointer shadow-sm hover:border-orange-300 transition-colors w-full sm:w-auto"
@@ -656,7 +656,7 @@ export default function AllJobs() {
               {categoriesList.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
-            </select>
+            </select> */}
 
             {/* Sort */}
             {/* <select
