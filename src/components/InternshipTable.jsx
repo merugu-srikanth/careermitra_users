@@ -278,7 +278,7 @@ const Pagination = ({ current, total, onChange }) => {
 };
 
 const InternshipTable = () => {
-  const [activeType, setActiveType] = useState("internships");
+  const [activeType, setActiveType] = useState("skillups");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -347,7 +347,7 @@ const InternshipTable = () => {
       <div className="md:w-full w-full mx-auto px-1 md:px-4 md:px-15">
 
         {/* ── Tabs bar ── */}
-        <div className="mb-4 md:mb-6 bg-white/90 backdrop-blur rounded-2xl border border-orange-100 p-3 md:p-4 flex flex-col lg:flex-row items-center lg:justify-between shadow-sm">
+        {/* <div className="mb-4 md:mb-6 bg-white/90 backdrop-blur rounded-2xl border border-orange-100 p-3 md:p-4 flex flex-col lg:flex-row items-center lg:justify-between shadow-sm">
           <div className="text-sm md:text-base font-bold text-gray-800 hidden lg:block">
             {typeLabel}
           </div>
@@ -371,7 +371,7 @@ const InternshipTable = () => {
               <Building2 className="w-3.5 h-3.5" /> Skill Updates
             </button>
           </div>
-        </div>
+        </div> */}
 
         {loading ? (
           <>
