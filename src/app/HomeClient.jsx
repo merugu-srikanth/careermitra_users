@@ -93,7 +93,7 @@ export default function HomeClient() {
               </motion.div>
 
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                  Internship & Skill Up Opportunities
+                   Skill Up Opportunities
               </h2>
 
               <motion.div
@@ -112,7 +112,7 @@ export default function HomeClient() {
               />
 
               <p style={{ color: "#6b7280", maxWidth: 620, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
-                Recently announced Internship opportunities across various sectors in India.
+                Recently announced Skill Up Opportunities across various sectors in India.
               </p>
             </div>
           </AnimatedSection>
