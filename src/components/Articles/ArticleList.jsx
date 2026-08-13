@@ -358,14 +358,6 @@ export default function ArticleList() {
             <h1 className="text-3xl font-black text-gray-900 mb-1">
               {activeChild?.name || activeParent?.name || "Government Jobs"}
             </h1>
-            {(activeChild?.description || activeParent?.description) && (
-              <div
-                className="cat-prose text-sm sm:text-base"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeHtml(activeChild?.description || activeParent?.description),
-                }}
-              />
-            )}
             {/* <p className="text-sm text-gray-400">
               {loading ? "Loading…" : `${total} article${total !== 1 ? "s" : ""}`}
             </p> */}
@@ -455,6 +447,17 @@ export default function ArticleList() {
                 </div>
               )}
             </>
+          )}
+
+          {(activeChild?.description || activeParent?.description) && (
+            <div className="bg-white border border-gray-100 rounded-2xl px-5 py-6 sm:px-8 sm:py-8 mt-10">
+              <div
+                className="cat-prose text-sm sm:text-base"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(activeChild?.description || activeParent?.description),
+                }}
+              />
+            </div>
           )}
         </div>
       </div>
