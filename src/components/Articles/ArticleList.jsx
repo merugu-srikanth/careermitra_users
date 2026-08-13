@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useParams, useSearchParams, usePathname } from "next/navigation";
+import DOMPurify from "dompurify";
 import SEO from "../../components/SEO";
 import { generateCollectionPageSchema, generateItemListSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
@@ -10,6 +11,17 @@ import { useBlogs } from "../../context/BlogContext";
 import NotFoundPage from "../../components/NotFoundPage";
 
 const API_BASE = "https://careermitra.in/api";
+const PAGE_SIZE = 9;
+
+const sanitizeHtml = (html) => {
+  if (!html) return "";
+  if (typeof window === "undefined") return html;
+  const purify = DOMPurify.sanitize ? DOMPurify : (DOMPurify.default || DOMPurify);
+  return purify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
+};
 
 /* ── Helpers ── */
 const toSlug = (name = "", apiSlug = "") =>
@@ -139,6 +151,7 @@ export default function ArticleList() {
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [filterData, setFilterData] = useState(null); // null = not yet loaded
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const debounceRef = useRef(null);
 
@@ -195,6 +208,18 @@ export default function ArticleList() {
   }, [allArticles, parentSlugParam, childSlugParam, searchParams, filterData, contextLoading]);
 
   const total = articles.length;
+
+  /* ── Reset "Load More" pagination whenever the filtered list changes ── */
+  const filterKey = `${parentSlugParam}|${childSlugParam}|${searchParams.toString()}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setVisibleCount(PAGE_SIZE);
+  }
+
+  const visibleArticles = articles.slice(0, visibleCount);
+  const hasMore = visibleCount < total;
+  const handleLoadMore = () => setVisibleCount((c) => c + PAGE_SIZE);
 
   /* ── Filter handlers ── */
   const apply = useCallback((key, value) => {
@@ -288,6 +313,22 @@ export default function ArticleList() {
         schema={articleListSchemas}
       />
 
+      <style>{`
+        .cat-prose h1,.cat-prose h2,.cat-prose h3,.cat-prose h4{font-weight:700;color:#111827;line-height:1.3;margin:0.8em 0 0.4em}
+        .cat-prose h1{font-size:clamp(1.1rem,2.5vw,1.35rem)}
+        .cat-prose h2{font-size:clamp(1.05rem,2.2vw,1.2rem)}
+        .cat-prose h3{font-size:clamp(1rem,2vw,1.1rem)}
+        .cat-prose p{margin:0 0 0.8em;color:#4b5563;line-height:1.75;text-align:justify}
+        .cat-prose ul,.cat-prose ol{padding-left:1.4em;margin:0 0 0.8em;color:#4b5563}
+        .cat-prose li{margin-bottom:0.3em;line-height:1.65}
+        .cat-prose a{color:#f97316;text-decoration:underline;font-weight:600;word-break:break-word}
+        .cat-prose a:hover{color:#ea580c}
+        .cat-prose strong{font-weight:700;color:#111827}
+        .cat-prose table{width:100%;border-collapse:collapse;margin:0.8em 0}
+        .cat-prose img{max-width:100%!important;height:auto!important;border-radius:10px;margin:0.4em 0;display:block}
+        .cat-prose *{max-width:100%;box-sizing:border-box}
+      `}</style>
+
       <div className="min-h-screen bg-gray-50 pt-20">
 
         {/* ── Page Header ── */}
@@ -317,9 +358,14 @@ export default function ArticleList() {
             <h1 className="text-3xl font-black text-gray-900 mb-1">
               {activeChild?.name || activeParent?.name || "Government Jobs"}
             </h1>
-            <p className="text-justify mb-1">
-              {activeChild?.description || activeParent?.description || ""}
-            </p>
+            {(activeChild?.description || activeParent?.description) && (
+              <div
+                className="cat-prose text-sm sm:text-base"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(activeChild?.description || activeParent?.description),
+                }}
+              />
+            )}
             {/* <p className="text-sm text-gray-400">
               {loading ? "Loading…" : `${total} article${total !== 1 ? "s" : ""}`}
             </p> */}
@@ -394,9 +440,21 @@ export default function ArticleList() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.map(a => <ArticleCard key={a._id} article={a} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleArticles.map(a => <ArticleCard key={a._id} article={a} />)}
+              </div>
+              {hasMore && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={handleLoadMore}
+                    className="px-6 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -68,7 +68,7 @@ const CARDS = [
     },
     {
         id: 3,
-        title: "Internship",
+        title: "Internships",
         icon: FaGraduationCap,
         iconBg: "#ffedd5",
         iconColor: "#ea580c",
