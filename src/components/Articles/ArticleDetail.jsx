@@ -29,8 +29,18 @@ const fmtDateTime = (d) =>
     day: "numeric", month: "short", year: "numeric",
     hour: "numeric", minute: "2-digit", hour12: true,
   }) : "";
-const isSameDay = (a, b) =>
-  !a || !b || new Date(a).toDateString() === new Date(b).toDateString();
+/** e.g. "15 August 2026, 7:44:21 PM IST" — used for the "Updated" timestamp. */
+const fmtUpdatedIST = (d) => {
+  if (!d) return "";
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric", month: "long", year: "numeric",
+    hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+  }).formatToParts(new Date(d));
+  const get = (type) => parts.find(p => p.type === type)?.value || "";
+  return `${get("day")} ${get("month")} ${get("year")}, ${get("hour")}:${get("minute")}:${get("second")} ${get("dayPeriod").toUpperCase()} IST`;
+};
+
 const fmtViews = (n) =>
   !n ? null : n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
 
@@ -517,13 +527,9 @@ export default function ArticleDetail() {
   // always-present auto-timestamp and would ignore the admin's
   // "Show on public article" (show_updated_date) toggle entirely.
   const updatedDisplayDate = article?.last_updated_at || null;
-  // Only show "Updated" when it's genuinely later than the publish date —
-  // stale/imported last_updated_at values can predate published_at, which
-  // would otherwise render as a nonsensical "Updated" time before "Published".
-  const showUpdated =
-    Boolean(updatedDisplayDate) &&
-    new Date(updatedDisplayDate).getTime() > new Date(displayDate).getTime() &&
-    !isSameDay(displayDate, updatedDisplayDate);
+  // The admin explicitly opts into showing this via show_updated_date —
+  // that flag is authoritative, so just require it plus a real timestamp.
+  const showUpdated = Boolean(article?.show_updated_date) && Boolean(updatedDisplayDate);
   const views        = fmtViews(article?.views);
   const canonicalUrl = article ? `https://careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
@@ -708,7 +714,7 @@ export default function ArticleDetail() {
                 </span>
 
                 {showUpdated && (
-                  <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedDisplayDate)}</span>
+                  <span className="text-orange-500 text-xs font-medium">Updated {fmtUpdatedIST(updatedDisplayDate)}</span>
                 )}
 
                 {/* Actions container (Reading Mode & Share Dropdown) */}
