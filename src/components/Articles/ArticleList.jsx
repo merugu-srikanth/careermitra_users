@@ -182,16 +182,22 @@ export default function ArticleList() {
     if (childSlugParam) {
       const childCat = filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam);
       if (childCat) {
-        list = list.filter(a => a.primary_category?._id === childCat.id);
+        // Check every category assigned to the article, not just primary_category —
+        // an article tagged with 2+ categories must show up under all of them.
+        list = list.filter(a => (a.categories || []).some(c => (c?._id || c?.id) === childCat.id));
       }
     } else if (parentSlugParam && parentSlugParam !== "articles") {
       const parentCat = filterData.parents.find(p => toSlug(p.name, p.slug) === parentSlugParam);
       if (parentCat) {
-        list = list.filter(a => {
-          const tree = a.categoryTree?.[0];
-          const pId = parentCat.id;
-          return tree?.parent?.id === pId || tree?.parent?._id === pId;
-        });
+        const childIdsUnderParent = new Set(
+          filterData.children.filter(c => c.parent_id === parentCat.id).map(c => c.id)
+        );
+        list = list.filter(a =>
+          (a.categories || []).some(c => {
+            const cid = c?._id || c?.id;
+            return cid === parentCat.id || childIdsUnderParent.has(cid);
+          })
+        );
       }
     } else {
       const s = searchParams.get("search");
