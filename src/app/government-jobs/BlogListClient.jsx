@@ -274,6 +274,16 @@ const isSameDay = (a, b) => !a || !b || new Date(a).toDateString() === new Date(
 const getPublishedAt = (blog) => blog?.published_at || blog?.createdAt || blog?.created_at;
 /** Only present when the admin checked "Show on public article" — backend strips it otherwise. */
 const getUpdatedAt = (blog) => blog?.last_updated_at || null;
+/**
+ * Only show "Updated" when it's genuinely later than the publish date —
+ * stale/imported last_updated_at values can predate published_at, which
+ * would otherwise render as a nonsensical "Updated" time before "Published".
+ */
+const shouldShowUpdated = (blog) => {
+  const updated = getUpdatedAt(blog);
+  const published = getPublishedAt(blog);
+  return Boolean(updated) && new Date(updated).getTime() > new Date(published).getTime() && !isSameDay(published, updated);
+};
 
 const getPrimaryCategory = (blog) =>
   blog?.categories?.[0]?.name || blog?.category || 'General';
@@ -396,15 +406,7 @@ const BlogList = () => {
     return list;
   }, [allBlogs, searchTerm, contextLoading]);
 
-  const featured = useMemo(() => {
-    if (searchTerm.trim() || filteredBlogs.length === 0) return null;
-    return filteredBlogs[0];
-  }, [filteredBlogs, searchTerm]);
-
-  const blogs = useMemo(() => {
-    if (searchTerm.trim()) return filteredBlogs;
-    return filteredBlogs.slice(1);
-  }, [filteredBlogs, searchTerm]);
+  const blogs = filteredBlogs;
 
   const totalCount = filteredBlogs.length;
 
@@ -431,56 +433,6 @@ const BlogList = () => {
             </div>
           )} */}
 
-          {/* ── FEATURED ── */}
-          {featured && !loading && (
-            <div style={{ marginBottom: 0 }} className='mt-5'>
-              <div className="bl-section-head" style={{ marginBottom: 20 }}>
-                <h2>Featured Story</h2>
-              </div>
-              <div className="bl-featured">
-                <div className="bl-featured-img-wrap">
-                  <img
-                    src={featured.featured_image || blogFallback}
-                    alt={featured.image_alt_text || featured.title}
-                    className="bl-featured-img"
-                    onError={e => { e.target.onerror = null; e.target.src = blogFallback; }}
-                  />
-                  <div className="bl-featured-badge">
-                    <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 11, height: 11 }}>
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Featured
-                  </div>
-                </div>
-                <div className="bl-featured-body">
-                  <Link href={buildArticleUrl(featured)} className="bl-featured-title">
-                    {featured.title}
-                  </Link>
-                  <p className="bl-featured-desc">{featured.short_description}</p>
-                  <div className="bl-featured-meta">
-                    <span>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}>
-                        <circle cx="12" cy="8" r="4" /><path d="M6 20v-2a6 6 0 0 1 12 0v2" />
-                      </svg>
-                      <Link href={`/author/${slugify(featured.authorDisplayName)}`} style={{ color: '#111827', textDecoration: 'none' }}>
-                        {featured.authorDisplayName}
-                      </Link>
-                    </span>
-                    <span><CalIcon />Published {fmtDate(getPublishedAt(featured))}, {fmtTime(getPublishedAt(featured))}</span>
-                    {getUpdatedAt(featured) && !isSameDay(getPublishedAt(featured), getUpdatedAt(featured)) && (
-                      <span style={{ color: '#f97316' }}><EditIcon />Updated {fmtDate(getUpdatedAt(featured))}, {fmtTime(getUpdatedAt(featured))}</span>
-                    )}
-                  </div>
-                  <Link href={buildArticleUrl(featured)} className="bl-read-btn">
-                    Read Full Article <ArrowIcon />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {featured && !loading && <div style={{ height: 48 }} />}
-
           {/* ── All Government Jobs HEADING ── */}
           <div className="bl-section-head">
             <h1>{searchTerm ? 'Search Results' : 'All Government Jobs'}</h1>
@@ -504,7 +456,7 @@ const BlogList = () => {
                 Try Again
               </button>
             </div>
-          ) : blogs.length === 0 && !featured ? (
+          ) : blogs.length === 0 ? (
             <div className="bl-empty">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M9 12h6m-3-3v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
@@ -535,7 +487,7 @@ const BlogList = () => {
                           <ClockIcon />{fmtTime(getPublishedAt(blog))}
                         </span>
                       </div>
-                      {getUpdatedAt(blog) && !isSameDay(getPublishedAt(blog), getUpdatedAt(blog)) && (
+                      {shouldShowUpdated(blog) && (
                         <div className="bl-card-meta" style={{ marginTop: -4, color: '#f97316' }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                             <EditIcon />Updated {fmtDate(getUpdatedAt(blog))}, {fmtTime(getUpdatedAt(blog))}

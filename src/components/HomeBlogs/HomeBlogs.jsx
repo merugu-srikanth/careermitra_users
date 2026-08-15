@@ -376,8 +376,8 @@ const HomeBlogs = () => {
         if (!allBlogs) return [];
         const list = allBlogs.map(normalizeBlog);
         return list.sort((a, b) => {
-            const dateA = new Date(a.createdAt || a.created_at || a.published_at || 0);
-            const dateB = new Date(b.createdAt || b.created_at || b.published_at || 0);
+            const dateA = new Date(a.published_at || a.createdAt || a.created_at || 0);
+            const dateB = new Date(b.published_at || b.createdAt || b.created_at || 0);
             return dateB - dateA;
         });
     }, [allBlogs]);
@@ -485,11 +485,11 @@ const HomeBlogs = () => {
                                                     <div className="bl-card-body">
                                                         <div className="bl-card-meta">
                                                             <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                                                                <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
+                                                                <CalIcon />{fmtDate(blog.published_at || blog.createdAt || blog.created_at)}
                                                             </span>
                                                             <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
                                                             <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                                                                <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
+                                                                <ClockIcon />{fmtTime(blog.published_at || blog.createdAt || blog.created_at)}
                                                             </span>
                                                         </div>
                                                         <Link href={buildArticleUrl(blog)} className="bl-card-title">

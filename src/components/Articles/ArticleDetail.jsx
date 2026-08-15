@@ -510,12 +510,20 @@ export default function ArticleDetail() {
 
   const tree         = article?.categoryTree?.[0];
   const primaryChild = tree?.children?.find(c => c.id === article?.primary_category?._id);
-  const createdAt    = article?.published_at || article?.createdAt;
+  // Published date always wins over createdAt — createdAt is just when the
+  // draft was first saved, not when the article actually went live.
+  const displayDate        = article?.published_at || article?.createdAt;
   // last_updated_at only — never article.updatedAt, which is Mongoose's
   // always-present auto-timestamp and would ignore the admin's
   // "Show on public article" (show_updated_date) toggle entirely.
-  const updatedAt    = article?.last_updated_at || null;
-  const showUpdated  = Boolean(updatedAt) && !isSameDay(createdAt, updatedAt);
+  const updatedDisplayDate = article?.last_updated_at || null;
+  // Only show "Updated" when it's genuinely later than the publish date —
+  // stale/imported last_updated_at values can predate published_at, which
+  // would otherwise render as a nonsensical "Updated" time before "Published".
+  const showUpdated =
+    Boolean(updatedDisplayDate) &&
+    new Date(updatedDisplayDate).getTime() > new Date(displayDate).getTime() &&
+    !isSameDay(displayDate, updatedDisplayDate);
   const views        = fmtViews(article?.views);
   const canonicalUrl = article ? `https://careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
@@ -531,8 +539,8 @@ export default function ArticleDetail() {
       headline: article.meta_title || article.title,
       description: article.meta_description || article.short_description,
       image: article.featured_image,
-      publishedAt: createdAt,
-      modifiedAt: updatedAt,
+      publishedAt: displayDate,
+      modifiedAt: updatedDisplayDate,
       authorName: article.author?.author_name || "Career Mitra Editorial Team",
       authorUrl: article.author?.author_name ? `/author/${toSlug(article.author.author_name)}` : undefined,
       url: buildArticleUrl(article)
@@ -549,7 +557,7 @@ export default function ArticleDetail() {
     const faqSchema = generateFAQSchema(article.faqs);
     
     return [articleSchema, personSchema, faqSchema].filter(Boolean);
-  }, [article, createdAt, updatedAt]);
+  }, [article, displayDate, updatedDisplayDate]);
 
   if (loading) return <DetailSkeleton />;
 
@@ -574,8 +582,8 @@ export default function ArticleDetail() {
         image={article.featured_image}
         imageAlt={article.image_alt_text || article.title}
         type="article"
-        publishedAt={createdAt}
-        modifiedAt={updatedAt}
+        publishedAt={displayDate}
+        modifiedAt={updatedDisplayDate}
         authorName={article.author?.author_name}
         tags={article.tags || []}
         section={primaryChild?.name || tree?.parent?.name}
@@ -696,11 +704,11 @@ export default function ArticleDetail() {
                     <rect x="3" y="4" width="18" height="18" rx="2"/>
                     <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
-                  {fmtDateTime(createdAt)}
+                  {fmtDateTime(displayDate)}
                 </span>
 
                 {showUpdated && (
-                  <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedAt)}</span>
+                  <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedDisplayDate)}</span>
                 )}
 
                 {/* Actions container (Reading Mode & Share Dropdown) */}

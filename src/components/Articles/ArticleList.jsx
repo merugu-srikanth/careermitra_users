@@ -79,7 +79,10 @@ const ArticleCard = ({ article }) => {
   // always-present auto-timestamp and would ignore the admin's
   // "Show on public article" (show_updated_date) toggle entirely.
   const updatedAt = article.last_updated_at || null;
-  const showUpdated = Boolean(updatedAt) && !isSameDay(createdAt, updatedAt);
+  // Only show "Updated" when it's genuinely later than the publish date —
+  // stale/imported last_updated_at values can predate published_at, which
+  // would otherwise render as a nonsensical "Updated" time before "Published".
+  const showUpdated = Boolean(updatedAt) && new Date(updatedAt).getTime() > new Date(createdAt).getTime() && !isSameDay(createdAt, updatedAt);
   const views = fmtViews(article.views);
 
   return (
