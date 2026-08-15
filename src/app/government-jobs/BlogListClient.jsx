@@ -268,6 +268,12 @@ if (typeof document !== 'undefined' && !document.getElementById('bl-styles')) {
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+const isSameDay = (a, b) => !a || !b || new Date(a).toDateString() === new Date(b).toDateString();
+
+/** Published date always wins over createdAt — createdAt is when the draft was first saved, not when it went live. */
+const getPublishedAt = (blog) => blog?.published_at || blog?.createdAt || blog?.created_at;
+/** Only present when the admin checked "Show on public article" — backend strips it otherwise. */
+const getUpdatedAt = (blog) => blog?.last_updated_at || null;
 
 const getPrimaryCategory = (blog) =>
   blog?.categories?.[0]?.name || blog?.category || 'General';
@@ -307,6 +313,11 @@ const ClockIcon = () => (
 const ArrowIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
     <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+const EditIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
 
@@ -455,8 +466,10 @@ const BlogList = () => {
                         {featured.authorDisplayName}
                       </Link>
                     </span>
-                    <span><CalIcon />{fmtDate(featured.createdAt || featured.created_at || featured.published_at)}</span>
-                    <span><ClockIcon />{fmtTime(featured.createdAt || featured.created_at || featured.published_at)}</span>
+                    <span><CalIcon />Published {fmtDate(getPublishedAt(featured))}, {fmtTime(getPublishedAt(featured))}</span>
+                    {getUpdatedAt(featured) && !isSameDay(getPublishedAt(featured), getUpdatedAt(featured)) && (
+                      <span style={{ color: '#f97316' }}><EditIcon />Updated {fmtDate(getUpdatedAt(featured))}, {fmtTime(getUpdatedAt(featured))}</span>
+                    )}
                   </div>
                   <Link href={buildArticleUrl(featured)} className="bl-read-btn">
                     Read Full Article <ArrowIcon />
@@ -515,13 +528,20 @@ const BlogList = () => {
                     <div className="bl-card-body">
                       <div className="bl-card-meta">
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                          <CalIcon />{fmtDate(blog.createdAt || blog.created_at || blog.published_at)}
+                          <CalIcon />{fmtDate(getPublishedAt(blog))}
                         </span>
                         <span style={{ color: '#e5e7eb', flexShrink: 0 }}>·</span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                          <ClockIcon />{fmtTime(blog.createdAt || blog.created_at || blog.published_at)}
+                          <ClockIcon />{fmtTime(getPublishedAt(blog))}
                         </span>
                       </div>
+                      {getUpdatedAt(blog) && !isSameDay(getPublishedAt(blog), getUpdatedAt(blog)) && (
+                        <div className="bl-card-meta" style={{ marginTop: -4, color: '#f97316' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                            <EditIcon />Updated {fmtDate(getUpdatedAt(blog))}, {fmtTime(getUpdatedAt(blog))}
+                          </span>
+                        </div>
+                      )}
                       <Link href={buildArticleUrl(blog)} className="bl-card-title">
                         {blog.title}
                       </Link>

@@ -358,7 +358,7 @@ const RelatedCard = ({ article }) => (
       <p className="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition-colors line-clamp-2 leading-snug mb-1">
         {article.title}
       </p>
-      <p className="text-[11px] text-gray-400">{fmtDateTime(article.createdAt || article.published_at)}</p>
+      <p className="text-[11px] text-gray-400">{fmtDateTime(article.published_at || article.createdAt)}</p>
     </div>
   </Link>
 );
@@ -510,10 +510,12 @@ export default function ArticleDetail() {
 
   const tree         = article?.categoryTree?.[0];
   const primaryChild = tree?.children?.find(c => c.id === article?.primary_category?._id);
-  const createdAt    = article?.createdAt    || article?.published_at;
-  const updatedAt    = article?.updatedAt    || article?.last_updated_at;
-  const hasUpdateKey = Boolean(article && ('updatedAt' in article || 'last_updated_at' in article) && (article.updatedAt || article.last_updated_at));
-  const showUpdated  = hasUpdateKey && !isSameDay(createdAt, updatedAt);
+  const createdAt    = article?.published_at || article?.createdAt;
+  // last_updated_at only — never article.updatedAt, which is Mongoose's
+  // always-present auto-timestamp and would ignore the admin's
+  // "Show on public article" (show_updated_date) toggle entirely.
+  const updatedAt    = article?.last_updated_at || null;
+  const showUpdated  = Boolean(updatedAt) && !isSameDay(createdAt, updatedAt);
   const views        = fmtViews(article?.views);
   const canonicalUrl = article ? `https://careermitra.in${buildArticleUrl(article)}` : "";
   const parentHref   = tree ? `/${toSlug(tree.parent.name, tree.parent.slug)}` : "/";
@@ -697,9 +699,9 @@ export default function ArticleDetail() {
                   {fmtDateTime(createdAt)}
                 </span>
 
-                {/* {showUpdated && (
+                {showUpdated && (
                   <span className="text-orange-500 text-xs font-medium">Updated {fmtDateTime(updatedAt)}</span>
-                )} */}
+                )}
 
                 {/* Actions container (Reading Mode & Share Dropdown) */}
                 <div className="ml-auto flex items-center gap-2 relative" ref={shareRef}>

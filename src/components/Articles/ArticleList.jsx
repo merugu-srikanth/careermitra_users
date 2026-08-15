@@ -74,10 +74,12 @@ export const CardSkeleton = () => (
 /* ── Article Card ── */
 const ArticleCard = ({ article }) => {
   const breadcrumb = getCategoryBreadcrumb(article);
-  const createdAt = article.createdAt || article.published_at;
-  const updatedAt = article.updatedAt || article.last_updated_at;
-  const hasUpdateKey = Boolean(article && ('updatedAt' in article || 'last_updated_at' in article) && (article.updatedAt || article.last_updated_at));
-  const showUpdated = hasUpdateKey && !isSameDay(createdAt, updatedAt);
+  const createdAt = article.published_at || article.createdAt;
+  // last_updated_at only — never article.updatedAt, which is Mongoose's
+  // always-present auto-timestamp and would ignore the admin's
+  // "Show on public article" (show_updated_date) toggle entirely.
+  const updatedAt = article.last_updated_at || null;
+  const showUpdated = Boolean(updatedAt) && !isSameDay(createdAt, updatedAt);
   const views = fmtViews(article.views);
 
   return (
@@ -120,6 +122,13 @@ const ArticleCard = ({ article }) => {
             </span>
 
             <span className="shrink-0">{fmtDateTime(createdAt)}</span>
+
+            {showUpdated && (
+              <>
+                <span className="text-gray-300 select-none shrink-0">·</span>
+                <span className="shrink-0 text-orange-500 font-medium">Updated {fmtDateTime(updatedAt)}</span>
+              </>
+            )}
 
             {breadcrumb && (
               <>
