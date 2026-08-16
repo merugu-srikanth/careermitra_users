@@ -565,7 +565,7 @@ export default function InternshipDetail({ initialData = null }) {
         </div>
 
         {/* Internship Guide Section */}
-        <InternshipGuideContent />
+        {/* <InternshipGuideContent /> */}
 
       </div>
     </div>
