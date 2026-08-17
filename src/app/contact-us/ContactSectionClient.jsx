@@ -255,7 +255,7 @@ export default function ContactSection() {
             We'd love to hear from you
           </motion.div>
 
-          <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-4">
+          <motion.h1 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-4">
             Start Your{" "}
             <span className="bg-linear-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
               Government
@@ -264,7 +264,7 @@ export default function ContactSection() {
             <span className="bg-linear-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
               Journey
             </span>
-          </motion.h2>
+          </motion.h1>
 
           <motion.p variants={fadeUp} className="text-gray-500 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
             Our team of retired senior officials and digital experts are ready to guide you toward the right opportunity.

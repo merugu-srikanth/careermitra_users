@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import AnimatedSection from "./Animatedsection";
+import { FaLandmark, FaClipboardList, FaIndustry, FaPiggyBank, FaTrain, FaShieldAlt, FaFlag, FaCity } from "react-icons/fa";
 
 const categories = [
-  { id: 1, icon: "🏛️", name: "UPSC – Union Public Service Commission", shortDesc: "IAS, IPS, IFS, CDS, NDA & more", description: "UPSC conducts India's most prestigious exams like IAS, CDS, NDA, and Engineering Services. Graduation required; age 21–32; criteria vary by exam. Gateway to top civil services positions in India." },
-  { id: 2, icon: "📋", name: "Staff Selection Commission (SSC)", shortDesc: "CGL, CHSL, MTS, GD Constable", description: "SSC recruits staff for Group B and C posts in various ministries. Exams include SSC CGL, CHSL, MTS, GD Constable, and others across India. One of the largest recruitment bodies." },
-  { id: 3, icon: "🏢", name: "Public Sector Undertakings (PSUs)", shortDesc: "BHEL, ONGC, NTPC, IOCL, SAIL", description: "PSUs recruit for technical, managerial, and administrative roles through GATE scores and direct exams. Major recruiters include BHEL, ONGC, NTPC, IOCL, SAIL, and other central enterprises." },
-  { id: 4, icon: "🏦", name: "Banking & Insurance", shortDesc: "IBPS, SBI, RBI, LIC, SEBI", description: "Banking and insurance sectors offer stable careers through exams by IBPS, SBI, RBI, LIC, and other insurers. Recruitments also in financial regulators like SEBI, NABARD, and IRDAI." },
-  { id: 5, icon: "🚂", name: "Indian Railways", shortDesc: "RRB NTPC, Group D, JE, ALP", description: "One of the world's largest employers, conducts recruitment through RRBs. Offers opportunities in technical, non-technical, and paramedical categories across Group A, B, C, and D posts." },
-  { id: 6, icon: "🛡️", name: "Ministry of Defence", shortDesc: "NDA, CDS, AFCAT, DRDO, HAL", description: "Recruits for armed forces, civilian roles, and technical positions through NDA, CDS, and AFCAT. Also oversees Defence PSUs like HAL, DRDO, BEL, and BEML for engineers and scientists." },
-  { id: 7, icon: "🚩", name: "State Services", shortDesc: "APPSC, TSPSC, Group 1,2,3,4", description: "State PSCs recruit for various government departments through Group exams. Includes technical posts in Engineering, Panchayat Raj, Women & Child Welfare, Agriculture, Forestry, and more." },
-  { id: 8, icon: "🏗️", name: "Central Ministries", shortDesc: "58 Ministries, 94+ Departments", description: "Government of India comprises 58 ministries and over 94 departments. Opportunities include scientists, trainers, administrators, and diverse roles across various organizations and institutes." },
+  { id: 1, icon: FaLandmark, name: "UPSC – Union Public Service Commission", shortDesc: "IAS, IPS, IFS, CDS, NDA & more", description: "UPSC conducts India's most prestigious exams like IAS, CDS, NDA, and Engineering Services. Graduation required; age 21–32; criteria vary by exam. Gateway to top civil services positions in India." },
+  { id: 2, icon: FaClipboardList, name: "Staff Selection Commission (SSC)", shortDesc: "CGL, CHSL, MTS, GD Constable", description: "SSC recruits staff for Group B and C posts in various ministries. Exams include SSC CGL, CHSL, MTS, GD Constable, and others across India. One of the largest recruitment bodies." },
+  { id: 3, icon: FaIndustry, name: "Public Sector Undertakings (PSUs)", shortDesc: "BHEL, ONGC, NTPC, IOCL, SAIL", description: "PSUs recruit for technical, managerial, and administrative roles through GATE scores and direct exams. Major recruiters include BHEL, ONGC, NTPC, IOCL, SAIL, and other central enterprises." },
+  { id: 4, icon: FaPiggyBank, name: "Banking & Insurance", shortDesc: "IBPS, SBI, RBI, LIC, SEBI", description: "Banking and insurance sectors offer stable careers through exams by IBPS, SBI, RBI, LIC, and other insurers. Recruitments also in financial regulators like SEBI, NABARD, and IRDAI." },
+  { id: 5, icon: FaTrain, name: "Indian Railways", shortDesc: "RRB NTPC, Group D, JE, ALP", description: "One of the world's largest employers, conducts recruitment through RRBs. Offers opportunities in technical, non-technical, and paramedical categories across Group A, B, C, and D posts." },
+  { id: 6, icon: FaShieldAlt, name: "Ministry of Defence", shortDesc: "NDA, CDS, AFCAT, DRDO, HAL", description: "Recruits for armed forces, civilian roles, and technical positions through NDA, CDS, and AFCAT. Also oversees Defence PSUs like HAL, DRDO, BEL, and BEML for engineers and scientists." },
+  { id: 7, icon: FaFlag, name: "State Services", shortDesc: "APPSC, TSPSC, Group 1,2,3,4", description: "State PSCs recruit for various government departments through Group exams. Includes technical posts in Engineering, Panchayat Raj, Women & Child Welfare, Agriculture, Forestry, and more." },
+  { id: 8, icon: FaCity, name: "Central Ministries", shortDesc: "58 Ministries, 94+ Departments", description: "Government of India comprises 58 ministries and over 94 departments. Opportunities include scientists, trainers, administrators, and diverse roles across various organizations and institutes." },
 ];
 
 const WHATSAPP_NUMBER = "917794045533";
@@ -72,9 +73,9 @@ export default function JobCategories() {
                     <div style={{
                       width: 96, height: 96, background: "linear-gradient(135deg, #fff7ed, #f0fdf4)",
                       borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 40, marginBottom: 20, boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                      fontSize: 40, color: "#f97316", marginBottom: 20, boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
                     }}>
-                      {cat.icon}
+                      <cat.icon />
                     </div>
                     <h3 style={{ fontSize: 17, fontWeight: 800, color: "#1f2937", marginBottom: 8, lineHeight: 1.3 }}>{cat.name}</h3>
                     <div style={{ width: 48, height: 4, background: "linear-gradient(90deg, #f97316, #22c55e)", borderRadius: 9999, margin: "0 auto 12px" }} />
@@ -95,8 +96,8 @@ export default function JobCategories() {
                   }}>
                     <div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                        <div style={{ width: 48, height: 48, background: "rgba(249,115,22,0.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
-                          {cat.icon}
+                        <div style={{ width: 48, height: 48, background: "rgba(249,115,22,0.2)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, color: "#fb923c" }}>
+                          <cat.icon />
                         </div>
                         <span style={{ fontSize: 11, background: "rgba(34,197,94,0.2)", color: "#4ade80", padding: "3px 8px", borderRadius: 9999 }}>
                           #{idx + 1}

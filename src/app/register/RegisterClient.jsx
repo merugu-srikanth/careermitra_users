@@ -300,7 +300,7 @@ export default function Register() {
 
         {/* RIGHT SIDE FORM */}
         <div className="p-8 flex flex-col justify-center bg-white">
-          <h2 className="text-2xl font-bold text-center mb-1 text-gray-800">Register</h2>
+          <h1 className="text-2xl font-bold text-center mb-1 text-gray-800">Register</h1>
           <p className="text-gray-500 text-sm text-center mb-3">
             Create your account to get started
           </p>
