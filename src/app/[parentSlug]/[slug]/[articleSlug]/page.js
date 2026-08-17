@@ -1,6 +1,9 @@
+import { cache } from "react";
 import ArticleDetail from "@/components/Articles/ArticleDetail";
 
-async function getArticle(articleSlug) {
+// cache() dedupes this fetch — generateMetadata and Page both call it for
+// the same request, and React's per-request cache collapses them into one.
+const getArticle = cache(async (articleSlug) => {
   try {
     const res = await fetch(`https://careermitra.in/api/blogs/slug/${articleSlug}`);
     const data = await res.json();
@@ -11,7 +14,7 @@ async function getArticle(articleSlug) {
     console.error("Error fetching article on server:", e);
   }
   return null;
-}
+});
 
 export async function generateMetadata({ params }) {
   const { parentSlug, slug, articleSlug } = await params;
@@ -44,6 +47,8 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
-  return <ArticleDetail />;
+export default async function Page({ params }) {
+  const { articleSlug } = await params;
+  const art = await getArticle(articleSlug);
+  return <ArticleDetail key={articleSlug} initialArticle={art} />;
 }

@@ -16,6 +16,13 @@ const absoluteUrl = (path) => {
 };
 
 /**
+ * Strips HTML tags down to plain text for articleBody — schema.org wants the
+ * actual article text, not markup.
+ */
+const stripHtml = (html) =>
+  html ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : undefined;
+
+/**
  * Generate Organization Schema.
  */
 export function generateOrganizationSchema(customData = {}) {
@@ -144,6 +151,7 @@ export function generateArticleSchema(article = {}) {
     "@type": article.type || "Article",
     "headline": article.headline || article.title,
     "description": article.description,
+    "articleBody": stripHtml(article.content),
     "image": article.image ? [absoluteUrl(article.image)] : [`${BASE_URL}/og-default.png`],
     "datePublished": published,
     "dateModified": modified,

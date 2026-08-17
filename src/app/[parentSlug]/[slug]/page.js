@@ -1,10 +1,14 @@
+import { cache } from "react";
 import TwoSegmentResolver from "@/components/Articles/TwoSegmentResolver";
+import ArticleDetail from "@/components/Articles/ArticleDetail";
 import NotFoundPage from "@/components/NotFoundPage";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
 
-async function getRouteTypeAndData(parentSlug, slug) {
+// cache() dedupes this fetch — generateMetadata and Page both call it for
+// the same request, and React's per-request cache collapses them into one.
+const getRouteTypeAndData = cache(async (parentSlug, slug) => {
   try {
     // 1. Check if it's a category
     const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
@@ -31,7 +35,7 @@ async function getRouteTypeAndData(parentSlug, slug) {
     console.error("Error resolving two-segment route metadata:", e);
   }
   return { type: "article", data: null };
-}
+});
 
 export async function generateMetadata({ params }) {
   const { parentSlug, slug } = await params;
@@ -90,5 +94,17 @@ export default async function Page({ params }) {
   if (!parentSlug || parentSlug.includes(".") || !slug || slug.includes(".")) {
     return <NotFoundPage />;
   }
+
+  // Server already knows whether this is an article (and has its full data)
+  // from the generateMetadata call above — render it directly so the first
+  // HTML response has the real content, instead of handing an empty shell
+  // to TwoSegmentResolver to figure out client-side.
+  const result = await getRouteTypeAndData(parentSlug, slug);
+  if (result.type === "article" && result.data) {
+    return <ArticleDetail key={slug} initialArticle={result.data} />;
+  }
+
+  // Category page, or the server-side article lookup failed — fall back to
+  // the existing client-side resolver (unchanged behavior).
   return <TwoSegmentResolver />;
 }

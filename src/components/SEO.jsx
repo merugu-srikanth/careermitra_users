@@ -66,61 +66,63 @@ export default function SEO({
     }
     canonical.href = absoluteCurrentUrl;
 
-    // Clean up dynamic schemas previously added
-    const schemaScripts = document.querySelectorAll('script[type="application/ld+json"].dynamic-seo-schema');
-    schemaScripts.forEach(s => s.remove());
+  }, [safeTitle, safeDescription, keywords, url, pathname]);
 
-    // Assemble dynamic breadcrumbs if not custom provided
-    let autoBreadcrumbSchema = null;
-    const pathSegments = pathname.split("/").filter(Boolean);
-    if (pathSegments.length > 0) {
-      const breadcrumbItems = [{ name: "Home", item: "/" }];
-      let accumulatedPath = "";
-      pathSegments.forEach((segment) => {
-        accumulatedPath += `/${segment}`;
-        const cleanName = segment
-          .split("-")
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
-        breadcrumbItems.push({
-          name: cleanName,
-          item: accumulatedPath
-        });
+  // ── Structured data (JSON-LD) — rendered directly in JSX (not via a
+  // useEffect DOM patch) so it's present in the server-rendered HTML.
+  // Google reads JSON-LD from anywhere in the document, <head> or <body>,
+  // so an inline <script> here is fully valid — it doesn't need next/head.
+  let autoBreadcrumbSchema = null;
+  const pathSegments = pathname.split("/").filter(Boolean);
+  if (pathSegments.length > 0) {
+    const breadcrumbItems = [{ name: "Home", item: "/" }];
+    let accumulatedPath = "";
+    pathSegments.forEach((segment) => {
+      accumulatedPath += `/${segment}`;
+      const cleanName = segment
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+      breadcrumbItems.push({
+        name: cleanName,
+        item: accumulatedPath
       });
-      autoBreadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
-    }
-
-    // Normalize schemas: filter out nulls/falsy values
-    const inputSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
-    let mergedSchemas = [...inputSchemas];
-
-    // If there isn't a BreadcrumbList in the user-provided schemas, add the auto-generated one
-    const hasBreadcrumb = mergedSchemas.some(
-      s => s && (s["@type"] === "BreadcrumbList" || s["@type"] === "http://schema.org/BreadcrumbList")
-    );
-    if (!hasBreadcrumb && autoBreadcrumbSchema) {
-      mergedSchemas.push(autoBreadcrumbSchema);
-    }
-
-    // Deduplicate schemas by @type
-    const dedupedMap = new Map();
-    mergedSchemas.forEach(s => {
-      if (s && s["@type"]) {
-        dedupedMap.set(s["@type"], s);
-      }
     });
-    const finalSchemas = Array.from(dedupedMap.values());
+    autoBreadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+  }
 
-    // Append new scripts to head
-    finalSchemas.forEach(sch => {
-      const script = document.createElement('script');
-      script.type = "application/ld+json";
-      script.className = "dynamic-seo-schema";
-      script.text = JSON.stringify(sch);
-      document.head.appendChild(script);
-    });
+  // Normalize schemas: filter out nulls/falsy values
+  const inputSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
+  let mergedSchemas = [...inputSchemas];
 
-  }, [safeTitle, safeDescription, keywords, url, pathname, schema]);
+  // If there isn't a BreadcrumbList in the user-provided schemas, add the auto-generated one
+  const hasBreadcrumb = mergedSchemas.some(
+    s => s && (s["@type"] === "BreadcrumbList" || s["@type"] === "http://schema.org/BreadcrumbList")
+  );
+  if (!hasBreadcrumb && autoBreadcrumbSchema) {
+    mergedSchemas.push(autoBreadcrumbSchema);
+  }
 
-  return null;
+  // Deduplicate schemas by @type
+  const dedupedMap = new Map();
+  mergedSchemas.forEach(s => {
+    if (s && s["@type"]) {
+      dedupedMap.set(s["@type"], s);
+    }
+  });
+  const finalSchemas = Array.from(dedupedMap.values());
+
+  return (
+    <>
+      {finalSchemas.map(sch => (
+        <script
+          key={sch["@type"]}
+          type="application/ld+json"
+          // Escape "<" so a "</script>" inside article text (e.g. articleBody)
+          // can't prematurely close this tag.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(sch).replace(/</g, "\\u003c") }}
+        />
+      ))}
+    </>
+  );
 }

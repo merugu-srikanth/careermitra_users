@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import SEO from "../../components/SEO";
 import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
@@ -406,7 +406,11 @@ export const DetailSkeleton = () => (
 );
 
 /* ── Main Component ── */
-export default function ArticleDetail() {
+// initialArticle — when the server (page.js) already resolved and fetched
+// the article, it's passed in here so the very first render (SSR included)
+// shows the real content instead of a loading skeleton. Falls back to the
+// original client-side fetch when it's not provided.
+export default function ArticleDetail({ initialArticle = null }) {
   // Handles all route patterns:
   // /articles/:slug | /articles/:p/:slug | /articles/:p/:c/:slug
   // /:parentSlug/:slug (TwoSegmentResolver) | /:parentSlug/:childSlug/:articleSlug
@@ -417,12 +421,14 @@ export default function ArticleDetail() {
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
-  const [article,       setArticle]       = useState(null);
-  const [loading,       setLoading]       = useState(true);
+  const [article,       setArticle]       = useState(initialArticle);
+  const [loading,       setLoading]       = useState(!initialArticle);
   const [error,         setError]         = useState(null);
   const [related,       setRelated]       = useState([]);
   const [tocItems,      setTocItems]      = useState([]);
-  const [processedHtml, setProcessedHtml] = useState("");
+  const [processedHtml, setProcessedHtml] = useState(() =>
+    initialArticle ? processContent(initialArticle.content || "").html : ""
+  );
   const [readingMode,   setReadingMode]   = useState(false);
   const [ttsRate,       setTtsRate]       = useState(1);
   const [shareDropdownOpen, setShareDropdownOpen] = useState(false);
@@ -442,7 +448,7 @@ export default function ArticleDetail() {
 
   /* ── Plain text for TTS (strips HTML tags) ── */
   const plainText = useMemo(() => {
-    if (!processedHtml) return "";
+    if (!processedHtml || typeof document === "undefined") return "";
     const div = document.createElement("div");
     div.innerHTML = processedHtml;
     return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
@@ -459,9 +465,32 @@ export default function ArticleDetail() {
 
   useEffect(() => {
     if (parentSlug === "internships") return;
+    window.scrollTo(0, 0);
+
+    // Server already resolved + sanitized this article for the first paint —
+    // just run the canonical-redirect check and fetch related articles.
+    if (initialArticle) {
+      const canonicalPath = buildArticleUrl(initialArticle);
+      if (window.location.pathname !== canonicalPath) {
+        navigate(canonicalPath, { replace: true });
+        return;
+      }
+      const parentId = initialArticle.categoryTree?.[0]?.parent?.id;
+      if (parentId) {
+        fetch(`${API_BASE}/blogs?parent_category_id=${parentId}`)
+          .then(r => r.json())
+          .then(rd => {
+            const list = (rd.data || rd).articles || [];
+            setRelated(list.filter(a => a.slug !== slug).slice(0, 7));
+          })
+          .catch(() => {});
+      }
+      return;
+    }
+
+    // Fallback — no server-provided article, fetch client-side as before.
     setLoading(true); setError(null); setArticle(null);
     setRelated([]); setTocItems([]); setProcessedHtml("");
-    window.scrollTo(0, 0);
 
     fetch(`${API_BASE}/blogs/slug/${slug}`)
       .then(r => r.json())
@@ -544,6 +573,7 @@ export default function ArticleDetail() {
     const articleSchema = generateArticleSchema({
       headline: article.meta_title || article.title,
       description: article.meta_description || article.short_description,
+      content: article.content,
       image: article.featured_image,
       publishedAt: displayDate,
       modifiedAt: updatedDisplayDate,
