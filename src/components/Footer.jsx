@@ -1,6 +1,6 @@
 "use client";
 
-import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube } from "react-icons/fa";
+import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaInstagram } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -9,6 +9,11 @@ import { useAuth } from "@/context/AuthContext";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+
+// Same number/message as FloatingWhatsApp.jsx — keep both in sync.
+const WHATSAPP_NUMBER = "917794045533";
+const WHATSAPP_MESSAGE = encodeURIComponent("Hi Career Mitra team, I need help with a job opportunity.");
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
 function buildCategoryUrl(child, parents) {
   const parent = parents.find(p => p.id === child.parent_id);
@@ -29,13 +34,16 @@ export default function Footer() {
       })
       .catch(() => { });
   }, []);
+  // URLs kept in sync with Navbar.jsx's navLinks / dropdown entries.
   const quickLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about-us" },
-    { label: "Career Guide", to: "/career-guide" },
-    { label: "Internship Guide", to: "/internship-guide" },
-    { label: "Articles", to: "/government-jobs" },
-    { label: "Contact", to: "/contact-us" },
+    { label: "Our Team", to: "/meet-our-team" },
+    { label: "Latest Job Notifications", to: "/latest-job-notifications" },
+    { label: "Internship Opportunities", to: "/internships" },
+    { label: "Government Jobs", to: "/government-jobs" },
+        { label: "Contact Us", to: "/contact-us" },
+
     // { label: "Terms of Service", to: "/terms-of-service" },
     // { label: "Privacy Policy", to: "/privacy-policy" },
     // { label: "Disclaimer", to: "/disclaimer" },
@@ -60,13 +68,23 @@ export default function Footer() {
       <div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-green-500/10 blur-3xl" />
       <div className="h-1 w-full bg-linear-to-r from-orange-500 via-amber-400 to-green-500" />
 
-      {/* ── Popular Categories ── */}
-      {cats.children.length > 0 && (
+      {/* ── Popular Categories — parents first (bold), then children (dimmer) ── */}
+      {(cats.parents.length > 0 || cats.children.length > 0) && (
         <div className="border-b border-slate-800/70">
           <div className="mx-auto w-full px-4 md:px-15 py-8">
             <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Popular Categories</h3>
             <div className="h-0.5 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400 mb-6" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2.5">
+              {cats.parents.map(parent => (
+                <Link
+                  key={parent.id}
+                  href={`/${toSlug(parent.name, parent.slug)}`}
+                  className="flex items-center gap-1.5 text-sm font-bold text-slate-200 hover:text-orange-300 transition-colors duration-200 whitespace-normal wrap-break-word"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                  {parent.name} Jobs
+                </Link>
+              ))}
               {cats.children.map(child => (
                 <Link
                   key={child.id}
@@ -83,7 +101,7 @@ export default function Footer() {
       )}
 
       <div className="relative mx-auto w-full px-4 md:px-15 pb-12 pt-10">
-        {!token && (
+        {/* {!token && (
           <div className="mb-8 rounded-2xl border border-orange-400/30 bg-linear-to-r from-orange-500/15 via-orange-400/10 to-green-500/15 p-5 shadow-lg shadow-black/20 sm:p-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
@@ -110,28 +128,56 @@ export default function Footer() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
-            <img src={logo.src || logo} alt="Careermitra Logo" className="h-20 w-auto sm:h-24" />
+            <img src={logo.src || logo} alt="Careermitra Logo" className="block mx-auto sm:mx-0 h-20 w-auto sm:h-24" />
             <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">
               Your one-stop gateway for government jobs and career guidance across India.            </p>
 
 
 
-            <div className="mt-5">
+            <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
               <a
                 href="https://www.youtube.com/@CareerMitraaa"
                 target="_blank"
                 rel="nofollow noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
-                className="group inline-flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-5 py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300"
+                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300 min-w-0"
               >
-                <FaYoutube size={28} className="shrink-0 text-red-500 group-hover:text-red-400" />
-                <div className="flex flex-col leading-tight text-left">
-                  <span className="text-sm font-black text-white">Careermitra</span>
-                  <span className="text-xs font-medium text-red-400">@CareerMitraaa</span>
+                <FaYoutube size={22} className="shrink-0 text-red-500 group-hover:text-red-400 sm:size-7" />
+                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
+                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">Careermitra</span>
+                  <span className="hidden sm:block text-xs font-medium text-red-400 truncate max-w-full">@CareerMitraaa</span>
+                </div>
+              </a>
+
+              <a
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat with Careermitra on WhatsApp"
+                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-green-500/40 bg-green-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-green-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-green-500 hover:bg-green-600/20 hover:text-green-300 min-w-0"
+              >
+                <FaWhatsapp size={22} className="shrink-0 text-green-500 group-hover:text-green-400 sm:size-7" />
+                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
+                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">WhatsApp</span>
+                  <span className="hidden sm:block text-xs font-medium text-green-400 truncate max-w-full">Chat with us</span>
+                </div>
+              </a>
+
+              <a
+                href="https://www.instagram.com/career_mitra_official?igsh=MTd0aXJrbHppZWpmYg=="
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                aria-label="Careermitra on Instagram"
+                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-pink-500/40 bg-pink-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-pink-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-pink-500 hover:bg-pink-600/20 hover:text-pink-300 min-w-0"
+              >
+                <FaInstagram size={22} className="shrink-0 text-pink-500 group-hover:text-pink-400 sm:size-7" />
+                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
+                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">Instagram</span>
+                  <span className="hidden sm:block text-xs font-medium text-pink-400 truncate max-w-full">@career_mitra_official</span>
                 </div>
               </a>
             </div>
