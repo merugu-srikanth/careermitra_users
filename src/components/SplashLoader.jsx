@@ -63,7 +63,11 @@ export default function SplashLoader() {
 
             {/* Brand Title */}
             <div className="overflow-hidden flex flex-col items-center">
-              <motion.h1
+              {/* Splash-screen brand text — intentionally not an <h1>. This
+                  mounts on every page (see layout.js), so a real heading tag
+                  here would give every crawled page two <h1>s: this one plus
+                  the page's actual <h1>. */}
+              <motion.div
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
@@ -71,7 +75,7 @@ export default function SplashLoader() {
                 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
               >
                 CAREER MITRA
-              </motion.h1>
+              </motion.div>
               
               <motion.p
                 initial={{ y: 20, opacity: 0 }}
