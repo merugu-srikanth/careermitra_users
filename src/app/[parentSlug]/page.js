@@ -53,11 +53,32 @@ export async function generateMetadata({ params }) {
 
 import NotFoundPage from "@/components/NotFoundPage";
 
+async function getArticlesForParent(parentId) {
+  if (!parentId) return [];
+  try {
+    const res = await fetch(`https://careermitra.in/api/blogs?parent_category_id=${parentId}`);
+    const json = await res.json();
+    const d = json.data || json;
+    return d.articles || [];
+  } catch (e) {
+    console.error("Error fetching category articles on server:", e);
+    return [];
+  }
+}
+
 export default async function Page({ params }) {
   const { parentSlug } = await params;
   if (!parentSlug || parentSlug.includes(".")) {
     return <NotFoundPage />;
   }
   const initialFilterData = await getFilterData();
-  return <ArticleList key={parentSlug} initialFilterData={initialFilterData} />;
+  const parent = initialFilterData.parents.find(p => toSlug(p.name, p.slug) === parentSlug);
+  const initialArticles = await getArticlesForParent(parent?.id);
+  return (
+    <ArticleList
+      key={parentSlug}
+      initialFilterData={initialFilterData}
+      initialArticles={initialArticles}
+    />
+  );
 }

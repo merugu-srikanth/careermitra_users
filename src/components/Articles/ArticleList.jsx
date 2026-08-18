@@ -13,6 +13,9 @@ import NotFoundPage from "../../components/NotFoundPage";
 const API_BASE = "https://careermitra.in/api";
 const PAGE_SIZE = 9;
 
+const stripHtmlTags = (html) =>
+  html ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) : "";
+
 const sanitizeHtml = (html) => {
   if (!html) return "";
   return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
@@ -149,7 +152,13 @@ const ArticleCard = ({ article }) => {
 // /api/blogs/filters, it's passed in here so the category name + long-form
 // description render on the very first pass (SSR included) instead of
 // waiting on a client-side fetch after mount.
-export default function ArticleList({ initialFilterData = null }) {
+// initialArticles — same idea, for this category's article list. The visible
+// grid still uses the live useBlogs() context (so client-side filter/search/
+// load-more keep working exactly as before), but the CollectionPage/ItemList
+// structured data uses initialArticles until useBlogs() catches up, so a
+// crawler that never waits for that client fetch still sees a populated,
+// valid schema instead of racing it.
+export default function ArticleList({ initialFilterData = null, initialArticles = null }) {
   // pathChild comes from /:parentSlug/:childSlug route
   // pathSlug comes from /:parentSlug/:slug route (via TwoSegmentResolver when type=category)
   const params = useParams();
@@ -293,15 +302,23 @@ export default function ArticleList({ initialFilterData = null }) {
       : "Government Jobs | Careermitra";
 
   const articleListSchemas = useMemo(() => {
-    if (!articles || articles.length === 0) return [];
+    // Prefer the live, client-filtered list once useBlogs() has loaded; until
+    // then, fall back to the server-fetched initial batch so structured data
+    // is present on the very first render instead of racing a client fetch.
+    const schemaArticles = (articles && articles.length > 0) ? articles : (initialArticles || []);
+    if (!schemaArticles || schemaArticles.length === 0) return [];
 
     const collectionSchema = generateCollectionPageSchema({
       name: seoTitle,
-      description: "Latest job notifications, government jobs, UPSC, SSC articles and career guides on Careermitra.",
+      description: activeChild?.description
+        ? stripHtmlTags(activeChild.description)
+        : activeParent?.description
+          ? stripHtmlTags(activeParent.description)
+          : "Latest job notifications, government jobs, UPSC, SSC articles and career guides on Careermitra.",
       url: "/government-jobs"
     });
 
-    const itemListItems = articles.slice(0, 20).map((art) => ({
+    const itemListItems = schemaArticles.slice(0, 20).map((art) => ({
       item: {
         title: art.title,
         description: art.meta_description || art.short_description || art.content?.substring(0, 150),
@@ -315,7 +332,7 @@ export default function ArticleList({ initialFilterData = null }) {
     const itemListSchema = generateItemListSchema(itemListItems);
 
     return [collectionSchema, itemListSchema].filter(Boolean);
-  }, [articles, seoTitle]);
+  }, [articles, initialArticles, seoTitle, activeChild, activeParent]);
 
   if (filterData) {
     if (parentSlugParam && parentSlugParam !== "articles" && !parentId) {

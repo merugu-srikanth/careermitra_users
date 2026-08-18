@@ -22,7 +22,7 @@ const getRouteTypeAndData = cache(async (parentSlug, slug) => {
     if (parent) {
       const child = children.find(c => c.parent_id === parent.id && toSlug(c.name, c.slug) === slug);
       if (child) {
-        return { type: "category", name: child.name, parentName: parent.name, parents, children };
+        return { type: "category", name: child.name, parentName: parent.name, childId: child.id, parents, children };
       }
     }
 
@@ -105,10 +105,20 @@ export default async function Page({ params }) {
     return <ArticleDetail key={slug} initialArticle={result.data} />;
   }
   if (result.type === "category") {
+    let initialArticles = [];
+    try {
+      const res = await fetch(`https://careermitra.in/api/blogs?child_category_id=${result.childId}`);
+      const json = await res.json();
+      const d = json.data || json;
+      initialArticles = d.articles || [];
+    } catch (e) {
+      console.error("Error fetching category articles on server:", e);
+    }
     return (
       <ArticleList
         key={`${parentSlug}/${slug}`}
         initialFilterData={{ parents: result.parents, children: result.children }}
+        initialArticles={initialArticles}
       />
     );
   }
