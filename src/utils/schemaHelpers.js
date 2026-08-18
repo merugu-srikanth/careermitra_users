@@ -152,6 +152,7 @@ export function generateArticleSchema(article = {}) {
     "headline": article.headline || article.title,
     "description": article.description,
     "articleBody": stripHtml(article.content),
+    "url": article.url ? absoluteUrl(article.url) : undefined,
     "image": article.image ? [absoluteUrl(article.image)] : [`${BASE_URL}/og-default.png`],
     "datePublished": published,
     "dateModified": modified,
@@ -380,12 +381,22 @@ export function generateItemListSchema(items = []) {
           "url": absoluteUrl(item)
         };
       }
+      // A ListItem may carry EITHER "url" OR "item" (a full entity) — never
+      // both. Google's structured data validator flags that combination as
+      // "Two or more mutually-exclusive properties used in a single
+      // structured data item", which is why the carousel showed 1 invalid item.
+      if (item.item) {
+        return {
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": generateArticleSchema(item.item)
+        };
+      }
       return {
         "@type": "ListItem",
         "position": index + 1,
         "url": item.url ? absoluteUrl(item.url) : undefined,
-        "name": item.name,
-        "item": item.item ? generateArticleSchema(item.item) : undefined
+        "name": item.name
       };
     })
   };

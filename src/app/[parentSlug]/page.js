@@ -1,22 +1,22 @@
+import { cache } from "react";
 import ArticleList from "@/components/Articles/ArticleList";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
 
-async function getCategoryName(parentSlug) {
-  if (!parentSlug || parentSlug.includes(".")) return null;
+// cache() dedupes this fetch — generateMetadata and Page both call it for
+// the same request, and React's per-request cache collapses them into one.
+const getFilterData = cache(async () => {
   try {
     const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
     const filterJson = await filterRes.json();
     const d = filterJson.data || filterJson;
-    const parents = d.parents || [];
-    const parent = parents.find(p => toSlug(p.name, p.slug) === parentSlug);
-    if (parent) return parent.name;
+    return { parents: d.parents || [], children: d.children || [] };
   } catch (e) {
-    console.error("Error fetching parent category on server:", e);
+    console.error("Error fetching category filters on server:", e);
+    return { parents: [], children: [] };
   }
-  return null;
-}
+});
 
 export async function generateMetadata({ params }) {
   const { parentSlug } = await params;
@@ -25,7 +25,8 @@ export async function generateMetadata({ params }) {
       title: "Career Mitra",
     };
   }
-  const name = await getCategoryName(parentSlug);
+  const { parents } = await getFilterData();
+  const name = parents.find(p => toSlug(p.name, p.slug) === parentSlug)?.name || null;
   if (!name) {
     return {
       title: "Government Jobs - Career Mitra",
@@ -57,5 +58,6 @@ export default async function Page({ params }) {
   if (!parentSlug || parentSlug.includes(".")) {
     return <NotFoundPage />;
   }
-  return <ArticleList />;
+  const initialFilterData = await getFilterData();
+  return <ArticleList key={parentSlug} initialFilterData={initialFilterData} />;
 }

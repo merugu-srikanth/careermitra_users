@@ -1,6 +1,7 @@
 import { cache } from "react";
 import TwoSegmentResolver from "@/components/Articles/TwoSegmentResolver";
 import ArticleDetail from "@/components/Articles/ArticleDetail";
+import ArticleList from "@/components/Articles/ArticleList";
 import NotFoundPage from "@/components/NotFoundPage";
 
 const toSlug = (name = "", apiSlug = "") =>
@@ -21,7 +22,7 @@ const getRouteTypeAndData = cache(async (parentSlug, slug) => {
     if (parent) {
       const child = children.find(c => c.parent_id === parent.id && toSlug(c.name, c.slug) === slug);
       if (child) {
-        return { type: "category", name: child.name, parentName: parent.name };
+        return { type: "category", name: child.name, parentName: parent.name, parents, children };
       }
     }
 
@@ -103,8 +104,16 @@ export default async function Page({ params }) {
   if (result.type === "article" && result.data) {
     return <ArticleDetail key={slug} initialArticle={result.data} />;
   }
+  if (result.type === "category") {
+    return (
+      <ArticleList
+        key={`${parentSlug}/${slug}`}
+        initialFilterData={{ parents: result.parents, children: result.children }}
+      />
+    );
+  }
 
-  // Category page, or the server-side article lookup failed — fall back to
-  // the existing client-side resolver (unchanged behavior).
+  // Server-side lookup failed (e.g. API error) — fall back to the existing
+  // client-side resolver rather than showing a broken page.
   return <TwoSegmentResolver />;
 }

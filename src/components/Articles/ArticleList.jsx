@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useParams, useSearchParams, usePathname } from "next/navigation";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import SEO from "../../components/SEO";
 import { generateCollectionPageSchema, generateItemListSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
@@ -15,9 +15,7 @@ const PAGE_SIZE = 9;
 
 const sanitizeHtml = (html) => {
   if (!html) return "";
-  if (typeof window === "undefined") return html;
-  const purify = DOMPurify.sanitize ? DOMPurify : (DOMPurify.default || DOMPurify);
-  return purify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
+  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
     /<a /g,
     '<a target="_blank" rel="noopener noreferrer" '
   );
@@ -147,7 +145,11 @@ const ArticleCard = ({ article }) => {
 };
 
 /* ── Main Page ── */
-export default function ArticleList() {
+// initialFilterData — when the server (page.js) already fetched
+// /api/blogs/filters, it's passed in here so the category name + long-form
+// description render on the very first pass (SSR included) instead of
+// waiting on a client-side fetch after mount.
+export default function ArticleList({ initialFilterData = null }) {
   // pathChild comes from /:parentSlug/:childSlug route
   // pathSlug comes from /:parentSlug/:slug route (via TwoSegmentResolver when type=category)
   const params = useParams();
@@ -162,7 +164,7 @@ export default function ArticleList() {
   const childSlugParam = pathChild || pathSlug || searchParams.get("child") || "";
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [filterData, setFilterData] = useState(null); // null = not yet loaded
+  const [filterData, setFilterData] = useState(initialFilterData); // null = not yet loaded
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const debounceRef = useRef(null);
@@ -172,8 +174,9 @@ export default function ArticleList() {
   const loading = contextLoading || filterData === null;
   const error = contextError;
 
-  /* ── Load filter options once ── */
+  /* ── Load filter options once — skipped when the server already provided them ── */
   useEffect(() => {
+    if (initialFilterData) return;
     fetch("https://careermitra.in/api/blogs/filters")
       .then(r => r.json())
       .then(data => {
@@ -181,7 +184,7 @@ export default function ArticleList() {
         setFilterData({ parents: d.parents || [], children: d.children || [] });
       })
       .catch(() => setFilterData({ parents: [], children: [] }));
-  }, []);
+  }, [initialFilterData]);
 
   /* ── Resolve URL slugs → category IDs (safe when filterData is null) ── */
   const parentId = filterData ? (filterData.parents.find(p => toSlug(p.name, p.slug) === parentSlugParam)?.id || "") : "";
@@ -299,11 +302,10 @@ export default function ArticleList() {
     });
 
     const itemListItems = articles.slice(0, 20).map((art) => ({
-      name: art.title,
-      url: `https://careermitra.in${buildArticleUrl(art)}`,
       item: {
         title: art.title,
         description: art.meta_description || art.short_description || art.content?.substring(0, 150),
+        image: art.featured_image,
         publishedAt: art.published_at || art.created_at,
         url: `https://careermitra.in${buildArticleUrl(art)}`,
         authorName: art.author?.author_name || art.author_name || "Career Mitra"
