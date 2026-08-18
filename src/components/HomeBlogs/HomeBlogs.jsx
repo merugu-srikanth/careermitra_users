@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import SEO from '@/components/SEO';
 import blogFallback from '@/assets/blog-sample.png';
-import { useBlogs } from '@/context/BlogContext';
 
 const BLOGLIST_STYLES = `
 
@@ -335,74 +334,62 @@ const CardSkeleton = () => (
     </div>
 );
 
+// Define the 4 target categories and their slugs
+const SECTIONS = [
+    { name: "Career Guidance", slug: "career-guidance" },
+    { name: "Central Government Jobs", slug: "central-government-jobs" },
+    { name: "State Government Jobs", slug: "state-government-jobs" },
+    { name: "Defence Jobs", slug: "defence-jobs" }
+];
+
 const HomeBlogs = () => {
-    const { blogs: allBlogs, loading: contextLoading, error: contextError } = useBlogs();
     const [mounted, setMounted] = useState(false);
-    const [filterData, setFilterData] = useState(null);
+    const [categorizedSections, setCategorizedSections] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         setMounted(true);
-        // Load parent/child category configurations for robust mapping
-        fetch("https://careermitra.in/api/blogs/filters")
-            .then(r => r.json())
-            .then(data => {
-                const d = data.data || data;
-                setFilterData({ parents: d.parents || [], children: d.children || [] });
-            })
-            .catch(() => setFilterData({ parents: [], children: [] }));
-    }, []);
 
-    const loading = contextLoading || filterData === null;
-    const error = contextError;
+        // Each section's articles come straight from the backend's own
+        // category-filtered endpoint, which is already sorted newest-first —
+        // no client-side "does this blog belong to this category" guessing,
+        // and no need to pull every published blog on the site just to show
+        // 8 per section.
+        let cancelled = false;
 
-    // Helper to check if a blog belongs to a parent category slug
-    const belongsToParentCategory = (blog, parentSlug) => {
-        if (filterData && filterData.parents.length > 0) {
-            const parentCat = filterData.parents.find(p => slugify(p.name) === parentSlug);
-            if (parentCat) {
-                const tree = blog.categoryTree?.[0];
-                const pId = parentCat.id;
-                if (tree?.parent?.id === pId || tree?.parent?._id === pId) {
-                    return true;
-                }
+        (async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
+                const filterJson = await filterRes.json();
+                const parents = (filterJson.data || filterJson).parents || [];
+
+                const sections = await Promise.all(SECTIONS.map(async (sec) => {
+                    const parent = parents.find(p => p.slug === sec.slug || slugify(p.name) === sec.slug);
+                    if (!parent) return { ...sec, blogs: [] };
+                    try {
+                        const res = await fetch(`https://careermitra.in/api/blogs?parent_category_id=${parent.id}`);
+                        const json = await res.json();
+                        const articles = (json.data || json).articles || [];
+                        return { ...sec, blogs: articles.slice(0, 8).map(normalizeBlog) };
+                    } catch {
+                        return { ...sec, blogs: [] };
+                    }
+                }));
+
+                if (!cancelled) setCategorizedSections(sections);
+            } catch (err) {
+                console.error("Failed to load home page category blogs:", err);
+                if (!cancelled) setError("Unable to connect to the articles database.");
+            } finally {
+                if (!cancelled) setLoading(false);
             }
-        }
-        // Fallback: match by slugified primary category name
-        return slugify(blog.primaryCategory) === parentSlug;
-    };
+        })();
 
-    // Normalize and sort all blogs (newest first)
-    const sortedBlogs = useMemo(() => {
-        if (!allBlogs) return [];
-        const list = allBlogs.map(normalizeBlog);
-        return list.sort((a, b) => {
-            const dateA = new Date(a.published_at || a.createdAt || a.created_at || 0);
-            const dateB = new Date(b.published_at || b.createdAt || b.created_at || 0);
-            return dateB - dateA;
-        });
-    }, [allBlogs]);
-
-    // Define the 4 target categories and their slugs
-    const SECTIONS = [
-        { name: "Career Guidance", slug: "career-guidance" },
-        { name: "Central Government Jobs", slug: "central-government-jobs" },
-        { name: "State Government Jobs", slug: "state-government-jobs" },
-        { name: "Defence Jobs", slug: "defence-jobs" }
-    ];
-
-    // Map sorted blogs into their respective categories (limit to 8)
-    const categorizedSections = useMemo(() => {
-        if (loading) return [];
-        return SECTIONS.map(sec => {
-            const sectionBlogs = sortedBlogs
-                .filter(blog => belongsToParentCategory(blog, sec.slug))
-                .slice(0, 8);
-            return {
-                ...sec,
-                blogs: sectionBlogs
-            };
-        });
-    }, [sortedBlogs, loading, filterData]);
+        return () => { cancelled = true; };
+    }, []);
 
     const hasAnyBlogs = categorizedSections.some(sec => sec.blogs.length > 0);
 
