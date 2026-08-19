@@ -63,7 +63,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-orange-200/20 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200">
+    <footer className="relative  overflow-hidden border-t border-orange-200/20 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200">
       <div className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-green-500/10 blur-3xl" />
       <div className="h-1 w-full bg-linear-to-r from-orange-500 via-amber-400 to-green-500" />

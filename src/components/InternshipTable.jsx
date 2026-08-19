@@ -343,7 +343,7 @@ const InternshipTable = () => {
     : "Try checking back later.";
 
   return (
-    <section style={{ background: "linear-gradient(160deg,#fff7ed 0%,#ffffff 50%,#fff7ed 100%)" }}>
+    <section>
       <div className="md:w-full w-full mx-auto px-1 md:px-4 md:px-15">
 
         {/* ── Tabs bar ── */}

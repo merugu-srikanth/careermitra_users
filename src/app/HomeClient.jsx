@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import InternshipTable from "@/components/InternshipTable";
 import HeroFinalPage from '@/components/HeroFinalPage';
 import HomeBlogs from "@/components/HomeBlogs/HomeBlogs";
+import HomeFAQ from "@/components/HomeFAQ";
 
 const ArrowRightIcon = () => (
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -120,6 +121,8 @@ export default function HomeClient() {
           <InternshipTable />
         </div>
       </section>
+
+      <HomeFAQ />
 
       {/* States Grid (Temporarily Commented Out)
       <section style={{ padding: "80px 0 96px", background: "#ffffff" }}>

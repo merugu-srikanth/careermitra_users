@@ -72,7 +72,7 @@ const teamMembers = [
     domain: "Academic Leadership & Student Mentoring",
     bio: "A seasoned academic professional with 26+ years of experience in education, student mentoring, and academic leadership. Passionate about guiding students toward academic excellence and career success.",
     highlights: [
-      "26+ years of academic leadership and mentoring",
+      "20+ years of academic leadership and mentoring",
       "Expert in student guidance and career planning",
       "Committed to empowering learners for long-term success"
     ],
