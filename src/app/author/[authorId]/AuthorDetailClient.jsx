@@ -13,8 +13,6 @@ const slugify = (s = '') =>
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
-const isMongoId = (s) => /^[a-f0-9]{24}$/i.test(s);
-
 const getBlogPath = (blog, detail) => {
   const art = detail || blog;
   const tree = art?.categoryTree?.[0];
@@ -134,10 +132,9 @@ const BookIcon = () => (
 export default function AuthorProfilePage({ initialData = null }) {
   const { authorId } = useParams();
 
-  const [author, setAuthor] = useState(initialData);
-  const [assignedBlogs, setAssignedBlogs] = useState(initialData ? (initialData.assignedBlogs || []) : []);
-  const [suggestedBlogs, setSuggestedBlogs] = useState([]);
-  const [blogDetails, setBlogDetails] = useState({});
+  const [author, setAuthor] = useState(initialData?.author || null);
+  const [assignedBlogs, setAssignedBlogs] = useState(initialData?.assignedBlogs || []);
+  const [suggestedBlogs, setSuggestedBlogs] = useState(initialData?.suggestedBlogs || []);
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
 
@@ -150,70 +147,26 @@ export default function AuthorProfilePage({ initialData = null }) {
     }
   }, [authorId, initialData]);
 
+  // Only hit when the server didn't already provide initialData. A single
+  // call to our own public author API, instead of the multi-fetch
+  // (blog list -> author -> per-blog detail -> blog list again) waterfall
+  // this page used to run entirely client-side.
   const fetchAuthor = async () => {
     setLoading(true);
     setError("");
     try {
-      if (isMongoId(authorId)) {
-        throw new Error("Author not found");
-      }
-      let resolvedId = authorId;
+      const res = await fetch(`/api/authors/${authorId}`);
+      const payload = await res.json();
+      if (!payload.success) throw new Error(payload.message || "Author not found");
 
-      // If param is a slug (not a 24-char MongoDB hex ID), resolve to _id via blog data
-      const blogsRes = await fetch("https://careermitra.in/api/blogs");
-        const blogsData = await blogsRes.json();
-        const blogs = blogsData.data?.articles || [];
-        const match = blogs
-          .map((b) => b.author)
-          .filter(Boolean)
-          .find((a) => slugify(a.author_name || a.name || "") === authorId);
-        if (!match?._id) throw new Error("Author not found");
-        resolvedId = match._id;
-
-      const res = await fetch(`https://careermitra.in/api/authors/${resolvedId}`);
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || "Author not found");
-
-      const authorData = data.data;
-      setAuthor(authorData);
-      setAssignedBlogs(authorData.assignedBlogs || []);
-
-      // fetch blog details + suggested blogs in parallel
-      await Promise.all([
-        fetchBlogDetails(authorData.assignedBlogs || []),
-        fetchSuggested(authorData.assignedBlogs || []),
-      ]);
+      setAuthor(payload.data.author);
+      setAssignedBlogs(payload.data.assignedBlogs || []);
+      setSuggestedBlogs(payload.data.suggestedBlogs || []);
     } catch (e) {
       setError(e.message || "Unable to load author profile.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchBlogDetails = async (blogs) => {
-    if (!blogs.length) return;
-    const results = await Promise.allSettled(
-      blogs.map((b) =>
-        fetch(`https://careermitra.in/api/blogs/slug/${b.slug}`).then((r) => r.json())
-      )
-    );
-    const map = {};
-    results.forEach((r, i) => {
-      if (r.status === "fulfilled" && r.value?.success) {
-        map[blogs[i].slug] = r.value.data;
-      }
-    });
-    setBlogDetails(map);
-  };
-
-  const fetchSuggested = async (assignedBlogs) => {
-    try {
-      const assignedIds = new Set(assignedBlogs.map((b) => b._id));
-      const res = await fetch("https://careermitra.in/api/blogs");
-      const data = await res.json();
-      const all = data?.data?.articles || [];
-      setSuggestedBlogs(all.filter((b) => !assignedIds.has(b._id)).slice(0, 6));
-    } catch {}
   };
 
   /* ── Loading ── */
@@ -234,12 +187,8 @@ export default function AuthorProfilePage({ initialData = null }) {
     </div>
   );
 
-  const { author_name, bio, avatar_url, social_links, createdAt, updatedAt, email, role } = author;
-  const authorHandleBase = email?.split("@")[0] || author_name || "author";
-  const authorHandle = `@${authorHandleBase.toLowerCase().replace(/[^a-z0-9_]/gi, "")}`;
-  const totalViews = assignedBlogs.reduce(
-    (sum, b) => sum + (blogDetails[b.slug]?.views || 0), 0
-  );
+  const { author_name, bio, avatar_url, social_links, createdAt, handle: authorHandle, role } = author;
+  const totalViews = assignedBlogs.reduce((sum, b) => sum + (b.views || 0), 0);
   
   const normalizedSocials = [
     { key: "linkedin", label: "LinkedIn", icon: LinkedInIcon, url: social_links?.linkedin },
@@ -377,22 +326,19 @@ export default function AuthorProfilePage({ initialData = null }) {
               </div>
 
               <div className="ap-blogs-grid">
-                {assignedBlogs.map((blog) => {
-                  const detail = blogDetails[blog.slug];
-                  return (
-                    <Link key={blog._id || blog.slug} href={getBlogPath(blog, detail)} className="ap-blog-card">
-                      <div className="ap-blog-body">
-                        {(detail?.category || blog.category) && (
-                          <div className="ap-blog-cat">{detail?.category || blog.category}</div>
-                        )}
-                        <div className="ap-blog-title">{blog.title}</div>
-                        <div className="ap-blog-arrow">
-                          Read Article <ArrowRight />
-                        </div>
+                {assignedBlogs.map((blog) => (
+                  <Link key={blog._id || blog.slug} href={getBlogPath(blog)} className="ap-blog-card">
+                    <div className="ap-blog-body">
+                      {blog.category && (
+                        <div className="ap-blog-cat">{blog.category}</div>
+                      )}
+                      <div className="ap-blog-title">{blog.title}</div>
+                      <div className="ap-blog-arrow">
+                        Read Article <ArrowRight />
                       </div>
-                    </Link>
-                  );
-                })}
+                    </div>
+                  </Link>
+                ))}
               </div>
             </>
           ) : (
@@ -409,7 +355,7 @@ export default function AuthorProfilePage({ initialData = null }) {
 
               <div className="ap-suggest-grid">
                 {suggestedBlogs.map((blog) => (
-                  <Link key={blog._id} href={getBlogPath(blog, null)} className="ap-suggest-card">
+                  <Link key={blog._id} href={getBlogPath(blog)} className="ap-suggest-card">
                     <img
                       src={blog.featured_image || blogFallback.src || blogFallback}
                       alt={blog.title}

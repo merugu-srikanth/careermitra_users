@@ -1,55 +1,19 @@
 import AuthorProfilePage from "./AuthorDetailClient";
 import { generatePersonSchema, generateWebPageSchema } from '@/utils/schemaHelpers';
-
-async function getAuthorData(authorId) {
-  const isMongoId = (s) => /^[a-f0-9]{24}$/i.test(s);
-  const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
-
-  if (isMongoId(authorId)) {
-    return null;
-  }
-
-  try {
-    let resolvedId = authorId;
-    if (!isMongoId(authorId)) {
-      const listRes = await fetch("https://careermitra.in/api/blogs?limit=500");
-      const listJson = await listRes.json();
-      const blogs = Array.isArray(listJson?.data) ? listJson.data : [];
-      const match = blogs
-        .map((b) => b.author)
-        .filter(Boolean)
-        .find((a) => slugify(a.author_name || a.name || "") === authorId);
-      if (!match?._id) return null;
-      resolvedId = match._id;
-    }
-
-    const res = await fetch(`https://careermitra.in/api/authors/${resolvedId}`);
-    const data = await res.json();
-    if (data.success) {
-      return data.data;
-    }
-  } catch (e) {
-    console.error("Error fetching author data on server", e);
-  }
-  return null;
-}
+import { getAuthorProfile, slugify } from '@/utils/authorData';
 
 export async function generateMetadata({ params }) {
   const { authorId } = await params;
-  const data = await getAuthorData(authorId);
-  if (!data) {
+  const profile = await getAuthorProfile(authorId);
+  if (!profile) {
     return {
       title: "Author - Career Mitra",
     };
   }
-  const author_name = data.author_name || data.name || "Author";
-  const bio = data.bio || "";
-  let avatar_url = data.avatar_url || "";
-  if (!avatar_url || avatar_url.startsWith("data:image")) {
-    avatar_url = "https://careermitra.in/default_og_image.png";
-  }
-
-  const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  const { author_name, bio, avatar_url } = profile.author;
+  const ogImage = !avatar_url || avatar_url.startsWith("data:image")
+    ? "https://careermitra.in/default_og_image.png"
+    : avatar_url;
 
   const canonicalUrl = `https://careermitra.in/author/${slugify(author_name || authorId)}`;
   const titleText = `${author_name} - Author at Career Mitra`;
@@ -70,7 +34,7 @@ export async function generateMetadata({ params }) {
       siteName: "Career Mitra",
       images: [
         {
-          url: avatar_url,
+          url: ogImage,
           width: 400,
           height: 400,
           alt: author_name,
@@ -81,21 +45,18 @@ export async function generateMetadata({ params }) {
       card: "summary",
       title: titleText,
       description: descriptionText,
-      images: [avatar_url],
+      images: [ogImage],
     },
   };
 }
 
 export default async function Page({ params }) {
   const { authorId } = await params;
-  const data = await getAuthorData(authorId);
+  const profile = await getAuthorProfile(authorId);
 
   let schemas = [];
-  if (data) {
-    const author_name = data.author_name || data.name || "Author";
-    const bio = data.bio || "";
-    const avatar_url = data.avatar_url || "";
-    const slugify = (s = '') => String(s).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  if (profile) {
+    const { author_name, bio, avatar_url } = profile.author;
 
     const personSchema = generatePersonSchema({
       name: author_name,
@@ -122,7 +83,7 @@ export default async function Page({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <AuthorProfilePage initialData={data} />
+      <AuthorProfilePage initialData={profile} />
     </>
   );
 }

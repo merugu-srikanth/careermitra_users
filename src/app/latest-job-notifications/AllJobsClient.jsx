@@ -7,6 +7,7 @@ import { generateCollectionPageSchema, generateItemListSchema } from "@/utils/sc
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "@/utils/jobDeadline";
 import { useJobs, mapUnifiedJob } from "@/context/JobContext";
 import { useAuth } from "@/context/AuthContext";
+import JobsSeoArticle from "./JobsSeoArticle";
 
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -753,6 +754,9 @@ export default function AllJobs() {
             Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min((page - 1) * ITEMS_PER_PAGE + jobs.length, totalItems || jobs.length)} of {totalItems || jobs.length} jobs
           </p>
         )}
+
+        {/* ── SEO Article ───────────────────────────────────────────────────────── */}
+        <JobsSeoArticle />
       </div>
 
       {/* ── Qualification Modal ── */}

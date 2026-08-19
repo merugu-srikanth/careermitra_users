@@ -1,16 +1,22 @@
 import AllJobsClient from "./AllJobsClient";
 import { generateCollectionPageSchema } from '@/utils/schemaHelpers';
 
+const PAGE_TITLE = "Latest Government Jobs Notifications 2026 - CareerMitra";
+const PAGE_DESCRIPTION =
+  "Find the latest government jobs 2026, govt job notifications, vacancies and recruitment updates in India. Get daily updates on SSC, UPSC, Railway, Banking, Defence and State Govt Jobs.";
+const PAGE_KEYWORDS =
+  "latest government jobs Notifications, latest govt jobs Notifications 2026, government job notifications 2026, latest government job notifications, govt jobs 2026, government vacancies 2026";
+
 export const metadata = {
-  title: "Government Jobs 2026: Latest Govt Jobs Notifications in India - Career Mitra",
-  description: "Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India.",
-  keywords: "government jobs 2026, latest govt jobs notifications, sarkari naukri 2026, free job alerts, govt job updates, central govt jobs, state govt jobs, latest recruitment notifications",
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  keywords: PAGE_KEYWORDS,
   alternates: {
     canonical: "https://careermitra.in/latest-job-notifications",
   },
   openGraph: {
-    title: "Government Jobs 2026: Latest Govt Jobs Notifications in India - Career Mitra",
-    description: "Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India.",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
     url: "https://careermitra.in/latest-job-notifications",
     type: "website",
     siteName: "Career Mitra",
@@ -25,8 +31,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Government Jobs 2026: Latest Govt Jobs Notifications in India - Career Mitra",
-    description: "Get latest Government Jobs 2026 notifications, Sarkari Naukri updates, exam alerts, results, and recruitment updates across India.",
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
     images: ["https://careermitra.in/default_og_image.png"],
   },
 };
