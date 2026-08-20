@@ -82,7 +82,7 @@ export default function Footer() {
                   className="flex items-center gap-1.5 text-sm font-bold text-slate-200 hover:text-orange-300 transition-colors duration-200 whitespace-normal wrap-break-word"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                  {parent.name} Jobs
+                  {parent.name}
                 </Link>
               ))}
               {cats.children.map(child => (

@@ -36,7 +36,7 @@ async function buildSitemap() {
       "https://careermitra.in/latest-job-notifications",
       "https://careermitra.in/government-jobs",
       "https://careermitra.in/internship-guide",
-      "https://careermitra.in/career-guide",
+      // "https://careermitra.in/career-guide",
       "https://careermitra.in/events",
       "https://careermitra.in/about-us",
       "https://careermitra.in/contact-us",

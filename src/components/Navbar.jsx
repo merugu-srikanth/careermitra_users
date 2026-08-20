@@ -42,16 +42,16 @@ const navLinks = [
   { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
   { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
-  // { name: "Internship Guide", path: "/internship-guide", Icon: FaInfoCircle },
-  {
-    name: "Career",
-    Icon: FaGraduationCap,
-    dropdown: [
-      { name: "Career Overview", path: "/career-guide" },
-      // { name: "Internship FAQ's", path: "/internship-guide" },
-      { name: "Internship Opportunities", path: "/internships" },
-    ],
-  },
+  { name: "Internships", path: "/internships", Icon: FaGraduationCap },
+  // {
+  //   name: "Career",
+  //   Icon: FaGraduationCap,
+  //   dropdown: [
+  //     { name: "Career Overview", path: "/career-guide" },
+  //     { name: "Internship FAQ's", path: "/internship-guide" },
+  //     { name: "Internship Opportunities", path: "/internships" },
+  //   ],
+  // },
   { name: "Government Jobs", Icon: FaBriefcase, blogsDropdown: true },
   { name: "Events", path: "/events", Icon: FaCalendarAlt },
   { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },

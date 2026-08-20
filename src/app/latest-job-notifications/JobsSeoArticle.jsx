@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+
+const InlineLink = ({ href, children }) => (
+  <Link href={href} className="text-blue-600 font-semibold hover:underline">
+    {children}
+  </Link>
+);
 
 const ChevDownIcon = ({ open }) => (
   <svg
@@ -21,14 +28,18 @@ const SECTIONS = [
     heading: "Latest Government Job Notifications 2026",
     level: 2,
     paragraphs: [
-      "Career Mitra is India's most trusted platform for government jobs & career guidance. It was founded by a retired Additional Commissioner of State GST, Government of Telangana, with a team having 30+ years of actual experience in the government domain, and not just guessing about what the students require. There are thousands of job postings every year. It covers not only major examinations such as SSC, UPSC and Railway but also small openings in Defense, PSUs, universities and research organizations. All in one website, Career Mitra. The job opening can be searched on the basis of qualifications, interests or even sectors. Career Mitra offers latest information regarding Government Jobs, Sarkari Naukri, examination, results and career guidance. Every job listing gives complete details, such as number of vacancies, qualification, age limit, location and last date of application.",
+      <>
+        Career Mitra is India's most trusted platform for government jobs & career guidance. It was founded by a retired Additional Commissioner of State GST, Government of Telangana, with a team having 30+ years of actual experience in the government domain, and not just guessing about what the students require. There are thousands of job postings every year. It covers not only major examinations such as SSC, UPSC and Railway but also small openings in Defense, PSUs, universities and research organizations. All in one website, <InlineLink href="/">Career Mitra</InlineLink>. The job opening can be searched on the basis of qualifications, interests or even sectors. Career Mitra offers latest information regarding Government Jobs, Sarkari Naukri, examination, results and career guidance. Every job listing gives complete details, such as number of vacancies, qualification, age limit, location and last date of application.
+      </>,
     ],
   },
   {
     heading: "Daily & Fast Government Job Updates on CareerMitra",
     level: 3,
     paragraphs: [
-      "Government jobs do not run on a set calendar. A new post could open at any time. A deadline could shift. Exam dates can change. Career Mitra keeps a track of these changes on a daily basis, so that you need not visit 10 websites on your own. Career Mitra job alert works around you. Once you register you will get job suggestions based on your education and profile. You are provided with daily updates and matches curated for you, not a random list that everyone else sees. And this is why checking often pays off, even more if you are targeting more than one exam.",
+      <>
+        <InlineLink href="/government-jobs">Government jobs</InlineLink> do not run on a set calendar. A new post could open at any time. A deadline could shift. Exam dates can change. Career Mitra keeps a track of these changes on a daily basis, so that you need not visit 10 websites on your own. Career Mitra job alert works around you. Once you register you will get job suggestions based on your education and profile. You are provided with daily updates and matches curated for you, not a random list that everyone else sees. And this is why checking often pays off, even more if you are targeting more than one exam.
+      </>,
     ],
   },
   {
@@ -41,19 +52,19 @@ const SECTIONS = [
       ordered: true,
       items: [
         <>
-          <strong>SSC Jobs:</strong> Get SSC CGL, SSC CHSL, SSC MTS, SSC GD, SSC CPO, SSC JE, SSC Stenographer and other SSC jobs.
+          <InlineLink href="/ssc-jobs">SSC Jobs</InlineLink>: Get SSC CGL, SSC CHSL, SSC MTS, SSC GD, SSC CPO, SSC JE, SSC Stenographer and other SSC jobs.
         </>,
         <>
-          <strong>UPSC Jobs:</strong> Discover Civil Services, NDA, CDS, CAPF, Engineering Services and other UPSC exams.
+          <InlineLink href="/upsc-jobs">UPSC Jobs</InlineLink>: Discover Civil Services, NDA, CDS, CAPF, Engineering Services and other UPSC exams.
         </>,
         <>
-          <strong>Railway Jobs:</strong> Check RRB NTPC, Group D, ALP, Technician, JE, RPF and others.
+          <InlineLink href="/railway-jobs">Railway Jobs</InlineLink>: Check RRB NTPC, Group D, ALP, Technician, JE, RPF and others.
         </>,
         <>
-          <strong>Banking Jobs:</strong> Career Mitra has a separate section for Bank Jobs covering IBPS, SBI and other public sector bank jobs like PO, Clerk, Specialist Officer and apprentice posts.
+          <InlineLink href="/bank-jobs">Banking Jobs</InlineLink>: Career Mitra has a separate section for Bank Jobs covering IBPS, SBI and other public sector bank jobs like PO, Clerk, Specialist Officer and apprentice posts.
         </>,
         <>
-          <strong>Defence Jobs :</strong> Get posts in Army, Navy, Air Force and other Defence units.
+          <InlineLink href="/defence-jobs">Defence Jobs</InlineLink> : Get posts in Army, Navy, Air Force and other Defence units.
         </>,
         <>
           Police Jobs: Get information about Central and State Police jobs like Constable and Sub Inspector.
@@ -62,16 +73,16 @@ const SECTIONS = [
           <strong>Teaching Jobs:</strong> Find teaching vacancies in schools, colleges, universities and education boards.
         </>,
         <>
-          <strong>PSU Jobs:</strong> Know about technical, engineering and management posts in PSUs along with GATE rules, age criteria and selection process.
+          <InlineLink href="/psu-jobs">PSU Jobs</InlineLink>: Know about technical, engineering and management posts in PSUs along with GATE rules, age criteria and selection process.
         </>,
         <>
           <strong>Healthcare & Medical Jobs:</strong> See posts for doctors, nurses, chemists and lab and medical staff.
         </>,
         <>
-          <strong>State Govt Jobs:</strong> Find State PSC & state department jobs like state specific jobs such as recruitment in Telangana.
+          <InlineLink href="/state-government-jobs">State Govt Jobs</InlineLink>: Find State PSC & state department jobs like state specific jobs such as recruitment in Telangana.
         </>,
         <>
-          <strong>Central Government Jobs:</strong> Find job vacancies from ministries and departments of Central Government.
+          <InlineLink href="/central-government-jobs">Central Government Jobs</InlineLink>: Find job vacancies from ministries and departments of Central Government.
         </>,
         <>
           <strong>Court & Judiciary Jobs:</strong> Find government jobs in law and court.
@@ -145,7 +156,9 @@ const SECTIONS = [
     heading: "Why Login or Subscribe to CareerMitra?",
     level: 3,
     paragraphs: [
-      "Career Mitra is personalized for individual career choices and does not have a universal list of jobs. Signing up with Career Mitra is simple and free and, in fact, one can use their QR code on the mobile phone to sign up without entering any data manually. Post registration, the alert mechanism of the website uses your educational background and personal profile to provide job recommendations for you. With the account created, job search becomes more efficient as one is constantly informed about relevant jobs from the government sectors monitored by Career Mitra. Additionally, you will receive career guidance and internship information, which makes Career Mitra far more than just a job search website.",
+      <>
+        Career Mitra is personalized for individual career choices and does not have a universal list of jobs. Signing up with Career Mitra is simple and free and, in fact, one can use their QR code on the mobile phone to <InlineLink href="/register">sign up</InlineLink> without entering any data manually. Post registration, the alert mechanism of the website uses your educational background and personal profile to provide job recommendations for you. With the account created, job search becomes more efficient as one is constantly informed about relevant jobs from the government sectors monitored by Career Mitra. Additionally, you will receive career guidance and internship information, which makes Career Mitra far more than just a job search website.
+      </>,
       "Career Counselling offered by Career Mitra is done based on the experience of three retired senior members in their own respective field of expertise. This group consists of an IAS Retired Member, an IFS Retired Member who was formerly the Chairman of National Biodiversity Authority, and a retired member of Telangana Public Service Commission (TGPSC). The experience that these retired members have in public administration, environmental governance, and government recruitment enhances the value of Career Guidance provided by Career Mitra.",
       "Get personalized latest Govt Jobs notifications, Sarkari Naukri updates, exam alerts, results, and career guidance at Career Mitra.",
     ],
@@ -154,7 +167,9 @@ const SECTIONS = [
     heading: "Never Miss Government Job Application Deadlines",
     level: 3,
     paragraphs: [
-      "A promising opportunity may go by unnoticed if you miss the final deadline. This is certainly a tough way to give up on an opportunity. The Career Mitra notifications will make sure that you don't miss out on any post or its deadlines. Nonetheless, maintain a personal list of deadlines yourself and do not depend entirely on the last date. Be wary of the upcoming posts as well. Apply a few days prior to the application deadline. This will allow you sufficient time to rectify any problems.",
+      <>
+        A promising opportunity may go by unnoticed if you miss the final deadline. This is certainly a tough way to give up on an opportunity. The <InlineLink href="/register">Career Mitra notifications</InlineLink> will make sure that you don't miss out on any post or its deadlines. Nonetheless, maintain a personal list of deadlines yourself and do not depend entirely on the last date. Be wary of the upcoming posts as well. Apply a few days prior to the application deadline. This will allow you sufficient time to rectify any problems.
+      </>,
     ],
   },
   {
