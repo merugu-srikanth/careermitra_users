@@ -18,10 +18,10 @@ const stripHtmlTags = (html) =>
 
 const sanitizeHtml = (html) => {
   if (!html) return "";
-  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
-    /<a /g,
-    '<a target="_blank" rel="noopener noreferrer" '
-  );
+  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "rel"] })
+    .replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ')
+    .replace(/<table([^>]*)>/gi, '<div class="table-responsive"><table$1>')
+    .replace(/<\/table>/gi, "</table></div>");
 };
 
 /* ── Helpers ── */
@@ -361,7 +361,13 @@ export default function ArticleList({ initialFilterData = null, initialArticles 
         .cat-prose a{color:#f97316;text-decoration:underline;font-weight:600;word-break:break-word}
         .cat-prose a:hover{color:#ea580c}
         .cat-prose strong{font-weight:700;color:#111827}
-        .cat-prose table{width:100%;border-collapse:collapse;margin:0.8em 0}
+        .cat-prose .table-responsive{width:100%;overflow-x:auto;margin:0.8em 0;border:1px solid #f3f4f6;border-radius:0.75rem;display:block;max-width:100%}
+        .cat-prose table{width:100%;border-collapse:collapse;margin:0;font-size:0.9em;display:table}
+        .cat-prose th,.cat-prose th *,.cat-prose tr:first-child td,.cat-prose tr:first-child td *{background:#f97316!important;color:#fff!important;font-weight:800!important;padding:0.5em 0.75em;text-align:left;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.25)}
+        .cat-prose td{padding:0.5em 0.75em;border-bottom:1px solid #f3f4f6;border-right:1px solid #f3f4f6;color:#4b5563;line-height:1.5;vertical-align:top}
+        .cat-prose th:last-child,.cat-prose td:last-child{border-right:none}
+        .cat-prose tr:nth-child(even) td{background:#fafafa}
+        .cat-prose tr:hover td{background:#fff7ed}
         .cat-prose img{max-width:100%!important;height:auto!important;border-radius:10px;margin:0.4em 0;display:block}
         .cat-prose *{max-width:100%;box-sizing:border-box}
       `}</style>

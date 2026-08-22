@@ -15,7 +15,7 @@ import {
   Clock,
   Briefcase,
   ExternalLink,
-  DollarSign,
+  IndianRupee,
   Award
 } from "lucide-react";
 
@@ -408,7 +408,7 @@ export default function Internships() {
                         </td>
                         <td className="px-5 py-4">
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200 text-xs font-bold text-green-700 mb-1">
-                            <DollarSign className="w-3 h-3" />
+                            <IndianRupee className="w-3 h-3" />
                             {intern.stipend_category === "Paid" ? intern.stipend : "Unpaid"}
                           </span>
                           

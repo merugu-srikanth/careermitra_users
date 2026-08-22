@@ -1088,14 +1088,18 @@ export default function ArticleDetail({ initialArticle = null }) {
           font-size: 0.875rem; display: table;
         }
         .article-body th,
-        .article-body th * {
-          background: #f97316 !important; color: #ffffff !important; font-weight: 800;
+        .article-body th *,
+        .article-body tr:first-child td,
+        .article-body tr:first-child td * {
+          background: #f97316 !important; color: #ffffff !important; font-weight: 800 !important;
           padding: 0.6rem 0.9rem; text-align: left; white-space: nowrap;
+          border-right: 1px solid rgba(255,255,255,0.25);
         }
         .article-body td {
-          padding: 0.55rem 0.9rem; border-bottom: 1px solid #f3f4f6;
+          padding: 0.55rem 0.9rem; border-bottom: 1px solid #f3f4f6; border-right: 1px solid #f3f4f6;
           color: #374151; vertical-align: top;
         }
+        .article-body th:last-child, .article-body td:last-child { border-right: none; }
         .article-body tr:nth-child(even) td { background: #fafafa; }
         .article-body tr:hover td { background: #fff7ed; }
         .article-body img { max-width: 100% !important; height: auto !important; border-radius: 0.75rem; margin: 1rem auto; display: block; }

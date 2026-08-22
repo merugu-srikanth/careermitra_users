@@ -1321,7 +1321,7 @@ const UserProfilePage = () => {
           <div className="shrink-0 grid grid-cols-3 divide-x divide-slate-100 border-b border-slate-100 bg-slate-50/60">
             {[
               { label: "Jobs", v: jobsNavCount.total, color: "text-orange-500" },
-              { label: "Events", v: annNavCount.total, color: "text-violet-500" },
+              // { label: "Events", v: annNavCount.total, color: "text-violet-500" },
               { label: "Age", v: age || "—", color: "text-slate-600" },
             ].map(s => (
               <div key={s.label} className="py-3 text-center">

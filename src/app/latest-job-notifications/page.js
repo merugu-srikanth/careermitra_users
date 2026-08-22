@@ -1,7 +1,7 @@
 import AllJobsClient from "./AllJobsClient";
 import { generateCollectionPageSchema } from '@/utils/schemaHelpers';
 
-const PAGE_TITLE = "Latest Government Jobs Notifications 2026 - CareerMitra";
+const PAGE_TITLE = "Latest Government Jobs Notifications 2026 - Careermitra";
 const PAGE_DESCRIPTION =
   "Find the latest government jobs 2026, govt job notifications, vacancies and recruitment updates in India. Get daily updates on SSC, UPSC, Railway, Banking, Defence and State Govt Jobs.";
 const PAGE_KEYWORDS =
