@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/utils/api";
 import { FaComments } from "react-icons/fa";
+import ChatMessageEditor from "@/components/ChatMessageEditor";
+import { sanitizeChatHtml, isChatHtmlEmpty } from "@/utils/chatHtml";
 
 const API_BASE = API_BASE_URL;
 
@@ -13,6 +15,7 @@ export default function ChatPanel({ token, profile }) {
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [composeKey, setComposeKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState(null);
@@ -114,9 +117,8 @@ export default function ChatPanel({ token, profile }) {
 
   // Send message
   const handleSendMessage = async (e) => {
-    e.preventDefault();
-    const cleanMessage = newMessage.trim();
-    if (!cleanMessage) {
+    if (e) e.preventDefault();
+    if (isChatHtmlEmpty(newMessage)) {
       toast.error("Please type anything in the input message");
       return;
     }
@@ -126,11 +128,12 @@ export default function ChatPanel({ token, profile }) {
     try {
       const res = await axios.post(
         `${API_BASE}/user/chat/conversation/messages`,
-        { message: cleanMessage },
+        { message: sanitizeChatHtml(newMessage) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data?.success || res.data?.status || res.data) {
         setNewMessage("");
+        setComposeKey((k) => k + 1); // remount the editor with fresh empty content
         await fetchMessages(false);
         setTimeout(scrollToBottom, 50);
       }
@@ -144,12 +147,12 @@ export default function ChatPanel({ token, profile }) {
 
   // Edit message
   const handleEditMessage = async (messageId) => {
-    if (!editValue.trim() || editing) return;
+    if (isChatHtmlEmpty(editValue) || editing) return;
     setEditing(true);
     try {
       await axios.put(
         `${API_BASE}/user/chat/conversation/messages/${messageId}`,
-        { message: editValue },
+        { message: sanitizeChatHtml(editValue) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEditingMessageId(null);
@@ -271,11 +274,15 @@ export default function ChatPanel({ token, profile }) {
                   {/* Edited input */}
                   {editingMessageId === msgId ? (
                     <div className="space-y-2">
-                      <textarea
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="w-full p-2 text-xs border border-orange-200 rounded-lg text-slate-800 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                        rows={2}
+                      <ChatMessageEditor
+                        resetKey={msgId}
+                        initialHtml={editValue}
+                        onChange={setEditValue}
+                        onSubmit={() => handleEditMessage(msgId)}
+                        placeholder="Edit message..."
+                        disabled={editing}
+                        autoFocus
+                        size="sm"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -296,9 +303,14 @@ export default function ChatPanel({ token, profile }) {
                   ) : (
                     <div>
                       {/* Message Content */}
-                      <p className={`text-sm leading-relaxed ${isMsgDeleted ? "italic opacity-70" : ""}`}>
-                        {textContent}
-                      </p>
+                      {isMsgDeleted ? (
+                        <p className="text-sm leading-relaxed italic opacity-70">{textContent}</p>
+                      ) : (
+                        <div
+                          className="chat-msg-html text-sm leading-relaxed"
+                          dangerouslySetInnerHTML={{ __html: sanitizeChatHtml(textContent) }}
+                        />
+                      )}
 
                       {/* Message details & Actions */}
                       <div className={`flex items-center justify-between gap-4 mt-2 pt-1.5 border-t text-[10px] ${
@@ -359,18 +371,17 @@ export default function ChatPanel({ token, profile }) {
             🔒 This conversation has been closed by the support team.
           </div>
         ) : (
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+          <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
+            <ChatMessageEditor
+              resetKey={composeKey}
+              onChange={setNewMessage}
+              onSubmit={handleSendMessage}
               placeholder="Type your message..."
               disabled={sending}
-              className="flex-1 px-4 py-3 text-sm border border-orange-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-orange-50/20 text-slate-800"
             />
             <button
               type="submit"
-              disabled={sending}
+              disabled={sending || isChatHtmlEmpty(newMessage)}
               className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl text-sm font-bold shadow-md shadow-orange-200 hover:opacity-95 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {sending ? (

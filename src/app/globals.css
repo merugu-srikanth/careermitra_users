@@ -49,3 +49,37 @@ button, a {
     opacity: 1;
   }
 }
+
+/* ── Chat compose editor (bold / italic / bullet list) ───────────────── */
+.chat-editable {
+  outline: none;
+  overflow-y: auto;
+  max-height: 7rem;
+  word-break: break-word;
+}
+.chat-editable:empty:before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+}
+.chat-editable ul {
+  margin: 0.2em 0;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+.chat-editable li {
+  margin: 0.05em 0;
+}
+
+/* ── Rendered chat message HTML (bold/italic/bullet from the editor) ──── */
+.chat-msg-html p {
+  margin: 0;
+}
+.chat-msg-html ul {
+  margin: 0.2em 0;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+.chat-msg-html li {
+  margin: 0.05em 0;
+}

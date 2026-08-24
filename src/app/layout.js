@@ -1,5 +1,6 @@
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
+import Script from "next/script";
 import { AuthProvider } from "@/context/AuthContext";
 import { JobProvider } from "@/context/JobContext";
 import { BlogProvider } from "@/context/BlogContext";
@@ -48,6 +49,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-IN" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-580RJ53PGL"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-580RJ53PGL');
+          `}
+        </Script>
         <SplashLoader />
         <AuthProvider>
           <JobProvider>

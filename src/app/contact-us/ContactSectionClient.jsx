@@ -116,12 +116,12 @@ function FloatingBg() {
 // ─── CONTACT CARD ─────────────────────────────────────────────────────────────
 function ContactCard({ item, onClick }) {
   return (
-    <motion.button
-      type="button"
-      onClick={onClick}
+    <motion.div
+      // type="button"
+      // onClick={onClick}
       variants={fadeUp}
-      whileHover={{ x: 6, transition: { duration: 0.2 } }}
-      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl bg-white border border-gray-100 cursor-pointer transition-colors duration-200 ${item.hoverBorder} ${item.hoverBg}`}
+      // whileHover={{ x: 6, transition: { duration: 0.2 } }}
+      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl bg-white border border-gray-100  transition-colors duration-200 ${item.hoverBorder} ${item.hoverBg}`}
     >
       <div className={`w-11 h-11 rounded-xl ${item.iconBg} flex items-center justify-center shrink-0 ${item.iconColor}`}>
         {item.icon}
@@ -130,7 +130,7 @@ function ContactCard({ item, onClick }) {
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">{item.label}</p>
         <p className="text-sm font-semibold text-gray-800">{item.value}</p>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
 
@@ -294,7 +294,7 @@ export default function ContactSection() {
               viewport={{ once: true }}
             >
               {contactInfo.map((item, i) => (
-                <ContactCard key={i} item={item} onClick={() => openWhatsApp(item.label)} />
+                <ContactCard key={i} item={item}  />
               ))}
             </motion.div>
 

@@ -10,6 +10,8 @@ import { FaComments, FaWhatsapp } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { BiSend, BiChevronLeft } from "react-icons/bi";
 import { HiOutlineSparkles } from "react-icons/hi2";
+import ChatMessageEditor from "@/components/ChatMessageEditor";
+import { sanitizeChatHtml, isChatHtmlEmpty } from "@/utils/chatHtml";
 
 const API_BASE = API_BASE_URL;
 
@@ -105,11 +107,11 @@ export default function FloatingChatSupport() {
   const [conversation, setConversation] = useState(null);
   const [liveMessages, setLiveMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [composeKey, setComposeKey] = useState(0);
   const [loadingLive, setLoadingLive] = useState(false);
   const [sending, setSending] = useState(false);
 
   const chatContainerRef = useRef(null);
-  const inputRef = useRef(null);
   const chatWindowRef = useRef(null);
   const triggerButtonRef = useRef(null);
 
@@ -236,19 +238,19 @@ export default function FloatingChatSupport() {
 
   const handleSendLiveMessage = async (e) => {
     if (e) e.preventDefault();
-    const cleanMessage = newMessage.trim();
-    if (!cleanMessage) return;
+    if (isChatHtmlEmpty(newMessage)) return;
     if (sending) return;
 
     setSending(true);
     try {
       const res = await axios.post(
         `${API_BASE}/user/chat/conversation/messages`,
-        { message: cleanMessage },
+        { message: sanitizeChatHtml(newMessage) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data?.success || res.data?.status || res.data) {
         setNewMessage("");
+        setComposeKey((k) => k + 1); // remount the editor with fresh empty content
         await fetchMessages(false);
         setTimeout(scrollToBottom, 50);
       }
@@ -468,7 +470,14 @@ export default function FloatingChatSupport() {
                                 : "bg-white text-slate-800 rounded-tl-none border-slate-200/60 shadow-xs leading-relaxed"
                             }`}
                           >
-                            <p className={isMsgDeleted ? "italic opacity-70" : ""}>{textContent}</p>
+                            {isMsgDeleted ? (
+                              <p className="italic opacity-70">{textContent}</p>
+                            ) : (
+                              <div
+                                className="chat-msg-html"
+                                dangerouslySetInnerHTML={{ __html: sanitizeChatHtml(textContent) }}
+                              />
+                            )}
                             <div className="text-[9px] mt-1 opacity-60 text-right">
                               {formatTime(msg.createdAt || msg.created_at)}
                             </div>
@@ -489,20 +498,19 @@ export default function FloatingChatSupport() {
                     🔒 This conversation is closed.
                   </div>
                 ) : (
-                  <form onSubmit={handleSendLiveMessage} className="flex gap-2">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                  <form onSubmit={handleSendLiveMessage} className="flex gap-2 items-end">
+                    <ChatMessageEditor
+                      resetKey={composeKey}
+                      onChange={setNewMessage}
+                      onSubmit={handleSendLiveMessage}
                       placeholder="Type your message..."
                       disabled={sending}
-                      className="flex-1 px-3 py-2 text-xs border border-orange-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-orange-50/20 text-slate-800"
+                      size="sm"
                     />
                     <button
                       type="submit"
                       className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0 active:scale-95 ${
-                        !newMessage.trim() || sending
+                        isChatHtmlEmpty(newMessage) || sending
                           ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                           : "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:opacity-95 shadow-md shadow-orange-200 cursor-pointer"
                       }`}
