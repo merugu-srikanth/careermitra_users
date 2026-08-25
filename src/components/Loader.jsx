@@ -29,7 +29,7 @@ const Loader = () => {
           justify-content: center;
           width: 180px;
           height: 180px;
-          font-family: "Inter", sans-serif;
+          font-family: 'Poppins', sans-serif;
           font-size: 1.2em;
           font-weight: 300;
           color: #f97316;

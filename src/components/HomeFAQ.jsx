@@ -126,7 +126,13 @@ export default function HomeFAQ() {
               </span>
             </motion.div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 bg-clip-text text-transparent drop-shadow-sm"
+              style={{
+                backgroundImage:
+                  "linear-gradient(90deg, #111827 0%, #111827 34%, #ea580c 40%, #ea580c 58%, #65a30d 64%, #65a30d 100%)",
+              }}
+            >
               Frequently Asked Questions
             </h2>
 

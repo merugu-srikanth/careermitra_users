@@ -72,7 +72,7 @@ export default function SplashLoader() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
                 className="text-2xl md:text-3xl font-extrabold tracking-wider bg-gradient-to-r from-orange-500 via-orange-600 to-green-600 bg-clip-text text-transparent"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 CAREER MITRA
               </motion.div>

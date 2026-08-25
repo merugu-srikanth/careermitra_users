@@ -1,6 +1,7 @@
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import Script from "next/script";
+import { Poppins } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { JobProvider } from "@/context/JobContext";
 import { BlogProvider } from "@/context/BlogContext";
@@ -12,6 +13,13 @@ import SplashLoader from "@/components/SplashLoader";
 import FloatingChatSupport from "@/components/FloatingChatSupport";
 import FirebaseNotificationHelper from "@/components/FirebaseNotificationHelper";
 import { Suspense } from "react";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 
 export const metadata = {
   metadataBase: new URL("https://careermitra.in"),
@@ -47,7 +55,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en-IN" suppressHydrationWarning>
+    <html lang="en-IN" className={poppins.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
         {/* Google tag (gtag.js) */}
         <Script

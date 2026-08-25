@@ -164,7 +164,7 @@ function FeatureCard({ card, onNav, index }) {
 
       <div style={{
         fontSize: 15, fontWeight: 700, color: "#fff",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         letterSpacing: "0.01em",
       }}>
         {card.label}
@@ -172,7 +172,7 @@ function FeatureCard({ card, onNav, index }) {
 
       <div style={{
         fontSize: 12, color: "rgba(255,255,255,0.52)",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         lineHeight: 1.5,
       }}>
         {card.sub}
@@ -309,7 +309,7 @@ export default function IndiaJobsHero() {
                 textTransform: "uppercase",
                 background: "linear-gradient(90deg,#f97316,#22c55e)",
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                fontFamily: "'Poppins', sans-serif",
               }}>
                 #1 Career Guidance Platform
               </span>
@@ -325,7 +325,7 @@ export default function IndiaJobsHero() {
                 fontWeight: 900,
                 lineHeight: 1.12,
                 margin: "0 0 8px",
-                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                fontFamily: "'Poppins', sans-serif",
                 color: "#ffffff",
               }}
             >
@@ -352,7 +352,7 @@ export default function IndiaJobsHero() {
                 lineHeight: 1.65,
                 margin: "0 0 32px",
                 maxWidth: 420,
-                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                fontFamily: "'Poppins', sans-serif",
               }}
             >
               Explore endless opportunities, build skills and shape your future with the{" "}
@@ -377,7 +377,7 @@ export default function IndiaJobsHero() {
                   background: "linear-gradient(135deg, #f97316 0%, #22c55e 100%)",
                   border: "none", cursor: "pointer",
                   color: "#fff", fontWeight: 700, fontSize: 13.5,
-                  fontFamily: "'Segoe UI', system-ui, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   boxShadow: "0 4px 28px rgba(249,115,22,0.38)",
                   letterSpacing: "0.01em",
                   position: "relative", overflow: "hidden",
@@ -400,7 +400,7 @@ export default function IndiaJobsHero() {
                   border: "1px solid rgba(255,255,255,0.18)",
                   cursor: "pointer",
                   color: "#fff", fontWeight: 600, fontSize: 13.5,
-                  fontFamily: "'Segoe UI', system-ui, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   backdropFilter: "blur(10px)",
                   letterSpacing: "0.01em",
                 }}
@@ -469,7 +469,7 @@ export default function IndiaJobsHero() {
                   fontSize: "clamp(17px, 2.2vw, 22px)",
                   fontWeight: 800,
                   color: stat.color,
-                  fontFamily: "'Segoe UI', system-ui, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   letterSpacing: "-0.02em",
                 }}>
                   {stat.value}
@@ -477,7 +477,7 @@ export default function IndiaJobsHero() {
               </div>
               <span style={{
                 fontSize: 11, color: "rgba(255,255,255,0.45)",
-                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                fontFamily: "'Poppins', sans-serif",
                 textAlign: "center",
               }}>
                 {stat.label}

@@ -45,7 +45,7 @@ const topJobCategories = [
 
 export default function HomeClient() {
   return (
-    <div className="py-20" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="py-20" style={{ fontFamily: "'Poppins', sans-serif" }}>
 
       <HeroFinalPage />
 

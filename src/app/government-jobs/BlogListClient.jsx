@@ -85,7 +85,7 @@ const BLOGLIST_STYLES = `
   margin-bottom: 12px;
 }
 .bl-featured-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1.25rem, 2vw, 2rem); font-weight: 800;
   color: #111827; line-height: 1.25;
   margin: 0 0 14px;
@@ -134,7 +134,7 @@ const BLOGLIST_STYLES = `
   width: 60px; height: 2px; background: #f97316;
 }
 .bl-section-head h2, .bl-section-head h1 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1.2rem, 2.5vw, 1.75rem); font-weight: 800; color: #111827; margin: 0;
 }
 .bl-section-head span, .bl-section-head a {
@@ -203,7 +203,7 @@ const BLOGLIST_STYLES = `
 }
 .bl-card-meta svg { width: 11px; height: 11px; flex-shrink: 0; }
 .bl-card-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.05rem; font-weight: 700; color: #111827;
   line-height: 1.35; margin: 0 0 8px;
   text-decoration: none; display: -webkit-box;

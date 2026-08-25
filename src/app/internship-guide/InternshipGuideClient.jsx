@@ -208,7 +208,7 @@ function FAQCard({ faq, index }) {
 
         {/* Number badge — large, typographic */}
         <div className="absolute top-5 right-5 font-black select-none"
-          style={{ fontSize: 56, lineHeight: 1, color: "rgba(249,115,22,0.06)", fontFamily: "'Georgia', serif" }}>
+          style={{ fontSize: 56, lineHeight: 1, color: "rgba(249,115,22,0.06)", fontFamily: "'Poppins', sans-serif" }}>
           {String(index + 1).padStart(2, "0")}
         </div>
 
@@ -230,7 +230,7 @@ function FAQCard({ faq, index }) {
               </div>
               <h3
                 className="font-black leading-snug text-gray-900"
-                style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)", fontFamily: "'Georgia', 'Times New Roman', serif" }}
+                style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)", fontFamily: "'Poppins', sans-serif" }}
               >
                 {faq.q}
               </h3>
@@ -243,7 +243,7 @@ function FAQCard({ faq, index }) {
           {/* Answer */}
           <p
             className="text-gray-700 leading-relaxed mb-5"
-            style={{ fontSize: "0.92rem", fontFamily: "'Georgia', serif" }}
+            style={{ fontSize: "0.92rem", fontFamily: "'Poppins', sans-serif" }}
           >
             {faq.a}
           </p>
@@ -272,7 +272,7 @@ function FAQCard({ faq, index }) {
                 >
                   Brainy Insight
                 </p>
-                <p className="text-sm text-gray-700 leading-relaxed font-medium italic" style={{ fontFamily: "'Georgia', serif" }}>
+                <p className="text-sm text-gray-700 leading-relaxed font-medium italic" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   {faq.insight}
                 </p>
               </div>
@@ -289,7 +289,7 @@ const Stat = ({ value, label }) => (
   <div className="text-center">
     <div
       className="font-black text-white leading-none"
-      style={{ fontSize: "clamp(1.6rem,4vw,2.4rem)", fontFamily: "'Georgia', serif" }}
+      style={{ fontSize: "clamp(1.6rem,4vw,2.4rem)", fontFamily: "'Poppins', sans-serif" }}
     >
       {value}
     </div>
@@ -350,7 +350,7 @@ export default function InternshipGuide() {
   return (
     <div
       className="relative min-h-screen overflow-x-hidden"
-      style={{ background: "#ffffff", fontFamily: "'Segoe UI', system-ui, sans-serif" }}
+      style={{ background: "#ffffff", fontFamily: "'Poppins', sans-serif" }}
     >
 
       {/* ── Ambient animated background ── */}
@@ -424,7 +424,7 @@ export default function InternshipGuide() {
               className="text-orange-600 font-black mb-3 leading-[1.08]"
               style={{
                 fontSize: "clamp(2.2rem, 6vw, 4rem)",
-                fontFamily: "'Georgia', 'Times New Roman', serif",
+                fontFamily: "'Poppins', sans-serif",
                 textShadow: "0 2px 24px rgba(0,0,0,0.15)",
               }}
             >
@@ -439,7 +439,7 @@ export default function InternshipGuide() {
             </h1>
 
             <p className="text-orange-900 mb-12 max-w-2xl mx-auto"
-              style={{ fontSize: "1.05rem", lineHeight: 1.7, fontFamily: "'Georgia', serif" }}>
+              style={{ fontSize: "1.05rem", lineHeight: 1.7, fontFamily: "'Poppins', sans-serif" }}>
               Comprehensive answers to all your internship questions
             </p>
 
@@ -524,7 +524,7 @@ export default function InternshipGuide() {
           />
           <span
             className="font-black text-gray-900"
-            style={{ fontSize: "1.15rem", fontFamily: "'Georgia', serif" }}
+            style={{ fontSize: "1.15rem", fontFamily: "'Poppins', sans-serif" }}
           >
             {displayed.length} {displayed.length === 1 ? "Answer" : "Answers"}
           </span>
@@ -539,7 +539,7 @@ export default function InternshipGuide() {
         {displayed.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-black text-gray-800 mb-2" style={{ fontFamily: "'Georgia', serif" }}>
+            <h3 className="text-xl font-black text-gray-800 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
               No results found
             </h3>
             <p className="text-gray-500">Try a different search term or browse all questions.</p>
@@ -568,11 +568,11 @@ export default function InternshipGuide() {
           <div className="text-4xl mb-3">🎯</div>
           <h2
             className="font-black text-white mb-3 leading-tight"
-            style={{ fontSize: "clamp(1.4rem, 3.5vw, 2rem)", fontFamily: "'Georgia', serif" }}
+            style={{ fontSize: "clamp(1.4rem, 3.5vw, 2rem)", fontFamily: "'Poppins', sans-serif" }}
           >
             Ready to Start Your Internship Journey?
           </h2>
-          <p className="text-orange-100 mb-6 max-w-lg mx-auto text-sm leading-relaxed" style={{ fontFamily: "'Georgia', serif" }}>
+          <p className="text-orange-100 mb-6 max-w-lg mx-auto text-sm leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Browse verified government and private internship opportunities tailored to your profile.
           </p>
           <button
@@ -591,8 +591,6 @@ export default function InternshipGuide() {
 
       {/* ── Keyframes ── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap');
-
         @keyframes blobFloat {
           0%,100% { transform: translate(0,0) scale(1); }
           33%      { transform: translate(24px,-36px) scale(1.06); }

@@ -510,13 +510,13 @@ function HubSpoke({ onNav }) {
         {/* Hub text */}
         <text x={HUB_X} y={HUB_Y - 12} textAnchor="middle"
           fontSize="16" fontWeight="900" letterSpacing="0.12em"
-          fill="url(#og2)" fontFamily="'Rajdhani', sans-serif">CAREER</text>
+          fill="url(#og2)" fontFamily="'Poppins', sans-serif">CAREER</text>
         <text x={HUB_X} y={HUB_Y + 10} textAnchor="middle"
           fontSize="16" fontWeight="900" letterSpacing="0.12em"
-          fill="url(#og2)" fontFamily="'Rajdhani', sans-serif">MITRA</text>
+          fill="url(#og2)" fontFamily="'Poppins', sans-serif">MITRA</text>
         <text x={HUB_X} y={HUB_Y + 28} textAnchor="middle"
           fontSize="7" fill="rgba(255,255,255,0.35)"
-          fontFamily="'DM Sans', sans-serif">Your Career Guide</text>
+          fontFamily="'Poppins', sans-serif">Your Career Guide</text>
 
         {/* Nodes */}
         {NODES.map(({ oi, x, y }, fi) => {
@@ -573,7 +573,7 @@ function HubSpoke({ onNav }) {
               {/* Label */}
               <text x={x} y={y + 14} textAnchor="middle"
                 fontSize="11" fontWeight="700" fill="url(#og2)"
-                fontFamily="'Rajdhani', sans-serif" letterSpacing="0.04em">
+                fontFamily="'Poppins', sans-serif" letterSpacing="0.04em">
                 {o.label}
               </text>
 
@@ -581,7 +581,7 @@ function HubSpoke({ onNav }) {
               <text x={x} y={y + 27} textAnchor="middle"
                 fontSize="5.8" fill="rgba(255,255,255,0.5)"
                 fillOpacity={isHov ? 1 : 0}
-                fontFamily="'DM Sans', sans-serif"
+                fontFamily="'Poppins', sans-serif"
                 style={{ transition: "fill-opacity 0.22s" }}>
                 {o.sub}
               </text>
@@ -604,11 +604,11 @@ function StatCard({ value, label, icon, delay = 0 }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
         <span style={{ color: "#22c55e" }}>{icon}</span>
-        <span style={{ fontSize: 22, fontWeight: 900, fontFamily: "'Rajdhani',sans-serif", background: "linear-gradient(90deg,#f97316,#fbbf24,#22c55e)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+        <span style={{ fontSize: 22, fontWeight: 900, fontFamily: "'Poppins', sans-serif", background: "linear-gradient(90deg,#f97316,#fbbf24,#22c55e)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
           {value}
         </span>
       </div>
-      <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'DM Sans',sans-serif", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+      <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", fontFamily: "'Poppins', sans-serif", letterSpacing: "0.04em", textTransform: "uppercase" }}>
         {label}
       </div>
     </motion.div>
@@ -630,7 +630,7 @@ function LiveBadge() {
       }}
     >
       <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e", animation: "pulseGlow 1.5s ease-in-out infinite", display: "inline-block" }} />
-      <span style={{ fontSize: 11, color: "#22c55e", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: "0.06em" }}>
+      <span style={{ fontSize: 11, color: "#22c55e", fontFamily: "'Poppins', sans-serif", fontWeight: 600, letterSpacing: "0.06em" }}>
         1,20,000+ GOVT JOBS UPDATED DAILY
       </span>
     </motion.div>
@@ -652,7 +652,7 @@ function FloatingTag({ text, style }) {
         padding: "6px 12px",
         fontSize: 10.5,
         color: "rgba(255,255,255,0.55)",
-        fontFamily: "'DM Sans',sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         backdropFilter: "blur(8px)",
         whiteSpace: "nowrap",
         animation: "floatY 4s ease-in-out infinite",
@@ -714,10 +714,10 @@ function RightIllustration() {
           <img src="" alt="Government Jobs" style={{ width: "100%", borderRadius: 16, marginBottom: 12, filter: "drop-shadow(0 12px 24px rgba(34,197,94,0.2)) drop-shadow(0 6px 12px rgba(249,115,22,0.15))", display: "block" }} />  
           {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
             <div>
-              <div style={{ fontSize: 11, color: "#22c55e", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ fontSize: 11, color: "#22c55e", fontFamily: "'Poppins', sans-serif", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>
                 Top Opportunities
               </div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Rajdhani',sans-serif" }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
                 Govt Job Dashboard
               </div>
             </div>
@@ -751,10 +751,10 @@ function RightIllustration() {
             >
               <span style={{ fontSize: 20, flexShrink: 0 }}>{job.emoji}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: "'DM Sans',sans-serif", marginBottom: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: "'Poppins', sans-serif", marginBottom: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {job.title}
                 </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans',sans-serif" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontFamily: "'Poppins', sans-serif" }}>
                   {job.sub}
                 </div>
               </div>
@@ -762,7 +762,7 @@ function RightIllustration() {
                 fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 99,
                 background: `${job.tagColor}22`, color: job.tagColor,
                 border: `1px solid ${job.tagColor}44`,
-                fontFamily: "'DM Sans',sans-serif", flexShrink: 0,
+                fontFamily: "'Poppins', sans-serif", flexShrink: 0,
               }}>{job.tag}</span>
             </motion.div>
           ))} */}
@@ -774,11 +774,11 @@ function RightIllustration() {
           }}>
             <div style={{ display: "flex", gap: 0 }}>
               {/* {[...Array(5)].map((_, i) => <span key={i}>{Icons.star}</span>)} */}
-              <span className="text-md" style={{ color: "rgba(255,255,255,0.45)", marginLeft: 0, fontFamily: "'DM Sans',sans-serif" }}>
+              <span className="text-md" style={{ color: "rgba(255,255,255,0.45)", marginLeft: 0, fontFamily: "'Poppins', sans-serif" }}>
                Careermitra empowers you with matching career alerts in government sector.
               </span>
             </div>
-            {/* <span style={{ fontSize: 10, color: "#22c55e", fontFamily: "'DM Sans',sans-serif", fontWeight: 600 }}>View All →</span> */}
+            {/* <span style={{ fontSize: 10, color: "#22c55e", fontFamily: "'Poppins', sans-serif", fontWeight: 600 }}>View All →</span> */}
           </div>
         </div>
       </motion.div>
@@ -814,7 +814,7 @@ export default function GovernmentHeroMobile() {
         minHeight: "100vh",
         background: "#050a06",
         overflow: "hidden",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         width: "100%",
       }}>
         <GridBackground />
@@ -855,7 +855,7 @@ export default function GovernmentHeroMobile() {
                 transition={{ delay: 0.15, duration: 0.7 }}
                 style={{
                   fontSize: "clamp(2.2rem, 3.3vw, 3.2rem)",
-                  fontFamily: "'Rajdhani', sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   fontWeight: 900,
                   lineHeight: 1.02,
                   margin: 0,
@@ -879,7 +879,7 @@ export default function GovernmentHeroMobile() {
                   fontStyle: "italic",
                   margin: "8px 0 0",
                   lineHeight: 1.45,
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   fontWeight: 400,
                 }}
               >
@@ -928,7 +928,7 @@ export default function GovernmentHeroMobile() {
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
                     width: "100%", padding: "18px 20px", borderRadius: 99,
                     fontSize: 17, fontWeight: 700, color: "#fff",
-                    fontFamily: "'Rajdhani', sans-serif", letterSpacing: "0.04em",
+                    fontFamily: "'Poppins', sans-serif", letterSpacing: "0.04em",
                     boxShadow: "0 8px 32px rgba(249,115,22,0.45), inset 0 1px 0 rgba(255,255,255,0.2)",
                     boxSizing: "border-box",
                   }}
@@ -947,7 +947,7 @@ export default function GovernmentHeroMobile() {
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
                     width: "100%", padding: "18px 20px", borderRadius: 99,
                     fontSize: 17, fontWeight: 700, color: "rgba(255,255,255,0.82)",
-                    fontFamily: "'Rajdhani', sans-serif", letterSpacing: "0.04em",
+                    fontFamily: "'Poppins', sans-serif", letterSpacing: "0.04em",
                     border: "1px solid rgba(255,255,255,0.18)",
                     boxSizing: "border-box",
                   }}
@@ -977,7 +977,7 @@ export default function GovernmentHeroMobile() {
                     transition={{ delay: 0.95 + i * 0.07 }}
                     style={{
                       fontSize: 10.5, color: "rgba(255,255,255,0.35)",
-                      fontFamily: "'DM Sans',sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
                       padding: "3px 10px",
                       border: "1px solid rgba(255,255,255,0.07)",

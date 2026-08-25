@@ -209,7 +209,7 @@ export default function HubSpokeDiagram({ onNav }) {
                 {/* Hub text */}
                 {/* <text x={HUB_X} y={HUB_Y - 10} textAnchor="middle"
           fontSize="20" fontWeight="900" fill="#FF8C00" letterSpacing="0.08em"
-          fontFamily="'Nunito', system-ui, sans-serif">CAREER</text> */}
+          fontFamily="'Poppins', sans-serif">CAREER</text> */}
                 <defs>
                     <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="#FF8C00" />   {/* Orange */}
@@ -226,7 +226,7 @@ export default function HubSpokeDiagram({ onNav }) {
                     fontWeight="900"
                     fill="url(#textGradient)"
                     letterSpacing="0.08em"
-                    fontFamily="'Nunito', system-ui, sans-serif"
+                    fontFamily="'Poppins', sans-serif"
                     dy="8"
                 >
                     CAREER
@@ -241,14 +241,14 @@ export default function HubSpokeDiagram({ onNav }) {
                     fontWeight="900"
                     fill="url(#textGradient)"
                     letterSpacing="0.08em"
-                    fontFamily="'Nunito', system-ui, sans-serif"
+                    fontFamily="'Poppins', sans-serif"
                     dy="4"
                 >
                     MITRA
                 </text>
                 {/* <text x={HUB_X} y={HUB_Y + 8} textAnchor="middle"
           fontSize="20" fontWeight="900" fill="#238d13" letterSpacing="0.08em"
-          fontFamily="'Nunito', system-ui, sans-serif">MITRA</text> */}
+          fontFamily="'Poppins', sans-serif">MITRA</text> */}
 
 
                 {/* ── Option nodes ── */}
@@ -313,7 +313,7 @@ export default function HubSpokeDiagram({ onNav }) {
                             {/* <text x={x} y={y + 7} textAnchor="middle"
                 fontSize="7" fontWeight="700" fill={o.color}
                 letterSpacing="0.09em" fillOpacity="0.65"
-                fontFamily="'Nunito', system-ui, sans-serif">
+                fontFamily="'Poppins', sans-serif">
                 {`OPTION 0${oi + 1}`}
               </text> */}
 
@@ -324,7 +324,7 @@ export default function HubSpokeDiagram({ onNav }) {
                             </linearGradient>
                             <text x={x} y={y + 13} textAnchor="middle"
                                 fontSize="15" fontWeight="800" fill="url(#textGradient)"
-                                fontFamily="'Nunito', system-ui, sans-serif">
+                                fontFamily="'Poppins', sans-serif">
                                 {o.label}
                             </text>
 
@@ -332,7 +332,7 @@ export default function HubSpokeDiagram({ onNav }) {
                             {/* {[o.sub, "Lorem ipsum dolor sit amet,", "consectetur adipiscing elit."].map((ln, li) => (
                 <text key={li} x={x} y={y + 33 + li * 10} textAnchor="middle"
                   fontSize="6.5" fill="#aaa" fontWeight="400"
-                  fontFamily="'Nunito', system-ui, sans-serif">
+                  fontFamily="'Poppins', sans-serif">
                   {ln}
                 </text>
               ))} */}

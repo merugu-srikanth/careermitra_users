@@ -40,7 +40,7 @@ const AUTHOR_STYLES = `
   width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
 }
 .ba-name {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.05rem; font-weight: 700;
   color: #111827; margin: 0 0 4px;
   text-decoration: none; display: block;

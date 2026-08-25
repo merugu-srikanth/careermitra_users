@@ -193,7 +193,7 @@ function CategoryCard({ cat, index }) {
         {/* Large bg number */}
         <div
           className="absolute top-4 right-4 font-black select-none"
-          style={{ fontSize: 56, lineHeight: 1, color: "rgba(249,115,22,0.06)", fontFamily: "'Georgia', serif" }}
+          style={{ fontSize: 56, lineHeight: 1, color: "rgba(249,115,22,0.06)", fontFamily: "'Poppins', sans-serif" }}
         >
           {String(index + 1).padStart(2, "0")}
         </div>
@@ -216,7 +216,7 @@ function CategoryCard({ cat, index }) {
               </div>
               <h3
                 className="font-black leading-snug text-gray-900"
-                style={{ fontSize: "clamp(0.95rem, 2vw, 1.05rem)", fontFamily: "'Georgia', 'Times New Roman', serif" }}
+                style={{ fontSize: "clamp(0.95rem, 2vw, 1.05rem)", fontFamily: "'Poppins', sans-serif" }}
               >
                 {cat.name}
               </h3>
@@ -227,7 +227,7 @@ function CategoryCard({ cat, index }) {
           <div className="mb-4 h-px" style={{ background: `linear-gradient(to right, ${cat.accent}25, transparent)` }} />
 
           {/* Description */}
-          <p className="text-gray-700 leading-relaxed mb-5" style={{ fontSize: "0.9rem", fontFamily: "'Georgia', serif" }}>
+          <p className="text-gray-700 leading-relaxed mb-5" style={{ fontSize: "0.9rem", fontFamily: "'Poppins', sans-serif" }}>
             {cat.description}
           </p>
 
@@ -315,7 +315,7 @@ export default function CareerGuide() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden" style={{ background: "#ffffff", fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div className="relative min-h-screen overflow-x-hidden" style={{ background: "#ffffff", fontFamily: "'Poppins', sans-serif" }}>
 
       {/* ── Animated background ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
@@ -354,7 +354,7 @@ export default function CareerGuide() {
 
             <h1
               className="font-black mb-3 leading-[1.08]"
-              style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)", fontFamily: "'Georgia', 'Times New Roman', serif", color: "#111827" }}
+              style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)", fontFamily: "'Poppins', sans-serif", color: "#111827" }}
             >
               A Glance at Different {" "}
               <span style={{ background: "linear-gradient(90deg, #f97316, #ea580c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -366,14 +366,14 @@ export default function CareerGuide() {
               </span> */}
             </h1>
 
-            <p className="text-gray-600 mb-10 max-w-2xl mx-auto" style={{ fontSize: "1.05rem", lineHeight: 1.7, fontFamily: "'Georgia', serif" }}>
+            <p className="text-gray-600 mb-10 max-w-2xl mx-auto" style={{ fontSize: "1.05rem", lineHeight: 1.7, fontFamily: "'Poppins', sans-serif" }}>
               Find here a brief idea about what each recruitment is about. This will help you understand the scope of various recruitments.            </p>
 
             {/* Stats row */}
             <div className="inline-flex flex-wrap items-center justify-center gap-8 px-8 py-4 rounded-2xl" style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.12)" }}>
               {[["8+", "Career Sectors"], ["100+", "Exam Paths"], ["∞", "Opportunities"]].map(([val, lbl]) => (
                 <div key={lbl} className="text-center">
-                  <div className="font-black text-orange-600" style={{ fontSize: "1.8rem", fontFamily: "'Georgia', serif" }}>{val}</div>
+                  <div className="font-black text-orange-600" style={{ fontSize: "1.8rem", fontFamily: "'Poppins', sans-serif" }}>{val}</div>
                   <div className="text-gray-500 text-xs font-semibold uppercase tracking-widest mt-0.5">{lbl}</div>
                 </div>
               ))}
@@ -434,7 +434,7 @@ export default function CareerGuide() {
       <div className="relative w-full mx-auto px-4 md:px-15 pt-8 pb-2" style={{ zIndex: 1 }}>
         <div className="flex items-center gap-3">
           <div className="h-6 w-1.5 rounded-full" style={{ background: "linear-gradient(to bottom, #f97316, #ea580c)" }} />
-          <span className="font-black text-gray-900" style={{ fontSize: "1.15rem", fontFamily: "'Georgia', serif" }}>
+          <span className="font-black text-gray-900" style={{ fontSize: "1.15rem", fontFamily: "'Poppins', sans-serif" }}>
             {displayed.length} {displayed.length === 1 ? "Sector" : "Sectors"}
           </span>
           <span className="text-gray-400 text-sm">
@@ -448,7 +448,7 @@ export default function CareerGuide() {
         {displayed.length === 0 ? (
           <div className="text-center py-24">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-black text-gray-800 mb-2" style={{ fontFamily: "'Georgia', serif" }}>No results found</h3>
+            <h3 className="text-xl font-black text-gray-800 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>No results found</h3>
             <p className="text-gray-500">Try a different search or browse all sectors.</p>
           </div>
         ) : (
@@ -469,10 +469,10 @@ export default function CareerGuide() {
         <div className="absolute right-0 top-0 w-72 h-72 rounded-full -translate-y-1/2 translate-x-1/4 opacity-10" style={{ background: "white" }} />
         <div className="relative px-8 md:px-12 py-12 text-center">
           <div className="text-4xl mb-3">🎯</div>
-          <h2 className="font-black text-white mb-3 leading-tight" style={{ fontSize: "clamp(1.4rem, 3.5vw, 2rem)", fontFamily: "'Georgia', serif" }}>
+          <h2 className="font-black text-white mb-3 leading-tight" style={{ fontSize: "clamp(1.4rem, 3.5vw, 2rem)", fontFamily: "'Poppins', sans-serif" }}>
             Ready to Start Your Government Career?
           </h2>
-          <p className="text-orange-100 mb-6 max-w-lg mx-auto text-sm leading-relaxed" style={{ fontFamily: "'Georgia', serif" }}>
+          <p className="text-orange-100 mb-6 max-w-lg mx-auto text-sm leading-relaxed" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Browse verified government job openings tailored to your profile and qualification.
           </p>
           <a

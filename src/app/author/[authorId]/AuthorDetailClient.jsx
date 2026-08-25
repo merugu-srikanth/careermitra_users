@@ -52,7 +52,7 @@ const AP_STYLES = `
 
 /* section header */
 .ap-section-head { display:flex;align-items:center;gap:12px;margin-bottom:24px; }
-.ap-section-head h2 { font-family:'Playfair Display',Georgia,serif;font-size:1.35rem;font-weight:700;color:#111827;margin:0; }
+.ap-section-head h2 { font-family:'Poppins', sans-serif;font-size:1.35rem;font-weight:700;color:#111827;margin:0; }
 .ap-section-head-line { flex:1;height:1px;background:linear-gradient(90deg,#f97316,transparent); }
 .ap-section-badge { background:#fff7ed;color:#f97316;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 10px;border-radius:100px;border:1px solid rgba(249,115,22,0.2); }
 
@@ -264,7 +264,7 @@ export default function AuthorProfilePage({ initialData = null }) {
                   )}
                 </div>
 
-                <h1 className="mb-1 font-serif text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111827]">
+                <h1 className="mb-1 text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111827]">
                   {author_name}
                 </h1>
                 <p className="mb-4 text-xs font-semibold text-gray-400">
