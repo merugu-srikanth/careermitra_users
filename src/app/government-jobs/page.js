@@ -1,5 +1,5 @@
 import BlogList from "./BlogListClient";
-import { generateCollectionPageSchema } from '@/utils/schemaHelpers';
+import { generateCollectionPageSchema, generateOrganizationSchema, generateFAQSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
   title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
@@ -24,13 +24,50 @@ export default function GovernmentJobsPage() {
     url: "https://www.careermitra.in/government-jobs"
   });
 
+  const orgSchema = generateOrganizationSchema();
+
+  const faqSchema = generateFAQSchema([
+    {
+      q: "Which government jobs can a 10th-pass candidate apply for in 2026?",
+      a: "SSC MTS, SSC GD Constable, and Railway Group D accept Class 10 as the minimum qualification."
+    },
+    {
+      q: "What is the general age limit for central government jobs?",
+      a: "Most posts set the upper limit between 27 and 32 years for unreserved candidates, with relaxation for reserved categories."
+    },
+    {
+      q: "How can candidates track railway recruitment updates?",
+      a: "Railway notices are released CEN-wise, so following the RRB website for the relevant zone is the reliable approach."
+    },
+    {
+      q: "Is there an application fee for government exams?",
+      a: "Most recruiting bodies charge a fee for general and OBC candidates, with waivers commonly available for SC, ST, women, and persons with disabilities."
+    },
+    {
+      q: "What is the typical selection process for bank jobs?",
+      a: "Banking recruitment generally follows a Preliminary exam, Mains exam and an Interview or Group Exercise for officer-level posts."
+    }
+  ]);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <BlogList />
     </>
   );
 }
+
+
