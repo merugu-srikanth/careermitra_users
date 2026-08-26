@@ -724,28 +724,28 @@ const BlogList = () => {
 
                 <div className="bl-qual-grid">
                   <div className="bl-qual-card">
-                    <h4 className="bl-qual-title">🎒 10th Pass Government Jobs 2026</h4>
+                    <h4 className="bl-qual-title">10th Pass Government Jobs 2026</h4>
                     <p className="bl-qual-text">
                       Candidates with a 10th class pass certificate can apply for SSC MTS, SSC GD Constable, Railway Group D, and DDA Multi-Tasking Staff posts. These roles include peon, constable, trackman, and helper positions across railways, municipal bodies, and paramilitary forces. Physical fitness tests apply for constable and defense-linked posts.
                     </p>
                   </div>
                   
                   <div className="bl-qual-card">
-                    <h4 className="bl-qual-title">🎓 12th Pass Government Jobs 2026</h4>
+                    <h4 className="bl-qual-title">12th Pass Government Jobs 2026</h4>
                     <p className="bl-qual-text">
                       Class 12th pass holders can target SSC CHSL, Delhi Police Constable, state police, and forest guard posts, and clerical roles in railways and PSUs. These openings typically lead to Lower Division Clerk, Postal Assistant, or Data Entry Operator positions with a defined promotion path.
                     </p>
                   </div>
                   
                   <div className="bl-qual-card">
-                    <h4 className="bl-qual-title">🏛️ Graduate Government Jobs 2026</h4>
+                    <h4 className="bl-qual-title">Graduate Government Jobs 2026</h4>
                     <p className="bl-qual-text">
                       Graduates make up the largest applicant pool nationwide, competing for SSC CGL, bank PO and clerk posts, UPSC Civil Services, and state PSC exams. A bachelor's degree in any discipline qualifies for most of these, though technical posts such as Junior Engineer require an engineering degree.
                     </p>
                   </div>
                   
                   <div className="bl-qual-card">
-                    <h4 className="bl-qual-title">🛠️ ITI & Diploma Government Jobs 2026</h4>
+                    <h4 className="bl-qual-title">ITI & Diploma Government Jobs 2026</h4>
                     <p className="bl-qual-text">
                       Technical candidates with an ITI or diploma qualification find openings as a technician, junior engineer, and Trade Apprentice across Railways, ISRO, DRDO, and BHEL. Apprentice schemes under these organizations run through the year and often lead into full-time technical roles later.
                     </p>
