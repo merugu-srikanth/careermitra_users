@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaCalendarAlt, FaVideo, FaImage, FaTag, FaRegClock,
@@ -11,7 +12,47 @@ import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 /* ─── Config ──────────────────────────────────────────────── */
 const API_BASE    = "https://careermitra.in/api/media";
-const DEFAULT_LIMIT = 8;
+const DEFAULT_LIMIT = 32;
+
+const EVENTS_DOC_STYLES = `
+.bl-article-doc {
+  background: #f8fafc;
+  border-radius: 24px;
+  padding: 45px;
+  margin-top: 64px;
+  border: 1px solid #e2e8f0;
+}
+@media(max-width: 768px) {
+  .bl-article-doc {
+    padding: 28px 20px;
+    border-radius: 16px;
+    margin-top: 48px;
+  }
+}
+.bl-doc-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  color: #000;
+  line-height: 1.25;
+  margin-bottom: 28px;
+  text-align: center;
+}
+.bl-doc-p {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.bl-doc-link {
+  color: #2563eb;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.bl-doc-link:hover {
+  color: #1d4ed8;
+}
+`;
 
 const MEDIA_TABS = [
   { key: "all",     label: "All",     icon: FaCalendarAlt },
@@ -164,6 +205,12 @@ export default function EventsPage() {
   const [search, setSearch]         = useState("");
   const [error, setError]           = useState("");
 
+  // Reset page and clear media list on filter or search changes
+  useEffect(() => {
+    setPage(1);
+    setMedia([]);
+  }, [activeTab, sortOrder, search]);
+
   useEffect(() => {
     let cancelled = false;
     async function fetchMedia() {
@@ -176,7 +223,13 @@ export default function EventsPage() {
         const payload  = await response.json();
         if (cancelled) return;
         const data = payload?.data || payload || {};
-        setMedia(Array.isArray(data.media) ? data.media : []);
+        const newMedia = Array.isArray(data.media) ? data.media : [];
+        
+        if (page === 1) {
+          setMedia(newMedia);
+        } else {
+          setMedia((prev) => [...prev, ...newMedia]);
+        }
         setTotalCount(data.pagination?.total ?? 0);
         setTotalPages(data.pagination?.totalPages ?? 1);
       } catch {
@@ -189,14 +242,6 @@ export default function EventsPage() {
     return () => { cancelled = true; };
   }, [page, activeTab, sortOrder, search]);
 
-  const eventsSchemas = [
-    generateWebPageSchema({
-      name: "Events & Media - Career Mitra",
-      description: "Browse the latest media and events shared by Career Mitra.",
-      url: "https://careermitra.in/events"
-    })
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans mt-20">
 
@@ -208,27 +253,12 @@ export default function EventsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {/* <p className="text-xs font-semibold text-violet-500 uppercase tracking-widest mb-1">Career Mitra</p> */}
             <h1 className="text-2xl sm:text-5xl font-black text-orange-600 leading-tight mx-auto">
               Events & Media
             </h1>
             <p className="mt-1.5 text-sm text-slate-400 max-w-lg mx-auto">
               Browse the latest images, videos and announcements published by Career Mitra.
             </p>
-
-            {/* Stats pills */}
-            {/* <div className="mt-4 flex items-center gap-3 flex-wrap">
-              {[
-                { label: "Total", value: totalCount, color: "bg-violet-50 text-violet-700 border-violet-100" },
-                { label: "Page", value: `${page} / ${totalPages}`, color: "bg-slate-50 text-slate-600 border-slate-200" },
-                { label: "Showing", value: media.length, color: "bg-orange-50 text-orange-600 border-orange-100" },
-              ].map(s => (
-                <span key={s.label} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${s.color}`}>
-                  <span className="font-black">{loading ? "—" : s.value}</span>
-                  <span className="opacity-60">{s.label}</span>
-                </span>
-              ))}
-            </div> */}
           </motion.div>
         </div>
       </div>
@@ -296,7 +326,7 @@ export default function EventsPage() {
       <main className="w-full mx-auto px-4 md:px-15 py-8">
 
         {/* Count line */}
-        {!loading && !error && (
+        {!loading && !error && media.length > 0 && (
           <p className="text-xs text-slate-400 mb-5">
             Showing <span className="font-semibold text-slate-600">{media.length}</span> of{" "}
             <span className="font-semibold text-slate-600">{totalCount}</span> items
@@ -322,65 +352,70 @@ export default function EventsPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              {loading
-                ? Array.from({ length: DEFAULT_LIMIT }).map((_, i) => <MediaSkeleton key={i} />)
-                : media.length === 0
-                  ? (
-                    <div className="col-span-full rounded-2xl border border-slate-100 bg-white p-14 text-center">
-                      <p className="font-semibold text-slate-400 text-sm">No media found.</p>
-                      <p className="mt-1 text-xs text-slate-300">Try adjusting your filters.</p>
-                    </div>
-                  )
-                  : media.map((item, i) => (
+              {media.length === 0 && !loading ? (
+                <div className="col-span-full rounded-2xl border border-slate-100 bg-white p-14 text-center">
+                  <p className="font-semibold text-slate-400 text-sm">No media found.</p>
+                  <p className="mt-1 text-xs text-slate-300">Try adjusting your filters.</p>
+                </div>
+              ) : (
+                <>
+                  {media.map((item, i) => (
                     <MediaCard key={item._id || item.id || i} item={item} index={i} />
-                  ))
-              }
+                  ))}
+                  {loading && Array.from({ length: 8 }).map((_, i) => <MediaSkeleton key={i} />)}
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Pagination */}
-        {!loading && totalPages > 1 && (
-          <motion.div
-            className="mt-8 flex items-center justify-center gap-1.5"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-          >
+        {/* Load More Button */}
+        {!loading && page < totalPages && (
+          <div className="flex justify-center mt-10 mb-6">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300 hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              onClick={() => setPage((p) => p + 1)}
+              className="px-8 py-3 bg-white text-orange-600 border-2 border-orange-500 rounded-xl font-bold hover:bg-orange-500 hover:text-white hover:scale-[1.02] transform transition duration-200 shadow-sm"
             >
-              <FaChevronLeft size={9} /> Prev
+              Load More
             </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                const p = i + 1;
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`w-9 h-9 rounded-xl text-xs font-bold transition ${
-                      page === p
-                        ? "bg-violet-600 text-white shadow-sm shadow-violet-200"
-                        : "border border-slate-200 bg-white text-slate-400 hover:text-slate-700"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300 hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition"
-            >
-              Next <FaChevronRight size={9} />
-            </button>
-          </motion.div>
+          </div>
         )}
+
+        {/* ── PDF Content Document Section ── */}
+        <div className="bl-article-doc max-w-4xl mx-auto">
+          <style dangerouslySetInnerHTML={{ __html: EVENTS_DOC_STYLES }} />
+          <h2 className="bl-doc-title">
+            Career Mitra Events & Media - Government Jobs & Career Events
+          </h2>
+          
+          <p className="bl-doc-p">
+            The Career Mitra Events & Media page is a dedicated section for viewing the latest images, videos, and announcements shared by <Link href="/" className="bl-doc-link">Career Mitra</Link>. The page is designed to keep students, job seekers, and government job aspirants updated on the platform’s recent activities and media content.
+          </p>
+          
+          <p className="bl-doc-p">
+            Career Mitra is a platform that shares government job notifications and career advice for people across India. The Events and Media page adds a visual side to this work. Anyone can see recent pictures, watch videos, or check <a href="https://www.youtube.com/@CareerMitraaa" target="_blank" rel="noopener noreferrer" className="bl-doc-link">YouTube</a> content in one place. There is no need to search through different parts of the website. Everything lies together in clear categories.
+          </p>
+          
+          <p className="bl-doc-p">
+            A search bar is also provided for viewers to find specific content fast. This helps busy job seekers who want quick answers without wasting time. This page is useful for anyone who wants more than job alerts.
+          </p>
+          
+          <p className="bl-doc-p">
+            Career Mitra shares news about <Link href="/government-jobs" className="bl-doc-link">government recruitment</Link>, career tips, internships, and skill-building programs. Its main site brings updates from central and state departments, banks, defense organizations, and other public offices.
+          </p>
+          
+          <p className="bl-doc-p">
+            The Events and Media page adds another layer by showing these updates in a visual form. This section also fits into Career Mitra's larger goal, which is to make career information simple and easy to reach. The platform gives job suggestions based on user profiles, shares daily opportunity updates, and sends alerts for government jobs.
+          </p>
+          
+          <p className="bl-doc-p">
+            Users can also read guidance articles. These explain eligibility rules, how recruitment works, and different career paths in government jobs. In short, the Career Mitra Events and Media page acts as one place for all visual and announcement content.
+          </p>
+          
+          <p className="bl-doc-p">
+            Students, fresh graduates, and job aspirants can browse recent photos, videos, and updates here. At the same time, they can explore other career resources on the site. The layout is simple. The categories are clear. This makes it easy for anyone to browse and stay updated on what Career Mitra is doing.
+          </p>
+        </div>
       </main>
     </div>
   );

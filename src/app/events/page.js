@@ -1,5 +1,5 @@
 import EventsPageClient from "./EventsPageClient";
-import { generateWebPageSchema } from '@/utils/schemaHelpers';
+import { generateWebPageSchema, generateOrganizationSchema } from '@/utils/schemaHelpers';
 
 export const metadata = {
   title: "Media & Events - Career Mitra",
@@ -21,7 +21,8 @@ export default function Page() {
       name: "Media & Events | Career Mitra",
       description: "Browse the latest media and events shared by Career Mitra.",
       url: "https://careermitra.in/events"
-    })
+    }),
+    generateOrganizationSchema()
   ];
   return (
     <>
@@ -36,3 +37,4 @@ export default function Page() {
     </>
   );
 }
+
