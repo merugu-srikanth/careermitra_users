@@ -23,6 +23,17 @@ button, a {
   transition: background-color 0.2s ease;
 }
 
+/* Site-wide text felt too heavy/"shouty" — font-black (900) and
+   font-extrabold (800) are overused across the UI. Cap them down to
+   weights actually loaded for Poppins (700/600) so nothing falls back to
+   faux-bold. Plain font-bold (700) is left untouched. */
+.font-black {
+  font-weight: 700 !important;
+}
+.font-extrabold {
+  font-weight: 600 !important;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

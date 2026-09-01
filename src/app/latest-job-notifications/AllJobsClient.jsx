@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import AllJobCard from "@/components/AllJobCard";
 
 import { generateCollectionPageSchema, generateItemListSchema } from "@/utils/schemaHelpers";
@@ -243,7 +245,7 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
     <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div ref={containerRef} className="overflow-y-auto max-h-[70vh]">
         <table className="min-w-full table-fixed divide-y divide-gray-200">
-          <thead className="bg-linear-to-r from-orange-50 to-amber-50 sticky top-0">
+          <thead className="bg-linear-to-r from-orange-50 to-amber-50 sticky top-0 z-20 isolate">
             <tr>
               <th scope="col" className="w-10 px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">s no</th>
               <th scope="col" className="w-[28%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Job Title</th>
@@ -377,14 +379,14 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function AllJobs() {
   const { token } = useAuth();
-  
+  const searchParams = useSearchParams();
+
   // Server-side jobs states
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalItems, setTotalItems] = useState(0);
   const [tabCounts, setTabCounts] = useState({ jobs: 0, internship: 0, skillup: 0 });
-  const [categoriesList, setCategoriesList] = useState([]);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -396,27 +398,27 @@ export default function AllJobs() {
     typeof window !== "undefined" && window.innerWidth < 768 ? "grid" : "table"
   )); // "grid" or "table"
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  // Full dataset cache used for smart client-side search (backend `search`
+  // param only does a single-string substring match, so multi-word queries
+  // like "civil aviation" return nothing server-side).
+  const [allJobs, setAllJobs] = useState([]);
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [allLoading, setAllLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchBarRef = useRef(null);
+  const [dropdownRect, setDropdownRect] = useState(null);
+
+  const trimmedSearch = search.trim();
+  const isSearchMode = trimmedSearch.length > 0;
+
   const hasFilters = Boolean(search || selectedCategory || sortBy !== "newest" || jobType !== "jobs");
 
-  // Fetch category list on mount
+  // Prefill search from ?q= (e.g. arriving from the global navbar search)
   useEffect(() => {
-    fetch("https://www.careermitra.in/api/blogs/filters")
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          const list = [];
-          const seen = new Set();
-          (data.data?.parents || []).forEach(p => {
-            if (!seen.has(p.name)) { seen.add(p.name); list.push({ id: p.id, name: p.name }); }
-          });
-          (data.data?.children || []).forEach(c => {
-            if (!seen.has(c.name)) { seen.add(c.name); list.push({ id: c.id, name: c.name }); }
-          });
-          setCategoriesList(list);
-        }
-      })
-      .catch(console.error);
+    const q = searchParams.get("q");
+    if (q) setSearch(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch dynamic tab counts on search change
@@ -443,8 +445,9 @@ export default function AllJobs() {
     fetchCounts();
   }, [search]);
 
-  // Fetch jobs jobs on state change
+  // Fetch jobs jobs on state change (skipped while a client-side search is active)
   useEffect(() => {
+    if (isSearchMode) return;
     const fetchPageJobs = async () => {
       setLoading(true);
       setError(null);
@@ -457,9 +460,6 @@ export default function AllJobs() {
         }
         if (jobType) {
           url += `&job_type=${jobType}`;
-        }
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
         }
         if (selectedCategory) {
           url += `&category_id=${selectedCategory}`;
@@ -481,7 +481,129 @@ export default function AllJobs() {
       }
     };
     fetchPageJobs();
-  }, [page, jobType, search, sortBy, selectedCategory]);
+  }, [page, jobType, sortBy, selectedCategory, isSearchMode]);
+
+  // Fetch the entire (current job_type's) dataset once, lazily, on first search
+  // keystroke, so search can match "anything" across every field, not just title.
+  const fetchAllForSearch = async () => {
+    try {
+      setAllLoading(true);
+      setSearchError(null);
+
+      const base = `https://www.careermitra.in/api/jobs?job_type=${jobType}&limit=100&sort=newest`;
+      const first = await fetch(`${base}&page=1`);
+      const firstJson = await first.json();
+      if (!firstJson.success) throw new Error(firstJson.message || "Failed to load jobs");
+
+      let items = (firstJson.data?.jobs || []).map(mapUnifiedJob);
+      const totalPagesAll = firstJson.data?.pagination?.totalPages || 1;
+
+      if (totalPagesAll > 1) {
+        const pagePromises = [];
+        for (let p = 2; p <= totalPagesAll; p++) {
+          pagePromises.push(fetch(`${base}&page=${p}`).then((r) => r.json()));
+        }
+        const results = await Promise.all(pagePromises);
+        results.forEach((r) => {
+          if (r.success) items = items.concat((r.data?.jobs || []).map(mapUnifiedJob));
+        });
+      }
+
+      setAllJobs(items);
+      setAllLoaded(true);
+    } catch (err) {
+      console.error("Error fetching jobs for search:", err);
+      setSearchError("Unable to load jobs for search.");
+    } finally {
+      setAllLoading(false);
+    }
+  };
+
+  // Fetched eagerly on mount (not just lazily on search) because the category
+  // dropdown's option list is also derived from this same dataset — the API
+  // has no standalone "job categories" endpoint, and the categories previously
+  // shown here came from the unrelated blog taxonomy (`/api/blogs/filters`),
+  // whose ids never matched a real job's category_id, so the filter always
+  // silently returned zero jobs.
+  useEffect(() => {
+    if (!allLoaded && !allLoading) {
+      fetchAllForSearch();
+    }
+  }, [allLoaded, allLoading]);
+
+  const categoriesList = useMemo(() => {
+    const map = new Map();
+    allJobs.forEach((job) => {
+      if (job.categoryId && job.category && !map.has(job.categoryId)) {
+        map.set(job.categoryId, job.category);
+      }
+    });
+    return Array.from(map, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [allJobs]);
+
+  // Relevance-ranked, multi-field, multi-word client-side search
+  const scoreAndFilter = (list, words) =>
+    list
+      .map((job) => {
+        const haystack = [job.title, job.org, job.category, job.qualifications]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        const score = words.reduce((acc, w) => acc + (haystack.includes(w) ? 1 : 0), 0);
+        return { job, score };
+      })
+      .filter((entry) => entry.score > 0);
+
+  const searchMatches = useMemo(() => {
+    if (!isSearchMode) return [];
+    const words = trimmedSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    const filtered = selectedCategory
+      ? allJobs.filter((job) => job.categoryId === selectedCategory)
+      : allJobs;
+
+    const scored = scoreAndFilter(filtered, words);
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (sortBy === "deadline") return new Date(a.job.lastDate || 0) - new Date(b.job.lastDate || 0);
+      return new Date(b.job.createdAt || b.job.postedDate || 0) - new Date(a.job.createdAt || a.job.postedDate || 0);
+    });
+
+    return scored.map((entry) => entry.job);
+  }, [isSearchMode, trimmedSearch, allJobs, selectedCategory, sortBy]);
+
+  // Live suggestion dropdown shown right under the search box (top 8 matches)
+  const suggestions = useMemo(() => {
+    if (!trimmedSearch || !allLoaded) return [];
+    const words = trimmedSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    const scored = scoreAndFilter(allJobs, words);
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 8).map((entry) => entry.job);
+  }, [trimmedSearch, allLoaded, allJobs]);
+
+  // Track the search bar's on-screen position so the suggestions dropdown can
+  // be portaled to <body> and escape the hero section's `overflow-hidden`
+  // (used for its decorative blur circles), which was clipping the dropdown.
+  useEffect(() => {
+    if (!showSuggestions || !trimmedSearch) return;
+    const updateRect = () => {
+      if (!searchBarRef.current) return;
+      const rect = searchBarRef.current.getBoundingClientRect();
+      setDropdownRect({ top: rect.bottom + 8, left: rect.left, width: rect.width });
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect, true);
+    return () => {
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect, true);
+    };
+  }, [showSuggestions, trimmedSearch]);
+
+  const displayedJobs = isSearchMode ? searchMatches.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE) : jobs;
+  const displayedTotalItems = isSearchMode ? searchMatches.length : totalItems;
+  const displayedTotalPages = Math.max(1, Math.ceil(displayedTotalItems / ITEMS_PER_PAGE));
+  const displayedLoading = isSearchMode ? allLoading && !allLoaded : loading;
+  const displayedError = isSearchMode ? searchError : error;
 
   const handlePageChange = (p) => {
     setPage(p);
@@ -534,28 +656,73 @@ export default function AllJobs() {
             Verified government vacancies from top organisations across India. Updated regularly.
           </p>
 
-          <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-2xl p-1.5 gap-2 border border-white/30">
+          <div className="max-w-2xl mx-auto relative">
+            <div ref={searchBarRef} className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-2xl p-1.5 gap-2 border border-white/30">
               <div className="flex-1 flex items-center gap-2.5 px-3 min-w-0">
                 <SearchIcon />
                 <input
                   suppressHydrationWarning={true}
                   type="text"
+                  autoComplete="off"
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  placeholder="Search by title, organisation..."
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); setShowSuggestions(true); }}
+                  onFocus={() => { if (trimmedSearch) setShowSuggestions(true); }}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
+                  placeholder="Try 'Civil Aviation', HCL, Chennai..."
                   className="flex-1 min-w-0 text-base text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent py-2.5"
                 />
                 {search && (
-                  <button onClick={() => { setSearch(""); setPage(1); }} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+                  <button onClick={() => { setSearch(""); setPage(1); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
                     <XIcon />
                   </button>
                 )}
               </div>
-              <button suppressHydrationWarning={true} className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto">
+              <button
+                type="button"
+                suppressHydrationWarning={true}
+                onClick={() => setShowSuggestions(false)}
+                className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto"
+              >
                 Search
               </button>
             </div>
+
+            {/* Suggestions Dropdown — portaled to <body> so it isn't clipped by
+                the hero section's overflow-hidden (used for its blur circles) */}
+            {showSuggestions && trimmedSearch && dropdownRect && typeof document !== "undefined" && createPortal(
+              <div
+                style={{ position: "fixed", top: dropdownRect.top, left: dropdownRect.left, width: dropdownRect.width }}
+                className="z-100 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto text-left"
+              >
+                {!allLoaded ? (
+                  <div className="px-4 py-3 text-xs text-gray-400 font-semibold">Loading suggestions...</div>
+                ) : suggestions.length === 0 ? (
+                  <div className="px-4 py-3 text-xs text-gray-400 font-semibold">No matches for "{trimmedSearch}"</div>
+                ) : (
+                  suggestions.map((job) => (
+                    <button
+                      key={job.id}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSearch(job.title);
+                        setPage(1);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      <p className="text-xs font-bold text-gray-800 truncate">{job.title}</p>
+                      <p className="text-[11px] text-gray-500 truncate">
+                        {job.org}
+                        {job.category ? ` · ${job.category}` : ""}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>,
+              document.body
+            )}
           </div>
 
           {/* <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -601,9 +768,15 @@ export default function AllJobs() {
         {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
-            Showing <span className="font-bold text-gray-800">{jobs.length}</span> jobs
-            {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
-            <span className="text-gray-400"> • Page {page} of {totalPages || 1}</span>
+            {isSearchMode && allLoading && !allLoaded ? (
+              "Searching..."
+            ) : (
+              <>
+                Showing <span className="font-bold text-gray-800">{displayedJobs.length}</span> jobs
+                {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
+                <span className="text-gray-400"> • Page {page} of {displayedTotalPages || 1}</span>
+              </>
+            )}
           </p>
  
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
@@ -648,7 +821,7 @@ export default function AllJobs() {
             </div>
 
             {/* Category Dropdown */}
-            {/* <select
+            <select
               value={selectedCategory}
               onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
               className="text-xs font-bold border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 cursor-pointer shadow-sm hover:border-orange-300 transition-colors w-full sm:w-auto"
@@ -657,7 +830,7 @@ export default function AllJobs() {
               {categoriesList.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
-            </select> */}
+            </select>
 
             {/* Sort */}
             {/* <select
@@ -684,7 +857,7 @@ export default function AllJobs() {
         </div>
 
         {/* ── Job Display (Grid or Table) ───────────────────────────────────────── */}
-        {loading ? (
+        {displayedLoading ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
@@ -694,18 +867,18 @@ export default function AllJobs() {
           ) : (
             <JobTableSkeleton />
           )
-        ) : error ? (
+        ) : displayedError ? (
           <div className="flex flex-col items-center justify-center py-28 text-center">
             <h3 className="text-xl font-bold text-red-600 mb-2">Failed to load jobs</h3>
-            <p className="text-gray-500 text-sm mb-6 max-w-xs">{error}</p>
+            <p className="text-gray-500 text-sm mb-6 max-w-xs">{displayedError}</p>
             <button
-              onClick={() => setPage(1)}
+              onClick={() => (isSearchMode ? fetchAllForSearch() : setPage(1))}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200"
             >
               Retry
             </button>
           </div>
-        ) : jobs.length === 0 ? (
+        ) : displayedJobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-28 text-center">
             <BriefcaseEmptyIcon />
             <h3 className="text-xl font-bold text-gray-700 mb-2">No Jobs Found</h3>
@@ -725,7 +898,7 @@ export default function AllJobs() {
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {jobs.map((job) => (
+            {displayedJobs.map((job) => (
               <AllJobCard
                 key={job.id}
                 title={job.title}
@@ -743,15 +916,15 @@ export default function AllJobs() {
             ))}
           </div>
         ) : (
-          <TableView jobs={jobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
+          <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
         )}
 
         {/* ── Pagination ───────────────────────────────────────────────────────── */}
-        <Pagination current={page} total={totalPages} onChange={handlePageChange} />
+        <Pagination current={page} total={displayedTotalPages} onChange={handlePageChange} />
 
-        {jobs.length > 0 && (
+        {displayedJobs.length > 0 && (
           <p className="text-center text-xs text-gray-400 mt-4">
-            Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min((page - 1) * ITEMS_PER_PAGE + jobs.length, totalItems || jobs.length)} of {totalItems || jobs.length} jobs
+            Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min((page - 1) * ITEMS_PER_PAGE + displayedJobs.length, displayedTotalItems || displayedJobs.length)} of {displayedTotalItems || displayedJobs.length} jobs
           </p>
         )}
 

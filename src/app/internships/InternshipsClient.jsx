@@ -103,6 +103,20 @@ export default function Internships() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
+  // Full dataset cache used for smart client-side search (backend search only
+  // does a single-string substring match on title/company, so multi-word or
+  // domain/location queries like "bio science" return nothing server-side).
+  const [allInternships, setAllInternships] = useState([]);
+  const [allLoaded, setAllLoaded] = useState(false);
+  const [allLoading, setAllLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [searchVisibleCount, setSearchVisibleCount] = useState(20);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const trimmedSearch = debouncedSearch.trim();
+  const isSearchMode = trimmedSearch.length > 0;
+  const rawQuery = searchQuery.trim();
+
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -111,6 +125,127 @@ export default function Internships() {
     }, 400);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Reset how many search results are visible whenever the query or filters change
+  useEffect(() => {
+    setSearchVisibleCount(limit);
+  }, [debouncedSearch, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, limit]);
+
+  // Fetch the entire internships dataset once (lazily, on first search) so we
+  // can match "anything" the user types against every field, not just company.
+  const fetchAllForSearch = async () => {
+    try {
+      setAllLoading(true);
+      setSearchError(null);
+
+      const first = await fetch(`${BASE_URL}?page=1&limit=100&sort=newest`);
+      const firstJson = await first.json();
+      if (!firstJson.success) throw new Error(firstJson.message || "Failed to load internships");
+
+      let items = firstJson.data.internships || [];
+      const totalPagesAll = firstJson.data.pagination?.totalPages || 1;
+
+      if (totalPagesAll > 1) {
+        const pagePromises = [];
+        for (let p = 2; p <= totalPagesAll; p++) {
+          pagePromises.push(fetch(`${BASE_URL}?page=${p}&limit=100&sort=newest`).then((r) => r.json()));
+        }
+        const results = await Promise.all(pagePromises);
+        results.forEach((r) => {
+          if (r.success) items = items.concat(r.data.internships || []);
+        });
+      }
+
+      setAllInternships(items);
+      setAllLoaded(true);
+    } catch (err) {
+      console.error("Error fetching internships for search:", err);
+      setSearchError("Unable to load internships for search.");
+    } finally {
+      setAllLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (rawQuery.length > 0 && !allLoaded && !allLoading) {
+      fetchAllForSearch();
+    }
+  }, [rawQuery, allLoaded, allLoading]);
+
+  // Live (non-debounced) suggestion dropdown shown right under the search box
+  const suggestions = useMemo(() => {
+    if (!rawQuery || !allLoaded) return [];
+    const words = rawQuery.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const scored = allInternships
+      .map((item) => {
+        const haystack = [
+          item.internship_title,
+          item.company_name,
+          item.domain_sector,
+          item.internship_type,
+          item.location,
+          item.district_city,
+          item.state
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        const score = words.reduce((acc, w) => acc + (haystack.includes(w) ? 1 : 0), 0);
+        return { item, score };
+      })
+      .filter((entry) => entry.score > 0);
+
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return new Date(b.item.created_at || 0) - new Date(a.item.created_at || 0);
+    });
+
+    return scored.slice(0, 8).map((entry) => entry.item);
+  }, [rawQuery, allLoaded, allInternships]);
+
+  // Relevance-ranked, multi-field, multi-word client-side search.
+  // e.g. "bio science" matches anything containing "bio" OR "science" in its
+  // title, company, domain, type, or location, with best matches ranked first.
+  const searchMatches = useMemo(() => {
+    if (!isSearchMode) return [];
+    const words = trimmedSearch.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const filtered = allInternships.filter((item) => {
+      if (selectedType && item.internship_type !== selectedType) return false;
+      if (selectedDomain && item.domain_sector !== selectedDomain) return false;
+      if (selectedState && item.state !== selectedState) return false;
+      if (selectedCity && item.district_city !== selectedCity) return false;
+      if (selectedStipend && item.stipend_category !== selectedStipend) return false;
+      return true;
+    });
+
+    const scored = filtered
+      .map((item) => {
+        const haystack = [
+          item.internship_title,
+          item.company_name,
+          item.domain_sector,
+          item.internship_type,
+          item.location,
+          item.district_city,
+          item.state
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        const score = words.reduce((acc, w) => acc + (haystack.includes(w) ? 1 : 0), 0);
+        return { item, score };
+      })
+      .filter((entry) => entry.score > 0);
+
+    scored.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return new Date(b.item.created_at || 0) - new Date(a.item.created_at || 0);
+    });
+
+    return scored.map((entry) => entry.item);
+  }, [isSearchMode, trimmedSearch, allInternships, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend]);
 
   // Fetch Filters
   useEffect(() => {
@@ -154,7 +289,6 @@ export default function Internships() {
       if (selectedState) params.append("state", selectedState);
       if (selectedCity) params.append("district_city", selectedCity);
       if (selectedStipend) params.append("stipend_category", selectedStipend);
-      if (debouncedSearch) params.append("search", debouncedSearch);
 
       const res = await fetch(`${BASE_URL}?${params.toString()}`);
       const json = await res.json();
@@ -180,10 +314,17 @@ export default function Internships() {
   };
 
   useEffect(() => {
+    if (isSearchMode) return;
     fetchInternships();
-  }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, debouncedSearch]);
+  }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, isSearchMode]);
+
+  const canLoadMore = isSearchMode ? searchVisibleCount < searchMatches.length : page < totalPages;
 
   const handleLoadMore = () => {
+    if (isSearchMode) {
+      setSearchVisibleCount((prev) => Math.min(prev + limit, searchMatches.length));
+      return;
+    }
     if (loadingMore || page >= totalPages) return;
     setPage((prev) => prev + 1);
   };
@@ -205,6 +346,11 @@ export default function Internships() {
     setPage(1);
   };
 
+  const displayedInternships = isSearchMode ? searchMatches.slice(0, searchVisibleCount) : internships;
+  const displayedTotal = isSearchMode ? searchMatches.length : totalItems;
+  const isLoading = isSearchMode ? allLoading && !allLoaded : loading;
+  const displayedError = isSearchMode ? searchError : error;
+  const retryFetch = isSearchMode ? fetchAllForSearch : fetchInternships;
 
   return (
     <div className="relative min-h-screen bg-slate-50/50 py-8 px-4 md:px-8 font-sans">
@@ -229,18 +375,52 @@ export default function Internships() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search Input */}
             <div className="relative sm:col-span-2 lg:col-span-1">
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Company Search</label>
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Internships</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="HCL, Meesho, Wipro..."
+                  placeholder="Try 'Bio Science', HCL, Chennai..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                  onFocus={() => { if (rawQuery) setShowSuggestions(true); }}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
                   suppressHydrationWarning={true}
+                  autoComplete="off"
                   className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50"
                 />
               </div>
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && rawQuery && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto">
+                  {!allLoaded ? (
+                    <div className="px-4 py-3 text-xs text-slate-400 font-semibold">Loading suggestions...</div>
+                  ) : suggestions.length === 0 ? (
+                    <div className="px-4 py-3 text-xs text-slate-400 font-semibold">No matches for "{rawQuery}"</div>
+                  ) : (
+                    suggestions.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setShowSuggestions(false);
+                          handleViewDetails(s.id, s.internship_title);
+                        }}
+                        className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-slate-50 last:border-0"
+                      >
+                        <p className="text-xs font-bold text-slate-800 truncate">{s.internship_title}</p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {s.company_name}
+                          {(s.domain_sector && s.domain_sector !== "-") ? ` · ${s.domain_sector}` : (s.location ? ` · ${s.location}` : "")}
+                        </p>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Internship Type Filter */}
@@ -317,13 +497,15 @@ export default function Internships() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 font-semibold">{totalItems} results found</span>
+              <span className="text-xs text-slate-400 font-semibold">
+                {isSearchMode && allLoading && !allLoaded ? "Searching..." : `${displayedTotal} results found`}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Content Area */}
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-4">
             <div className="hidden md:block rounded-3xl border border-orange-50 bg-white shadow-sm overflow-hidden animate-pulse">
               <div className="h-12 bg-slate-100/80" />
@@ -337,24 +519,26 @@ export default function Internships() {
               ))}
             </div>
           </div>
-        ) : error ? (
+        ) : displayedError ? (
           <div className="bg-red-50/50 border border-red-200 text-red-700 rounded-3xl p-6 text-center">
-            <p className="font-bold">{error}</p>
+            <p className="font-bold">{displayedError}</p>
             <button
-              onClick={fetchInternships}
+              onClick={retryFetch}
               className="mt-3 px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow"
             >
               Retry Connection
             </button>
           </div>
-        ) : internships.length === 0 ? (
+        ) : displayedInternships.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
             <div className="p-4 rounded-full bg-slate-100 text-slate-400 mb-4">
               <Search className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-black text-slate-800">No Internships Found</h3>
             <p className="text-sm text-slate-500 mt-2 max-w-sm">
-              We couldn't find any approved internships matching your filters. Try clearing some criteria.
+              {isSearchMode
+                ? `We couldn't find anything related to "${trimmedSearch}". Try a different keyword.`
+                : "We couldn't find any approved internships matching your filters. Try clearing some criteria."}
             </p>
           </div>
         ) : (
@@ -375,7 +559,7 @@ export default function Internships() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
-                    {internships.map((intern, idx) => (
+                    {displayedInternships.map((intern, idx) => (
                       <tr key={intern.id} className="hover:bg-orange-50/30 transition-all duration-150 group">
                         <td className="px-5 py-4 text-xs font-bold text-slate-400">
                           {idx + 1}
@@ -459,7 +643,7 @@ export default function Internships() {
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-4">
-              {internships.map((intern) => (
+              {displayedInternships.map((intern) => (
                 <div key={intern.id} className="bg-white rounded-3xl border border-orange-100/50 shadow-sm p-4 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-[80px] -z-0 opacity-50" />
 
@@ -526,7 +710,7 @@ export default function Internships() {
             </div>
 
             {/* Load More */}
-            {page < totalPages && (
+            {canLoadMore && (
               <div className="flex justify-center mt-8">
                 <button
                   onClick={handleLoadMore}

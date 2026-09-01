@@ -13,11 +13,12 @@ import {
   FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
   FaUser, FaEnvelope, FaBell, FaCalendarAlt,
-  FaBriefcase, FaGraduationCap
+  FaBriefcase, FaGraduationCap, FaSearch
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
 import ProfileCard from "./ProfileCard";
+import GlobalSearchModal from "./GlobalSearch";
 
 const API_BASE = "https://www.careermitra.in/api";
 
@@ -113,6 +114,7 @@ export default function Navbar() {
   const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -359,7 +361,7 @@ export default function Navbar() {
         <div
           className={`px-4 md:px-15 flex items-center transition-all duration-300 ${scrolled ? "h-17" : "h-20"}`}
         >
-          {/* ── MOBILE ROW: hamburger | logo center | youtube ── */}
+          {/* ── MOBILE ROW: hamburger | logo center | search + youtube ── */}
           <div className="flex lg:hidden items-center w-full">
             <button
               onClick={() => setDrawerOpen(true)}
@@ -377,15 +379,24 @@ export default function Navbar() {
                 />
               </Link>
             </div>
-            <a
-              href="https://www.youtube.com/@CareerMitraaa"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Careermitra YouTube Channel"
-              className="flex-none inline-flex items-center justify-center rounded-2xl border border-red-500/40 bg-red-600/10 p-2 text-red-400 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
-            >
-              <FaYoutube size={24} className="text-red-500" />
-            </a>
+            <div className="flex-none flex items-center gap-2">
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
+                aria-label="Search"
+              >
+                <FaSearch size={16} />
+              </button>
+              <a
+                href="https://www.youtube.com/@CareerMitraaa"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Careermitra YouTube Channel"
+                className="inline-flex items-center justify-center rounded-2xl border border-red-500/40 bg-red-600/10 p-2 text-red-400 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
+              >
+                <FaYoutube size={24} className="text-red-500" />
+              </a>
+            </div>
           </div>
 
           {/* ── DESKTOP ROW: logo | nav links + auth ── */}
@@ -594,6 +605,18 @@ export default function Navbar() {
             {/* DESKTOP RIGHT */}
             <div className="hidden lg:flex items-center">
               <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-1.5 flex items-center gap-3.5 shadow-2xs">
+                {/* Global Search */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
+                  title="Search"
+                  aria-label="Search"
+                >
+                  <FaSearch size={15} />
+                </button>
+
+                <div className="w-px h-5 bg-slate-200/60" />
+
                 {/* YouTube Link */}
                 <a
                   href="https://www.youtube.com/@CareerMitraaa"
@@ -609,26 +632,6 @@ export default function Navbar() {
 
                 {mounted && token ? (
                   <>
-                    {/* Jobs Bell Button */}
-                    <div className="relative flex items-center">
-                      <button
-                        onClick={goToJobPostsTab}
-                        className="w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
-                        title={`${jobsBellCount.totalCount ?? 0} total · ${jobsBellCount.activeCount ?? 0} live`}
-                        aria-label="Open job notifications"
-                      >
-                        <FaBell size={15} />
-                        <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-orange-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">
-                          {jobsBellCount.totalCount ?? 0}
-                        </span>
-                        {jobsBellCount.newCount > 0 && (
-                          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white rounded-full animate-ping" />
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="w-px h-5 bg-slate-200/60" />
-
                     {/* Profile Dropdown */}
                     <div
                       ref={dropdownRef}
@@ -639,8 +642,16 @@ export default function Navbar() {
                       <button
                         onClick={() => setProfileOpen(!profileOpen)}
                         className="flex items-center gap-2 bg-transparent hover:bg-slate-50 pl-1 pr-2 py-1 rounded-xl transition-all duration-200"
+                        title={`${jobsBellCount.activeCount ?? 0} live jobs`}
                       >
-                        <AvatarSVG size={28} />
+                        <div className="relative">
+                          <AvatarSVG size={28} />
+                          {jobsBellCount.activeCount > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-green-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">
+                              {jobsBellCount.activeCount}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex flex-col items-start text-left min-w-0">
                           {/* <span className="text-xs font-black text-slate-700 leading-tight truncate max-w-20">{displayName}</span> */}
                           {/* <span className="text-[9px] text-slate-400 font-bold leading-none mt-0.5">Profile: {profileCompletion}%</span> */}
@@ -1040,6 +1051,9 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
+
+      {/* ── GLOBAL SEARCH ── */}
+      <GlobalSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} categoryTree={categoryTree} />
 
       {/* spacer so content doesn't go under nav */}
       {/* <div className="h-16 md:h-[4.75rem]" /> */}
