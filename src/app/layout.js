@@ -57,6 +57,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-IN" className={poppins.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4115444466556482"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-580RJ53PGL"
