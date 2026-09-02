@@ -256,11 +256,12 @@ function VerticalAnnouncements({ list, loading }) {
     const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
 
     /* refs for the scroll loop — never cause re-renders */
-    const viewportRef = useRef(null); // overflow:hidden container
-    const trackRef = useRef(null); // the moving element
+    const viewportRef = useRef(null); // native scroll container (user can wheel/touch scroll it)
+    const trackRef = useRef(null); // the doubled content, used only to measure height
     const rafRef = useRef(null);
-    const posRef = useRef(0);
+    const posRef = useRef(0); // float accumulator — scrollTop itself rounds to an int, so we can't read it back as the source of truth
     const pauseRef = useRef(false);
+    const resumeTimerRef = useRef(null);
 
     const shouldScroll = list.length > 0;
 
@@ -271,7 +272,7 @@ function VerticalAnnouncements({ list, loading }) {
         if (!track || !viewport) return;
 
         posRef.current = 0;
-        track.style.transform = "translateY(0px)";
+        viewport.scrollTop = 0;
 
         if (!shouldScroll) return;
 
@@ -279,13 +280,16 @@ function VerticalAnnouncements({ list, loading }) {
 
         const tick = () => {
             if (!pauseRef.current) {
-                posRef.current += SPEED;
                 /* seamless loop: list is doubled — reset at exactly half the track height */
                 const halfHeight = track.scrollHeight / 2;
+                posRef.current += SPEED;
                 if (halfHeight > 0 && posRef.current >= halfHeight) {
                     posRef.current -= halfHeight;
                 }
-                track.style.transform = `translateY(-${posRef.current}px)`;
+                viewport.scrollTop = posRef.current;
+            } else {
+                /* keep the accumulator in sync with any manual scrolling that happened while paused */
+                posRef.current = viewport.scrollTop;
             }
             rafRef.current = requestAnimationFrame(tick);
         };
@@ -294,8 +298,36 @@ function VerticalAnnouncements({ list, loading }) {
         return () => cancelAnimationFrame(rafRef.current);
     }, [list, shouldScroll]);
 
-    const pause = () => { pauseRef.current = true; };
-    const resume = () => { pauseRef.current = false; };
+    /* pause auto-scroll while the user is actively interacting (hover, wheel,
+       touch/drag), and resume automatically a moment after they stop —
+       this lets manual scrolling work at any time without permanently
+       killing the auto-scroll. */
+    const clearResumeTimer = () => {
+        if (resumeTimerRef.current) {
+            window.clearTimeout(resumeTimerRef.current);
+            resumeTimerRef.current = null;
+        }
+    };
+
+    const pause = () => {
+        clearResumeTimer();
+        pauseRef.current = true;
+    };
+
+    const resume = () => {
+        clearResumeTimer();
+        pauseRef.current = false;
+    };
+
+    const pauseThenResume = (delay = 1500) => {
+        clearResumeTimer();
+        pauseRef.current = true;
+        resumeTimerRef.current = window.setTimeout(() => {
+            pauseRef.current = false;
+        }, delay);
+    };
+
+    useEffect(() => clearResumeTimer, []);
 
     return (
         <div
@@ -322,6 +354,23 @@ function VerticalAnnouncements({ list, loading }) {
                 display: inline-block;
                 animation: ann-shake 1.8s ease-in-out infinite;
                 transform-origin: bottom center;
+              }
+              .ann-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: #c4b5fd transparent;
+              }
+              .ann-scrollbar::-webkit-scrollbar {
+                width: 5px;
+              }
+              .ann-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              .ann-scrollbar::-webkit-scrollbar-thumb {
+                background: #c4b5fd;
+                border-radius: 999px;
+              }
+              .ann-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #a78bfa;
               }
             `}</style>
             <div className="shrink-0 px-5 py-4 relative overflow-hidden bg-linear-to-r from-purple-600 to-purple-800">
@@ -352,10 +401,21 @@ function VerticalAnnouncements({ list, loading }) {
                 </div>
             </div>
 
-            {/* ── Scroll viewport (fixed height = flex-1, never grows) ── */}
+            {/* ── Scroll viewport (fixed height = flex-1, never grows) ──
+                 overflow-y auto so the user can wheel/touch/drag scroll it
+                 manually at any time; auto-scroll pauses while they do and
+                 resumes shortly after they stop. */}
             <div
                 ref={viewportRef}
-                className="flex-1 overflow-hidden relative min-h-0 bg-white"
+                className="flex-1 overflow-y-auto relative min-h-0 bg-white ann-scrollbar"
+                onMouseEnter={pause}
+                onMouseLeave={resume}
+                onWheel={() => pauseThenResume()}
+                onTouchStart={pause}
+                onTouchMove={() => pauseThenResume()}
+                onTouchEnd={() => pauseThenResume()}
+                onPointerDown={pause}
+                onPointerUp={() => pauseThenResume()}
             >
                 {/* top + bottom fade overlays */}
                 <div className="absolute top-0 inset-x-0 h-6 z-10 pointer-events-none"
@@ -378,12 +438,7 @@ function VerticalAnnouncements({ list, loading }) {
                     </div>
                 ) : (
                     /* track — list doubled for seamless loop */
-                    <div
-                        ref={trackRef}
-                        className="will-change-transform"
-                        onMouseEnter={pause}
-                        onMouseLeave={resume}
-                    >
+                    <div ref={trackRef}>
                         {[...list, ...list].map((item, idx) => (
                             <div
                                 key={`${item.id || item.slug}-${idx}`}
