@@ -403,6 +403,46 @@ export function generateItemListSchema(items = []) {
 }
 
 /**
+ * Generate Table Schema (schema.org Table — a WebPageElement subtype).
+ * Table itself carries no cell/row-level vocabulary in schema.org, so the
+ * actual visible rows are serialized into `text` (a valid CreativeWork
+ * property) as a header + row dump — this keeps the markup 100% spec-valid
+ * while still faithfully mirroring the on-page table, and lets callers
+ * regenerate it from live data so it never drifts from what's rendered.
+ *
+ * @param {Object} table
+ * @param {string} table.name - Visible caption/heading of the table.
+ * @param {string} [table.description]
+ * @param {string} table.url - Canonical URL of the page the table lives on.
+ * @param {string[]} table.headers - Visible column headers, in order.
+ * @param {Array<Array<string>>} table.rows - Visible row data, each row an
+ *   array of cell strings in the same order as `headers`.
+ */
+export function generateTableSchema(table = {}) {
+  const headers = table.headers || [];
+  const rows = table.rows || [];
+  if (headers.length === 0 || rows.length === 0) return null;
+
+  const text = [headers.join(" | "), ...rows.map((row) => row.join(" | "))].join("\n");
+  const pageUrl = absoluteUrl(table.url);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Table",
+    "name": table.name,
+    "description": table.description,
+    "about": table.about || table.name,
+    "url": pageUrl,
+    "isPartOf": {
+      "@type": "WebPage",
+      "url": pageUrl
+    },
+    "text": text,
+    ...table.extra
+  };
+}
+
+/**
  * Generate WebPage Schema.
  */
 export function generateWebPageSchema(page = {}) {

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import AllJobCard from "@/components/AllJobCard";
 
-import { generateCollectionPageSchema, generateItemListSchema } from "@/utils/schemaHelpers";
+import { generateCollectionPageSchema, generateItemListSchema, generateTableSchema } from "@/utils/schemaHelpers";
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "@/utils/jobDeadline";
 import { useJobs, mapUnifiedJob } from "@/context/JobContext";
 import { useAuth } from "@/context/AuthContext";
@@ -632,9 +632,39 @@ export default function AllJobs() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const jobsSchemas = [];
+  // Table schema mirrors the desktop <table> in TableView — only generated
+  // when that table is actually the visible view, so structured data never
+  // claims a table exists when the grid view (or an error/empty/loading
+  // state) is what's really on screen.
+  const tableSchema = useMemo(() => {
+    if (viewMode !== "table" || displayedLoading || displayedError || displayedJobs.length === 0) return null;
+    return generateTableSchema({
+      name: "Latest Government Job Notifications",
+      description: "Verified government vacancies from top organisations across India, updated regularly.",
+      url: "/latest-job-notifications",
+      headers: ["S No", "Job Title", "Organization", "Qualification", "Category", "Posts", "Age Limit", "Start Date", "Deadline"],
+      rows: displayedJobs.map((job, idx) => [
+        String((page - 1) * ITEMS_PER_PAGE + idx + 1),
+        job.title || "N/A",
+        job.org || "N/A",
+        job.qualifications || "N/A",
+        job.category || "N/A",
+        job.noOfPosts != null ? String(job.noOfPosts) : "N/A",
+        job.age ? `${job.age} years` : "N/A",
+        formatDateDDMMYYYY(job.postedDate),
+        formatDateDDMMYYYY(job.lastDate),
+      ]),
+    });
+  }, [viewMode, displayedLoading, displayedError, displayedJobs, page]);
+
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20">
+      {tableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(tableSchema).replace(/</g, "\\u003c") }}
+        />
+      )}
 
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <div className="relative bg-linear-to-b from-orange-100 via-orange-100 to-orange-700 overflow-hidden">

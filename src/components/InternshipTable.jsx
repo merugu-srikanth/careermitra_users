@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Calendar, ExternalLink, Search, FileText, Building2, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useJobs } from "../context/JobContext";
+import { generateTableSchema } from "../utils/schemaHelpers";
 
 const JOBS_API = "https://careermitra.in/api/jobs";
 const ITEMS_PER_PAGE = 10;
@@ -336,6 +337,24 @@ const InternshipTable = () => {
   const pageItems = jobs;
   const filtered = jobs; // for empty state checks
 
+  const tableSchema = useMemo(() => {
+    if (loading || !jobs || jobs.length === 0) return null;
+    return generateTableSchema({
+      name: `Skill Up Opportunities — ${activeType === "skillups" ? "Skill Updates" : "Internships"}`,
+      description: "Recently announced Skill Up Opportunities across various sectors in India, listed on the Careermitra homepage.",
+      url: "/",
+      headers: ["S.No", "Title", "Organization", "Qualification", "Start Date", "Deadline"],
+      rows: jobs.map((item, idx) => [
+        String((currentPage - 1) * ITEMS_PER_PAGE + idx + 1),
+        item.title || "N/A",
+        item.org || "N/A",
+        item.qualifications || "N/A",
+        formatDate(item.postedDate),
+        formatDate(item.deadline),
+      ]),
+    });
+  }, [jobs, loading, activeType, currentPage]);
+
   const typeLabel = activeType === "skillups" ? "Skill Updates" : "Internships";
   const emptyText = activeType === "skillups" ? "No skill updates available" : "No internships found";
   const emptyHint = activeType === "skillups"
@@ -344,6 +363,12 @@ const InternshipTable = () => {
 
   return (
     <section>
+      {tableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(tableSchema).replace(/</g, "\\u003c") }}
+        />
+      )}
       <div className="md:w-full w-full mx-auto px-1 md:px-4 md:px-15">
 
         {/* ── Tabs bar ── */}

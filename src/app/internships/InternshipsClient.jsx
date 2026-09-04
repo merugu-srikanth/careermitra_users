@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { generateCollectionPageSchema, generateItemListSchema } from '@/utils/schemaHelpers';
+import { generateCollectionPageSchema, generateItemListSchema, generateTableSchema } from '@/utils/schemaHelpers';
 import InternshipGuideContent from '@/components/InternshipGuideContent';
 import {
   Calendar,
@@ -352,8 +352,36 @@ export default function Internships() {
   const displayedError = isSearchMode ? searchError : error;
   const retryFetch = isSearchMode ? fetchAllForSearch : fetchInternships;
 
+  // Mirrors the desktop internship table columns — regenerated whenever the
+  // visible rows change (filters, search, load-more) so it never drifts from
+  // what's actually rendered.
+  const tableSchema = useMemo(() => {
+    if (isLoading || displayedError || displayedInternships.length === 0) return null;
+    return generateTableSchema({
+      name: "Internship Opportunities",
+      description: "Verified internship opportunities across states, sectors, and roles listed on Career Mitra.",
+      url: "/internships",
+      headers: ["#", "Internship Title", "Company", "Type", "Location", "Stipend", "Duration"],
+      rows: displayedInternships.map((intern, idx) => [
+        String(idx + 1),
+        intern.internship_title || "N/A",
+        intern.company_name || "N/A",
+        intern.internship_type || "N/A",
+        intern.location || [intern.district_city, intern.state].filter(Boolean).join(", ") || "N/A",
+        intern.stipend_category === "Paid" ? (intern.stipend || "Paid") : "Unpaid",
+        intern.duration || "N/A",
+      ]),
+    });
+  }, [displayedInternships, isLoading, displayedError]);
+
   return (
     <div className="relative min-h-screen bg-slate-50/50 py-8 px-4 md:px-8 font-sans">
+      {tableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(tableSchema).replace(/</g, "\\u003c") }}
+        />
+      )}
 
       <div className="w-full mx-auto z-10 relative pt-20">
         {/* Header Block */}
