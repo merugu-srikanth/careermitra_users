@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import VerifyOtpClient from "./VerifyOtpClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
@@ -29,7 +30,9 @@ export default function VerifyOtp() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <VerifyOtpClient />
+      <Suspense fallback={null}>
+        <VerifyOtpClient />
+      </Suspense>
     </>
   );
 }

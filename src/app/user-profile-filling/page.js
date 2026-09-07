@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import UserprofilefillingpageClient from "./UserprofilefillingpageClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
@@ -33,7 +34,9 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <UserprofilefillingpageClient />
+      <Suspense fallback={null}>
+        <UserprofilefillingpageClient />
+      </Suspense>
     </>
   );
 }

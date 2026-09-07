@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/NewLogo.png";
 import axios from "axios";
@@ -110,8 +110,6 @@ export default function Navbar() {
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -202,7 +200,7 @@ export default function Navbar() {
   }, []);
 
   /* close drawer on route change */
-  useEffect(() => setDrawerOpen(false), [location.pathname]);
+  useEffect(() => setDrawerOpen(false), [pathname]);
 
   /* lock body scroll when drawer open */
   useEffect(() => {
@@ -224,7 +222,7 @@ export default function Navbar() {
   }, [profileData?.id, profileData?.email, user?.id, user?.email]);
 
   const isActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
 
   const visibleNavLinks = useMemo(() =>
     navLinks.filter((link) => {
@@ -301,9 +299,10 @@ export default function Navbar() {
           return !jobsSeenAt || created > jobsSeenAt;
         }).length;
 
+        const searchStr = typeof window !== "undefined" ? window.location.search : "";
         const onJobsTab =
-          location.pathname === "/user-dashboard" &&
-          new URLSearchParams(location.search).get("tab") === "jobs";
+          pathname === "/user-dashboard" &&
+          new URLSearchParams(searchStr).get("tab") === "jobs";
 
         const safeNewCount = onJobsTab ? 0 : jobsNewCount;
         const liveCount = liveJobs.length;
@@ -319,7 +318,7 @@ export default function Navbar() {
         setJobsBellCount((prev) => ({ ...prev, displayCount: prev.displayCount || 0 }));
       }
     })();
-  }, [token, seenStorageKey, location.pathname, location.search]);
+  }, [token, seenStorageKey, pathname]);
 
   const goToJobPostsTab = () => {
     navigate("/user-dashboard?tab=jobs");

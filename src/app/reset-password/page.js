@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ResetPasswordClient from "./ResetPasswordClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
@@ -33,7 +34,9 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <ResetPasswordClient />
+      <Suspense fallback={null}>
+        <ResetPasswordClient />
+      </Suspense>
     </>
   );
 }

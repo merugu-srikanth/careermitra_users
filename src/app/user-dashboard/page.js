@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import DashboardClient from "./DashboardClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
@@ -29,7 +30,9 @@ export default function UserDashboard() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <DashboardClient />
+      <Suspense fallback={null}>
+        <DashboardClient />
+      </Suspense>
     </>
   );
 }
