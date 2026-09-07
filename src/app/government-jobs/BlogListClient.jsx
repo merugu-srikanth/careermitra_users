@@ -526,8 +526,8 @@ const buildArticleUrl = (article) => {
   return `/${parentSlug}/${article.slug}`;
 };
 
-const BlogList = () => {
-  const { blogs: allBlogs, loading: contextLoading, error: contextError } = useBlogs();
+const BlogList = ({ initialBlogs = [], initialTotal = 0, initialError = null }) => {
+  const { blogs: contextBlogs, loading: contextLoading, error: contextError, refreshBlogs } = useBlogs();
   const [searchTerm, setSearchTerm] = useState('');
   const [inputVal, setInputVal] = useState('');
   const [visibleCount, setVisibleCount] = useState(32);
@@ -540,6 +540,13 @@ const BlogList = () => {
   const toggleFaq = (idx) => {
     setFaqOpen(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
+
+  const allBlogs = (contextBlogs && contextBlogs.length > 0)
+    ? contextBlogs
+    : (initialBlogs && initialBlogs.length > 0 ? initialBlogs : []);
+
+  const loading = (allBlogs.length > 0) ? false : contextLoading;
+  const error = (allBlogs.length > 0) ? null : (contextError || initialError);
 
   // ItemList/carousel schema only — the CollectionPage schema for this page
   // is already rendered server-side by app/government-jobs/page.js, so it's
@@ -565,11 +572,8 @@ const BlogList = () => {
     return [itemListSchema].filter(Boolean);
   }, [allBlogs]);
 
-  const loading = contextLoading;
-  const error = contextError;
-
   const filteredBlogs = useMemo(() => {
-    if (contextLoading) return [];
+    if (loading && allBlogs.length === 0) return [];
     let list = [...allBlogs];
     if (searchTerm.trim()) {
       const q = searchTerm.trim().toLowerCase();
@@ -580,7 +584,7 @@ const BlogList = () => {
       );
     }
     return list;
-  }, [allBlogs, searchTerm, contextLoading]);
+  }, [allBlogs, searchTerm, loading]);
 
   const blogs = filteredBlogs;
   const displayedBlogs = useMemo(() => {
@@ -593,6 +597,7 @@ const BlogList = () => {
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: BLOGLIST_STYLES }} />
       <SEO url="https://www.careermitra.in/government-jobs" schema={blogListSchemas} />
 
       <div style={{ background: '#fff' }}>
@@ -607,17 +612,17 @@ const BlogList = () => {
           </div>
 
           {/* ── GRID / STATES ── */}
-          {loading ? (
+          {loading && allBlogs.length === 0 ? (
             <div className="bl-grid">
               {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
             </div>
-          ) : error ? (
+          ) : error && allBlogs.length === 0 ? (
             <div className="bl-empty">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <p>{error}</p>
-              <button className="bl-pag-btn" style={{ margin: '0 auto', display: 'block' }} onClick={() => fetchBlogs(1, searchTerm)}>
+              <button className="bl-pag-btn" style={{ margin: '0 auto', display: 'block' }} onClick={() => (refreshBlogs ? refreshBlogs() : window.location.reload())}>
                 Try Again
               </button>
             </div>

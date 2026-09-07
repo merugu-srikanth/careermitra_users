@@ -1,5 +1,6 @@
 import BlogList from "./BlogListClient";
 import { generateCollectionPageSchema, generateOrganizationSchema, generateFAQSchema } from '@/utils/schemaHelpers';
+import { INTERNAL_API_BASE_URL } from '@/utils/api';
 
 export const metadata = {
   title: "Articles, Govt Jobs, Career Guides & More - Career Mitra",
@@ -17,7 +18,43 @@ export const metadata = {
   },
 };
 
-export default function GovernmentJobsPage() {
+const getPrimaryCategory = (blog) =>
+  blog?.categories?.[0]?.name || blog?.category || 'General';
+
+const getAuthorName = (blog) =>
+  blog?.author?.author_name || blog?.author_name || 'Career Mitra';
+
+const getAuthorId = (blog) =>
+  blog?.author?._id || blog?.author_id || blog?.authorId || '';
+
+const normalizeBlog = (blog) => ({
+  ...blog,
+  primaryCategory: getPrimaryCategory(blog),
+  authorDisplayName: getAuthorName(blog),
+  authorId: getAuthorId(blog),
+  authorAvatar: blog?.author?.avatar_url || null,
+});
+
+async function getInitialBlogs() {
+  try {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/blogs?page=1&limit=40`, {
+      next: { revalidate: 300 },
+    });
+    const data = await res.json();
+    const d = data?.data || data;
+    const allBlogs = (d?.articles || []).map(normalizeBlog);
+    return {
+      blogs: allBlogs,
+      total: d?.pagination?.total || allBlogs.length,
+      error: null,
+    };
+  } catch (err) {
+    console.error("getInitialBlogs server fetch failed:", err);
+    return { blogs: [], total: 0, error: "Failed to load articles" };
+  }
+}
+
+export default async function GovernmentJobsPage() {
   const schema = generateCollectionPageSchema({
     name: "Government Jobs | Career Mitra — Govt Jobs, Career Guides & More",
     description: "Latest govt jobs 2026, career guides, exam tips, and more from Career Mitra.",
@@ -49,6 +86,8 @@ export default function GovernmentJobsPage() {
     }
   ]);
 
+  const { blogs: initialBlogs, total: initialTotal, error: initialError } = await getInitialBlogs();
+
   return (
     <>
       <script
@@ -65,7 +104,11 @@ export default function GovernmentJobsPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       )}
-      <BlogList />
+      <BlogList
+        initialBlogs={initialBlogs}
+        initialTotal={initialTotal}
+        initialError={initialError}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { PUBLIC_API_BASE_URL } from "@/utils/api";
 
 const BlogContext = createContext(null);
 
@@ -30,7 +31,7 @@ export function BlogProvider({ children }) {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("https://careermitra.in/api/blogs?page=1&limit=200");
+      const res = await fetch(`${PUBLIC_API_BASE_URL}/blogs?page=1&limit=200`);
       const data = await res.json();
       const d = data.data || data;
       const allBlogs = (d.articles || []).map(normalizeBlog);
