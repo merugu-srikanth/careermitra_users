@@ -40,6 +40,9 @@ export const metadata = {
     statusBarStyle: "default",
     title: "Career Mitra",
   },
+  verification: {
+    google: "N1Wle3T0u-Ls4OBX9vAHKSWa_inKdC_oqjoirpFOFyo",
+  },
   openGraph: {
     type: "website",
     siteName: "Career Mitra",
