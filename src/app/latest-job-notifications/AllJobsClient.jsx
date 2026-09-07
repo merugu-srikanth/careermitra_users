@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import AllJobCard from "@/components/AllJobCard";
@@ -9,6 +9,7 @@ import { generateCollectionPageSchema, generateItemListSchema, generateTableSche
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "@/utils/jobDeadline";
 import { useJobs, mapUnifiedJob } from "@/context/JobContext";
 import { useAuth } from "@/context/AuthContext";
+import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl } from "@/utils/api";
 import JobsSeoArticle from "./JobsSeoArticle";
 
 
@@ -99,7 +100,7 @@ const GraduationIcon = () => (
   </svg>
 );
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = JOBS_LIST_DEFAULT_QUERY.limit;
 const JOB_TYPE_TABS = [
   { key: "jobs", label: "Jobs" },
   { key: "internship", label: "Internships" },
@@ -376,24 +377,58 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
   );
 }
 
-// ── Main Page ──────────────────────────────────────────────────────────────────
-export default function AllJobs() {
-  const { token } = useAuth();
+// Reads the ?q= navbar-search param and reports it up via a callback. Kept as
+// its own leaf component (never inlined into AllJobs) specifically so that
+// calling useSearchParams() only forces THIS component to bail out of
+// static/ISR rendering — not the whole AllJobs tree it sits inside. If
+// useSearchParams() were called directly in AllJobs, Next has no choice but
+// to defer AllJobs' entire output (including the server-seeded job table) to
+// client-side-only rendering, which would silently undo the SSR/ISR fix
+// below. Suspense fallback is null since there's nothing to visually show —
+// it never renders a placeholder, only ever real (or absent) output.
+function QueryPrefill({ onQuery }) {
   const searchParams = useSearchParams();
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) onQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
+// ── Main Page ──────────────────────────────────────────────────────────────────
+// initialJobs/initialTotalItems — server-fetched (page.js) default listing
+// view (page 1, no filters), seeded here so first paint has real rows instead
+// of the loading skeleton. initialError is set when that server fetch failed;
+// in that case we deliberately fall back to the normal client-side fetch
+// below rather than trusting empty initial data.
+export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initialError = null }) {
+  const { token } = useAuth();
+
+  const hasServerData = initialError == null;
 
   // Server-side jobs states
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState(hasServerData ? initialJobs : []);
+  const [loading, setLoading] = useState(!hasServerData);
   const [error, setError] = useState(null);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItems, setTotalItems] = useState(hasServerData ? initialTotalItems : 0);
   const [tabCounts, setTabCounts] = useState({ jobs: 0, internship: 0, skillup: 0 });
 
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(JOBS_LIST_DEFAULT_QUERY.categoryId);
   const [qualModal, setQualModal] = useState(null); // stores qualification text to show in modal
-  const [sortBy, setSortBy] = useState("newest");
-  const [jobType, setJobType] = useState("jobs");
-  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState(JOBS_LIST_DEFAULT_QUERY.sort);
+  const [jobType, setJobType] = useState(JOBS_LIST_DEFAULT_QUERY.jobType);
+  const [page, setPage] = useState(JOBS_LIST_DEFAULT_QUERY.page);
+
+  // Consumed exactly once, on the effect's very first run. Since page/jobType/
+  // sortBy/selectedCategory are all seeded directly from JOBS_LIST_DEFAULT_QUERY
+  // above, that first run is structurally guaranteed to request the identical
+  // query the server already fetched — this isn't inferred from timing, it's
+  // the same constant on both sides. Only skips when the server fetch actually
+  // succeeded; a failed server fetch (hasServerData === false) leaves this
+  // false so the normal client fetch runs and can recover.
+  const skipInitialFetchRef = useRef(hasServerData);
   const [viewMode, setViewMode] = useState(() => (
     typeof window !== "undefined" && window.innerWidth < 768 ? "grid" : "table"
   )); // "grid" or "table"
@@ -413,13 +448,6 @@ export default function AllJobs() {
   const isSearchMode = trimmedSearch.length > 0;
 
   const hasFilters = Boolean(search || selectedCategory || sortBy !== "newest" || jobType !== "jobs");
-
-  // Prefill search from ?q= (e.g. arriving from the global navbar search)
-  useEffect(() => {
-    const q = searchParams.get("q");
-    if (q) setSearch(q);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Fetch dynamic tab counts on search change
   useEffect(() => {
@@ -448,22 +476,25 @@ export default function AllJobs() {
   // Fetch jobs jobs on state change (skipped while a client-side search is active)
   useEffect(() => {
     if (isSearchMode) return;
+    if (skipInitialFetchRef.current) {
+      // The server already fetched this exact default view for first paint —
+      // skip the redundant duplicate request. Only ever fires once: every
+      // later run of this effect (page/filter changes) finds the ref already
+      // false and fetches normally.
+      skipInitialFetchRef.current = false;
+      return;
+    }
     const fetchPageJobs = async () => {
       setLoading(true);
       setError(null);
       try {
-        let url = `https://www.careermitra.in/api/jobs?page=${page}&limit=${ITEMS_PER_PAGE}`;
-        if (sortBy === "deadline") {
-          url += `&closing_soon=true`;
-        } else {
-          url += `&sort=${sortBy}`;
-        }
-        if (jobType) {
-          url += `&job_type=${jobType}`;
-        }
-        if (selectedCategory) {
-          url += `&category_id=${selectedCategory}`;
-        }
+        const url = buildJobsListUrl(PUBLIC_API_BASE_URL, {
+          page,
+          limit: ITEMS_PER_PAGE,
+          sort: sortBy,
+          jobType,
+          categoryId: selectedCategory,
+        });
         const res = await fetch(url);
         const json = await res.json();
         if (json.success) {
@@ -659,6 +690,9 @@ export default function AllJobs() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20">
+      <Suspense fallback={null}>
+        <QueryPrefill onQuery={setSearch} />
+      </Suspense>
       {tableSchema && (
         <script
           type="application/ld+json"
