@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { generateCollectionPageSchema, generateItemListSchema, generateTableSchema } from '@/utils/schemaHelpers';
@@ -44,10 +45,15 @@ const generateSlug = (title) => {
     : "";
 };
 
-export default function Internships() {
+export default function Internships({
+  initialInternships = [],
+  initialPagination = null,
+  initialFilters = null,
+  initialError = null,
+}) {
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
-  const [internships, setInternships] = useState([]);
+  const [internships, setInternships] = useState(initialInternships || []);
 
   const internshipSchemas = useMemo(() => {
     if (!internships || internships.length === 0) return [];
@@ -75,17 +81,17 @@ export default function Internships() {
     return [collectionSchema, itemListSchema].filter(Boolean);
   }, [internships]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialInternships && initialInternships.length > 0 ? false : true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(initialInternships && initialInternships.length > 0 ? null : initialError);
 
   // Filters state
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState(initialFilters || {
     internship_types: [],
     domains: [],
     states: [],
     cities: [],
-    stipend_categories: []
+    stipend_categories: ["Paid", "Unpaid"]
   });
 
   // Selected filters
@@ -100,8 +106,10 @@ export default function Internships() {
   // Pagination & Sorting
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(initialPagination?.totalPages || 1);
+  const [totalItems, setTotalItems] = useState(initialPagination?.total ?? (initialInternships?.length || 0));
+
+  const initialMountRef = useRef(true);
 
   // Full dataset cache used for smart client-side search (backend search only
   // does a single-string substring match on title/company, so multi-word or
@@ -315,6 +323,21 @@ export default function Internships() {
 
   useEffect(() => {
     if (isSearchMode) return;
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      if (
+        initialInternships &&
+        initialInternships.length > 0 &&
+        page === 1 &&
+        !selectedType &&
+        !selectedDomain &&
+        !selectedState &&
+        !selectedCity &&
+        !selectedStipend
+      ) {
+        return;
+      }
+    }
     fetchInternships();
   }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, isSearchMode]);
 
@@ -429,31 +452,46 @@ export default function Internships() {
                     <div className="px-4 py-3 text-xs text-slate-400 font-semibold">No matches for "{rawQuery}"</div>
                   ) : (
                     suggestions.map((s) => (
-                      <button
+                      <Link
                         key={s.id}
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setShowSuggestions(false);
-                          handleViewDetails(s.id, s.internship_title);
-                        }}
-                        className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-slate-50 last:border-0"
+                        href={`/internships/${generateSlug(s.internship_title)}`}
+                        onClick={() => setShowSuggestions(false)}
+                        className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-slate-50 last:border-0 block no-underline"
                       >
                         <p className="text-xs font-bold text-slate-800 truncate">{s.internship_title}</p>
                         <p className="text-[11px] text-slate-500 truncate">
                           {s.company_name}
                           {(s.domain_sector && s.domain_sector !== "-") ? ` · ${s.domain_sector}` : (s.location ? ` · ${s.location}` : "")}
                         </p>
-                      </button>
+                      </Link>
                     ))
                   )}
                 </div>
               )}
             </div>
 
+            {/* State Filter */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">State</label>
+              <select
+                value={selectedState}
+                onChange={(e) => {
+                  setSelectedState(e.target.value);
+                  setSelectedCity("");
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
+              >
+                <option value="">All States</option>
+                {filters.states.map((state) => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Internship Type Filter */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Type</label>
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Internship Type</label>
               <select
                 value={selectedType}
                 onChange={(e) => { setSelectedType(e.target.value); setPage(1); }}
@@ -466,7 +504,7 @@ export default function Internships() {
               </select>
             </div>
 
-            {/* Stipend Filter */}
+            {/* Stipend Category Filter */}
             <div>
               <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stipend</label>
               <select
@@ -474,28 +512,14 @@ export default function Internships() {
                 onChange={(e) => { setSelectedStipend(e.target.value); setPage(1); }}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
               >
-                <option value="">All</option>
-                <option value="Paid">Paid</option>
-                <option value="Unpaid">Unpaid</option>
-              </select>
-            </div>
-
-            {/* State Filter */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">State</label>
-              <select
-                value={selectedState}
-                onChange={(e) => { setSelectedState(e.target.value); setSelectedCity(""); setPage(1); }}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
-              >
-                <option value="">All States</option>
-                {filters.states.map((state) => (
-                  <option key={state} value={state}>{state}</option>
+                <option value="">All Stipends</option>
+                {filters.stipend_categories.map((stipend) => (
+                  <option key={stipend} value={stipend}>{stipend}</option>
                 ))}
               </select>
             </div>
 
-            {/* City/District Filter */}
+            {/* City Filter */}
             <div>
               <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">City / District</label>
               <select
@@ -593,12 +617,12 @@ export default function Internships() {
                           {idx + 1}
                         </td>
                         <td className="px-5 py-4 max-w-xs">
-                          <h3
-                            onClick={() => handleViewDetails(intern.id, intern.internship_title)}
-                            className="text-sm text-slate-800 leading-snug group-hover:text-orange-600 transition-colors cursor-pointer"
+                          <Link
+                            href={`/internships/${generateSlug(intern.internship_title)}`}
+                            className="text-sm text-slate-800 leading-snug group-hover:text-orange-600 transition-colors font-semibold block no-underline"
                           >
                             {intern.internship_title}
-                          </h3>
+                          </Link>
                           <p className="text-xs font-bold  text-slate-500 flex items-center gap-1 mt-1">
                             <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             {intern.company_name}
@@ -608,7 +632,6 @@ export default function Internships() {
                           <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-700 mb-1">
                             {intern.internship_type}
                           </span>
-                          {/* <p className="text-xs text-slate-600 truncate max-w-[150px]">{intern.domain_sector}</p> */}
                         </td>
                         <td className="px-5 py-4 text-xs text-slate-600 max-w-[180px] whitespace-normal">
                           <span className="flex items-start gap-1">
@@ -623,7 +646,6 @@ export default function Internships() {
                             <IndianRupee className="w-3 h-3" />
                             {intern.stipend_category === "Paid" ? intern.stipend : "Unpaid"}
                           </span>
-                          
                         </td>
                         <td>
                           <p className="text-xs text-slate-500 font-medium flex items-center gap-1">
@@ -631,25 +653,15 @@ export default function Internships() {
                             {intern.duration}
                           </p>
                         </td>
-                        {/* <td className="px-5 py-4 text-xs text-slate-600">
-                          <div className="font-semibold text-slate-800">
-                            {intern.openings} Openings
-                          </div>
-                          {intern.no_of_credits > 0 && (
-                            <p className="text-[10px] text-orange-500 font-bold mt-0.5">
-                              {intern.no_of_credits} Credits
-                            </p>
-                          )}
-                        </td> */}
                         <td className="px-5 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewDetails(intern.id, intern.internship_title)}
-                              className="p-2 rounded-xl bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                            <Link
+                              href={`/internships/${generateSlug(intern.internship_title)}`}
+                              className="p-2 rounded-xl bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors inline-flex items-center justify-center"
                               title="View Details"
                             >
                               <Eye className="w-4 h-4" />
-                            </button>
+                            </Link>
                             {intern.apply_link && (
                               <a
                                 href={normalizeLink(intern.apply_link)}
@@ -680,12 +692,12 @@ export default function Internships() {
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3
-                          onClick={() => handleViewDetails(intern.id, intern.internship_title)}
-                          className="text-sm font-bold text-slate-800 leading-snug cursor-pointer hover:text-orange-600 transition-colors"
+                        <Link
+                          href={`/internships/${generateSlug(intern.internship_title)}`}
+                          className="text-sm font-bold text-slate-800 leading-snug hover:text-orange-600 transition-colors block no-underline"
                         >
                           {intern.internship_title}
-                        </h3>
+                        </Link>
                         <p className="text-xs font-semibold text-slate-500">{intern.company_name}</p>
                       </div>
                     </div>
@@ -716,12 +728,12 @@ export default function Internships() {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleViewDetails(intern.id, intern.internship_title)}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors"
+                      <Link
+                        href={`/internships/${generateSlug(intern.internship_title)}`}
+                        className="flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-xl transition-colors no-underline"
                       >
                         <Eye className="w-4 h-4" /> View Details
-                      </button>
+                      </Link>
                       {intern.apply_link && (
                         <a
                           href={normalizeLink(intern.apply_link)}
