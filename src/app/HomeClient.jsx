@@ -43,15 +43,20 @@ const topJobCategories = [
   "Police Jobs 2026",
 ];
 
-export default function HomeClient() {
+export default function HomeClient({
+  initialJobs = [],
+  initialAnnouncements = [],
+  initialSkillups = [],
+  initialBlogSections = [],
+}) {
   return (
     <div className="py-20" style={{ fontFamily: "'Poppins', sans-serif" }}>
 
-      <HeroFinalPage />
+      <HeroFinalPage initialAnnouncements={initialAnnouncements} />
 
-      <HomeBlogs />
+      <HomeBlogs initialSections={initialBlogSections} />
       
-      <CareerHomeJobs />
+      <CareerHomeJobs initialJobs={initialJobs} />
 
       {/* InternshipTable Jobs */}
       <section id="internship" style={{ padding: "50px 0 56px", background: "#fafaf9", position: "relative", overflow: "hidden" }}>
@@ -118,7 +123,7 @@ export default function HomeClient() {
             </div>
           </AnimatedSection>
 
-          <InternshipTable />
+          <InternshipTable initialSkillups={initialSkillups} />
         </div>
       </section>
 

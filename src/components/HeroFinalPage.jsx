@@ -581,10 +581,10 @@ function FeatureCard({ card }) {
 /* ─────────────────────────────────────────
    MAIN EXPORT
 ───────────────────────────────────────── */
-export default function HeroFinalPage() {
+export default function HeroFinalPage({ initialAnnouncements = [] }) {
     const { token } = useAuth();
-    const [annList, setAnnList] = useState([]);
-    const [annLoading, setAnnLoading] = useState(true);
+    const [annList, setAnnList] = useState(initialAnnouncements);
+    const [annLoading, setAnnLoading] = useState(initialAnnouncements.length === 0);
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         setMounted(true);
@@ -603,6 +603,9 @@ export default function HeroFinalPage() {
     });
 
     useEffect(() => {
+        if (initialAnnouncements && initialAnnouncements.length > 0) {
+            return;
+        }
         axios
             .get(`${ANNOUNCEMENT_API_BASE}/api/announcements`, {
                 headers: { Accept: "application/json" },
@@ -623,7 +626,7 @@ export default function HeroFinalPage() {
             })
             .catch(() => { })
             .finally(() => setAnnLoading(false));
-    }, []);
+    }, [initialAnnouncements]);
 
     return (
         <section className="bg-white w-full py-8 sm:py-12 xl:py-16">

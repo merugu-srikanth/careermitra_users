@@ -278,15 +278,16 @@ const Pagination = ({ current, total, onChange }) => {
   );
 };
 
-const InternshipTable = () => {
+const InternshipTable = ({ initialSkillups = [] }) => {
   const [activeType, setActiveType] = useState("skillups");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState(initialSkillups);
+  const [loading, setLoading] = useState(initialSkillups.length === 0);
   const [error, setError] = useState(null);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItems, setTotalItems] = useState(initialSkillups.length);
+  const initialMountRef = React.useRef(true);
 
   // Reset page when tab changes
   useEffect(() => {
@@ -295,6 +296,12 @@ const InternshipTable = () => {
 
   // Fetch paginated jobs on state change
   useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      if (initialSkillups && initialSkillups.length > 0 && currentPage === 1 && activeType === "skillups") {
+        return;
+      }
+    }
     const fetchPageJobs = async () => {
       setLoading(true);
       setError(null);

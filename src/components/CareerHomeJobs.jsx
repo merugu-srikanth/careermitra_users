@@ -612,7 +612,7 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                 target="_blank"
                                 rel="nofollow noopener noreferrer"
                                 className={`flex items-center justify-center gap-2 w-full py-4 font-black text-base rounded-2xl shadow-lg transition-all ${normalizeExternalUrl(job?.applyLink)
-                                    ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
+                        ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl"
                                     : "bg-gray-200 text-gray-500 cursor-not-allowed"
                                     }`}
                                 onClick={(e) => {
@@ -631,7 +631,7 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function CareerHomeJobs() {
+export default function CareerHomeJobs({ initialJobs = [] }) {
     const { token } = useAuth();
     const isLoggedIn = !!token;
 
@@ -642,18 +642,29 @@ export default function CareerHomeJobs() {
     const [loadingSingle, setLoadingSingle] = useState(false);
     const [qualModal, setQualModal] = useState(null);
 
-    const loading = contextLoading;
-
     const jobs = useMemo(() => {
-        if (contextLoading) return [];
-        return allJobs
-            .filter((j) => {
-                const t = String(j?.jobType || "").toLowerCase();
-                return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
-            })
-            .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
-            .slice(0, 8);
-    }, [allJobs, contextLoading]);
+        if (allJobs && allJobs.length > 0) {
+            return allJobs
+                .filter((j) => {
+                    const t = String(j?.jobType || "").toLowerCase();
+                    return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
+                })
+                .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
+                .slice(0, 8);
+        }
+        if (initialJobs && initialJobs.length > 0) {
+            return initialJobs
+                .filter((j) => {
+                    const t = String(j?.jobType || "").toLowerCase();
+                    return !t.includes("intern") && !t.includes("skillup") && !t.includes("skill up") && !t.includes("skill_up");
+                })
+                .sort((a, b) => new Date(b.createdAt || b.postedDateRaw || 0) - new Date(a.createdAt || a.postedDateRaw || 0))
+                .slice(0, 8);
+        }
+        return [];
+    }, [allJobs, initialJobs]);
+
+    const loading = contextLoading && jobs.length === 0;
 
     const fetchJobDetails = async (id) => {
         setLoadingSingle(true);

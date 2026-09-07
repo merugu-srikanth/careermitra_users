@@ -4,15 +4,23 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SplashLoader() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Hide the splash loader after 1.5 seconds (gives ample time for initial loading/hydration)
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    // Show client-side on initial entry if not already shown in session
+    try {
+      const hasShown = sessionStorage.getItem("cm_splash_shown");
+      if (!hasShown) {
+        setIsVisible(true);
+        sessionStorage.setItem("cm_splash_shown", "1");
+        const timer = setTimeout(() => {
+          setIsVisible(false);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    } catch {
+      // Ignore sessionStorage errors
+    }
   }, []);
 
   return (

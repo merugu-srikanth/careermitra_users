@@ -342,14 +342,17 @@ const SECTIONS = [
     { name: "Defence Jobs", slug: "defence-jobs" }
 ];
 
-const HomeBlogs = () => {
+const HomeBlogs = ({ initialSections = [] }) => {
     const [mounted, setMounted] = useState(false);
-    const [categorizedSections, setCategorizedSections] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [categorizedSections, setCategorizedSections] = useState(initialSections);
+    const [loading, setLoading] = useState(initialSections.length === 0);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         setMounted(true);
+        if (initialSections && initialSections.length > 0) {
+            return;
+        }
 
         // Each section's articles come straight from the backend's own
         // category-filtered endpoint, which is already sorted newest-first —
@@ -395,6 +398,7 @@ const HomeBlogs = () => {
 
     return (
         <>
+            <style id="bl-styles" dangerouslySetInnerHTML={{ __html: BLOGLIST_STYLES }} />
             <div>
                 <div className="w-full px-4 md:px-15 mx-auto py-8">
 
