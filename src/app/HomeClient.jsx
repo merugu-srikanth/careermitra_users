@@ -80,10 +80,7 @@ export default function HomeClient({
             <div style={{ textAlign: "center", marginBottom: 48 }}>
 
               {/* Eyebrow badge */}
-              <motion.div
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+              <div
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
                   padding: "6px 10px", borderRadius: 9999,
@@ -96,16 +93,13 @@ export default function HomeClient({
                 <span style={{ color: "#c2410c", fontWeight: 700, fontSize: 13, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                   Latest Updated
                 </span>
-              </motion.div>
+              </div>
 
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
                    Skill Up Opportunities
               </h2>
 
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 1.4, duration: 0.9, ease: "easeOut" }}
+              <div
                 className="origin-left h-0.75 rounded-full w-80 mx-auto mb-3"
                 style={{
                   background: "linear-gradient(90deg, transparent, #fbbf24, #f59e0b, #fbbf24, transparent)",

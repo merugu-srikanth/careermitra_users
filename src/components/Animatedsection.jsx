@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 export default function AnimatedSection({ children, animation = "fade-up", className = "", delay = 0 }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
       { threshold: 0.1 }
@@ -16,6 +18,9 @@ export default function AnimatedSection({ children, animation = "fade-up", class
   }, []);
 
   const getStyle = () => {
+    if (!mounted) {
+      return {};
+    }
     const base = { transition: `opacity 0.6s ease-out ${delay}ms, transform 0.6s ease-out ${delay}ms` };
     if (!visible) {
       if (animation === "fade-up") return { ...base, opacity: 0, transform: "translateY(40px)" };

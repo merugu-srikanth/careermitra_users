@@ -246,10 +246,6 @@ const JobGridCard = ({ job }) => {
 
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96 }}
             whileHover={{
                 y: -6,
                 boxShadow: "0 20px 45px rgba(234,88,12,0.12)",
@@ -308,13 +304,9 @@ const JobGridCard = ({ job }) => {
                     </div>
                 </div>
 
-                <div className="mt-3 flex w-full flex-wra gap-2 justify-center text-center">
-                    <motion.span
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        whileHover={{ scale: 1.08 }}
-                        transition={{ duration: 0.3 }}
-                        className={` items-center w-full text-center gap-1 text-[11px] font-semibold px-3 py-1 rounded-full border ${isExpired
+                <div className="mt-3 flex w-full flex-wrap gap-2 justify-center text-center">
+                    <span
+                        className={`inline-flex items-center w-full justify-center text-center gap-1 text-[11px] font-semibold px-3 py-1 rounded-full border ${isExpired
                             ? "bg-red-50 text-red-600 border-red-200"
                             : "bg-green-50 text-green-600 border-green-200"
                             }`}
@@ -328,7 +320,7 @@ const JobGridCard = ({ job }) => {
                                 ({daysLeft})
                             </span>
                         )}
-                    </motion.span>
+                    </span>
                 </div>
 
                 {/* Spacer */}
@@ -387,12 +379,7 @@ const JobGridCard = ({ job }) => {
 const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
     const isNew = getIsNew(job.postedDate);
     return (
-        <motion.tr
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.04 }}
-            className="border-b border-gray-100 hover:bg-orange-50/50 transition-colors group"
-        >
+        <tr className="border-b border-gray-100 hover:bg-orange-50/50 transition-colors group">
             <td className="px-4 py-3.5 max-w-[200px]">
                 <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-gray-900 line-clamp-1">{job.title}</p>
@@ -463,7 +450,7 @@ const JobTableRow = ({ job, onView, idx, isLoggedIn, onViewQual }) => {
                     </motion.a>
                 </div>
             </td>
-        </motion.tr>
+        </tr>
     );
 };
 
@@ -696,12 +683,7 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
             <div className="relative z-10 w-full mx-auto">
 
                 {/* ── Header ── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-12"
-                >
+                <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-5">
                         <span className="text-sm">✨</span>
                         <span className="text-orange-700 font-bold text-xs uppercase tracking-widest">
@@ -713,26 +695,16 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
                         Latest Government Jobs
                     </h2>
 
-                    <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                        className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full"
-                    />
+                    <div className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full" />
 
                     <p className="text-gray-500 max-w-xl mx-auto text-base">
                         Discover the latest government job opportunities across India.
                         Updated daily with new positions in various sectors.
                     </p>
-                </motion.div>
+                </div>
 
                 {/* ── Toolbar: View Toggle ── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex items-center justify-between mb-6"
-                >
+                <div className="flex items-center justify-between mb-6">
                     <p className="text-sm text-gray-500 font-medium">
                         {loading ? "Loading jobs..." : `Showing latest ${jobs.length} jobs`}
                     </p>
@@ -754,35 +726,22 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
                             </motion.button>
                         ))}
                     </div>
-                </motion.div>
+                </div>
 
                 {/* ── Grid View ── */}
-                <AnimatePresence mode="wait">
-                    {viewMode === "grid" && (
-                        <motion.div
-                            key="grid"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-12"
-                        >
+                {viewMode === "grid" && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-12">
                             {loading
                                 ? [...Array(8)].map((_, i) => <GridSkeleton key={i} />)
                                 : jobs.map((job) => (
                                     <JobGridCard key={job.id} job={job} />
                                 ))}
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* ── Table View ── */}
                     {viewMode === "table" && (
-                        <motion.div
-                            key="table"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="mb-12 bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden"
-                        >
+                        <div className="mb-12 bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[640px]">
                                     <thead>
@@ -821,9 +780,8 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
                             {!loading && jobs.length === 0 && (
                                 <div className="text-center py-12 text-gray-400">No jobs found</div>
                             )}
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
 
                 {/* ── View All Button ── */}
                 <div className="text-center">
