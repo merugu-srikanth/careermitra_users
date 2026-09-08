@@ -2,7 +2,7 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import React, {  useState, useEffect, useRef  } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { State, City } from "country-state-city";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -404,13 +404,6 @@ export default function Userprofilefillingpage({ onClose }) {
   const { user, token } = useAuth();
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
-  
-  
-  
-
   // ── UI state
   const [profileData, setProfileData] = useState(null);
   const [step, setStep] = useState(1);
@@ -419,15 +412,13 @@ export default function Userprofilefillingpage({ onClose }) {
   const [prefOpen, setPrefOpen] = useState(false);
   const [prefPlacement, setPrefPlacement] = useState("bottom");
   const [prefMenuMaxHeight, setPrefMenuMaxHeight] = useState(320);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(
-    () => !!(location?.state?.email)
-  );
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const prefButtonRef = useRef(null);
 
   // ── Form state
   const [personal, setPersonal] = useState({
     ...INIT_PERSONAL,
-    email: location?.state?.email || "",
+    email: "",
   });
   const [edu, setEdu] = useState(INIT_EDU);
 

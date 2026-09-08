@@ -2,7 +2,7 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -1068,8 +1068,6 @@ const UserProfilePage = () => {
   const { user, token, logout } = useAuth();
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const handleTabSwitch = useCallback((tabId, updateUrl = true) => {
     if (!TAB_IDS.includes(tabId)) return;
@@ -1081,7 +1079,6 @@ const UserProfilePage = () => {
     }
   }, [router]);
 
-  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
   const [activeTab, setActiveTab] = useState("profile");
 
   const [profile, setProfile] = useState(null);
@@ -1209,12 +1206,16 @@ const UserProfilePage = () => {
     })();
   }, [token, activeTab, getSeenState]);
 
+  // Sync the active tab from the URL's `?tab=` param on mount (e.g. a shared link).
+  // Reads window.location directly rather than next/navigation's useSearchParams()
+  // so this component doesn't need a Suspense boundary around it.
   useEffect(() => {
-    const tab = new URLSearchParams(location.search).get("tab");
+    const tab = new URLSearchParams(window.location.search).get("tab");
     if (TAB_IDS.includes(tab) && tab !== activeTab) {
       handleTabSwitch(tab, false);
     }
-  }, [location.search, activeTab, handleTabSwitch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (activeTab === "jobs" || activeTab === "announcements") markTabAsSeen(activeTab);
