@@ -240,7 +240,7 @@ export default function ContactSection() {
         {/* ── HEADER ── */}
         <motion.div
           className="text-center mb-16"
-          initial="hidden"
+          initial={false}
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
           variants={staggerContainer}
@@ -276,7 +276,7 @@ export default function ContactSection() {
 
           {/* ── LEFT: INFO ── */}
           <motion.div
-            initial="hidden"
+            initial={false}
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
             variants={slideLeft}
@@ -289,7 +289,7 @@ export default function ContactSection() {
             <motion.div
               className="space-y-3 mb-6"
               variants={staggerContainer}
-              initial="hidden"
+              initial={false}
               whileInView="show"
               viewport={{ once: true }}
             >
@@ -337,7 +337,7 @@ export default function ContactSection() {
 
           {/* ── RIGHT: FORM ── */}
           <motion.div
-            initial="hidden"
+            initial={false}
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
             variants={slideRight}
