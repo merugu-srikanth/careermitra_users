@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from '@/context/AuthContext';
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AnimatedBg from '@/components/Animate';
 import { toast } from "react-toastify";
 import spamGuideImg from '@/assets/IMAGESPAM.png';
@@ -12,18 +12,19 @@ export default function VerifyOtp() {
   const { verifyRegisterOtp, sendOtp, loginPendingRegisteredUser, checkProfile, loading } = useAuth();
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
-  
+
   const [otp, setOtp] = useState("");
   const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
   const [canResend, setCanResend] = useState(false);
-  
-  // Get email from location state or localStorage
-  const email = location.state?.email || localStorage.getItem("registerEmail") || "";
+
+  // Get email from localStorage (set during registration).
+  // Lazy-initialized so this never touches `localStorage` during SSR — only
+  // on the client's first render (and again on hydration), same value both times.
+  const [email] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("registerEmail") || "" : ""
+  );
 
   // Avoid duplicate sends in React StrictMode
   useEffect(() => {

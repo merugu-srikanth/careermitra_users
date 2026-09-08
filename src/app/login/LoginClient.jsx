@@ -3,19 +3,16 @@ import { useEffect, useState } from "react";
 import { useAuth } from '@/context/AuthContext';
 import loginImg from '@/assets/bg-images/Login.webp';
 import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AnimatedBg from '@/components/Animate';
 
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 import { toast } from "react-toastify";
 
 export default function Login() {
-  const { loginWithPassword, loginPendingRegisteredUser, sendOtp, verifyOtp, forgotPassword, resetPassword, checkProfile } = useAuth();
+  const { loginWithPassword, sendOtp, verifyOtp, forgotPassword, resetPassword, checkProfile } = useAuth();
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const location = { pathname, search: searchParams ? "?" + searchParams.toString() : "", state: null };
 
   // login | otp | forgot
   const [step, setStep] = useState("login");
@@ -208,67 +205,14 @@ export default function Login() {
     setError("");
   };
 
-  // Load remembered email / email passed from register
+  // Load remembered email
   useEffect(() => {
-    if (location?.state?.email) {
-      setEmail(location.state.email);
-      if (!location?.state?.autoLoginNewUser) {
-        return;
-      }
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
     }
-
-    if (!location?.state?.autoLoginNewUser) {
-      const rememberedEmail = localStorage.getItem("rememberedEmail");
-      if (rememberedEmail) {
-        setEmail(rememberedEmail);
-        setRememberMe(true);
-      }
-    }
-  }, [location?.state?.autoLoginNewUser, location?.state?.email]);
-
-  useEffect(() => {
-    if (!location?.state?.autoLoginNewUser || !location?.state?.email) return;
-
-    let isActive = true;
-
-    const autoLogin = async () => {
-      setError("");
-      setLoading(true);
-
-      try {
-        const res = await loginPendingRegisteredUser(location.state.email);
-        if (!isActive) return;
-
-        if (!res?.success) {
-          setError(res?.message || "Auto login failed. Please sign in.");
-          return;
-        }
-
-        const profileComplete = await checkProfile(res.token);
-        if (!isActive) return;
-
-        if (profileComplete) {
-          navigate("/");
-        } else {
-          navigate("/user-profile-filling", { state: { email: location.state.email } });
-        }
-      } catch {
-        if (isActive) {
-          setError("Auto login failed. Please sign in.");
-        }
-      } finally {
-        if (isActive) {
-          setLoading(false);
-        }
-      }
-    };
-
-    autoLogin();
-
-    return () => {
-      isActive = false;
-    };
-  }, [checkProfile, location?.state?.autoLoginNewUser, location?.state?.email, loginPendingRegisteredUser, navigate]);
+  }, []);
 
   const subtitleMap = {
     login: "Enter your credentials to access your account",

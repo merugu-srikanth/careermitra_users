@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from '@/context/AuthContext';
 import loginImg from '@/assets/bg-images/Login.webp';
 import AnimatedBg from '@/components/Animate';
@@ -9,14 +9,15 @@ import { toast } from "react-toastify";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
   const router = useRouter();
   const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
   const { resetPassword } = useAuth();
 
-  const presetEmail = searchParams.get("email") || "";
-
-  const [email, setEmail] = useState(presetEmail);
+  // Lazy-initialized from the URL so this never touches `window` during SSR —
+  // only on the client's first render (and again on hydration), same value both times.
+  const [email, setEmail] = useState(() =>
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("email") || "" : ""
+  );
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

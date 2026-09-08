@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import LoginClient from "./LoginClient";
 import { generateWebPageSchema } from '@/utils/schemaHelpers';
 
@@ -34,9 +33,7 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <Suspense fallback={null}>
-        <LoginClient />
-      </Suspense>
+      <LoginClient />
     </>
   );
 }
