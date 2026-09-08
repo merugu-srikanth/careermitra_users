@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -126,7 +126,7 @@ function MediaCard({ item, index }) {
   return (
     <motion.article
       className="rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 group"
-      initial={{ opacity: 0, y: 20 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.05, ease: "easeOut" }}
     >
@@ -194,24 +194,36 @@ function MediaCard({ item, index }) {
 }
 
 /* ─── Main Page ───────────────────────────────────────────── */
-export default function EventsPage() {
-  const [media, setMedia]           = useState([]);
-  const [loading, setLoading]       = useState(true);
+export default function EventsPage({ initialData }) {
+  const hasInitialData = !!initialData;
+  const [media, setMedia]           = useState(initialData?.media || []);
+  const [loading, setLoading]       = useState(!hasInitialData);
   const [page, setPage]             = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
+  const [totalCount, setTotalCount] = useState(initialData?.totalCount ?? 0);
   const [activeTab, setActiveTab]   = useState("all");
   const [sortOrder, setSortOrder]   = useState("newest");
   const [search, setSearch]         = useState("");
   const [error, setError]           = useState("");
+  const skipNextFetch               = useRef(hasInitialData);
+  const isFirstReset                = useRef(true);
 
   // Reset page and clear media list on filter or search changes
   useEffect(() => {
+    if (isFirstReset.current) {
+      isFirstReset.current = false;
+      return;
+    }
     setPage(1);
     setMedia([]);
   }, [activeTab, sortOrder, search]);
 
   useEffect(() => {
+    // Skip the very first fetch when the server already supplied page 1 (default filters)
+    if (skipNextFetch.current) {
+      skipNextFetch.current = false;
+      return;
+    }
     let cancelled = false;
     async function fetchMedia() {
       setLoading(true); setError("");
@@ -224,7 +236,7 @@ export default function EventsPage() {
         if (cancelled) return;
         const data = payload?.data || payload || {};
         const newMedia = Array.isArray(data.media) ? data.media : [];
-        
+
         if (page === 1) {
           setMedia(newMedia);
         } else {
@@ -249,7 +261,7 @@ export default function EventsPage() {
       <div className="bg-white border-b border-slate-100">
         <div className="w-full mx-auto px-4 md:px-15 py-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
@@ -347,7 +359,7 @@ export default function EventsPage() {
             <motion.div
               key={`grid-${activeTab}-${page}-${search}`}
               className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-              initial={{ opacity: 0 }}
+              initial={hasInitialData && page === 1 ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}

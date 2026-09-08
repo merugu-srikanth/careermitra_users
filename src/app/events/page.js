@@ -15,7 +15,27 @@ export const metadata = {
   },
 };
 
-export default function Page() {
+const API_BASE = "https://careermitra.in/api/media";
+const DEFAULT_LIMIT = 32;
+
+async function getInitialMedia() {
+  try {
+    const params = new URLSearchParams({ page: "1", limit: String(DEFAULT_LIMIT), sort: "newest" });
+    const res = await fetch(`${API_BASE}?${params.toString()}`, { next: { revalidate: 300 } });
+    if (!res.ok) throw new Error(`Media API responded ${res.status}`);
+    const payload = await res.json();
+    const data = payload?.data || payload || {};
+    return {
+      media: Array.isArray(data.media) ? data.media : [],
+      totalCount: data.pagination?.total ?? 0,
+      totalPages: data.pagination?.totalPages ?? 1,
+    };
+  } catch {
+    return { media: [], totalCount: 0, totalPages: 1 };
+  }
+}
+
+export default async function Page() {
   const schemas = [
     generateWebPageSchema({
       name: "Media & Events | Career Mitra",
@@ -24,6 +44,7 @@ export default function Page() {
     }),
     generateOrganizationSchema()
   ];
+  const initialData = await getInitialMedia();
   return (
     <>
       {schemas.map((s, idx) => (
@@ -33,7 +54,7 @@ export default function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <EventsPageClient />
+      <EventsPageClient initialData={initialData} />
     </>
   );
 }
