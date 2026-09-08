@@ -133,6 +133,7 @@ const Ring = ({ size, x, y, delay, opacity = 0.12 }) => (
 function CategoryCard({ cat, index }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
 
 
@@ -149,6 +150,7 @@ function CategoryCard({ cat, index }) {
 
 
   useEffect(() => {
+    setMounted(true);
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -163,11 +165,11 @@ function CategoryCard({ cat, index }) {
     <div
       ref={ref}
       className="relative group"
-      style={{
+      style={mounted ? {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(40px)",
         transition: `opacity 0.65s ease ${(index % 4) * 0.08}s, transform 0.65s ease ${(index % 4) * 0.08}s`,
-      }}
+      } : undefined}
     >
       <div
         className="relative bg-white rounded-3xl overflow-hidden h-full flex flex-col"

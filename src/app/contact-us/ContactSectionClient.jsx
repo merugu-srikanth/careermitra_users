@@ -348,7 +348,7 @@ export default function ContactSection() {
               ) : (
                 <motion.div
                   key="form"
-                  initial={{ opacity: 0 }}
+                  initial={false}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="bg-white rounded-3xl border border-gray-100 p-8 shadow-xl shadow-gray-100"
