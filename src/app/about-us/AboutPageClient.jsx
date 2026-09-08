@@ -178,16 +178,6 @@ const pillarColors = {
   rose:   { bg: "bg-rose-50",   border: "border-rose-100",   icon: "bg-rose-100 text-rose-600",    hover: "hover:border-rose-300 hover:bg-rose-50/80"    },
 };
 
-// ─── ANIMATION VARIANTS ───────────────────────────────────────────────────────
-const fadeUp = {
-  hidden: { opacity: 0, y: 36 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.65, ease: "easeOut" } },
-};
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
-const fadeLeft  = { hidden: { opacity: 0, x: -40 }, show: { opacity: 1, x: 0, transition: { duration: 0.65, ease: "easeOut" } } };
-const fadeRight = { hidden: { opacity: 0, x:  40 }, show: { opacity: 1, x: 0, transition: { duration: 0.65, ease: "easeOut" } } };
-const scaleIn   = { hidden: { opacity: 0, scale: 0.85 }, show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } } };
-
 // ─── FLOATING BG ─────────────────────────────────────────────────────────────
 function FloatingBg() {
   return (
@@ -214,14 +204,14 @@ function SectionLabel({ text, color = "orange" }) {
     green:  "bg-green-50  border-green-200  text-green-600",
   };
   return (
-    <motion.div variants={fadeUp} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-semibold uppercase tracking-widest mb-4 ${colors[color]}`}>
+    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-semibold uppercase tracking-widest mb-4 ${colors[color]}`}>
       <motion.span
         className={`w-2 h-2 rounded-full ${color === "orange" ? "bg-orange-500" : "bg-green-500"}`}
         animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
         transition={{ duration: 1.8, repeat: Infinity }}
       />
       {text}
-    </motion.div>
+    </div>
   );
 }
 
@@ -237,36 +227,28 @@ function AboutHero() {
         <span className="text-[clamp(80px,18vw,200px)] font-black text-gray-100 leading-none tracking-tighter">MITRA</span>
       </div>
 
-      <motion.div
-        className="relative z-10 max-w-4xl mx-auto text-center"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
-        variants={stagger}
-      >
+      <div className="relative z-10 max-w-4xl mx-auto text-center">
         <SectionLabel text="Our Story" color="orange" />
 
-        <motion.h1 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-6">
+        <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-6">
           Awareness Ignites,
           <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"> Guidance {" "}</span>{" "}
           <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Inspires</span>
-        </motion.h1>
+        </h1>
 
-        <motion.p variants={fadeUp} className="text-gray-500 text-lg leading-relaxed max-w-2xl mx-auto mb-12">
+        <p className="text-gray-500 text-lg leading-relaxed max-w-2xl mx-auto mb-12">
           Career Mitra was born from a simple belief that every young aspirant in India, <br />  regardless of their background or location, deserves access to the same quality career guidance that was once reserved for the privileged few.
-        </motion.p>
+        </p>
 
         {/* quote card */}
-        <motion.div
-          variants={scaleIn}
-          whileHover={{ y: -4 }}
-          className="inline-block bg-gradient-to-br from-orange-50 to-green-50 border border-orange-100 rounded-3xl px-8 py-6 max-w-2xl shadow-lg shadow-orange-50"
-        >
+        <div className="inline-block bg-gradient-to-br from-orange-50 to-green-50 border border-orange-100 rounded-3xl px-8 py-6 max-w-2xl shadow-lg shadow-orange-50 hover:-translate-y-1 transition-transform duration-300">
           <FaQuoteLeft className="text-orange-300 mb-3 mx-auto" size={28} />
           <p className="text-gray-700 font-medium text-base md:text-lg italic leading-relaxed">
             "We spent 30 + years serving the government. Now we serve the youth to shape their future."
           </p>
           <p className="text-orange-500 font-semibold text-sm mt-3">— Founding Team, Career Mitra</p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -275,26 +257,20 @@ function AboutHero() {
 function StatsStrip() {
   return (
     <section className="relative bg-gray-50 border-y border-gray-100 py-10 px-4 md:px-15 overflow-hidden">
-      <motion.div
-        className="w-full mx-auto grid grid-cols-2 md:grid-cols-4 gap-4"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
-        variants={stagger}
-      >
+      <div className="w-full mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <motion.div
+          <div
             key={i}
-            variants={scaleIn}
-            whileHover={{ y: -6, scale: 1.03 }}
-            className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-white border ${s.bg} shadow-sm cursor-default`}
+            className={`flex flex-col items-center gap-2 p-5 rounded-2xl bg-white border ${s.bg} shadow-sm hover:-translate-y-1.5 hover:shadow-md transition-all duration-300 cursor-default`}
           >
             <div className={`w-10 h-10 rounded-xl ${s.bg} border flex items-center justify-center ${s.color}`}>
               {s.icon}
             </div>
             <span className={`text-3xl font-black ${s.color}`}>{s.value}</span>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">{s.label}</span>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -303,25 +279,21 @@ function StatsStrip() {
 function VisionSection() {
   return (
     <section className="relative bg-white py-4 px-4 md:px-15 overflow-hidden">
-      <motion.div
-        className="w-full mx-auto"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
+      <div className="w-full mx-auto">
         <div className="text-center mb-16">
           <SectionLabel text="What We Believe" color="green" />
-          <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
             Our Core{" "}
             <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Vision</span>
-          </motion.h2>
-          <motion.p variants={fadeUp} className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto leading-relaxed">
             In a world obsessed with corporate careers, we champion the dignity and stability of public service.
-          </motion.p>
+          </p>
         </div>
 
         {/* two column layout */}
         <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          <motion.div variants={fadeLeft}>
+          <div>
             <div className="relative">
               {/* decorative card behind */}
               <div className="absolute -top-3 -left-3 w-full h-full rounded-3xl bg-orange-100 border border-orange-200" />
@@ -338,54 +310,47 @@ function VisionSection() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={fadeRight} className="space-y-4">
+          <div className="space-y-4">
             {[
               { title: "Government & Allied Sectors", desc: "PSC, UPSC, Banking, Railways, Defence and more — stable careers that offer purpose alongside income.", icon: "🏛️" },
               { title: "Tier-2 & Rural Focus", desc: "We specifically reach out to aspirants from smaller cities and villages who lack access to quality guidance.", icon: "🗺️" },
               { title: "Beyond Campus Placements", desc: "For students who don't fit the corporate mold we provide a genuine, respected alternative path.", icon: "🎯" },
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                whileHover={{ x: 6 }}
-                className="flex gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-green-200 hover:bg-green-50 transition-all duration-200"
+                className="flex gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-green-200 hover:bg-green-50 hover:translate-x-1.5 transition-all duration-200"
               >
                 <span className="text-2xl flex-shrink-0">{item.icon}</span>
                 <div>
                   <h4 className="font-bold text-gray-800 text-sm mb-1">{item.title}</h4>
                   <p className="text-gray-500 text-xs leading-relaxed">{item.desc}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* pillars grid */}
-        <motion.div
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-          variants={stagger}
-          initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }}
-        >
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {pillars.map((p, i) => {
             const c = pillarColors[p.color];
             return (
-              <motion.div
+              <div
                 key={i}
-                variants={fadeUp}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className={`group p-5 rounded-2xl bg-white border ${c.border} ${c.hover} transition-all duration-300 cursor-default shadow-sm`}
+                className={`group p-5 rounded-2xl bg-white border ${c.border} ${c.hover} hover:-translate-y-1.5 transition-all duration-300 cursor-default shadow-sm`}
               >
                 <div className={`w-10 h-10 rounded-xl ${c.icon} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   {p.icon}
                 </div>
                 <h4 className="font-bold text-gray-800 text-sm mb-2">{p.title}</h4>
                 <p className="text-gray-500 text-xs leading-relaxed">{p.desc}</p>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -399,28 +364,23 @@ function TeamSection() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
       </div>
 
-      <motion.div
-        className="w-full mx-auto"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
+      <div className="w-full mx-auto">
         <div className="text-center mb-16">
           <SectionLabel text="The Humans Behind It" color="orange" />
-          <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
             Meet Our{" "}
             <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Team</span>
-          </motion.h2>
-          <motion.p variants={fadeUp} className="text-gray-500 text-base max-w-xl mx-auto">
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto">
             Seasoned professionals who turned decades of experience into a mission to serve youth.
-          </motion.p>
+          </p>
         </div>
 
         {/* Founders */}
         <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
           {founders.map((m, i) => (
-            <motion.div
+            <div
               key={i}
-              variants={i === 0 ? fadeLeft : fadeRight}
               className="group relative"
             >
               <div className={`absolute -top-3 left-6 z-10 px-3 py-1 rounded-full text-xs font-bold ${m.accentBg} ${m.accentBorder} border ${m.accentText}`}>
@@ -433,12 +393,9 @@ function TeamSection() {
                 <div className="p-7 pt-8 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-4 mb-5">
-                      <motion.div
-                        whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
-                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-2xl shadow-lg flex-shrink-0`}
-                      >
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-2xl shadow-lg flex-shrink-0`}>
                         {m.avatar}
-                      </motion.div>
+                      </div>
                       <div>
                         <h3 className="font-black text-gray-900 text-lg leading-tight">{m.name}</h3>
                         <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
@@ -453,31 +410,26 @@ function TeamSection() {
 
                   <ul className="space-y-2 mt-auto">
                     {m.highlights.map((h, j) => (
-                      <motion.li
+                      <li
                         key={j}
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ delay: j * 0.1 + 0.3 }}
-                        viewport={{ once: true }}
                         className="flex items-start gap-2.5 text-xs text-gray-500"
                       >
                         <span className={`w-1.5 h-1.5 rounded-full ${m.dotColor} mt-1.5 flex-shrink-0`} />
                         {h}
-                      </motion.li>
+                      </li>
                     ))}
                   </ul>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Team Members */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mx-auto">
           {teamMembers.map((m, i) => (
-            <motion.div
+            <div
               key={i}
-              variants={fadeUp}
               className="group relative"
             >
               <div className={`absolute -top-3 left-6 z-10 px-3 py-1 rounded-full text-xs font-bold ${m.accentBg} ${m.accentBorder} border ${m.accentText}`}>
@@ -490,12 +442,9 @@ function TeamSection() {
                 <div className="p-7 pt-8 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-3.5 mb-5">
-                      <motion.div
-                        whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
-                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0`}
-                      >
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0`}>
                         {m.avatar}
-                      </motion.div>
+                      </div>
                       <div className="min-w-0">
                         <h3 className="font-black text-gray-900 text-lg leading-tight whitespace-nowrap overflow-hidden text-ellipsis">{m.name}</h3>
                         <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
@@ -515,12 +464,8 @@ function TeamSection() {
                       const displayHighlight = isEmoji ? h.substring(1).trim() : h;
                       const customDot = isEmoji ? firstChar : null;
                       return (
-                        <motion.li
+                        <li
                           key={j}
-                          initial={{ opacity: 0, x: -10 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: j * 0.1 + 0.3 }}
-                          viewport={{ once: true }}
                           className="flex items-start gap-2.5 text-xs text-gray-500"
                         >
                           {customDot ? (
@@ -529,29 +474,25 @@ function TeamSection() {
                             <span className={`w-1.5 h-1.5 rounded-full ${m.dotColor} mt-1.5 flex-shrink-0`} />
                           )}
                           {displayHighlight}
-                        </motion.li>
+                        </li>
                       );
                     })}
                   </ul>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        <motion.div
-          variants={fadeUp}
-          initial="hidden" whileInView="show" viewport={{ once: true }}
-          className="mt-12 text-center"
-        >
+        <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-3 px-4 md:px-15 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
             <span className="text-2xl">🌐</span>
             <p className="text-sm text-gray-600">
               <span className="font-bold text-gray-800">Growing team</span> — adding subject experts, technical consultants & regional coordinators across India.
             </p>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -560,17 +501,13 @@ function TeamSection() {
 function TimelineSection() {
   return (
     <section className="relative bg-white py-24 px-4 md:px-15 overflow-hidden">
-      <motion.div
-        className="max-w-4xl mx-auto"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}
-        variants={stagger}
-      >
+      <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <SectionLabel text="How We Got Here" color="orange" />
-          <motion.h2 variants={fadeUp} className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
             Our{" "}
             <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Journey</span>
-          </motion.h2>
+          </h2>
         </div>
 
         <div className="relative">
@@ -579,59 +516,45 @@ function TimelineSection() {
 
           <div className="space-y-10">
             {timeline.map((t, i) => (
-              <motion.div
+              <div
                 key={i}
-                variants={i % 2 === 0 ? fadeLeft : fadeRight}
                 className={`relative flex items-start gap-6 md:gap-0 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
               >
                 {/* dot */}
-                <motion.div
-                  whileInView={{ scale: [0, 1.3, 1] }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                  viewport={{ once: true }}
+                <div
                   className="absolute left-0 md:left-1/2 md:-translate-x-1/2 w-14 h-14 rounded-2xl bg-white border-2 border-orange-200 flex items-center justify-center text-2xl shadow-md z-10 flex-shrink-0"
                   style={{ top: "0px" }}
                 >
                   {t.icon}
-                </motion.div>
+                </div>
 
                 {/* content card */}
                 <div className={`ml-20 md:ml-0 md:w-5/12 ${i % 2 === 0 ? "md:pr-12" : "md:pl-12 md:ml-auto"}`}>
-                  <motion.div
-                    whileHover={{ y: -4 }}
-                    className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-orange-100 transition-all duration-300"
-                  >
+                  <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-orange-100 hover:-translate-y-1 transition-all duration-300">
                     <span className={`text-xs font-black uppercase tracking-widest ${i % 2 === 0 ? "text-orange-500" : "text-green-600"}`}>{t.year}</span>
                     <h4 className="font-bold text-gray-900 text-base mt-1 mb-2">{t.title}</h4>
                     <p className="text-gray-500 text-xs leading-relaxed">{t.desc}</p>
-                  </motion.div>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
 
 // ─── CTA SECTION ─────────────────────────────────────────────────────────────
 function CTASection() {
-  const scrollToContact = () =>
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-
   return (
     <section className="relative  bg-gray-50 border-t border-gray-100 py-24 px-4 md:px-15 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
       </div>
 
-      <motion.div
-        className="w-full mx-auto text-center"
-        initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
-        variants={stagger}
-      >
-        <motion.div variants={scaleIn} className="relative mb-8">
+      <div className="w-full mx-auto text-center">
+        <div className="relative mb-8">
           <div className="absolute inset-0 rounded-3xl bg-orange-100 blur-xl scale-110 opacity-60" />
           <div className="relative bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl p-8 text-white shadow-2xl shadow-orange-200">
             <motion.div
@@ -648,30 +571,22 @@ function CTASection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/contact-us" 
-                className="flex items-center justify-center gap-2 px-12 py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                className="flex items-center justify-center gap-2 px-12 py-4 bg-white text-orange-600 font-bold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm"
               >
                 Get in Touch
                 <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
                   <FaArrowRight size={13} />
                 </motion.span>
               </Link>
-              {/* <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => document.getElementById("vision")?.scrollIntoView({ behavior: "smooth" })}
-                className="flex items-center justify-center gap-2 px-8 py-4 bg-orange-600 text-white font-bold rounded-2xl border border-orange-400 hover:bg-orange-700 transition-all duration-300 text-sm"
-              >
-                <FaStar size={13} /> Learn More
-              </motion.button> */}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.p variants={fadeUp} className="text-gray-400 text-sm">
+        <p className="text-gray-400 text-sm">
           Based in <span className="font-semibold text-gray-600">Telangana , Andhra Pradesh , Maharashtra, Karnataka</span> · Serving aspirants{" "}
           <span className="font-semibold text-green-600">Pan-India</span>
-        </motion.p>
-      </motion.div>
+        </p>
+      </div>
     </section>
   );
 }

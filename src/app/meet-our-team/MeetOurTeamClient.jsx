@@ -144,20 +144,6 @@ const teamMembers = [
   }
 ];
 
-// Motion configuration constants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-};
-
 const floatingBubbles = [
   { top: "15%", left: "8%", delay: 0, size: "h-24 w-24 bg-orange-500/10" },
   { bottom: "25%", right: "12%", delay: 1.5, size: "h-32 w-32 bg-green-500/10" },
@@ -165,12 +151,11 @@ const floatingBubbles = [
   { bottom: "10%", left: "15%", delay: 2.1, size: "h-28 w-28 bg-emerald-500/10" }
 ];
 
-function TeamCard({ member, variants }) {
+function TeamCard({ member }) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <motion.div
-      variants={variants}
+    <div
       className="group relative h-[420px] w-full cursor-pointer select-none"
       style={{ perspective: "1000px" }}
       onMouseEnter={() => setIsFlipped(true)}
@@ -333,7 +318,7 @@ function TeamCard({ member, variants }) {
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -342,7 +327,6 @@ export default function MeetOurTeam() {
 
   return (
     <>
-
       <main className="relative min-h-screen bg-slate-50/50 pt-24 pb-20 overflow-hidden">
         {/* Floating background decorative bubbles */}
         {floatingBubbles.map((bubble, i) => (
@@ -366,45 +350,26 @@ export default function MeetOurTeam() {
 
         <div className="w-full px-4 md:px-15 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 mb-4"
-            >
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 mb-4">
               <FaUsers size={14} className="shrink-0" />
               <span className="text-xs font-bold uppercase tracking-wider">Meet the Founders</span>
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4"
-            >
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4">
               The Minds Behind{" "}
               <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-600 bg-clip-text text-transparent">
                 Careermitra
               </span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-500 text-lg leading-relaxed max-w-2xl mx-auto"
-            >
+            </h1>
+            <p className="text-slate-500 text-lg leading-relaxed max-w-2xl mx-auto">
               Seasoned professionals and digital innovators uniting government department experience with technology to empower next-generation aspirants across India.
-            </motion.p>
+            </p>
           </div>
 
           {/* Founders Row */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid md:grid-cols-2 gap-8 w-full mx-auto mb-20"
-          >
+          <div className="grid md:grid-cols-2 gap-8 w-full mx-auto mb-20">
             {founders.map((member) => (
-              <motion.div
+              <div
                 key={member.name}
-                variants={itemVariants}
                 className="group relative h-full"
               >
                 <div className={`absolute -top-3.5 left-8 z-10 px-4 py-1 rounded-full text-xs font-bold shadow-sm border ${member.accentBg} ${member.accentBorder} ${member.accentText}`}>
@@ -486,52 +451,38 @@ export default function MeetOurTeam() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* Team Members Header */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 mb-4"
-            >
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 mb-4">
               <FaUsers size={14} className="shrink-0" />
               <span className="text-xs font-bold uppercase tracking-wider">Meet the Core Team</span>
-            </motion.div>
+            </div>
           </div>
 
           {/* Team Members Row */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mb-16"
-          >
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mb-16">
             {teamMembers.map((member) => (
-              <TeamCard key={member.name} member={member} variants={itemVariants} />
+              <TeamCard key={member.name} member={member} />
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* Mentors Section */}
         <MentorsSection />
 
         <div className="w-full px-4 md:px-15 relative z-10 mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="text-center max-w-2xl mx-auto"
-          >
+          <div className="text-center max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-3.5 px-4 md:px-15 py-4.5 bg-white border border-slate-100 rounded-3xl shadow-sm">
               <span className="text-2xl">🌱</span>
               <p className="text-sm text-slate-600 text-left leading-relaxed">
                 <span className="font-bold text-slate-800">Growing Team</span> — We are actively building our network across India by adding subject matter experts, retired advisors, and technology consultants.
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
     </>

@@ -63,70 +63,34 @@ const mentors = [
   }
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-};
-
 export default function MentorsSection() {
   return (
     <section className="relative w-full py-16 bg-slate-50 border-t border-b border-slate-100">
       {/* Title */}
       <div className="text-center max-w-3xl mx-auto mb-16 px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 mb-4"
-        >
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 mb-4">
           <FaUserTie size={14} className="shrink-0" />
           <span className="text-xs font-bold uppercase tracking-wider">Our Advisors & Mentors</span>
-        </motion.div>
+        </div>
 
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4"
-        >
+        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">
           Guided by{" "}
           <span className="bg-gradient-to-r from-amber-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent">
             Distinguished Leaders
           </span>
-        </motion.h2>
+        </h2>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="text-slate-500 text-base md:text-lg leading-relaxed max-w-2xl mx-auto"
-        >
+        <p className="text-slate-500 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
           Aspirants gain invaluable direction from retired IAS, IFS, and public service commission officers who have shaped policies at national and state levels.
-        </motion.p>
+        </p>
       </div>
 
       {/* Grid */}
       <div className="w-full px-4 md:px-15 relative z-10 max-w-7xl mx-auto">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid md:grid-cols-3 gap-8 w-full"
-        >
+        <div className="grid md:grid-cols-3 gap-8 w-full">
           {mentors.map((member) => (
-            <motion.div
+            <div
               key={member.name}
-              variants={itemVariants}
               className="group relative h-full flex flex-col"
             >
               {/* Card Container */}
@@ -137,12 +101,6 @@ export default function MentorsSection() {
                   <div>
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-6">
-                      {/* <div 
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-md shrink-0" 
-                        style={{ backgroundImage: `linear-gradient(to bottom right, ${member.gradFrom}, ${member.gradTo})` }}
-                      >
-                        {member.avatar}
-                      </div> */}
                       <div>
                         <h3 className="font-black text-slate-800 text-lg leading-snug">{member.name}</h3>
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${member.accentText} bg-opacity-70 ${member.accentBg} px-2.5 py-0.5 rounded-md mt-1 inline-block`}>
@@ -161,16 +119,13 @@ export default function MentorsSection() {
                           {member.role}
                         </p>
                       </div>
-
-
-
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

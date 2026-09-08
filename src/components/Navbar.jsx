@@ -53,7 +53,7 @@ const navLinks = [
   //     { name: "Internship Opportunities", path: "/internships" },
   //   ],
   // },
-  { name: "Government Jobs", Icon: FaBriefcase, blogsDropdown: true },
+  { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
   { name: "Events", path: "/events", Icon: FaCalendarAlt },
   { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },
 
@@ -450,10 +450,17 @@ export default function Navbar() {
                       onMouseEnter={() => setOpenDropdown(link.name)}
                       onMouseLeave={() => { setOpenDropdown(null); setHoveredParentId(null); }}
                     >
-                      <button className="flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 text-slate-700 hover:text-orange-600 hover:bg-orange-50/50">
+                      <Link
+                        href={link.path || "/government-jobs"}
+                        className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${
+                          isActive(link.path || "/government-jobs")
+                            ? "text-orange-600 font-bold"
+                            : "text-slate-700 hover:text-orange-600 hover:bg-orange-50/50"
+                        }`}
+                      >
                         {link.name}
                         <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
-                      </button>
+                      </Link>
 
                       <AnimatePresence>
                         {openDropdown === link.name && (
@@ -885,23 +892,34 @@ export default function Navbar() {
                       // CATEGORIES → accordion mega menu in mobile drawer
                       if (link.blogsDropdown) {
                         const isOpen = !!openMobileMenus["Government Jobs"];
+                        const active = isActive(link.path || "/government-jobs");
                         return (
                           <div key={link.name} className="space-y-1">
-                            <button
-                              onClick={() => toggleMobileMenu("Government Jobs")}
-                              className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
-                            >
-                              <div className="flex items-center gap-3">
-                                {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
-                                <span className="text-sm font-semibold">{link.name}</span>
-                              </div>
-                              <FaChevronDown
-                                size={12}
-                                className={`text-slate-400 transition-transform duration-200 ${
-                                  isOpen ? "rotate-180" : ""
+                            <div className="flex items-center justify-between w-full px-3 py-1 rounded-xl">
+                              <Link
+                                href={link.path || "/government-jobs"}
+                                onClick={() => setDrawerOpen(false)}
+                                className={`flex items-center gap-3 py-2 flex-1 text-sm font-semibold transition-all ${
+                                  active ? "text-orange-600 font-bold" : "text-slate-700"
                                 }`}
-                              />
-                            </button>
+                              >
+                                {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
+                                <span>{link.name}</span>
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => toggleMobileMenu("Government Jobs")}
+                                className="p-2 text-slate-400 hover:text-orange-600"
+                                aria-label="Toggle subcategories"
+                              >
+                                <FaChevronDown
+                                  size={12}
+                                  className={`transition-transform duration-200 ${
+                                    isOpen ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </button>
+                            </div>
 
                             <AnimatePresence>
                               {isOpen && (
