@@ -1,11 +1,26 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Calendar, ExternalLink, Search, FileText, Building2, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useJobs } from "../context/JobContext";
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import Link from "next/link";
+import {
+  Calendar,
+  ExternalLink,
+  Search,
+  FileText,
+  Building2,
+  Eye,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Clock,
+  Briefcase,
+  IndianRupee,
+  Sparkles,
+  ArrowRight
+} from "lucide-react";
 import { generateTableSchema } from "../utils/schemaHelpers";
 
-const JOBS_API = "https://careermitra.in/api/jobs";
 const ITEMS_PER_PAGE = 10;
 
 const formatDate = (dateString) => {
@@ -23,24 +38,70 @@ const normalizeLink = (link) => {
   return link.startsWith("http") ? link : `https://${link}`;
 };
 
-const normalizeJob = (item) => ({
-  id: item._id,
-  title: item.title,
-  org: item.source_name || "N/A",
-  qualifications: item.qualifications || "N/A",
-  applyLink: item.apply_link || null,
-  notificationUrl: item.notification_url || null,
-  postedDate: item.posted_date || null,
-  deadline: item.application_deadline || null,
-  age: item.age || "N/A",
-  posts: item.no_of_posts ?? "N/A",
-  type: item.job_type === "internship" ? "internships" : "skillups",
-});
+const generateSlug = (title) => {
+  return title
+    ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    : "";
+};
+
+const normalizeItem = (item, type = "internships") => {
+  if (type === "internships") {
+    const rawTitle = item.internship_title || item.title || "Internship Opportunity";
+    const rawOrg = item.company_name || item.org || item.source_name || "N/A";
+    const rawLoc = item.location || [item.district_city, item.state].filter(Boolean).join(", ") || "India";
+    const rawType = item.internship_type || item.work_mode || "Virtual Internship";
+    const rawStipend = item.stipend_category === "Paid"
+      ? (item.stipend ? `₹${item.stipend}` : "Paid")
+      : (item.stipend_category || "Unpaid");
+    const posted = item.posted_on || item.posted_date || item.created_at || null;
+    const deadline = item.last_date_to_apply || item.deadline || item.application_deadline || null;
+
+    return {
+      id: item.id || item._id || generateSlug(rawTitle),
+      slug: generateSlug(rawTitle),
+      title: rawTitle,
+      org: rawOrg,
+      type: rawType,
+      domain: item.domain_sector || item.domain || "General",
+      location: rawLoc,
+      stipend: rawStipend,
+      stipendCategory: item.stipend_category || "Paid",
+      duration: item.duration || "Flexible",
+      qualifications: item.domain_sector || item.internship_type || "All Eligible Candidates",
+      applyLink: item.apply_link || item.applyLink || null,
+      notificationUrl: item.notification_url || item.notificationUrl || null,
+      postedDate: posted,
+      deadline: deadline,
+      category: "internships",
+    };
+  } else {
+    const rawTitle = item.title || "Skill Up Program";
+    const rawOrg = item.source_name || item.sourceName || item.org || "N/A";
+    return {
+      id: item._id || item.id || generateSlug(rawTitle),
+      slug: generateSlug(rawTitle),
+      title: rawTitle,
+      org: rawOrg,
+      type: "Skill Up",
+      domain: item.category_name || "Skill Training",
+      location: item.location || "Online / All India",
+      stipend: "Free Course",
+      stipendCategory: "Free",
+      duration: item.duration || "Self Paced",
+      qualifications: item.qualifications || "All Candidates",
+      applyLink: item.apply_link || item.applyLink || null,
+      notificationUrl: item.notification_url || item.notificationUrl || null,
+      postedDate: item.posted_date || item.postedDate || null,
+      deadline: item.application_deadline || item.lastDate || null,
+      category: "skillups",
+    };
+  }
+};
 
 /* ── Skeleton loader rows ──────────────────────────────────────────────── */
 const SkeletonRow = ({ i }) => (
   <tr className="border-b border-orange-50">
-    {[30, 25, 20, 25, 20, 15].map((w, ci) => (
+    {[10, 30, 20, 15, 15, 10].map((w, ci) => (
       <td key={ci} className="px-4 py-3">
         <div
           className="h-4 rounded-lg animate-pulse"
@@ -86,7 +147,7 @@ const DetailModal = ({ item, onClose }) => {
             style={{ backgroundImage: "radial-gradient(circle at 70% 40%, white 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
           <div className="relative p-6 pr-14">
             <span className="text-[10px] font-bold uppercase tracking-widest text-orange-200 block mb-1">
-              {item.type === "internships" ? "Internship" : "Skill Up"}
+              {item.category === "internships" ? (item.type || "Internship") : "Skill Up"}
             </span>
             <h2 className="text-lg font-black text-white leading-snug">{item.title}</h2>
             <p className="text-orange-100 text-xs mt-1 font-medium">{item.org}</p>
@@ -101,42 +162,43 @@ const DetailModal = ({ item, onClose }) => {
 
         {/* Modal body */}
         <div className="p-6 space-y-4">
-          {/* Date row */}
-          <div className="flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-100 rounded-xl text-sm">
-              <Calendar className="w-4 h-4 text-orange-500" />
-              <span className="text-gray-700 font-semibold">{formatDate(item.postedDate)}</span>
-              <span className="text-gray-400 text-xs">Start Date</span>
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-xl text-xs font-semibold text-gray-700">
+              <Calendar className="w-3.5 h-3.5 text-orange-500" />
+              <span>Start: {formatDate(item.postedDate)}</span>
             </div>
             {item.deadline && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-xl text-sm">
-                <Calendar className="w-4 h-4 text-red-400" />
-                <span className="text-gray-700 font-semibold">{formatDate(item.deadline)}</span>
-                <span className="text-gray-400 text-xs">Deadline</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600">
+                <Calendar className="w-3.5 h-3.5 text-red-400" />
+                <span>Deadline: {formatDate(item.deadline)}</span>
               </div>
             )}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-xl text-xs font-semibold text-blue-700">
+              <MapPin className="w-3.5 h-3.5 text-blue-500" />
+              <span>{item.location}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-100 rounded-xl text-xs font-semibold text-green-700">
+              <IndianRupee className="w-3.5 h-3.5 text-green-500" />
+              <span>{item.stipend}</span>
+            </div>
           </div>
 
-          {/* Info grid */}
-          {/* <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Posts</p>
-              <p className="text-base font-black text-orange-500">{item.posts}</p>
-            </div>
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Age Limit</p>
-              <p className="text-sm font-bold text-gray-800">{item.age}</p>
-            </div>
-          </div> */}
-
-          {/* Qualifications */}
           <div className="bg-orange-50/60 border border-orange-100 rounded-2xl p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-orange-400 mb-2">Qualifications</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1.5">Details & Qualifications</p>
             <p className="text-sm text-gray-700 leading-relaxed">{item.qualifications}</p>
           </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 pt-2">
+            {item.category === "internships" && item.slug ? (
+              <Link
+                href={`/internships/${item.slug}`}
+                onClick={onClose}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-bold text-orange-600 border-2 border-orange-200 hover:bg-orange-50 transition-all"
+              >
+                <Eye className="w-4 h-4" /> View Full Details Page
+              </Link>
+            ) : null}
+
             {item.applyLink && (
               <a
                 href={normalizeLink(item.applyLink)}
@@ -145,17 +207,7 @@ const DetailModal = ({ item, onClose }) => {
                 className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
                 style={{ background: "linear-gradient(135deg,#f97316,#ea580c)" }}
               >
-                Apply Now <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-            {item.notificationUrl && (
-              <a
-                href={normalizeLink(item.notificationUrl)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-bold text-orange-600 border-2 border-orange-200 hover:bg-orange-50 transition-all"
-              >
-                <FileText className="w-4 h-4" /> View Notification
+                Apply Directly <ExternalLink className="w-4 h-4" />
               </a>
             )}
           </div>
@@ -169,59 +221,63 @@ const DetailModal = ({ item, onClose }) => {
 const MobileCard = ({ item, onView }) => (
   <article className="bg-white rounded-2xl border border-orange-100 shadow-sm overflow-hidden">
     <div className="h-1 w-full" style={{ background: "linear-gradient(to right,#f97316,#fbbf24)" }} />
-    <div className="p-3">
+    <div className="p-4">
       <div className="flex items-start gap-3 mb-3">
         <div className="mt-0.5 p-2 rounded-xl bg-orange-50 text-orange-500 shrink-0">
           <Building2 className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2">{item.title}</h3>
-          <p className="text-[11px] text-orange-500 font-semibold truncate mt-0.5">{item.org}</p>
+          <Link
+            href={item.category === "internships" ? `/internships/${item.slug}` : (item.applyLink ? normalizeLink(item.applyLink) : "#")}
+            className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 hover:text-orange-600 transition-colors block no-underline"
+          >
+            {item.title}
+          </Link>
+          <p className="text-[12px] text-orange-600 font-semibold truncate mt-0.5">{item.org}</p>
         </div>
       </div>
 
-      {/* Date badges */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 text-[11px] font-semibold text-orange-600">
-          <Calendar className="w-3 h-3" /> {formatDate(item.postedDate)}
+      {/* Badges */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-50 text-[10px] font-bold text-orange-700">
+          {item.type}
         </span>
-        {item.deadline && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-[11px] font-semibold text-red-500">
-            <Calendar className="w-3 h-3" /> {formatDate(item.deadline)}
-          </span>
-        )}
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-[11px] font-semibold text-blue-500">
-          {item.posts} Posts
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-[10px] font-bold text-green-700">
+          {item.stipend}
+        </span>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-50 text-[10px] font-medium text-slate-600">
+          <Clock className="w-3 h-3 text-slate-400" /> {item.duration}
         </span>
       </div>
 
-      <p className="text-[11px] text-gray-500 mb-3 bg-gray-50 rounded-xl p-2 leading-relaxed line-clamp-2">
-        {item.qualifications}
-      </p>
+      <div className="text-xs text-gray-600 bg-gray-50 rounded-xl p-2.5 mb-3 flex items-center gap-2">
+        <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+        <span className="truncate">{item.location}</span>
+      </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        <button
-          onClick={() => onView(item)}
-          className="flex-1 min-w-[70px] flex items-center gap-1 justify-center py-2 rounded-xl text-xs font-bold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-        >
-          <Eye className="w-3.5 h-3.5" /> View
-        </button>
-        {/* {item.notificationUrl && (
-          <a
-            href={normalizeLink(item.notificationUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 min-w-[100px] flex items-center justify-center gap-1 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+      <div className="flex flex-wrap gap-2">
+        {item.category === "internships" ? (
+          <Link
+            href={`/internships/${item.slug}`}
+            className="flex-1 min-w-[90px] flex items-center gap-1 justify-center py-2.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors no-underline border border-orange-200"
           >
-            <FileText className="w-3.5 h-3.5" /> Notification
-          </a>
-        )} */}
+            <Eye className="w-3.5 h-3.5" /> Details
+          </Link>
+        ) : (
+          <button
+            onClick={() => onView(item)}
+            className="flex-1 min-w-[90px] flex items-center gap-1 justify-center py-2.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors border border-orange-200"
+          >
+            <Eye className="w-3.5 h-3.5" /> View
+          </button>
+        )}
+
         {item.applyLink && (
           <a
             href={normalizeLink(item.applyLink)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 min-w-[70px] flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold bg-green-500 text-white hover:bg-green-600 transition-colors"
+            className="flex-1 min-w-[90px] flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold bg-green-500 hover:bg-green-600 text-white transition-all shadow-xs"
           >
             Apply <ExternalLink className="w-3.5 h-3.5" />
           </a>
@@ -247,7 +303,7 @@ const Pagination = ({ current, total, onChange }) => {
       <button
         onClick={() => onChange(Math.max(current - 1, 1))}
         disabled={current === 1}
-        className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         <ChevronLeft className="w-4 h-4" /> Prev
       </button>
@@ -270,7 +326,7 @@ const Pagination = ({ current, total, onChange }) => {
       <button
         onClick={() => onChange(Math.min(current + 1, total))}
         disabled={current === total}
-        className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-1 px-3.5 py-2 rounded-xl text-sm font-semibold border border-gray-200 bg-white text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         Next <ChevronRight className="w-4 h-4" />
       </button>
@@ -278,57 +334,89 @@ const Pagination = ({ current, total, onChange }) => {
   );
 };
 
-const InternshipTable = ({ initialSkillups = [] }) => {
-  const [activeType, setActiveType] = useState("skillups");
+const InternshipTable = ({
+  initialInternships = [],
+  initialInternshipsTotal = 0,
+  initialSkillups = [],
+}) => {
+  const [activeType, setActiveType] = useState("internships");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const [jobs, setJobs] = useState(initialSkillups);
-  const [loading, setLoading] = useState(initialSkillups.length === 0);
+  const initialItems = useMemo(() => {
+    if (initialInternships && initialInternships.length > 0) {
+      return initialInternships.map((i) => normalizeItem(i, "internships"));
+    }
+    if (initialSkillups && initialSkillups.length > 0) {
+      return initialSkillups.map((s) => normalizeItem(s, "skillups"));
+    }
+    return [];
+  }, [initialInternships, initialSkillups]);
+
+  const [items, setItems] = useState(initialItems);
+  const [loading, setLoading] = useState(initialItems.length === 0);
   const [error, setError] = useState(null);
-  const [totalItems, setTotalItems] = useState(initialSkillups.length);
-  const initialMountRef = React.useRef(true);
+  const [totalItems, setTotalItems] = useState(
+    initialInternshipsTotal || initialInternships.length || initialSkillups.length || 0
+  );
+  const initialMountRef = useRef(true);
 
   // Reset page when tab changes
-  useEffect(() => {
+  const handleTabChange = (type) => {
+    if (type === activeType) return;
+    setActiveType(type);
     setCurrentPage(1);
-  }, [activeType]);
+    if (type === "internships" && initialInternships.length > 0) {
+      setItems(initialInternships.map((i) => normalizeItem(i, "internships")));
+      setTotalItems(initialInternshipsTotal || initialInternships.length);
+      setLoading(false);
+    } else if (type === "skillups" && initialSkillups.length > 0) {
+      setItems(initialSkillups.map((s) => normalizeItem(s, "skillups")));
+      setTotalItems(initialSkillups.length);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  };
 
-  // Fetch paginated jobs on state change
+  // Fetch paginated items on state change
   useEffect(() => {
     if (initialMountRef.current) {
       initialMountRef.current = false;
-      if (initialSkillups && initialSkillups.length > 0 && currentPage === 1 && activeType === "skillups") {
+      if (activeType === "internships" && initialInternships && initialInternships.length > 0 && currentPage === 1) {
+        return;
+      }
+      if (activeType === "skillups" && initialSkillups && initialSkillups.length > 0 && currentPage === 1) {
         return;
       }
     }
-    const fetchPageJobs = async () => {
+
+    const fetchPageItems = async () => {
       setLoading(true);
       setError(null);
       try {
-        const endpoint = activeType === "skillups" ? "skillup" : "internships";
-        const url = `https://careermitra.in/api/jobs/${endpoint}?page=${currentPage}&limit=10`;
-        const res = await fetch(url);
-        const json = await res.json();
-        if (json.success) {
-          const rawJobs = json.data?.jobs || [];
-          const formatted = rawJobs.map((j) => ({
-            id: j._id || j.id,
-            title: j.title,
-            org: j.source_name || j.sourceName || j.org || "N/A",
-            qualifications: j.qualifications || "N/A",
-            applyLink: j.apply_link || j.applyLink || null,
-            notificationUrl: j.notification_url || j.notificationUrl || null,
-            postedDate: j.posted_date || j.postedDate || null,
-            deadline: j.application_deadline || j.lastDate || null,
-            age: j.age || "N/A",
-            posts: j.no_of_posts ?? j.noOfPosts ?? "N/A",
-            type: activeType,
-          }));
-          setJobs(formatted);
-          setTotalItems(json.data?.pagination?.total ?? formatted.length);
+        if (activeType === "internships") {
+          const url = `https://careermitra.in/api/internships?page=${currentPage}&limit=10&sort=newest`;
+          const res = await fetch(url);
+          const json = await res.json();
+          if (json.success && json.data) {
+            const rawList = json.data.internships || [];
+            setItems(rawList.map((i) => normalizeItem(i, "internships")));
+            setTotalItems(json.data.pagination?.total || rawList.length);
+          } else {
+            setError(json.message || "Failed to load internships");
+          }
         } else {
-          setError(json.message || "Failed to load opportunities");
+          const url = `https://careermitra.in/api/jobs/skillup?page=${currentPage}&limit=10`;
+          const res = await fetch(url);
+          const json = await res.json();
+          if (json.success && json.data) {
+            const rawJobs = json.data.jobs || [];
+            setItems(rawJobs.map((s) => normalizeItem(s, "skillups")));
+            setTotalItems(json.data.pagination?.total || rawJobs.length);
+          } else {
+            setError(json.message || "Failed to load skill updates");
+          }
         }
       } catch (err) {
         setError("Error connecting to server");
@@ -337,36 +425,36 @@ const InternshipTable = ({ initialSkillups = [] }) => {
         setLoading(false);
       }
     };
-    fetchPageJobs();
-  }, [currentPage, activeType]);
+
+    fetchPageItems();
+  }, [currentPage, activeType, initialInternships, initialSkillups]);
 
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-  const pageItems = jobs;
-  const filtered = jobs; // for empty state checks
+  const pageItems = items;
+  const filtered = items;
 
   const tableSchema = useMemo(() => {
-    if (loading || !jobs || jobs.length === 0) return null;
+    if (loading || !items || items.length === 0) return null;
     return generateTableSchema({
-      name: `Skill Up Opportunities — ${activeType === "skillups" ? "Skill Updates" : "Internships"}`,
-      description: "Recently announced Skill Up Opportunities across various sectors in India, listed on the Careermitra homepage.",
+      name: `Verified Opportunities — ${activeType === "internships" ? "Internships" : "Skill Updates"}`,
+      description: "Verified internship and skill development opportunities across India, listed on Career Mitra.",
       url: "/",
-      headers: ["S.No", "Title", "Organization", "Qualification", "Start Date", "Deadline"],
-      rows: jobs.map((item, idx) => [
+      headers: ["S.No", "Title", "Organization", "Type", "Location", "Stipend", "Duration"],
+      rows: items.map((item, idx) => [
         String((currentPage - 1) * ITEMS_PER_PAGE + idx + 1),
         item.title || "N/A",
         item.org || "N/A",
-        item.qualifications || "N/A",
-        formatDate(item.postedDate),
-        formatDate(item.deadline),
+        item.type || "N/A",
+        item.location || "N/A",
+        item.stipend || "N/A",
+        item.duration || "N/A",
       ]),
     });
-  }, [jobs, loading, activeType, currentPage]);
+  }, [items, loading, activeType, currentPage]);
 
-  const typeLabel = activeType === "skillups" ? "Skill Updates" : "Internships";
-  const emptyText = activeType === "skillups" ? "No skill updates available" : "No internships found";
-  const emptyHint = activeType === "skillups"
-    ? "Check back later for new skill programs and training updates."
-    : "Try checking back later.";
+  const typeLabel = activeType === "internships" ? "Internships" : "Skill Updates";
+  const emptyText = activeType === "internships" ? "No internships available" : "No skill updates found";
+  const emptyHint = "Check back later for new opportunities.";
 
   return (
     <section>
@@ -378,40 +466,48 @@ const InternshipTable = ({ initialSkillups = [] }) => {
       )}
       <div className="md:w-full w-full mx-auto px-1 md:px-4 md:px-15">
 
-        {/* ── Tabs bar ── */}
-        {/* <div className="mb-4 md:mb-6 bg-white/90 backdrop-blur rounded-2xl border border-orange-100 p-3 md:p-4 flex flex-col lg:flex-row items-center lg:justify-between shadow-sm">
-          <div className="text-sm md:text-base font-bold text-gray-800 hidden lg:block">
-            {typeLabel}
+        {/* ── Tabs Bar ── */}
+        <div className="mb-6 bg-white rounded-2xl border border-orange-100 p-3 md:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-sm md:text-base font-bold text-gray-800">
+              Showing <span className="text-orange-600">{typeLabel}</span>
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-orange-100 text-orange-700">
+              {totalItems} Available
+            </span>
           </div>
+
           <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-gray-900 shadow-inner">
             <button
-              onClick={() => setActiveType("internships")}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${activeType === "internships"
-                  ? "bg-linear-to-r from-orange-500 to-amber-500 text-white shadow"
-                  : "text-gray-200 hover:bg-white/10"
-                }`}
+              onClick={() => handleTabChange("internships")}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeType === "internships"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+              }`}
             >
-              <FileText className="w-3.5 h-3.5" /> Internships
+              <Briefcase className="w-3.5 h-3.5" /> Internships
             </button>
             <button
-              onClick={() => setActiveType("skillups")}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${activeType === "skillups"
-                  ? "bg-linear-to-r from-orange-500 to-amber-500 text-white shadow"
-                  : "text-gray-200 hover:bg-white/10"
-                }`}
+              onClick={() => handleTabChange("skillups")}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeType === "skillups"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+              }`}
             >
               <Building2 className="w-3.5 h-3.5" /> Skill Updates
             </button>
           </div>
-        </div> */}
+        </div>
 
         {loading ? (
           <>
-            <div className="hidden md:block rounded-3xl border border-orange-100 shadow-sm overflow-hidden">
+            <div className="hidden md:block rounded-3xl border border-orange-100 shadow-sm overflow-hidden bg-white">
               <table className="w-full">
                 <thead>
-                  <tr>
-                    {["#", "Title", "Organization", "Qualification", "Posted", "Deadline", "Action"].map((h) => (
+                  <tr className="bg-orange-50/50">
+                    {["#", "Title", "Organization", "Type", "Location", "Stipend", "Action"].map((h) => (
                       <th key={h} className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-gray-500">{h}</th>
                     ))}
                   </tr>
@@ -439,8 +535,8 @@ const InternshipTable = ({ initialSkillups = [] }) => {
                 <table className="w-full" style={{ minWidth: 860 }}>
                   <thead>
                     <tr style={{ background: "linear-gradient(to right,#fff7ed,#ffedd5)" }}>
-                      {["S.no", `${typeLabel} Title`, "Organization", "Qualification", "Start Date", "Deadline", "View More",  "Apply"].map((h) => (
-                        <th key={h} className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap">
+                      {["#", "Internship Title", "Organization / Company", "Type", "Location", "Stipend", "Duration", "View More", "Apply"].map((h) => (
+                        <th key={h} className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-gray-600 whitespace-nowrap">
                           {h}
                         </th>
                       ))}
@@ -450,76 +546,97 @@ const InternshipTable = ({ initialSkillups = [] }) => {
                     {pageItems.map((item, idx) => (
                       <tr key={item.id} className="hover:bg-orange-50/40 transition-colors group">
                         {/* # */}
-                        <td className="px-4 py-3 text-xs font-bold text-gray-400 whitespace-nowrap">
+                        <td className="px-4 py-3.5 text-xs font-bold text-gray-400 whitespace-nowrap">
                           {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                         </td>
+
                         {/* Title */}
-                        <td className="px-4 py-3 max-w-56">
-                          <p className="text-sm font-bold text-gray-900 truncate leading-snug" title={item.title}>
+                        <td className="px-4 py-3.5 max-w-64">
+                          <Link
+                            href={item.category === "internships" ? `/internships/${item.slug}` : (item.applyLink ? normalizeLink(item.applyLink) : "#")}
+                            className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-snug no-underline block"
+                            title={item.title}
+                          >
                             {item.title}
+                          </Link>
+                        </td>
+
+                        {/* Organization */}
+                        <td className="px-4 py-3.5 max-w-44">
+                          <p className="text-xs font-semibold text-gray-700 truncate flex items-center gap-1" title={item.org}>
+                            <Building2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                            <span className="truncate">{item.org}</span>
                           </p>
                         </td>
-                        {/* Org */}
-                        <td className="px-4 py-3 max-w-40">
-                          <p className="text-xs  font-semibold truncate" title={item.org}>{item.org}</p>
-                        </td>
-                        {/* Qualification */}
-                        <td className="px-4 py-3 max-w-52">
-                          <p className="text-xs text-gray-600 truncate" title={item.qualifications}>{item.qualifications}</p>
-                        </td>
-                        {/* Posted */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-50 text-xs font-semibold ">
-                            <Calendar className="w-3 h-3" />{formatDate(item.postedDate)}
+
+                        {/* Type */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="inline-block px-2.5 py-1 rounded-md text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-100">
+                            {item.type}
                           </span>
                         </td>
-                        {/* Deadline */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 text-xs font-semibold text-red-500">
-                            <Calendar className="w-3 h-3" />{formatDate(item.deadline)}
+
+                        {/* Location */}
+                        <td className="px-4 py-3.5 max-w-40">
+                          <span className="text-xs text-gray-600 flex items-center gap-1 truncate" title={item.location}>
+                            <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                            <span className="truncate">{item.location}</span>
                           </span>
                         </td>
-                        {/* Posts */}
-                        {/* <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="text-sm font-black text-gray-700">{item.posts}</span>
-                        </td> */}
-                        {/* View */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <button
-                            onClick={() => setSelectedItem(item)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-orange-500 text-white hover:bg-orange-600 transition-all"
-                          >
-                            <Eye className="w-3.5 h-3.5" /> View
-                          </button>
+
+                        {/* Stipend */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200 text-xs font-bold text-green-700">
+                            <IndianRupee className="w-3 h-3" />
+                            {item.stipend}
+                          </span>
                         </td>
-                        {/* Notification */}
-                        {/* <td className="px-4 py-3 whitespace-nowrap">
-                          {item.notificationUrl ? (
-                            <a
-                              href={normalizeLink(item.notificationUrl)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
+
+                        {/* Duration */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <span className="text-xs text-gray-600 font-medium flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            {item.duration}
+                          </span>
+                        </td>
+
+                        {/* View More */}
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          {item.category === "internships" ? (
+                            <Link
+                              href={`/internships/${item.slug}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 transition-all no-underline"
                             >
-                              <FileText className="w-4 h-4" /> Notification
-                            </a>
+                              <Eye className="w-3.5 h-3.5" /> View
+                            </Link>
                           ) : (
-                            <span className="text-xs text-gray-400">N/A</span>
+                            <button
+                              onClick={() => setSelectedItem(item)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 transition-all cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> View
+                            </button>
                           )}
-                        </td> */}
+                        </td>
+
                         {/* Apply */}
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        <td className="px-4 py-3.5 whitespace-nowrap">
                           {item.applyLink ? (
                             <a
                               href={normalizeLink(item.applyLink)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-green-500 text-white hover:bg-green-600 transition-all"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-green-500 text-white hover:bg-green-600 transition-all shadow-xs"
                             >
-                              Apply <ExternalLink className="w-3 h-3" />
+                              Apply <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           ) : (
-                            <span className="text-xs text-gray-400">N/A</span>
+                            <Link
+                              href={`/internships/${item.slug}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-xs"
+                            >
+                              Apply <ArrowRight className="w-3.5 h-3.5" />
+                            </Link>
                           )}
                         </td>
                       </tr>
@@ -536,7 +653,20 @@ const InternshipTable = ({ initialSkillups = [] }) => {
               ))}
             </div>
 
+            {/* Pagination */}
             <Pagination current={currentPage} total={totalPages} onChange={setCurrentPage} />
+
+            {/* ── View All Internships Action Bar ── */}
+            <div className="mt-10 text-center">
+              <Link
+                href="/internships"
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-sm shadow-lg shadow-orange-500/20 hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+              >
+                <Sparkles className="w-4 h-4" />
+                Explore All 1,000+ Verified Internships
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </>
         )}
       </div>

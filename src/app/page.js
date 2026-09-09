@@ -132,6 +132,25 @@ async function getInitialAnnouncements() {
   }
 }
 
+async function getInitialInternships() {
+  try {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/internships?page=1&limit=10&sort=newest`, {
+      next: { revalidate: 300 },
+    });
+    const json = await res.json();
+    if (json.success && json.data) {
+      return {
+        internships: json.data.internships || [],
+        total: json.data.pagination?.total || 0,
+      };
+    }
+    return { internships: [], total: 0 };
+  } catch (err) {
+    console.error("getInitialInternships error:", err);
+    return { internships: [], total: 0 };
+  }
+}
+
 async function getInitialSkillups() {
   try {
     const res = await fetch(`${INTERNAL_API_BASE_URL}/jobs/skillup?page=1&limit=10`, { next: { revalidate: 300 } });
@@ -200,9 +219,10 @@ export default async function Home() {
     generateWebsiteSchema(),
   ];
 
-  const [initialJobs, initialAnnouncements, initialSkillups, initialBlogSections] = await Promise.all([
+  const [initialJobs, initialAnnouncements, initialInternshipsData, initialSkillups, initialBlogSections] = await Promise.all([
     getInitialJobs(),
     getInitialAnnouncements(),
+    getInitialInternships(),
     getInitialSkillups(),
     getInitialBlogs(),
   ]);
@@ -219,6 +239,8 @@ export default async function Home() {
       <HomeClient
         initialJobs={initialJobs}
         initialAnnouncements={initialAnnouncements}
+        initialInternships={initialInternshipsData.internships}
+        initialInternshipsTotal={initialInternshipsData.total}
         initialSkillups={initialSkillups}
         initialBlogSections={initialBlogSections}
       />

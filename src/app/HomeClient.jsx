@@ -46,6 +46,8 @@ const topJobCategories = [
 export default function HomeClient({
   initialJobs = [],
   initialAnnouncements = [],
+  initialInternships = [],
+  initialInternshipsTotal = 0,
   initialSkillups = [],
   initialBlogSections = [],
 }) {
@@ -58,8 +60,8 @@ export default function HomeClient({
       
       <CareerHomeJobs initialJobs={initialJobs} />
 
-      {/* InternshipTable Jobs */}
-      <section id="internship" style={{ padding: "50px 0 56px", background: "#fafaf9", position: "relative", overflow: "hidden" }}>
+      {/* Internship Opportunities Section */}
+      <section id="internships" style={{ padding: "50px 0 56px", background: "#fafaf9", position: "relative", overflow: "hidden" }}>
 
         {/* Decorative background blobs */}
         <div style={{
@@ -76,48 +78,50 @@ export default function HomeClient({
         }} />
 
         <div style={{ padding: "0px 20px" }}>
-          <AnimatedSection animation="fade-up">
-            <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
 
-              {/* Eyebrow badge */}
-              <div
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "6px 10px", borderRadius: 9999,
-                  background: "linear-gradient(135deg, #fff7ed, #fef3c7)",
-                  border: "1px solid #fed7aa",
-                  marginBottom: 10,
-                }}
-              >
-                <span style={{ fontSize: 16 }}>🔥</span>
-                <span style={{ color: "#c2410c", fontWeight: 700, fontSize: 13, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                  Latest Updated
-                </span>
-              </div>
-
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                   Skill Up Opportunities
-              </h2>
-
-              <div
-                className="origin-left h-0.75 rounded-full w-80 mx-auto mb-3"
-                style={{
-                  background: "linear-gradient(90deg, transparent, #fbbf24, #f59e0b, #fbbf24, transparent)",
-                  boxShadow: "0 0 12px rgba(251,191,36,0.7)",
-                  height: 3,
-                  width: 220,
-                  margin: "14px auto 18px",
-                  borderRadius: 99,
-                }}
-              />
-
-              <p style={{ color: "#6b7280", maxWidth: 620, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
-                Recently announced Skill Up Opportunities across various sectors in India.
-              </p>
+            {/* Eyebrow badge */}
+            <div
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "6px 14px", borderRadius: 9999,
+                background: "linear-gradient(135deg, #fff7ed, #fef3c7)",
+                border: "1px solid #fed7aa",
+                marginBottom: 10,
+              }}
+            >
+              <span style={{ fontSize: 16 }}>🚀</span>
+              <span style={{ color: "#c2410c", fontWeight: 700, fontSize: 13, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                Verified Opportunities
+              </span>
             </div>
-          </AnimatedSection>
 
-          <InternshipTable initialSkillups={initialSkillups} />
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
+              Latest Internship Opportunities
+            </h2>
+
+            <div
+              className="origin-left h-0.75 rounded-full w-80 mx-auto mb-3"
+              style={{
+                background: "linear-gradient(90deg, transparent, #fbbf24, #f59e0b, #fbbf24, transparent)",
+                boxShadow: "0 0 12px rgba(251,191,36,0.7)",
+                height: 3,
+                width: 220,
+                margin: "14px auto 18px",
+                borderRadius: 99,
+              }}
+            />
+
+            <p style={{ color: "#6b7280", maxWidth: 650, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
+              Explore verified virtual, paid, and government internship openings to kickstart your professional career.
+            </p>
+          </div>
+
+          <InternshipTable
+            initialInternships={initialInternships}
+            initialInternshipsTotal={initialInternshipsTotal}
+            initialSkillups={initialSkillups}
+          />
         </div>
       </section>
 
