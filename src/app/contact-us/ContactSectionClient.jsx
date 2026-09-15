@@ -309,8 +309,8 @@ export default function ContactSection() {
               <span className="text-2xl">⚡</span>
               <p className="text-sm text-gray-600 leading-relaxed">
                 We respond within{" "}
-                <span className="font-bold text-orange-600">24 hours</span>.
-                Personalized guidance from experienced government officials — not bots.
+                <span className="font-bold text-orange-600">48 hours</span>.
+                Personalized guidance from experienced government officials - not bots.
               </p>
             </motion.div>
 

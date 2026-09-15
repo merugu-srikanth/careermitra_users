@@ -257,6 +257,7 @@ export default function Internships({
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedStipend, setSelectedStipend] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -406,6 +407,8 @@ export default function Internships({
       if (selectedState && item.state !== selectedState) return false;
       if (selectedCity && item.district_city !== selectedCity) return false;
       if (selectedStipend && item.stipend_category !== selectedStipend) return false;
+      if (selectedStatus === "active" && item.is_expired) return false;
+      if (selectedStatus === "expired" && !item.is_expired) return false;
       return true;
     });
 
@@ -434,7 +437,7 @@ export default function Internships({
     });
 
     return scored.map((entry) => entry.item);
-  }, [isSearchMode, trimmedSearch, allInternships, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend]);
+  }, [isSearchMode, trimmedSearch, allInternships, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, selectedStatus]);
 
   // Fetch Filters
   useEffect(() => {
@@ -478,6 +481,7 @@ export default function Internships({
       if (selectedState) params.append("state", selectedState);
       if (selectedCity) params.append("district_city", selectedCity);
       if (selectedStipend) params.append("stipend_category", selectedStipend);
+      if (selectedStatus) params.append("expired", selectedStatus === "expired" ? "true" : "false");
 
       const res = await fetch(`${BASE_URL}?${params.toString()}`);
       const json = await res.json();
@@ -514,13 +518,14 @@ export default function Internships({
         !selectedDomain &&
         !selectedState &&
         !selectedCity &&
-        !selectedStipend
+        !selectedStipend &&
+        !selectedStatus
       ) {
         return;
       }
     }
     fetchInternships();
-  }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, isSearchMode]);
+  }, [page, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, selectedStatus, isSearchMode]);
 
   const canLoadMore = isSearchMode ? searchVisibleCount < searchMatches.length : page < totalPages;
 
@@ -546,6 +551,7 @@ export default function Internships({
     setSelectedState("");
     setSelectedCity("");
     setSelectedStipend("");
+    setSelectedStatus("");
     setSearchQuery("");
     setPage(1);
   };
@@ -604,7 +610,7 @@ export default function Internships({
 
         {/* Filter Panel */}
         <div className="bg-white rounded-3xl border border-orange-100/85 shadow-md shadow-orange-100/20 p-5 md:p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
             {/* Search Input */}
             <div className="relative sm:col-span-2 lg:col-span-1">
               <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Internships</label>
@@ -702,12 +708,27 @@ export default function Internships({
                 setPage(1);
               }}
             />
+
+            {/* Status Filter */}
+            <FilterDropdown
+              label="Status"
+              placeholder="All Status"
+              value={selectedStatus}
+              options={[
+                { value: "active", label: "Active" },
+                { value: "expired", label: "Expired" },
+              ]}
+              onChange={(val) => {
+                setSelectedStatus(val);
+                setPage(1);
+              }}
+            />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mt-5 pt-4 border-t border-slate-100">
             {/* Actions */}
             <div>
-              {(selectedType || selectedDomain || selectedState || selectedCity || selectedStipend || searchQuery) && (
+              {(selectedType || selectedDomain || selectedState || selectedCity || selectedStipend || selectedStatus || searchQuery) && (
                 <button
                   onClick={clearFilters}
                   className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
