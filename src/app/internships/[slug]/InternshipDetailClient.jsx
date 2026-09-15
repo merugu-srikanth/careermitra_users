@@ -325,7 +325,18 @@ export default function InternshipDetail({ initialData = null }) {
             </div>
 
             {/* Apply Button */}
-            {applyLink ? (
+            {expiryStatus.toLowerCase() === "expired" ? (
+              <div className="pt-2">
+                <span
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-slate-100 text-slate-400 rounded-2xl text-sm font-bold cursor-not-allowed"
+                  title="Application deadline has passed"
+                  aria-disabled="true"
+                >
+                  Expired <ExternalLink className="w-4 h-4" />
+                </span>
+                <p className="text-xs text-red-500 font-semibold mt-2">This internship's application deadline has passed.</p>
+              </div>
+            ) : applyLink ? (
               <div className="pt-2">
                 <a
                   href={applyLink}

@@ -17,7 +17,10 @@ import {
   Briefcase,
   ExternalLink,
   IndianRupee,
-  Award
+  Award,
+  ChevronDown,
+  Check,
+  AlertCircle
 } from "lucide-react";
 
 import { API_BASE_URL } from "@/utils/api";
@@ -44,6 +47,160 @@ const generateSlug = (title) => {
     ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
     : "";
 };
+
+function FilterDropdown({
+  label,
+  value,
+  options = [],
+  placeholder = "Select",
+  onChange,
+  disabled = false,
+  searchable = false,
+  className = "",
+}) {
+  const [open, setOpen] = useState(false);
+  const [filterSearch, setFilterSearch] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const selectedOption = options.find((opt) =>
+    typeof opt === "string" ? opt === value : opt.value === value
+  );
+  const displayLabel = selectedOption
+    ? typeof selectedOption === "string"
+      ? selectedOption
+      : selectedOption.label
+    : placeholder;
+  const fullTooltip = selectedOption
+    ? typeof selectedOption === "string"
+      ? selectedOption
+      : (selectedOption.fullText || selectedOption.label)
+    : "";
+
+  const filteredOptions = useMemo(() => {
+    if (!filterSearch.trim()) return options;
+    const q = filterSearch.toLowerCase();
+    return options.filter((opt) => {
+      const text = typeof opt === "string" ? opt : (opt.fullText || opt.label);
+      return text.toLowerCase().includes(q);
+    });
+  }, [options, filterSearch]);
+
+  return (
+    <div className={`relative ${className}`} ref={dropdownRef}>
+      {label && (
+        <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+          {label}
+        </label>
+      )}
+
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) {
+            setOpen((prev) => !prev);
+            setFilterSearch("");
+          }
+        }}
+        className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-xs sm:text-sm rounded-xl border transition-all cursor-pointer text-left ${
+          disabled
+            ? "bg-slate-100/70 border-slate-200 text-slate-400 cursor-not-allowed"
+            : value
+            ? "bg-orange-50/70 border-orange-300 text-orange-950 font-medium shadow-2xs"
+            : "bg-slate-50/60 hover:bg-white border-slate-200 hover:border-orange-300 text-slate-700"
+        }`}
+      >
+        <span className="truncate block" title={fullTooltip || displayLabel}>
+          {displayLabel}
+        </span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
+            open ? "rotate-180 text-orange-500" : "text-slate-400"
+          }`}
+        />
+      </button>
+
+      {open && !disabled && (
+        <div className="absolute left-0 top-full mt-1.5 w-full min-w-[200px] max-w-[280px] bg-white border border-slate-200/90 rounded-2xl shadow-xl z-30 p-1.5 overflow-hidden">
+          {searchable && options.length > 5 && (
+            <div className="p-1 pb-1.5 border-b border-slate-100 mb-1">
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search..."
+                value={filterSearch}
+                onChange={(e) => setFilterSearch(e.target.value)}
+                className="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 border border-slate-200 focus:outline-none focus:border-orange-400 font-normal"
+              />
+            </div>
+          )}
+
+          <div className="max-h-56 overflow-y-auto space-y-0.5" style={{ scrollbarWidth: "thin" }}>
+            <button
+              type="button"
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-between ${
+                !value
+                  ? "bg-orange-500 text-white font-semibold"
+                  : "text-slate-700 hover:bg-orange-50 hover:text-orange-600"
+              }`}
+            >
+              <span>{placeholder}</span>
+              {!value && <Check className="w-3.5 h-3.5 shrink-0 ml-1" />}
+            </button>
+
+            {filteredOptions.length === 0 ? (
+              <div className="px-3 py-2.5 text-xs text-slate-400 text-center">No options found</div>
+            ) : (
+              filteredOptions.map((opt) => {
+                const optVal = typeof opt === "string" ? opt : opt.value;
+                const optLabel = typeof opt === "string" ? opt : opt.label;
+                const optTooltip = typeof opt === "string" ? opt : (opt.fullText || opt.label);
+                const isSelected = value === optVal;
+
+                return (
+                  <button
+                    key={optVal}
+                    type="button"
+                    onClick={() => {
+                      onChange(optVal);
+                      setOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-between group ${
+                      isSelected
+                        ? "bg-orange-500 text-white font-semibold"
+                        : "text-slate-700 hover:bg-orange-50 hover:text-orange-600"
+                    }`}
+                  >
+                    <span className="truncate block pr-2" title={optTooltip}>
+                      {optLabel}
+                    </span>
+                    {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1" />}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Internships({
   initialInternships = [],
@@ -102,6 +259,30 @@ export default function Internships({
   const [selectedStipend, setSelectedStipend] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const cleanStates = useMemo(() => {
+    if (!filters.states || !Array.isArray(filters.states)) return [];
+    const unique = Array.from(new Set(filters.states.filter(Boolean)));
+    return unique
+      .map((st) => ({
+        value: st,
+        label: st.length > 28 ? st.slice(0, 28) + "…" : st,
+        fullText: st,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [filters.states]);
+
+  const cleanCities = useMemo(() => {
+    if (!filters.cities || !Array.isArray(filters.cities)) return [];
+    const unique = Array.from(new Set(filters.cities.filter(Boolean)));
+    return unique
+      .map((ct) => ({
+        value: ct,
+        label: ct.length > 28 ? ct.slice(0, 28) + "…" : ct,
+        fullText: ct,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [filters.cities]);
 
   // Pagination & Sorting
   const [page, setPage] = useState(1);
@@ -470,70 +651,57 @@ export default function Internships({
               )}
             </div>
 
-            {/* State Filter */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">State</label>
-              <select
-                value={selectedState}
-                onChange={(e) => {
-                  setSelectedState(e.target.value);
-                  setSelectedCity("");
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
-              >
-                <option value="">All States</option>
-                {filters.states.map((state) => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Internship Type Filter */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Internship Type</label>
-              <select
-                value={selectedType}
-                onChange={(e) => { setSelectedType(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
-              >
-                <option value="">All Types</option>
-                {filters.internship_types.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+            <FilterDropdown
+              label="Internship Type"
+              placeholder="All Types"
+              value={selectedType}
+              options={filters.internship_types}
+              onChange={(val) => {
+                setSelectedType(val);
+                setPage(1);
+              }}
+            />
 
             {/* Stipend Category Filter */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stipend</label>
-              <select
-                value={selectedStipend}
-                onChange={(e) => { setSelectedStipend(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700"
-              >
-                <option value="">All Stipends</option>
-                {filters.stipend_categories.map((stipend) => (
-                  <option key={stipend} value={stipend}>{stipend}</option>
-                ))}
-              </select>
-            </div>
+            <FilterDropdown
+              label="Stipend"
+              placeholder="All Stipends"
+              value={selectedStipend}
+              options={filters.stipend_categories}
+              onChange={(val) => {
+                setSelectedStipend(val);
+                setPage(1);
+              }}
+            />
+
+            {/* State Filter */}
+            <FilterDropdown
+              label="State"
+              placeholder="All States"
+              value={selectedState}
+              options={cleanStates}
+              searchable={true}
+              onChange={(val) => {
+                setSelectedState(val);
+                setSelectedCity("");
+                setPage(1);
+              }}
+            />
 
             {/* City Filter */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">City / District</label>
-              <select
-                value={selectedCity}
-                disabled={!selectedState}
-                onChange={(e) => { setSelectedCity(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50 text-slate-700 disabled:opacity-50"
-              >
-                <option value="">{selectedState ? "All Cities" : "Select State First"}</option>
-                {filters.cities.map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
+            <FilterDropdown
+              label="City / District"
+              placeholder={selectedState ? "All Cities" : "Select State First"}
+              value={selectedCity}
+              options={cleanCities}
+              disabled={!selectedState}
+              searchable={true}
+              onChange={(val) => {
+                setSelectedCity(val);
+                setPage(1);
+              }}
+            />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mt-5 pt-4 border-t border-slate-100">
@@ -607,6 +775,7 @@ export default function Internships({
                       <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Location</th>
                       <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Stipend</th>
                       <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Duration</th>
+                      <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
                       <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">Action</th>
                     </tr>
                   </thead>
@@ -653,6 +822,17 @@ export default function Internships({
                             {intern.duration}
                           </p>
                         </td>
+                        <td className="px-5 py-4">
+                          {intern.is_expired ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-600 border border-red-200">
+                              <AlertCircle className="w-3 h-3" /> Expired
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
+                              <Check className="w-3 h-3" /> Active
+                            </span>
+                          )}
+                        </td>
                         <td className="px-5 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <Link
@@ -662,7 +842,15 @@ export default function Internships({
                             >
                               <Eye className="w-4 h-4" />
                             </Link>
-                            {intern.apply_link && (
+                            {intern.is_expired ? (
+                              <span
+                                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-400 cursor-not-allowed"
+                                title="Application deadline has passed"
+                                aria-disabled="true"
+                              >
+                                Expired
+                              </span>
+                            ) : intern.apply_link && (
                               <a
                                 href={normalizeLink(intern.apply_link)}
                                 target="_blank"
@@ -714,6 +902,11 @@ export default function Internships({
                           {intern.no_of_credits} Credits
                         </span>
                       )}
+                      {intern.is_expired && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-[10px] font-bold text-red-600 border border-red-200">
+                          <AlertCircle className="w-3 h-3" /> Expired
+                        </span>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4 bg-slate-50 rounded-2xl p-3 border border-slate-100">
@@ -734,7 +927,15 @@ export default function Internships({
                       >
                         <Eye className="w-4 h-4" /> View Details
                       </Link>
-                      {intern.apply_link && (
+                      {intern.is_expired ? (
+                        <span
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold bg-slate-100 text-slate-400 rounded-xl cursor-not-allowed"
+                          title="Application deadline has passed"
+                          aria-disabled="true"
+                        >
+                          Expired
+                        </span>
+                      ) : intern.apply_link && (
                         <a
                           href={normalizeLink(intern.apply_link)}
                           target="_blank"

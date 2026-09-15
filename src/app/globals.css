@@ -23,14 +23,15 @@ button, a {
   transition: background-color 0.2s ease;
 }
 
-/* Site-wide text felt too heavy/"shouty" — font-black (900) and
-   font-extrabold (800) are overused across the UI. Cap them down to
-   weights actually loaded for Poppins (700/600) so nothing falls back to
-   faux-bold. Plain font-bold (700) is left untouched. */
+/* Site-wide typography refinement — Poppins weights 700, 800, 900 can feel overly heavy/"shouty".
+   Softening them to balanced 600/700 gives crisp, modern readability without overwhelming thickness. */
 .font-black {
   font-weight: 700 !important;
 }
 .font-extrabold {
+  font-weight: 600 !important;
+}
+.font-bold {
   font-weight: 600 !important;
 }
 
