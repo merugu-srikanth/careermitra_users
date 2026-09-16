@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -291,6 +292,28 @@ export default function Internships({
   const [totalPages, setTotalPages] = useState(initialPagination?.totalPages || 1);
   const [totalItems, setTotalItems] = useState(initialPagination?.total ?? (initialInternships?.length || 0));
 
+  const [globalCounts, setGlobalCounts] = useState({ active: 913, expired: 3283, total: 4196 });
+
+  // Fetch initial global active/expired counts
+  useEffect(() => {
+    const fetchGlobalCounts = async () => {
+      try {
+        const [activeRes, expiredRes] = await Promise.all([
+          fetch(`${BASE_URL}?page=1&limit=1&expired=false`).then(r => r.json()),
+          fetch(`${BASE_URL}?page=1&limit=1&expired=true`).then(r => r.json())
+        ]);
+        const active = activeRes.data?.pagination?.total || 0;
+        const expired = expiredRes.data?.pagination?.total || 0;
+        if (active || expired) {
+          setGlobalCounts({ active, expired, total: active + expired });
+        }
+      } catch (err) {
+        console.error("Failed to fetch internship status counts:", err);
+      }
+    };
+    fetchGlobalCounts();
+  }, []);
+
   const initialMountRef = useRef(true);
 
   // Full dataset cache used for smart client-side search (backend search only
@@ -302,10 +325,29 @@ export default function Internships({
   const [searchError, setSearchError] = useState(null);
   const [searchVisibleCount, setSearchVisibleCount] = useState(20);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchBarRef = useRef(null);
+  const [dropdownRect, setDropdownRect] = useState(null);
 
   const trimmedSearch = debouncedSearch.trim();
   const isSearchMode = trimmedSearch.length > 0;
   const rawQuery = searchQuery.trim();
+
+  // Track the search bar's on-screen position so suggestions can be portaled
+  useEffect(() => {
+    if (!showSuggestions || !rawQuery) return;
+    const updateRect = () => {
+      if (!searchBarRef.current) return;
+      const rect = searchBarRef.current.getBoundingClientRect();
+      setDropdownRect({ top: rect.bottom + 8, left: rect.left, width: rect.width });
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect, true);
+    return () => {
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect, true);
+    };
+  }, [showSuggestions, rawQuery]);
 
   // Debounce search query
   useEffect(() => {
@@ -438,6 +480,38 @@ export default function Internships({
 
     return scored.map((entry) => entry.item);
   }, [isSearchMode, trimmedSearch, allInternships, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, selectedStatus]);
+
+  // Dynamic Status Counts (adapts to current search / active filters when allLoaded)
+  const statusCounts = useMemo(() => {
+    if (allLoaded && allInternships.length > 0) {
+      const filtered = allInternships.filter((item) => {
+        if (selectedType && item.internship_type !== selectedType) return false;
+        if (selectedDomain && item.domain_sector !== selectedDomain) return false;
+        if (selectedState && item.state !== selectedState) return false;
+        if (selectedCity && item.district_city !== selectedCity) return false;
+        if (selectedStipend && item.stipend_category !== selectedStipend) return false;
+        if (trimmedSearch) {
+          const words = trimmedSearch.toLowerCase().split(/\s+/).filter(Boolean);
+          const haystack = [
+            item.internship_title,
+            item.company_name,
+            item.domain_sector,
+            item.internship_type,
+            item.location,
+            item.district_city,
+            item.state
+          ].filter(Boolean).join(" ").toLowerCase();
+          if (!words.some((w) => haystack.includes(w))) return false;
+        }
+        return true;
+      });
+
+      const active = filtered.filter((i) => !i.is_expired).length;
+      const expired = filtered.filter((i) => i.is_expired).length;
+      return { active, expired, total: filtered.length };
+    }
+    return globalCounts;
+  }, [allLoaded, allInternships, selectedType, selectedDomain, selectedState, selectedCity, selectedStipend, trimmedSearch, globalCounts]);
 
   // Fetch Filters
   useEffect(() => {
@@ -585,7 +659,7 @@ export default function Internships({
   }, [displayedInternships, isLoading, displayedError]);
 
   return (
-    <div className="relative min-h-screen bg-slate-50/50 py-8 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20 font-sans">
       {tableSchema && (
         <script
           type="application/ld+json"
@@ -593,70 +667,97 @@ export default function Internships({
         />
       )}
 
-      <div className="w-full mx-auto z-10 relative pt-20">
-        {/* Header Block */}
-        <div className="mb-8 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wider mb-3 animate-pulse">
-            <Briefcase className="w-3.5 h-3.5" />
-            Verified Internship Portal
-          </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-none mb-3">
-            Explore <span className="text-orange-600">Internships</span>
-          </h1>
-          <p className="text-slate-500 text-base max-w-2xl">
-            Find the perfect opportunity to kickstart your professional journey. Filter through hundreds of approved listings.
-          </p>
-        </div>
+      {/* ── Hero ──────────────────────────────────────────────────────────────── */}
+      <div className="relative bg-linear-to-b from-orange-100 via-orange-100 to-orange-700 overflow-hidden">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
-        {/* Filter Panel */}
-        <div className="bg-white rounded-3xl border border-orange-100/85 shadow-md shadow-orange-100/20 p-5 md:p-6 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-            {/* Search Input */}
-            <div className="relative sm:col-span-2 lg:col-span-1">
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Search Internships</label>
-              <div className="relative">
-                <Search className="w-4 h-4 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative z-10 w-full mx-auto px-4 md:px-15 py-16 text-center mt-9">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-black mb-4 tracking-tight leading-none">
+            Explore
+{" "}
+            <span className="text-orange-600">Internships</span>
+          </h1>
+          <p className="text-orange-600 text-xl max-w-2xl mx-auto mb-10">
+Find the perfect opportunity to kickstart your professional journey. Filter through hundreds of approved listings.
+
+          </p>
+
+          <div className="max-w-2xl mx-auto relative">
+            <div ref={searchBarRef} className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-2xl p-1.5 gap-2 border border-white/30">
+              <div className="flex-1 flex items-center gap-2.5 px-3 min-w-0">
+                <Search className="w-5 h-5 text-gray-400 shrink-0" />
                 <input
+                  suppressHydrationWarning={true}
                   type="text"
-                  placeholder="Try 'Bio Science', HCL, Chennai..."
+                  autoComplete="off"
                   value={searchQuery}
-                  onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                  onChange={(e) => { setSearchQuery(e.target.value); setPage(1); setShowSuggestions(true); }}
                   onFocus={() => { if (rawQuery) setShowSuggestions(true); }}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
-                  suppressHydrationWarning={true}
-                  autoComplete="off"
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 bg-slate-50/50"
+                  placeholder="Search by Title, Stream, Company, City (e.g. Bio Science, HCL, Chennai)..."
+                  className="flex-1 min-w-0 text-base text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent py-2.5"
                 />
+                {searchQuery && (
+                  <button onClick={() => { setSearchQuery(""); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-
-              {/* Suggestions Dropdown */}
-              {showSuggestions && rawQuery && (
-                <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto">
-                  {!allLoaded ? (
-                    <div className="px-4 py-3 text-xs text-slate-400 font-semibold">Loading suggestions...</div>
-                  ) : suggestions.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-slate-400 font-semibold">No matches for "{rawQuery}"</div>
-                  ) : (
-                    suggestions.map((s) => (
-                      <Link
-                        key={s.id}
-                        href={`/internships/${generateSlug(s.internship_title)}`}
-                        onClick={() => setShowSuggestions(false)}
-                        className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-slate-50 last:border-0 block no-underline"
-                      >
-                        <p className="text-xs font-bold text-slate-800 truncate">{s.internship_title}</p>
-                        <p className="text-[11px] text-slate-500 truncate">
-                          {s.company_name}
-                          {(s.domain_sector && s.domain_sector !== "-") ? ` · ${s.domain_sector}` : (s.location ? ` · ${s.location}` : "")}
-                        </p>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
+              <button
+                type="button"
+                suppressHydrationWarning={true}
+                onClick={() => setShowSuggestions(false)}
+                className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto"
+              >
+                Search
+              </button>
             </div>
 
+            {/* Suggestions Dropdown — portaled to <body> so it isn't clipped */}
+            {showSuggestions && rawQuery && dropdownRect && typeof document !== "undefined" && createPortal(
+              <div
+                style={{ position: "fixed", top: dropdownRect.top, left: dropdownRect.left, width: dropdownRect.width }}
+                className="z-100 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto text-left"
+              >
+                {!allLoaded ? (
+                  <div className="px-4 py-3 text-xs text-slate-400 font-semibold">Loading suggestions...</div>
+                ) : suggestions.length === 0 ? (
+                  <div className="px-4 py-3 text-xs text-slate-400 font-semibold">No matches for "{rawQuery}"</div>
+                ) : (
+                  suggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSearchQuery(s.internship_title);
+                        setPage(1);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-slate-50 last:border-0 block"
+                    >
+                      <p className="text-xs font-bold text-slate-800 truncate">{s.internship_title}</p>
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {s.company_name}
+                        {(s.domain_sector && s.domain_sector !== "-") ? ` · ${s.domain_sector}` : (s.location ? ` · ${s.location}` : "")}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>,
+              document.body
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full mx-auto px-4 md:px-15 py-8">
+        {/* Filter Panel */}
+        <div className="bg-white rounded-3xl border border-orange-100/85 shadow-md shadow-orange-100/20 p-5 md:p-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {/* Internship Type Filter */}
             <FilterDropdown
               label="Internship Type"
@@ -727,21 +828,29 @@ export default function Internships({
 
           <div className="flex flex-wrap items-center justify-between gap-4 mt-5 pt-4 border-t border-slate-100">
             {/* Actions */}
-            <div>
+            <div className="flex items-center gap-2">
               {(selectedType || selectedDomain || selectedState || selectedCity || selectedStipend || selectedStatus || searchQuery) && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-all cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" /> Clear Filters
                 </button>
               )}
             </div>
-            {/* <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 font-semibold">
-                {isSearchMode && allLoading && !allLoaded ? "Searching..." : `${displayedTotal} results found`}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Active: {statusCounts.active.toLocaleString()}
               </span>
-            </div> */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                Expired: {statusCounts.expired.toLocaleString()}
+              </span>
+              <span className="text-xs text-slate-400 font-semibold ml-1">
+                ({isSearchMode && allLoading && !allLoaded ? "Searching..." : `${displayedTotal.toLocaleString()} listings found`})
+              </span>
+            </div>
           </div>
         </div>
 

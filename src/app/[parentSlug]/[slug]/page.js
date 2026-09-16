@@ -3,6 +3,7 @@ import TwoSegmentResolver from "@/components/Articles/TwoSegmentResolver";
 import ArticleDetail from "@/components/Articles/ArticleDetail";
 import ArticleList from "@/components/Articles/ArticleList";
 import NotFoundPage from "@/components/NotFoundPage";
+import { INTERNAL_API_BASE_URL } from "@/utils/api";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -12,7 +13,9 @@ const toSlug = (name = "", apiSlug = "") =>
 const getRouteTypeAndData = cache(async (parentSlug, slug) => {
   try {
     // 1. Check if it's a category
-    const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
+    const filterRes = await fetch(`${INTERNAL_API_BASE_URL}/blogs/filters`, {
+      next: { revalidate: 300 },
+    });
     const filterJson = await filterRes.json();
     const d = filterJson.data || filterJson;
     const parents = d.parents || [];
@@ -27,7 +30,9 @@ const getRouteTypeAndData = cache(async (parentSlug, slug) => {
     }
 
     // 2. Otherwise check if it's an article
-    const artRes = await fetch(`https://careermitra.in/api/blogs/slug/${slug}`);
+    const artRes = await fetch(`${INTERNAL_API_BASE_URL}/blogs/slug/${slug}`, {
+      next: { revalidate: 300 },
+    });
     const artJson = await artRes.json();
     if (artJson.success) {
       return { type: "article", data: artJson.article || artJson.data || artJson };
@@ -107,7 +112,9 @@ export default async function Page({ params }) {
   if (result.type === "category") {
     let initialArticles = [];
     try {
-      const res = await fetch(`https://careermitra.in/api/blogs?child_category_id=${result.childId}`);
+      const res = await fetch(`${INTERNAL_API_BASE_URL}/blogs?child_category_id=${result.childId}&limit=100`, {
+        next: { revalidate: 300 },
+      });
       const json = await res.json();
       const d = json.data || json;
       initialArticles = d.articles || [];

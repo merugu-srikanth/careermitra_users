@@ -180,7 +180,9 @@ export default function ArticleList({ initialFilterData = null, initialArticles 
 
   const { blogs: allArticles, loading: contextLoading, error: contextError } = useBlogs();
 
-  const loading = contextLoading || filterData === null;
+  const hasLoadedContext = !contextLoading && allArticles && allArticles.length > 0;
+  const isDefaultCategoryView = !search && !searchParams.get("search");
+
   const error = contextError;
 
   /* ── Load filter options once — skipped when the server already provided them ── */
@@ -200,7 +202,15 @@ export default function ArticleList({ initialFilterData = null, initialArticles 
   const childId = filterData ? (filterData.children.find(c => toSlug(c.name, c.slug) === childSlugParam)?.id || "") : "";
 
   const articles = useMemo(() => {
-    if (contextLoading || filterData === null) return [];
+    // If context hasn't loaded yet (SSR or initial client paint) and we have initialArticles from server:
+    if (!hasLoadedContext && initialArticles && initialArticles.length > 0 && isDefaultCategoryView) {
+      return initialArticles;
+    }
+
+    if (contextLoading || filterData === null) {
+      return initialArticles && initialArticles.length > 0 ? initialArticles : [];
+    }
+
     let list = [...allArticles];
 
     if (childSlugParam) {
@@ -235,7 +245,11 @@ export default function ArticleList({ initialFilterData = null, initialArticles 
       }
     }
     return list;
-  }, [allArticles, parentSlugParam, childSlugParam, searchParams, filterData, contextLoading]);
+  }, [allArticles, parentSlugParam, childSlugParam, searchParams, filterData, contextLoading, initialArticles, hasLoadedContext, isDefaultCategoryView, search]);
+
+  const loading = (articles.length > 0 || (initialArticles && initialArticles.length > 0))
+    ? false
+    : (contextLoading || filterData === null);
 
   const total = articles.length;
 

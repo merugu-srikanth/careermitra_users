@@ -1,5 +1,7 @@
 import { cache } from "react";
 import ArticleList from "@/components/Articles/ArticleList";
+import NotFoundPage from "@/components/NotFoundPage";
+import { INTERNAL_API_BASE_URL } from "@/utils/api";
 
 const toSlug = (name = "", apiSlug = "") =>
   apiSlug || String(name).toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -8,7 +10,9 @@ const toSlug = (name = "", apiSlug = "") =>
 // the same request, and React's per-request cache collapses them into one.
 const getFilterData = cache(async () => {
   try {
-    const filterRes = await fetch("https://careermitra.in/api/blogs/filters");
+    const filterRes = await fetch(`${INTERNAL_API_BASE_URL}/blogs/filters`, {
+      next: { revalidate: 300 },
+    });
     const filterJson = await filterRes.json();
     const d = filterJson.data || filterJson;
     return { parents: d.parents || [], children: d.children || [] };
@@ -23,6 +27,15 @@ export async function generateMetadata({ params }) {
   if (!parentSlug || parentSlug.includes(".")) {
     return {
       title: "Career Mitra",
+    };
+  }
+  if (parentSlug === "articles") {
+    return {
+      title: "All Government Jobs & Career Articles - Career Mitra",
+      description: "Explore all latest government job notifications, career guidance, exam preparation guides, and updates on Career Mitra.",
+      alternates: {
+        canonical: "https://careermitra.in/articles",
+      },
     };
   }
   const { parents } = await getFilterData();
@@ -51,12 +64,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
-import NotFoundPage from "@/components/NotFoundPage";
-
-async function getArticlesForParent(parentId) {
-  if (!parentId) return [];
+async function getArticlesForParent(parentId, parentSlug) {
   try {
-    const res = await fetch(`https://careermitra.in/api/blogs?parent_category_id=${parentId}`);
+    const url = parentId
+      ? `${INTERNAL_API_BASE_URL}/blogs?parent_category_id=${parentId}&limit=100`
+      : (parentSlug === "articles" ? `${INTERNAL_API_BASE_URL}/blogs?page=1&limit=40` : null);
+    if (!url) return [];
+    const res = await fetch(url, {
+      next: { revalidate: 300 },
+    });
     const json = await res.json();
     const d = json.data || json;
     return d.articles || [];
@@ -73,7 +89,10 @@ export default async function Page({ params }) {
   }
   const initialFilterData = await getFilterData();
   const parent = initialFilterData.parents.find(p => toSlug(p.name, p.slug) === parentSlug);
-  const initialArticles = await getArticlesForParent(parent?.id);
+  if (parentSlug !== "articles" && !parent && initialFilterData.parents.length > 0) {
+    return <NotFoundPage />;
+  }
+  const initialArticles = await getArticlesForParent(parent?.id, parentSlug);
   return (
     <ArticleList
       key={parentSlug}

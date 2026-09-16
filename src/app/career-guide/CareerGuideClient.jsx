@@ -131,12 +131,6 @@ const Ring = ({ size, x, y, delay, opacity = 0.12 }) => (
 
 /* ─── Category Card ──────────────────────────────────────────────────────── */
 function CategoryCard({ cat, index }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-
-
   const WHATSAPP_NUMBER = "917794045533";
 
   const message = encodeURIComponent(
@@ -145,32 +139,8 @@ function CategoryCard({ cat, index }) {
 
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
-
-
-
-
-  useEffect(() => {
-    setMounted(true);
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.12 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="relative group"
-      style={mounted ? {
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(40px)",
-        transition: `opacity 0.65s ease ${(index % 4) * 0.08}s, transform 0.65s ease ${(index % 4) * 0.08}s`,
-      } : undefined}
-    >
+    <div className="relative group">
       <div
         className="relative bg-white rounded-3xl overflow-hidden h-full flex flex-col"
         style={{

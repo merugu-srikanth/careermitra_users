@@ -429,9 +429,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   // succeeded; a failed server fetch (hasServerData === false) leaves this
   // false so the normal client fetch runs and can recover.
   const skipInitialFetchRef = useRef(hasServerData);
-  const [viewMode, setViewMode] = useState(() => (
-    typeof window !== "undefined" && window.innerWidth < 768 ? "grid" : "table"
-  )); // "grid" or "table"
+  const [viewMode, setViewMode] = useState("auto"); // "auto" | "grid" | "table"
 
   // Full dataset cache used for smart client-side search (backend `search`
   // param only does a single-string substring match, so multi-word queries
@@ -630,8 +628,67 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     };
   }, [showSuggestions, trimmedSearch]);
 
-  const displayedJobs = isSearchMode ? searchMatches.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE) : jobs;
-  const displayedTotalItems = isSearchMode ? searchMatches.length : totalItems;
+  const [statusFilter, setStatusFilter] = useState("all"); // "all" | "active" | "expired"
+
+  // Dynamic Active & Expired Counts from currently loaded jobs or full dataset
+  const { activeCount, expiredCount, totalCount } = useMemo(() => {
+    const list = (allLoaded && allJobs.length > 0)
+      ? allJobs
+      : (jobs && jobs.length > 0 ? jobs : []);
+
+    let active = 0;
+    let expired = 0;
+    for (const job of list) {
+      if (isDeadlineExpired(job.lastDate)) {
+        expired++;
+      } else {
+        active++;
+      }
+    }
+
+    if (!allLoaded && totalItems > 0 && list.length > 0) {
+      const activeRatio = active / list.length;
+      active = Math.round(totalItems * activeRatio);
+      expired = totalItems - active;
+    }
+
+    return {
+      activeCount: active,
+      expiredCount: expired,
+      totalCount: totalItems || list.length,
+    };
+  }, [allLoaded, allJobs, jobs, totalItems]);
+
+  const filteredJobsList = useMemo(() => {
+    let list = isSearchMode ? searchMatches : (allLoaded && allJobs.length > 0 ? allJobs : jobs);
+
+    if (!isSearchMode && selectedCategory) {
+      list = list.filter((job) => job.categoryId === selectedCategory);
+    }
+
+    if (statusFilter === "active") {
+      list = list.filter((job) => !isDeadlineExpired(job.lastDate));
+    } else if (statusFilter === "expired") {
+      list = list.filter((job) => isDeadlineExpired(job.lastDate));
+    }
+
+    if (!isSearchMode && allLoaded && allJobs.length > 0) {
+      if (sortBy === "deadline") {
+        list = [...list].sort((a, b) => new Date(a.lastDate || 0) - new Date(b.lastDate || 0));
+      } else {
+        list = [...list].sort((a, b) => new Date(b.createdAt || b.postedDate || 0) - new Date(a.createdAt || a.postedDate || 0));
+      }
+    }
+
+    return list;
+  }, [isSearchMode, searchMatches, allLoaded, allJobs, jobs, selectedCategory, statusFilter, sortBy]);
+
+  const displayedJobs = (allLoaded && allJobs.length > 0) || isSearchMode || statusFilter !== "all" || selectedCategory
+    ? filteredJobsList.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+    : jobs;
+  const displayedTotalItems = (allLoaded && allJobs.length > 0) || isSearchMode || statusFilter !== "all" || selectedCategory
+    ? filteredJobsList.length
+    : totalItems;
   const displayedTotalPages = Math.max(1, Math.ceil(displayedTotalItems / ITEMS_PER_PAGE));
   const displayedLoading = isSearchMode ? allLoading && !allLoaded : loading;
   const displayedError = isSearchMode ? searchError : error;
@@ -644,6 +701,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const clearFilters = () => {
     setSearch("");
     setSelectedCategory("");
+    setStatusFilter("all");
     setSortBy("newest");
     setJobType("jobs");
     setPage(1);
@@ -807,28 +865,6 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
 
       <div className="w-full mx-auto px-4 md:px-15 py-8">
 
-        {/* ── Job Type Tabs ───────────────────────────────────────────────────── */}
-        {/* <div className="flex flex-wrap gap-2 mb-4">
-          {JOB_TYPE_TABS.map((tab) => (
-            <button
-              suppressHydrationWarning={true}
-              key={tab.key}
-              onClick={() => {
-                setJobType(tab.key);
-                setSelectedCategory("");
-                setPage(1);
-              }}
-              className={`text-sm font-bold px-4 py-2 rounded-xl border transition-all duration-200
-                ${jobType === tab.key
-                  ? "bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-200"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500"
-                }`}
-            >
-              {tab.label} ({tabCounts[tab.key] ?? 0})
-            </button>
-          ))}
-        </div> */}
-
         {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
@@ -842,7 +878,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               </>
             )}
           </p>
- 
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             {/* View Toggle */}
             <div className="hidden sm:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
@@ -855,7 +891,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               </button>
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "table" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
+                className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "table" || viewMode === "auto" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
                 title="Table View"
               >
                 <TableIcon />
@@ -895,41 +931,32 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-
-            {/* Sort */}
-            {/* <select
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-              className="text-base border border-gray-200 bg-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600 font-medium cursor-pointer"
-            >
-              <option value="newest">Latest Posted</option>
-              <option value="oldest">Oldest Posted</option>
-              <option value="deadline">Closing Soonest</option>
-            </select> */}
-
-
-            {/* Clear */}
-            {/* {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-3 py-2 rounded-xl transition-all duration-200"
-              >
-                <XIcon /> Clear All
-              </button>
-            )} */}
           </div>
         </div>
 
         {/* ── Job Display (Grid or Table) ───────────────────────────────────────── */}
         {displayedLoading ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {[...Array(6)].map((_, i) => (
                 <JobCardSkeleton key={i} />
               ))}
             </div>
-          ) : (
+          ) : viewMode === "table" ? (
             <JobTableSkeleton />
+          ) : (
+            <>
+              <div className="block md:hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {[...Array(6)].map((_, i) => (
+                    <JobCardSkeleton key={i} />
+                  ))}
+                </div>
+              </div>
+              <div className="hidden md:block">
+                <JobTableSkeleton />
+              </div>
+            </>
           )
         ) : displayedError ? (
           <div className="flex flex-col items-center justify-center py-28 text-center">
@@ -969,7 +996,6 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 org={job.org}
                 lastDate={job.lastDate}
                 postedDate={job.postedDate}
-                // location={job.location}
                 applyLink={job.applyLink}
                 notificationUrl={job.notificationUrl}
                 noOfPosts={job.noOfPosts}
@@ -979,8 +1005,33 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               />
             ))}
           </div>
-        ) : (
+        ) : viewMode === "table" ? (
           <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
+        ) : (
+          <>
+            <div className="block md:hidden">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {displayedJobs.map((job) => (
+                  <AllJobCard
+                    key={job.id}
+                    title={job.title}
+                    org={job.org}
+                    lastDate={job.lastDate}
+                    postedDate={job.postedDate}
+                    applyLink={job.applyLink}
+                    notificationUrl={job.notificationUrl}
+                    noOfPosts={job.noOfPosts}
+                    age={job.age}
+                    qualifications={job.qualifications}
+                    category={job.category}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
+            </div>
+          </>
         )}
 
         {/* ── Pagination ───────────────────────────────────────────────────────── */}

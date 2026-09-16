@@ -1,11 +1,14 @@
 import { cache } from "react";
 import ArticleDetail from "@/components/Articles/ArticleDetail";
+import { INTERNAL_API_BASE_URL } from "@/utils/api";
 
 // cache() dedupes this fetch — generateMetadata and Page both call it for
 // the same request, and React's per-request cache collapses them into one.
 const getArticle = cache(async (articleSlug) => {
   try {
-    const res = await fetch(`https://careermitra.in/api/blogs/slug/${articleSlug}`);
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/blogs/slug/${articleSlug}`, {
+      next: { revalidate: 300 },
+    });
     const data = await res.json();
     if (data.success) {
       return data.article || data.data || data;
