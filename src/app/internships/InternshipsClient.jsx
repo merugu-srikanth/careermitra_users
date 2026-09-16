@@ -737,11 +737,11 @@ export default function Internships({
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400 font-semibold">
                 {isSearchMode && allLoading && !allLoaded ? "Searching..." : `${displayedTotal} results found`}
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
 
