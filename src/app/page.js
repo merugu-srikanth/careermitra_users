@@ -50,7 +50,6 @@ const mapUnifiedJob = (j) => {
   const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
 
   return {
-    raw: j,
     id: pickFirst(j, ["_id", "id"]),
     jobSourceId: pickFirst(j, ["job_source_id", "jobSourceId"]),
     sourceName: pickFirst(j, ["source_name", "sourceName", "jobSource"]),
@@ -85,7 +84,19 @@ const slugify = (value = "") =>
     .replace(/-+/g, "-");
 
 const normalizeBlog = (blog) => ({
-  ...blog,
+  _id: blog._id || blog.id || "",
+  id: blog.id || blog._id || "",
+  title: blog.title || "",
+  slug: blog.slug || "",
+  short_description: blog.short_description || "",
+  featured_image: blog.featured_image || null,
+  image_alt_text: blog.image_alt_text || blog.title || "",
+  published_at: blog.published_at || blog.created_at || blog.publishedAt || null,
+  created_at: blog.created_at || null,
+  categoryTree: blog.categoryTree || [],
+  categories: blog.categories || [],
+  category: blog.category || null,
+  read_time: blog.read_time || blog.readTime || null,
   primaryCategory: blog?.categories?.[0]?.name || blog?.category || "General",
   authorDisplayName: blog?.author?.author_name || blog?.author_name || "Career Mitra",
   authorId: blog?.author?._id || blog?.author_id || blog?.authorId || "",
