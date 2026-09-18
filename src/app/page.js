@@ -132,51 +132,6 @@ async function getInitialAnnouncements() {
   }
 }
 
-async function getInitialInternships() {
-  try {
-    const res = await fetch(`${INTERNAL_API_BASE_URL}/internships?page=1&limit=10&sort=newest`, {
-      next: { revalidate: 300 },
-    });
-    const json = await res.json();
-    if (json.success && json.data) {
-      return {
-        internships: json.data.internships || [],
-        total: json.data.pagination?.total || 0,
-      };
-    }
-    return { internships: [], total: 0 };
-  } catch (err) {
-    console.error("getInitialInternships error:", err);
-    return { internships: [], total: 0 };
-  }
-}
-
-async function getInitialSkillups() {
-  try {
-    const res = await fetch(`${INTERNAL_API_BASE_URL}/jobs/skillup?page=1&limit=10`, { next: { revalidate: 300 } });
-    const json = await res.json();
-    if (json.success && json.data?.jobs) {
-      return json.data.jobs.map((j) => ({
-        id: j._id || j.id,
-        title: j.title,
-        org: j.source_name || j.sourceName || j.org || "N/A",
-        qualifications: j.qualifications || "N/A",
-        applyLink: j.apply_link || j.applyLink || null,
-        notificationUrl: j.notification_url || j.notificationUrl || null,
-        postedDate: j.posted_date || j.postedDate || null,
-        deadline: j.application_deadline || j.lastDate || null,
-        age: j.age || "N/A",
-        posts: j.no_of_posts ?? j.noOfPosts ?? "N/A",
-        type: "skillups",
-      }));
-    }
-    return [];
-  } catch (err) {
-    console.error("getInitialSkillups error:", err);
-    return [];
-  }
-}
-
 const SECTIONS = [
   { name: "Career Guidance", slug: "career-guidance" },
   { name: "Central Government Jobs", slug: "central-government-jobs" },
@@ -219,11 +174,9 @@ export default async function Home() {
     generateWebsiteSchema(),
   ];
 
-  const [initialJobs, initialAnnouncements, initialInternshipsData, initialSkillups, initialBlogSections] = await Promise.all([
+  const [initialJobs, initialAnnouncements, initialBlogSections] = await Promise.all([
     getInitialJobs(),
     getInitialAnnouncements(),
-    getInitialInternships(),
-    getInitialSkillups(),
     getInitialBlogs(),
   ]);
 
@@ -239,9 +192,6 @@ export default async function Home() {
       <HomeClient
         initialJobs={initialJobs}
         initialAnnouncements={initialAnnouncements}
-        initialInternships={initialInternshipsData.internships}
-        initialInternshipsTotal={initialInternshipsData.total}
-        initialSkillups={initialSkillups}
         initialBlogSections={initialBlogSections}
       />
     </>

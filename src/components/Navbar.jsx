@@ -13,7 +13,7 @@ import {
   FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
   FaUser, FaEnvelope, FaBell, FaCalendarAlt,
-  FaBriefcase, FaGraduationCap, FaSearch
+  FaBriefcase, FaGraduationCap, FaSearch, FaBookOpen, FaCompass
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
@@ -32,7 +32,7 @@ const catSlugify = (s = '') =>
 const socials = [
   { Icon: FaLinkedin, href: "#", color: "hover:text-blue-600", label: "LinkedIn" },
   { Icon: FaTwitter, href: "#", color: "hover:text-sky-500", label: "Twitter" },
-  { Icon: FaWhatsapp, href: "#", color: "hover:text-green-500", label: "WhatsApp" },
+  { Icon: FaWhatsapp, href: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37", color: "hover:text-green-500", label: "WhatsApp Channel" },
   { Icon: FaInstagram, href: "#", color: "hover:text-pink-500", label: "Instagram" },
   { Icon: FaFacebook, href: "#", color: "hover:text-blue-700", label: "Facebook" },
 ];
@@ -41,30 +41,23 @@ const socials = [
 const navLinks = [
   { name: "Home", path: "/", Icon: FaHome },
   { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
-  { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
+  // { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
-  { name: "Internships", path: "/internships", Icon: FaGraduationCap },
-  // {
-  //   name: "Career",
-  //   Icon: FaGraduationCap,
-  //   dropdown: [
-  //     { name: "Career Overview", path: "/career-guide" },
-  //     { name: "Internship FAQ's", path: "/internship-guide" },
-  //     { name: "Internship Opportunities", path: "/internships" },
-  //   ],
-  // },
-  { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
-  { name: "Events", path: "/events", Icon: FaCalendarAlt },
-  { name: "Contact Us", path: "/contact-us", Icon: FaPhoneAlt },
+  { name: "Internships / SkillUps", path: "/internships", Icon: FaGraduationCap },
+  // { name: "PG Entrance", path: "/pg-entrance" },
 
-  // {
-  //   name: "INSTAGRAM",
-  //   path: "/coming-soon",
-  //   Icon: FaInstagram,
-  //   iconOnly: true,
-  //   iconBg: "bg-gradient-to-br from-pink-700 via-red-500 to-pink-400 text-white",
-  //   title: "Instagram",
-  // },
+  { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
+
+  {
+    name: "Explore",
+    Icon: FaCompass,
+    dropdown: [
+      { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
+
+      { name: "Events", path: "/events" },
+      { name: "Contact Us", path: "/contact-us" },
+    ],
+  },
 ];
 
 /* ─── AVATAR ───────────────────────────────────────────────────────────────── */
@@ -99,7 +92,7 @@ const normalizeProfilePayload = (payload) => {
 };
 
 /* ─── MAIN NAVBAR ──────────────────────────────────────────────────────────── */
-export default function Navbar() {
+export default function Navbar({ initialCategories = null }) {
   const { user, token, logout } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [mounted, setMounted] = useState(false);
@@ -116,7 +109,23 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [blogCategories, setBlogCategories] = useState([]);
+  const [blogCategories, setBlogCategories] = useState(() => {
+    if (!initialCategories) return [];
+    const rawParents = initialCategories.parents || [];
+    const rawChildren = initialCategories.children || [];
+    return rawParents
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        slug: catSlugify(p.name),
+        parentId: null,
+        children: rawChildren
+          .filter(c => c.parent_id === p.id)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(c => ({ id: c.id, name: c.name, slug: catSlugify(c.name), parentId: p.id })),
+      }));
+  });
   const [hoveredParentId, setHoveredParentId] = useState(null);
   const [openMobileParent, setOpenMobileParent] = useState(null);
   const [isPWA, setIsPWA] = useState(false);
@@ -168,8 +177,11 @@ export default function Navbar() {
     };
   }, []);
 
-  /* fetch categories from /api/blogs/filters */
+  /* fetch categories from /api/blogs/filters if not provided */
   useEffect(() => {
+    if (initialCategories && (initialCategories.parents?.length > 0 || initialCategories.children?.length > 0)) {
+      return;
+    }
     fetch("https://careermitra.in/api/blogs/filters")
       .then(r => r.json())
       .then(data => {
@@ -190,8 +202,8 @@ export default function Navbar() {
           }));
         setBlogCategories(cats);
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => { });
+  }, [initialCategories]);
 
   /* detect PWA standalone mode */
   useEffect(() => {
@@ -378,22 +390,33 @@ export default function Navbar() {
                 />
               </Link>
             </div>
-            <div className="flex-none flex items-center gap-2">
+            <div className="flex-none flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => setSearchOpen(true)}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
+                className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-50 text-orange-500 hover:bg-orange-100 transition-colors duration-200"
                 aria-label="Search"
               >
-                <FaSearch size={16} />
+                <FaSearch size={15} />
               </button>
+              <a
+                href="https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Careermitra WhatsApp Channel"
+                className="inline-flex items-center justify-center rounded-xl border border-green-500/30 bg-green-500/10 p-2 text-green-600 transition-all duration-200 hover:border-green-500 hover:bg-green-500/20"
+                title="WhatsApp Channel"
+              >
+                <FaWhatsapp size={19} className="text-green-600" />
+              </a>
               <a
                 href="https://www.youtube.com/@CareerMitraaa"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
-                className="inline-flex items-center justify-center rounded-2xl border border-red-500/40 bg-red-600/10 p-2 text-red-400 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
+                className="inline-flex items-center justify-center rounded-xl border border-red-500/30 bg-red-600/10 p-2 text-red-500 transition-all duration-200 hover:border-red-500 hover:bg-red-600/20"
+                title="YouTube Channel"
               >
-                <FaYoutube size={24} className="text-red-500" />
+                <FaYoutube size={19} className="text-red-500" />
               </a>
             </div>
           </div>
@@ -409,9 +432,8 @@ export default function Navbar() {
               />
             </Link>
 
-          {/* DESKTOP LINKS */}
-          <div className="hidden lg:flex items-center gap-1">
-            <div className="hidden lg:flex items-center gap-1">
+            {/* DESKTOP LINKS */}
+            <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
               {visibleNavLinks.map((link) => {
                 // 🔹 NORMAL LINK
                 if (!link.dropdown && !link.blogsDropdown) {
@@ -422,18 +444,18 @@ export default function Navbar() {
                       key={link.name}
                       href={link.path}
                       title={link.title || link.name}
-                      className={`group flex items-center justify-center transition-all duration-200 ${isIconOnly ? "w-12 h-12" : "px-4 py-2"} ${
-                        active
-                          ? "text-orange-600 font-bold"
-                          : "text-slate-700 hover:text-orange-600"
-                      }`}
+                      className={`group flex items-center justify-center transition-all duration-200 whitespace-nowrap rounded-xl ${isIconOnly ? "w-10 h-10" : "px-3 py-1.5"
+                        } ${active
+                          ? "text-orange-600 font-semibold bg-orange-50/70"
+                          : "text-slate-700 hover:text-orange-600 hover:bg-orange-50/50 font-medium"
+                        }`}
                     >
                       {isIconOnly ? (
-                        <span className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${link.iconBg || "bg-slate-100 text-slate-800"}`}>
-                          {link.Icon && <link.Icon size={28} />}
+                        <span className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${link.iconBg || "bg-slate-100 text-slate-800"}`}>
+                          {link.Icon && <link.Icon size={24} />}
                         </span>
                       ) : (
-                        <span className="text-sm font-semibold">{link.name}</span>
+                        <span className="text-sm">{link.name}</span>
                       )}
                     </Link>
                   );
@@ -452,14 +474,13 @@ export default function Navbar() {
                     >
                       <Link
                         href={link.path || "/government-jobs"}
-                        className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 ${
-                          isActive(link.path || "/government-jobs")
-                            ? "text-orange-600 font-bold"
+                        className={`flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-xl transition-colors duration-200 whitespace-nowrap ${isActive(link.path || "/government-jobs")
+                            ? "text-orange-600 font-semibold bg-orange-50/70"
                             : "text-slate-700 hover:text-orange-600 hover:bg-orange-50/50"
-                        }`}
+                          }`}
                       >
-                        {link.name}
-                        <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
+                        <span>{link.name}</span>
+                        <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180 text-orange-500" : "text-slate-400"}`} size={11} />
                       </Link>
 
                       <AnimatePresence>
@@ -475,10 +496,10 @@ export default function Navbar() {
                             {/* All Government Jobs */}
                             <Link
                               href="/government-jobs"
-                              className="flex items-center gap-2 px-5 py-3 text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition border-b border-orange-100"
+                              className="flex items-center gap-2 px-5 py-3 text-sm font-semibold text-orange-500 bg-orange-50 hover:bg-orange-100 transition border-b border-orange-100"
                               onClick={() => setOpenDropdown(null)}
                             >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 13, height: 13 }}><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 13, height: 13 }}><path d="M4 6h16M4 12h16M4 18h16" /></svg>
                               All Government Jobs
                             </Link>
 
@@ -494,7 +515,7 @@ export default function Navbar() {
                                     >
                                       <Link
                                         href={`/${parent.slug}`}
-                                        className={`flex-1 text-sm font-semibold truncate ${activeParent?.id === parent.id ? "text-orange-600" : "text-slate-700"}`}
+                                        className={`flex-1 text-sm font-medium truncate ${activeParent?.id === parent.id ? "text-orange-600 font-semibold" : "text-slate-700"}`}
                                         onClick={() => setOpenDropdown(null)}
                                       >
                                         {parent.name}
@@ -513,13 +534,13 @@ export default function Navbar() {
                                   {activeParent ? (
                                     activeParent.children?.length > 0 ? (
                                       <>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 px-2 mb-2">{activeParent.name}</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 px-2 mb-2">{activeParent.name}</p>
                                         <div className="grid grid-cols-2 gap-1">
                                           {activeParent.children.map(child => (
                                             <Link
                                               key={child.id}
                                               href={`/${activeParent.slug}/${child.slug}`}
-                                              className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
+                                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all"
                                               onClick={() => setOpenDropdown(null)}
                                             >
                                               <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
@@ -538,7 +559,7 @@ export default function Navbar() {
                                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: 32, height: 32, opacity: 0.35 }}>
                                         <polyline points="9 18 15 12 9 6" />
                                       </svg>
-                                      <p className="text-xs text-center">Hover a category<br/>to see subcategories</p>
+                                      <p className="text-xs text-center font-medium">Hover a category<br />to see subcategories</p>
                                     </div>
                                   )}
                                 </div>
@@ -566,7 +587,8 @@ export default function Navbar() {
                   );
                 }
 
-                // 🔹 REGULAR DROPDOWN (e.g. CAREER)
+                // 🔹 REGULAR DROPDOWN (e.g. EXPLORE)
+                const isDropdownActive = link.dropdown?.some(item => isActive(item.path));
                 return (
                   <div
                     key={link.name}
@@ -574,9 +596,12 @@ export default function Navbar() {
                     onMouseEnter={() => setOpenDropdown(link.name)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <button className="flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 text-slate-700 hover:text-orange-600 hover:bg-orange-50/50">
-                      {link.name}
-                      <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180" : ""}`} size={12} />
+                    <button className={`flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-xl transition-colors duration-200 cursor-pointer whitespace-nowrap ${isDropdownActive
+                        ? "text-orange-600 font-semibold bg-orange-50/70"
+                        : "text-slate-700 hover:text-orange-600 hover:bg-orange-50/50"
+                      }`}>
+                      <span>{link.name}</span>
+                      <FaChevronDown className={`transition-transform duration-200 ${openDropdown === link.name ? "rotate-180 text-orange-500" : "text-slate-400"}`} size={11} />
                     </button>
 
                     <AnimatePresence>
@@ -586,19 +611,27 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute left-0 top-10 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50"
+                          className="absolute left-0 top-10 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
                         >
-                          <div className="max-h-100 overflow-y-auto">
-                            {link.dropdown.map((item) => (
-                              <Link
-                                key={item.name}
-                                href={item.path}
-                                state={item.state}
-                                className="block px-5 py-3 text-sm font-medium text-slate-800 hover:bg-orange-50 hover:text-orange-600 transition"
-                              >
-                                {item.name}
-                              </Link>
-                            ))}
+                          <div className="space-y-0.5">
+                            {link.dropdown.map((item) => {
+                              const active = isActive(item.path);
+                              return (
+                                <Link
+                                  key={item.name}
+                                  href={item.path}
+                                  state={item.state}
+                                  onClick={() => setOpenDropdown(null)}
+                                  className={`flex items-center gap-2.5 px-3.5 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${active
+                                      ? "bg-orange-50 text-orange-600 font-semibold"
+                                      : "text-slate-700 hover:bg-orange-50/70 hover:text-orange-600"
+                                    }`}
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-orange-500" : "bg-orange-300"} shrink-0`} />
+                                  {item.name}
+                                </Link>
+                              );
+                            })}
                           </div>
                         </motion.div>
                       )}
@@ -607,32 +640,73 @@ export default function Navbar() {
                 );
               })}
             </div>
+
             {/* DESKTOP RIGHT */}
-            {/* DESKTOP RIGHT */}
-            <div className="hidden lg:flex items-center">
+            <div className="hidden lg:flex items-center shrink-0">
               <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-1.5 flex items-center gap-3.5 shadow-2xs">
                 {/* Global Search */}
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className="w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
-                  title="Search"
-                  aria-label="Search"
-                >
-                  <FaSearch size={15} />
-                </button>
+                <div className="relative group flex items-center justify-center">
+                  <button
+                    onClick={() => setSearchOpen(true)}
+                    className="w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 transition-all duration-200 flex items-center justify-center shadow-3xs cursor-pointer"
+                    aria-label="Search"
+                  >
+                    <FaSearch size={15} />
+                  </button>
+                  {/* Tooltip with Arrow */}
+                  <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2.5 z-50 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200 ease-out flex flex-col items-center">
+                    <div className="w-2 h-2 bg-slate-900 rotate-45 -mb-1 shadow-xs border-t border-l border-slate-700/50" />
+                    <div className="bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl flex items-center gap-1.5 border border-slate-700/50">
+                      <span>Search</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-px h-5 bg-slate-200/60" />
+
+                {/* WhatsApp Channel Link */}
+                <div className="relative group flex items-center justify-center">
+                  <a
+                    href="https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-xl bg-green-50 hover:bg-green-100 text-green-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
+                    aria-label="WhatsApp Channel"
+                  >
+                    <FaWhatsapp size={17} />
+                  </a>
+                  {/* Tooltip with Arrow */}
+                  <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2.5 z-50 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200 ease-out flex flex-col items-center">
+                    <div className="w-2 h-2 bg-slate-900 rotate-45 -mb-1 shadow-xs border-t border-l border-slate-700/50" />
+                    <div className="bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl flex items-center gap-1.5 border border-slate-700/50">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                      <span>WhatsApp Channel</span>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="w-px h-5 bg-slate-200/60" />
 
                 {/* YouTube Link */}
-                <a
-                  href="https://www.youtube.com/@CareerMitraaa"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
-                  title="YouTube Channel"
-                >
-                  <FaYoutube size={17} />
-                </a>
+                <div className="relative group flex items-center justify-center">
+                  <a
+                    href="https://www.youtube.com/@CareerMitraaa"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
+                    aria-label="YouTube Channel"
+                  >
+                    <FaYoutube size={17} />
+                  </a>
+                  {/* Tooltip with Arrow */}
+                  <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2.5 z-50 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200 ease-out flex flex-col items-center">
+                    <div className="w-2 h-2 bg-slate-900 rotate-45 -mb-1 shadow-xs border-t border-l border-slate-700/50" />
+                    <div className="bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg whitespace-nowrap shadow-xl flex items-center gap-1.5 border border-slate-700/50">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                      <span>YouTube Channel</span>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="w-px h-5 bg-slate-200/60" />
 
@@ -653,13 +727,13 @@ export default function Navbar() {
                         <div className="relative">
                           <AvatarSVG size={28} />
                           {jobsBellCount.activeCount > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-green-600 text-white text-[9px] font-black flex items-center justify-center leading-none shadow-xs">
+                            <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-green-600 text-white text-[9px] font-bold flex items-center justify-center leading-none shadow-xs">
                               {jobsBellCount.activeCount}
                             </span>
                           )}
                         </div>
                         <div className="flex flex-col items-start text-left min-w-0">
-                          {/* <span className="text-xs font-black text-slate-700 leading-tight truncate max-w-20">{displayName}</span> */}
+                          {/* <span className="text-xs font-bold text-slate-700 leading-tight truncate max-w-20">{displayName}</span> */}
                           {/* <span className="text-[9px] text-slate-400 font-bold leading-none mt-0.5">Profile: {profileCompletion}%</span> */}
                         </div>
                         <motion.span animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="text-slate-400">
@@ -667,105 +741,96 @@ export default function Navbar() {
                         </motion.span>
                       </button>
 
-                    <AnimatePresence>
-                      {profileOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden z-50"
-                        >
-                        {/* profile header */}
-                        <div className="bg-linear-to-br from-orange-500 to-orange-600 p-4">
-                          <div className="flex items-center gap-3">
-                            <AvatarSVG size={52} />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-white font-black text-base truncate">{displayName}</p>
-                              <p className="text-orange-100 text-xs truncate">{displayEmail}</p>
+                      <AnimatePresence>
+                        {profileOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute right-0 top-12 w-72 bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden z-50"
+                          >
+                            {/* profile header */}
+                            <div className="bg-linear-to-br from-orange-500 to-orange-600 p-4">
+                              <div className="flex items-center gap-3">
+                                <AvatarSVG size={52} />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-white font-bold text-base truncate">{displayName}</p>
+                                  <p className="text-orange-100 text-xs truncate">{displayEmail}</p>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <div className="p-3 space-y-2">
-                          <div className={`rounded-2xl p-3 ${profileIncomplete ? "bg-amber-50 border border-amber-200" : "bg-green-50 border border-green-200"}`}>
-                            <div className="flex items-center justify-between mb-2">
-                              <p className="text-xs font-bold text-gray-700">Profile Completion</p>
-                              <span  className={`text-xs font-black  ${profileIncomplete ? "text-amber-600" : "text-green-600"}`}>
-                                {profileCompletion}% 
-                              </span>
-                            </div>
-                            <div className="h-2 rounded-full bg-white/90 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-700 ${profileIncomplete ? "bg-amber-500" : "bg-green-500"}`}
-                                style={{ width: `${profileCompletion}%` }}
-                              />
-                            </div>
-                            <p className="text-[11px] text-gray-500 mt-2">
-                              {profileCompletion < 100
-                                ? "Add education to unlock job matches"
-                                : "Profile fully complete ✓"}
-                            </p>
-                            {profileIncomplete && (
+                            <div className="p-3 space-y-2">
+                              <div className={`rounded-2xl p-3 ${profileIncomplete ? "bg-amber-50 border border-amber-200" : "bg-green-50 border border-green-200"}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <p className="text-xs font-semibold text-gray-700">Profile Completion</p>
+                                  <span className={`text-xs font-bold  ${profileIncomplete ? "text-amber-600" : "text-green-600"}`}>
+                                    {profileCompletion}%
+                                  </span>
+                                </div>
+                                <div className="h-2 rounded-full bg-white/90 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-700 ${profileIncomplete ? "bg-amber-500" : "bg-green-500"}`}
+                                    style={{ width: `${profileCompletion}%` }}
+                                  />
+                                </div>
+                                <p className="text-[11px] text-gray-500 mt-2 font-medium">
+                                  {profileCompletion < 100
+                                    ? "Add education to unlock job matches"
+                                    : "Profile fully complete ✓"}
+                                </p>
+                                {profileIncomplete && (
+                                  <button
+                                    onClick={() => {
+                                      navigate("/user-profile-filling");
+                                      setProfileOpen(false);
+                                    }}
+                                    className="mt-3 w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
+                                  >
+                                    Complete Profile
+                                  </button>
+                                )}
+                              </div>
+
+
                               <button
-                                onClick={() => {
-                                  navigate("/user-profile-filling");
-                                  setProfileOpen(false);
-                                }}
-                                className="mt-3 w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
+                                onClick={() => { navigate("/user-dashboard"); setProfileOpen(false); }}
+                                className="w-full flex items-center gap-3 bg-orange-50 hover:bg-orange-100 text-orange-700 py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
                               >
-                                Complete Profile
+                                <FaTachometerAlt size={14} /> Dashboard
                               </button>
-                            )}
-                          </div>
-                          
+                              <button
+                                onClick={() => { logout(navigate); setProfileOpen(false); }}
+                                className="w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
+                              >
+                                <FaSignOutAlt size={14} /> Logout
+                              </button>
+                            </div>
 
-                          <button
-                            onClick={() => { navigate("/user-dashboard"); setProfileOpen(false); }}
-                            className="w-full flex items-center gap-3 bg-orange-50 hover:bg-orange-100 text-orange-700 py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
-                          >
-                            <FaTachometerAlt size={14} /> Dashboard
-                          </button>
-                          <button
-                            onClick={() => { logout(navigate); setProfileOpen(false); }}
-                            className="w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors duration-200"
-                          >
-                            <FaSignOutAlt size={14} /> Logout
-                          </button>
-                        </div>
-
-                        {/* social strip */}
-                        {/* <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-center gap-4">
+                            {/* social strip */}
+                            {/* <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-center gap-4">
                           {socials.map(({ Icon, href, label, color }) => (
                             <a key={label} href={href} aria-label={label} className={`text-gray-400 ${color} transition-colors duration-200`}>
                               <Icon size={15} />
                             </a>
                           ))}
                         </div> */}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-xs shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
-                >
-                  <FaSignInAlt size={11} />Student Login
-                </Link>
-              )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3.5 py-1.5 rounded-xl font-semibold text-xs shadow-xs shadow-orange-200 hover:shadow-md hover:shadow-orange-200 transition-all duration-200"
+                  >
+                    <FaSignInAlt size={11} />Login
+                  </Link>
+                )}
               </div>
             </div>
-             {/* <Link
-                  href="/login"
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-full font-semibold text-sm shadow-sm shadow-green-200 hover:shadow-md hover:shadow-green-200 transition-all duration-200"
-                >
-                  <FaSignInAlt size={13} /> Vender Login
-                </Link> */}
-          </div>
-
-
           </div>
         </div>
 
@@ -830,19 +895,19 @@ export default function Navbar() {
                       <div className="grid grid-cols-2 gap-3 px-1">
                         <button
                           onClick={() => { navigate("/user-dashboard"); setDrawerOpen(false); }}
-                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-semibold text-xs bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-medium text-xs bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-100 transition-all"
                         >
                           <FaTachometerAlt size={12} />
                           Dashboard
                         </button>
                         <button
                           onClick={() => { goToJobPostsTab(); setDrawerOpen(false); }}
-                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-semibold text-xs bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-medium text-xs bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-all"
                         >
                           <FaBell size={12} />
                           <span>Jobs ({jobsBellCount.totalCount ?? 0})</span>
                           {jobsBellCount.newCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-bold">
+                            <span className="px-1.5 py-0.5 rounded-full text-[9px] bg-green-500 text-white font-semibold">
                               +{jobsBellCount.newCount}
                             </span>
                           )}
@@ -853,7 +918,7 @@ export default function Navbar() {
                     <Link
                       href="/login"
                       onClick={() => setDrawerOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-sm shadow-orange-200"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-semibold text-sm text-white bg-orange-500 hover:bg-orange-600 transition-all shadow-sm shadow-orange-200"
                     >
                       <FaSignInAlt size={13} />
                       Login to your account
@@ -863,7 +928,7 @@ export default function Navbar() {
 
                 {/* NAV SECTION */}
                 <div className="px-3 pt-4 pb-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">
                     Navigation
                   </p>
                   <nav className="space-y-0.5">
@@ -883,7 +948,7 @@ export default function Navbar() {
                             }}
                           >
                             {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
-                            <span className="text-sm font-semibold">{link.name}</span>
+                            <span className="text-sm font-medium">{link.name}</span>
                             {active && <span className="ml-auto w-2 h-2 rounded-full bg-orange-400" />}
                           </Link>
                         );
@@ -899,9 +964,8 @@ export default function Navbar() {
                               <Link
                                 href={link.path || "/government-jobs"}
                                 onClick={() => setDrawerOpen(false)}
-                                className={`flex items-center gap-3 py-2 flex-1 text-sm font-semibold transition-all ${
-                                  active ? "text-orange-600 font-bold" : "text-slate-700"
-                                }`}
+                                className={`flex items-center gap-3 py-2 flex-1 text-sm font-medium transition-all ${active ? "text-orange-600 font-semibold" : "text-slate-700"
+                                  }`}
                               >
                                 {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
                                 <span>{link.name}</span>
@@ -914,9 +978,8 @@ export default function Navbar() {
                               >
                                 <FaChevronDown
                                   size={12}
-                                  className={`transition-transform duration-200 ${
-                                    isOpen ? "rotate-180" : ""
-                                  }`}
+                                  className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+                                    }`}
                                 />
                               </button>
                             </div>
@@ -933,7 +996,7 @@ export default function Navbar() {
                                   <Link
                                     href="/government-jobs"
                                     onClick={() => setDrawerOpen(false)}
-                                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all mb-1"
+                                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all mb-1"
                                   >
                                     All Government Jobs
                                   </Link>
@@ -944,7 +1007,7 @@ export default function Navbar() {
                                         <Link
                                           href={`/${cat.slug}`}
                                           onClick={() => setDrawerOpen(false)}
-                                          className="block px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-orange-600 rounded-lg transition-all"
+                                          className="block px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-orange-600 rounded-lg transition-all"
                                         >
                                           {cat.name}
                                         </Link>
@@ -978,17 +1041,16 @@ export default function Navbar() {
                         <div key={link.name} className="space-y-1">
                           <button
                             onClick={() => toggleMobileMenu(link.name)}
-                            className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
+                            className="flex items-center justify-between w-full px-3 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all"
                           >
                             <div className="flex items-center gap-3">
                               {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
-                              <span className="text-sm font-semibold">{link.name}</span>
+                              <span className="text-sm font-medium">{link.name}</span>
                             </div>
                             <FaChevronDown
                               size={12}
-                              className={`text-slate-400 transition-transform duration-200 ${
-                                isCareerOpen ? "rotate-180" : ""
-                              }`}
+                              className={`text-slate-400 transition-transform duration-200 ${isCareerOpen ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
 
@@ -1026,7 +1088,7 @@ export default function Navbar() {
                 {mounted && token && (
                   <div className="px-3 pb-4 pt-2">
                     <div className="my-3 h-px bg-slate-100" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">Account</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] px-2 mb-2 text-slate-400">Account</p>
                     <div className="space-y-1">
 
                       {/* complete profile */}
@@ -1038,7 +1100,7 @@ export default function Navbar() {
                           <span className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
                             <FaUser size={13} className="text-amber-500" />
                           </span>
-                          <span className="text-sm font-semibold text-amber-600">Complete Profile</span>
+                          <span className="text-sm font-medium text-amber-600">Complete Profile</span>
                         </button>
                       )}
 
@@ -1050,7 +1112,7 @@ export default function Navbar() {
                         <span className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
                           <FaSignOutAlt size={13} className="text-red-500" />
                         </span>
-                        <span className="text-sm font-semibold text-red-500">Logout</span>
+                        <span className="text-sm font-medium text-red-500">Logout</span>
                       </button>
                     </div>
                   </div>
@@ -1058,10 +1120,32 @@ export default function Navbar() {
               </div>
 
               {/* ── FOOTER ── */}
-              <div className="shrink-0 px-5 py-4 border-t border-slate-100 bg-slate-50">
-                <p className="text-center text-[11px] font-medium text-slate-400">
-                  © 2026 <span className="text-orange-500 font-bold">Careermitra</span> · Hyderabad
+              <div className="shrink-0 px-5 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                <p className="text-[11px] font-medium text-slate-400">
+                  © 2026 <span className="text-orange-500 font-semibold">Careermitra</span>
                 </p>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-xl bg-green-50 text-green-600 flex items-center justify-center transition-colors hover:bg-green-100"
+                    title="WhatsApp Channel"
+                    aria-label="WhatsApp Channel"
+                  >
+                    <FaWhatsapp size={15} />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@CareerMitraaa"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center transition-colors hover:bg-red-100"
+                    title="YouTube Channel"
+                    aria-label="YouTube Channel"
+                  >
+                    <FaYoutube size={15} />
+                  </a>
+                </div>
               </div>
 
             </motion.div>

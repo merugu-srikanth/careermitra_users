@@ -4,7 +4,6 @@ import Link from "next/link";
 import AnimatedSection from '@/components/Animatedsection';
 import CareerHomeJobs from '@/components/CareerHomeJobs';
 import { motion } from "framer-motion";
-import InternshipTable from "@/components/InternshipTable";
 import HeroFinalPage from '@/components/HeroFinalPage';
 import HomeBlogs from "@/components/HomeBlogs/HomeBlogs";
 import HomeFAQ from "@/components/HomeFAQ";
@@ -46,9 +45,6 @@ const topJobCategories = [
 export default function HomeClient({
   initialJobs = [],
   initialAnnouncements = [],
-  initialInternships = [],
-  initialInternshipsTotal = 0,
-  initialSkillups = [],
   initialBlogSections = [],
 }) {
   return (
@@ -59,71 +55,6 @@ export default function HomeClient({
       <HomeBlogs initialSections={initialBlogSections} />
       
       <CareerHomeJobs initialJobs={initialJobs} />
-
-      {/* Internship Opportunities Section */}
-      <section id="internships" style={{ padding: "50px 0 56px", background: "#fafaf9", position: "relative", overflow: "hidden" }}>
-
-        {/* Decorative background blobs */}
-        <div style={{
-          position: "absolute", top: -120, right: -120, width: 500, height: 500,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{
-          position: "absolute", bottom: -80, left: -80, width: 400, height: 400,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
-
-        <div style={{ padding: "0px 20px" }}>
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
-
-            {/* Eyebrow badge */}
-            <div
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "6px 14px", borderRadius: 9999,
-                background: "linear-gradient(135deg, #fff7ed, #fef3c7)",
-                border: "1px solid #fed7aa",
-                marginBottom: 10,
-              }}
-            >
-              <span style={{ fontSize: 16 }}>🚀</span>
-              <span style={{ color: "#c2410c", fontWeight: 700, fontSize: 13, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                Verified Opportunities
-              </span>
-            </div>
-
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-              Latest Internship Opportunities
-            </h2>
-
-            <div
-              className="origin-left h-0.75 rounded-full w-80 mx-auto mb-3"
-              style={{
-                background: "linear-gradient(90deg, transparent, #fbbf24, #f59e0b, #fbbf24, transparent)",
-                boxShadow: "0 0 12px rgba(251,191,36,0.7)",
-                height: 3,
-                width: 220,
-                margin: "14px auto 18px",
-                borderRadius: 99,
-              }}
-            />
-
-            <p style={{ color: "#6b7280", maxWidth: 650, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
-              Explore verified virtual, paid, and government internship openings to kickstart your professional career.
-            </p>
-          </div>
-
-          <InternshipTable
-            initialInternships={initialInternships}
-            initialInternshipsTotal={initialInternshipsTotal}
-            initialSkillups={initialSkillups}
-          />
-        </div>
-      </section>
 
       <HomeFAQ />
 

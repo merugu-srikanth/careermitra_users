@@ -12,6 +12,7 @@ import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import SplashLoader from "@/components/SplashLoader";
 import FloatingChatSupport from "@/components/FloatingChatSupport";
 import FirebaseNotificationHelper from "@/components/FirebaseNotificationHelper";
+import { INTERNAL_API_BASE_URL } from "@/utils/api";
 import { Suspense } from "react";
 
 const poppins = Poppins({
@@ -56,7 +57,26 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+async function getFooterCategories() {
+  try {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/blogs/filters`, {
+      next: { revalidate: 3600 },
+    });
+    const data = await res.json();
+    const d = data.data || data;
+    return {
+      parents: Array.isArray(d?.parents) ? d.parents : [],
+      children: Array.isArray(d?.children) ? d.children : [],
+    };
+  } catch (err) {
+    console.error("Failed to fetch footer categories on server:", err);
+    return { parents: [], children: [] };
+  }
+}
+
+export default async function RootLayout({ children }) {
+  const footerCategories = await getFooterCategories();
+
   return (
     <html lang="en-IN" className={poppins.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
@@ -86,9 +106,9 @@ export default function RootLayout({ children }) {
           <JobProvider>
             <BlogProvider>
               <ToastContainer position="top-right" autoClose={5000} />
-              <Navbar />
+              <Navbar initialCategories={footerCategories} />
               <main>{children}</main>
-              <Footer />
+              <Footer initialCategories={footerCategories} />
               <FloatingChatSupport />
               <FirebaseNotificationHelper />
               <PWAUpdatePrompt />

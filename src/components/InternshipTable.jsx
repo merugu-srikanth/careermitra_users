@@ -20,18 +20,15 @@ import {
   ArrowRight
 } from "lucide-react";
 import { generateTableSchema } from "../utils/schemaHelpers";
+import {
+  formatStipend,
+  normalizeDuration,
+  formatDateDDMonYYYY,
+  toTitleCase,
+  isItemExpired,
+} from "../utils/formatters";
 
 const ITEMS_PER_PAGE = 10;
-
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-  const dd = String(date.getDate()).padStart(2, "0");
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const yyyy = date.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-};
 
 const normalizeLink = (link) => {
   if (!link) return "#";
@@ -50,28 +47,27 @@ const normalizeItem = (item, type = "internships") => {
     const rawOrg = item.company_name || item.org || item.source_name || "N/A";
     const rawLoc = item.location || [item.district_city, item.state].filter(Boolean).join(", ") || "India";
     const rawType = item.internship_type || item.work_mode || "Virtual Internship";
-    const rawStipend = item.stipend_category === "Paid"
-      ? (item.stipend ? `₹${item.stipend}` : "Paid")
-      : (item.stipend_category || "Unpaid");
+    const rawStipend = formatStipend(item);
     const posted = item.posted_on || item.posted_date || item.created_at || null;
     const deadline = item.last_date_to_apply || item.deadline || item.application_deadline || null;
 
     return {
       id: item.id || item._id || generateSlug(rawTitle),
       slug: generateSlug(rawTitle),
-      title: rawTitle,
+      title: toTitleCase(rawTitle),
       org: rawOrg,
       type: rawType,
       domain: item.domain_sector || item.domain || "General",
       location: rawLoc,
       stipend: rawStipend,
       stipendCategory: item.stipend_category || "Paid",
-      duration: item.duration || "Flexible",
+      duration: normalizeDuration(item.duration) || "Flexible",
       qualifications: item.domain_sector || item.internship_type || "All Eligible Candidates",
       applyLink: item.apply_link || item.applyLink || null,
       notificationUrl: item.notification_url || item.notificationUrl || null,
       postedDate: posted,
       deadline: deadline,
+      isExpired: isItemExpired(deadline),
       category: "internships",
     };
   } else {
@@ -80,19 +76,20 @@ const normalizeItem = (item, type = "internships") => {
     return {
       id: item._id || item.id || generateSlug(rawTitle),
       slug: generateSlug(rawTitle),
-      title: rawTitle,
+      title: toTitleCase(rawTitle),
       org: rawOrg,
       type: "Skill Up",
       domain: item.category_name || "Skill Training",
       location: item.location || "Online / All India",
       stipend: "Free Course",
       stipendCategory: "Free",
-      duration: item.duration || "Self Paced",
+      duration: normalizeDuration(item.duration) || "Self Paced",
       qualifications: item.qualifications || "All Candidates",
       applyLink: item.apply_link || item.applyLink || null,
       notificationUrl: item.notification_url || item.notificationUrl || null,
       postedDate: item.posted_date || item.postedDate || null,
       deadline: item.application_deadline || item.lastDate || null,
+      isExpired: isItemExpired(item.application_deadline || item.lastDate),
       category: "skillups",
     };
   }
@@ -165,12 +162,12 @@ const DetailModal = ({ item, onClose }) => {
           <div className="flex flex-wrap gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-xl text-xs font-semibold text-gray-700">
               <Calendar className="w-3.5 h-3.5 text-orange-500" />
-              <span>Start: {formatDate(item.postedDate)}</span>
+              <span>Start: {formatDateDDMonYYYY(item.postedDate)}</span>
             </div>
             {item.deadline && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600">
-                <Calendar className="w-3.5 h-3.5 text-red-400" />
-                <span>Deadline: {formatDate(item.deadline)}</span>
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${item.isExpired ? 'bg-gray-100 border border-gray-200 text-gray-600' : 'bg-red-50 border border-red-100 text-red-600'}`}>
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Deadline: {formatDateDDMonYYYY(item.deadline)} {item.isExpired ? '(Closed)' : ''}</span>
               </div>
             )}
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-xl text-xs font-semibold text-blue-700">
@@ -178,7 +175,6 @@ const DetailModal = ({ item, onClose }) => {
               <span>{item.location}</span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-100 rounded-xl text-xs font-semibold text-green-700">
-              <IndianRupee className="w-3.5 h-3.5 text-green-500" />
               <span>{item.stipend}</span>
             </div>
           </div>
@@ -199,7 +195,7 @@ const DetailModal = ({ item, onClose }) => {
               </Link>
             ) : null}
 
-            {item.applyLink && (
+            {item.applyLink && !item.isExpired && (
               <a
                 href={normalizeLink(item.applyLink)}
                 target="_blank"
@@ -209,6 +205,11 @@ const DetailModal = ({ item, onClose }) => {
               >
                 Apply Directly <ExternalLink className="w-4 h-4" />
               </a>
+            )}
+            {item.isExpired && (
+              <div className="w-full py-3 rounded-2xl text-center text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                Application Closed
+              </div>
             )}
           </div>
         </div>
@@ -272,7 +273,7 @@ const MobileCard = ({ item, onView }) => (
           </button>
         )}
 
-        {item.applyLink && (
+        {item.applyLink && !item.isExpired ? (
           <a
             href={normalizeLink(item.applyLink)}
             target="_blank"
@@ -281,7 +282,11 @@ const MobileCard = ({ item, onView }) => (
           >
             Apply <ExternalLink className="w-3.5 h-3.5" />
           </a>
-        )}
+        ) : item.isExpired ? (
+          <span className="flex-1 min-w-[90px] flex items-center justify-center py-2.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-400 border border-gray-200">
+            Closed
+          </span>
+        ) : null}
       </div>
     </div>
   </article>
@@ -586,8 +591,7 @@ const InternshipTable = ({
 
                         {/* Stipend */}
                         <td className="px-4 py-3.5 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200 text-xs font-bold text-green-700">
-                            <IndianRupee className="w-3 h-3" />
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200 text-xs font-bold text-green-700">
                             {item.stipend}
                           </span>
                         </td>
@@ -621,7 +625,7 @@ const InternshipTable = ({
 
                         {/* Apply */}
                         <td className="px-4 py-3.5 whitespace-nowrap">
-                          {item.applyLink ? (
+                          {item.applyLink && !item.isExpired ? (
                             <a
                               href={normalizeLink(item.applyLink)}
                               target="_blank"
@@ -630,6 +634,10 @@ const InternshipTable = ({
                             >
                               Apply <ExternalLink className="w-3.5 h-3.5" />
                             </a>
+                          ) : item.isExpired ? (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-100 text-gray-400 border border-gray-200">
+                              Closed
+                            </span>
                           ) : (
                             <Link
                               href={`/internships/${item.slug}`}

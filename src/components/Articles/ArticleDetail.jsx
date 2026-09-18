@@ -8,6 +8,7 @@ import SEO from "../../components/SEO";
 import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from "../../utils/schemaHelpers";
 import blogFallback from "../../assets/blog-sample.png";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 const API_BASE = "https://careermitra.in/api";
 
@@ -108,8 +109,8 @@ function useTTS() {
   return { ttsState, speak, pause, resume, stop };
 }
 
-/* ── AI Summary with typewriter effect ── */
-function AISummary({ text }) {
+/* ── Quick Summary with typewriter effect ── */
+function QuickSummary({ text }) {
   const [open, setOpen]           = useState(false);
   const [displayed, setDisplayed] = useState("");
   const [done, setDone]           = useState(false);
@@ -140,19 +141,21 @@ function AISummary({ text }) {
   useEffect(() => () => clearInterval(timerRef.current), []);
 
   return (
-    <div className="mb-6 rounded-xl overflow-hidden border border-indigo-100 shadow-sm">
+    <div className="mb-6 rounded-2xl overflow-hidden border border-orange-200/80 shadow-xs bg-white">
       {/* Header button */}
       <button
         onClick={toggle}
-        className="w-full flex items-center gap-3 px-5 py-3.5 bg-orange-600 hover:bg-orange-700 transition-colors text-left"
+        className="w-full flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition-all text-left cursor-pointer"
       >
-        <span className="text-xl leading-none">🤖</span>
+        <div className="p-1.5 rounded-lg bg-white/20 text-white flex items-center justify-center">
+          <Sparkles className="w-4 h-4" />
+        </div>
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-black text-white">AI Summary</span>
-          <span className="text-xs text-indigo-200 ml-2">{open ? "click to close" : "click to read"}</span>
+          <span className="text-sm font-black text-white">Quick Summary</span>
+          <span className="text-xs text-orange-100 ml-2 font-medium">{open ? "click to collapse" : "click to expand"}</span>
         </div>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-          className="w-4 h-4 text-indigo-200 shrink-0 transition-transform duration-300"
+          className="w-4 h-4 text-orange-100 shrink-0 transition-transform duration-300"
           style={{ transform: open ? "rotate(180deg)" : "none" }}>
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -160,11 +163,11 @@ function AISummary({ text }) {
 
       {/* Typewriter content */}
       {open && (
-        <div className="px-5 py-4 bg-indigo-50 border-t border-indigo-100">
-          <p className="text-gray-700 text-sm leading-relaxed">
+        <div className="px-5 py-4 bg-orange-50/50 border-t border-orange-100">
+          <p className="text-gray-700 text-sm leading-relaxed font-medium">
             {displayed}
             {!done && (
-              <span className="inline-block w-0.5 h-4 bg-indigo-500 ml-0.5 align-middle animate-pulse" />
+              <span className="inline-block w-0.5 h-4 bg-orange-500 ml-0.5 align-middle animate-pulse" />
             )}
           </p>
         </div>
@@ -678,9 +681,9 @@ export default function ArticleDetail({ initialArticle = null }) {
                 {article.title}
               </h1>
 
-              {/* AI Summary — typewriter on click */}
+              {/* Quick Summary — typewriter on click */}
               {article.short_description && (
-                <AISummary text={article.short_description} />
+                <QuickSummary text={article.short_description} />
               )}
 
               {/* Featured image — full width of this column */}

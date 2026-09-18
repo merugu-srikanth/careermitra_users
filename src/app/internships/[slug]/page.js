@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { notFound } from 'next/navigation';
 import InternshipDetail from "./InternshipDetailClient";
-import { generateJobPostingSchema, generateFAQSchema } from '@/utils/schemaHelpers';
+import { generateJobPostingSchema, generateFAQSchema, generateBreadcrumbSchema } from '@/utils/schemaHelpers';
+import { formatStipend, normalizeDuration, formatDateDDMonYYYY, toTitleCase } from '@/utils/formatters';
 
 const BASE_URL = "https://careermitra.in/api/internships";
 
@@ -17,9 +19,7 @@ async function getInternshipData(slug) {
     if (!id) {
       const mapPath = path.resolve("public/internships-map.json");
       
-      // Auto-generate map in dev mode if missing
       if (!fs.existsSync(mapPath)) {
-        console.log("internships-map.json not found, rebuilding on the fly...");
         try {
           let page = 1;
           let totalPages = 1;
@@ -53,9 +53,9 @@ async function getInternshipData(slug) {
     }
 
     if (id) {
-      const res = await fetch(`${BASE_URL}/${id}`);
+      const res = await fetch(`${BASE_URL}/${id}`, { next: { revalidate: 300 } });
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.data) {
         return json.data;
       }
     }
@@ -68,35 +68,48 @@ async function getInternshipData(slug) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const data = await getInternshipData(slug);
+  
   if (!data) {
     return {
-      title: "Internship - Career Mitra",
+      title: "Internship Expired or Removed - Career Mitra",
+      description: "This internship opportunity has closed or has been removed from the platform.",
+      robots: {
+        index: false,
+        follow: false,
+        nocache: true,
+      },
     };
   }
-  const title = data.internship_title || "";
-  const company = data.company_name || "";
-  const location = data.location || "";
-  const type = data.work_mode || "";
-  const duration = data.duration || "";
-  const stipend = data.stipend || "";
-  const category = data.category || "";
 
-  const pageTitle = `${title} Internship at ${company} in ${location} 2026 - Career Mitra`;
-  const desc = `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`;
+  const title = toTitleCase(data.internship_title || "Internship Opportunity");
+  const company = data.company_name || "Verified Organization";
+  const location = data.location || [data.district_city, data.state].filter(Boolean).join(", ") || "India";
+  const type = data.work_mode || data.internship_type || "Virtual Internship";
+  const duration = normalizeDuration(data.duration);
+  const stipend = formatStipend(data);
+  const category = data.category || data.domain_sector || "Professional";
 
-  const canonicalUrl = `https://careermitra.in/internships/${generateSlug(title) || slug}`;
+  const pageTitle = `${title} at ${company} in ${location} 2026 - Career Mitra`;
+  const desc = `Apply for the ${title} at ${company} in ${location}. Mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Verified details, eligibility & official application link.`;
+  const canonicalUrl = `https://careermitra.in/internships/${generateSlug(data.internship_title) || slug}`;
 
   return {
     title: pageTitle,
     description: desc,
-    keywords: `${title} Internship, ${company} Internship, Internship in ${location}, ${category} Internship, Career Mitra`,
+    keywords: `${title}, ${company} Internship, Internship in ${location}, ${category} Internship, Career Mitra`,
     alternates: {
       canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
     openGraph: {
       title: pageTitle,
       description: desc,
       url: canonicalUrl,
+      type: "article",
+      siteName: "Career Mitra",
       images: [{ url: "https://careermitra.in/default_og_image.png" }],
     },
     twitter: {
@@ -112,32 +125,42 @@ export default async function Page({ params }) {
   const { slug } = await params;
   const data = await getInternshipData(slug);
   
-  let schemas = [];
-  if (data) {
-    const title = data.internship_title || "";
-    const company = data.company_name || "";
-    const location = data.location || "";
-    const type = data.work_mode || "";
-    const duration = data.duration || "";
-    const stipend = data.stipend || "";
-    const category = data.category || "";
-    const faqs = data.faq || [];
-
-    const jobPostingSchema = generateJobPostingSchema({
-      title,
-      company,
-      location,
-      type,
-      description: data.description || "",
-      publishedAt: data.created_at || new Date().toISOString(),
-      stipend,
-      duration,
-      requirements: data.requirements || ""
-    });
-
-    const faqSchema = generateFAQSchema(faqs);
-    schemas = [jobPostingSchema, faqSchema].filter(Boolean);
+  // D1: Real 404 / 410 response for removed/non-existent records (No soft-404s in Search Console)
+  if (!data) {
+    notFound();
   }
+
+  const title = toTitleCase(data.internship_title || "Internship Opportunity");
+  const company = data.company_name || "Verified Organization";
+  const location = data.location || [data.district_city, data.state].filter(Boolean).join(", ") || "India";
+  const type = data.work_mode || data.internship_type || "Virtual Internship";
+  const duration = normalizeDuration(data.duration);
+  const stipend = formatStipend(data);
+  const faqs = data.faq || [];
+
+  const breadcrumbs = [
+    { name: "Home", item: "/" },
+    { name: "Internships / SkillUps", item: "/internships" },
+    { name: title, item: `/internships/${generateSlug(data.internship_title) || slug}` },
+  ];
+
+  const jobPostingSchema = generateJobPostingSchema({
+    title,
+    company,
+    location,
+    type,
+    description: data.internship_description || data.about_internship || `${title} at ${company}`,
+    publishedAt: data.created_at || new Date().toISOString(),
+    stipend,
+    duration,
+    requirements: data.requirements || data.qualifications || "All Eligible Candidates"
+  });
+
+  const schemas = [
+    jobPostingSchema,
+    generateBreadcrumbSchema(breadcrumbs),
+    generateFAQSchema(faqs),
+  ].filter(Boolean);
 
   return (
     <>

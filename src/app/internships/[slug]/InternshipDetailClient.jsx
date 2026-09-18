@@ -6,6 +6,7 @@ import { usePathname, useSearchParams, useParams } from "next/navigation";
 import SEO from '@/components/SEO';
 import { generateJobPostingSchema, generateFAQSchema } from '@/utils/schemaHelpers';
 import InternshipGuideContent from "@/components/InternshipGuideContent";
+import { formatStipend, formatStipendDisplay, normalizeDuration, formatDateDDMonYYYY, toTitleCase, isItemExpired } from "@/utils/formatters";
 import {
   Calendar,
   Building2,
@@ -20,7 +21,12 @@ import {
   Info,
   CheckCircle,
   HelpCircle,
-  FileText
+  FileText,
+  ShieldCheck,
+  UserCheck,
+  CheckCircle2,
+  AlertTriangle,
+  BookOpen
 } from "lucide-react";
 
 const BASE_URL = "https://careermitra.in/api/internships";
@@ -31,14 +37,9 @@ const generateSlug = (title) => {
     : "";
 };
 
-const getCleanSearchTerm = (slug) => {
-  if (!slug) return "";
-  const stopWords = new Set(["and", "or", "for", "in", "at", "of", "with", "the", "a", "an", "internship", "internships"]);
-  return slug
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(word => word.length > 1 && !stopWords.has(word))
-    .join(" ");
+const normalizeLink = (link) => {
+  if (!link) return null;
+  return link.startsWith("http") ? link : `https://${link}`;
 };
 
 const InternshipDetailSkeleton = () => (
@@ -59,28 +60,6 @@ const InternshipDetailSkeleton = () => (
               <div className="h-4 w-20 bg-gray-200 rounded" />
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 space-y-4">
-            <div className="h-6 w-36 bg-gray-200 rounded" />
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-full" />
-              <div className="h-4 bg-gray-200 rounded w-5/6" />
-              <div className="h-4 bg-gray-200 rounded w-4/5" />
-            </div>
-          </div>
-        </div>
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 space-y-4">
-            <div className="h-6 w-24 bg-gray-200 rounded" />
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-full" />
-              <div className="h-4 bg-gray-200 rounded w-5/6" />
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -122,13 +101,13 @@ export default function InternshipDetail({ initialData = null }) {
         if (id) {
           const res = await fetch(`${BASE_URL}/${id}`);
           const json = await res.json();
-          if (json.success) {
+          if (json.success && json.data) {
             setData(json.data);
             return;
           }
         }
 
-        setError("Internship not found.");
+        setError("Internship no longer available.");
       } catch (err) {
         console.error("Error fetching internship details:", err);
         setError("Unable to connect to the server.");
@@ -149,146 +128,105 @@ export default function InternshipDetail({ initialData = null }) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col justify-center items-center py-12 px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-red-100 p-6 text-center shadow-lg">
-          <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
-            <Info className="w-6 h-6" />
+      <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 bg-slate-50/50">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-orange-100 p-8 text-center shadow-xl">
+          <div className="w-14 h-14 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mx-auto mb-5 border border-orange-200">
+            <AlertTriangle className="w-7 h-7" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900">Error Loading Details</h2>
-          <p className="text-sm text-slate-500 mt-2">{error || "Internship not found."}</p>
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-3">
+            Status: Expired / Removed
+          </span>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Opportunity Not Found</h2>
+          <p className="text-sm text-slate-500 mb-6">{error || "This internship listing has concluded its application process or has been archived."}</p>
           <Link href="/internships"
-            className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-orange-100"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold transition-all shadow-md"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Internships
+            <ArrowLeft className="w-4 h-4" /> Back to All Internships
           </Link>
         </div>
       </div>
     );
   }
 
-  // Value substitutions
-  const title = data.internship_title || "Internship";
-  const company = data.company_name || "Company";
-  const location = data.location || `${data.district_city || ""}, ${data.state || ""}`.trim().replace(/^,\s*/, "") || "India";
-  const category = data.domain_sector || "Professional";
-  const type = data.internship_type || "Virtual Internship";
+  // Unified Normalized Values
+  const title = toTitleCase(data.internship_title || "Internship Opportunity");
+  const company = data.company_name || "Verified Organization";
+  const location = data.location || [data.district_city, data.state].filter(Boolean).join(", ") || "India";
+  const category = data.domain_sector || data.category || "Professional";
+  const type = data.internship_type || data.work_mode || "Virtual Internship";
   const openings = data.openings || "Not Disclosed";
-  const duration = data.duration || "4-12 Weeks";
-  const stipend = data.stipend_category === "Paid" ? data.stipend : "Unpaid";
-  const stipendType = data.stipend_category || "Unpaid";
-  const applyLink = data.apply_link ? (data.apply_link.startsWith("http") ? data.apply_link : `https://${data.apply_link}`) : null;
+  const duration = normalizeDuration(data.duration);
+  const formattedStipend = formatStipend(data);
+  const stipendType = data.stipend_category || (formattedStipend === "Unpaid" ? "Unpaid" : "Paid");
+  const applyLink = normalizeLink(data.apply_link);
+  const notificationUrl = normalizeLink(data.notification_url || data.notificationUrl);
   const startDate = data.start_date || "Immediately";
-  const credits = data.no_of_credits !== undefined ? data.no_of_credits : "0";
-  const postedDate = data.posted_date || "-";
-  const deadline = data.deadline || (data.last_date_to_apply ? new Date(data.last_date_to_apply).toLocaleDateString("en-IN") : "-");
-  const expiryStatus = data.expiry_status || "Open";
+  const postedDate = formatDateDDMonYYYY(data.posted_date || data.created_at);
+  const rawDeadline = data.deadline || data.last_date_to_apply || data.application_deadline;
+  const deadline = formatDateDDMonYYYY(rawDeadline);
+  const isExpired = isItemExpired(rawDeadline) || data.is_expired || data.expiry_status === "expired";
+  const lastVerifiedDate = formatDateDDMonYYYY(data.updated_at || data.updatedAt || data.created_at || new Date());
 
-  // FAQ list
+  // Structured FAQs
   const faqs = [
     {
-      q: `What is ${title} Internship?`,
-      a: `The ${title} Internship is a professional training program that is designed to help students and graduates with professional skills and relevant skills.`
+      q: `What is the ${title} opportunity?`,
+      a: `The ${title} is a verified training and work-exposure program offered by ${company} in ${location}. Candidates gain practical industry skills and mentorship.`
     },
     {
-      q: "Who can apply for this internship?",
-      a: "Eligible students, fresh graduates, diploma holders and others meeting the criteria laid down by the organization are invited to apply."
+      q: "Who is eligible to apply for this internship?",
+      a: `${data.qualifications || data.requirements || "Students, diploma holders, and graduates meeting the educational criteria established by the organization are eligible to apply."}`
     },
     {
-      q: "Is this internship paid or unpaid?",
-      a: "The details of stipend are mentioned in the internship Highlights section. The candidates are requested to refer the official internship details for complete information."
+      q: "What is the stipend and compensation for this role?",
+      a: `The stipend for this position is ${formattedStipend} (${stipendType}). Please refer to the official notification for additional allowance details.`
     },
     {
       q: "What is the duration of the internship?",
-      a: `The duration of the internship is ${duration}.`
+      a: `The program duration is ${duration}.`
     },
     {
-      q: "How many openings are available?",
-      a: `Interested candidates apply for ${openings} Internship Vacancies.`
-    },
-    {
-      q: "Where is the internship?",
-      a: `Internship is at ${location}.`
-    },
-    {
-      q: "How to apply for internship?",
-      a: "Candidates have to apply online through the official internship application portal."
-    },
-    {
-      q: "Do internships help in getting jobs?",
-      a: "Yes, internships offer a great opportunity for candidates to get practical experience, develop their skills, build professional connections and improve their chances of future employment."
-    },
-    {
-      q: "Are freshers allowed to apply for these internships?",
-      a: "Yes, most of the internship programs are aimed at students, recent graduates, and candidates who want to get some exposure to the industry."
-    },
-    {
-      q: "Will I receive a certificate after completing the internship?",
-      a: "Organisation where internship is undertaken is subject to issuance of certificates. Candidates are requested to verify the official internship details."
+      q: "How do I apply for this position?",
+      a: "Click on the 'Official Apply Online' button below to navigate directly to the organization's official application portal before the application deadline."
     }
   ];
 
-  const internshipSchemas = [
-    generateJobPostingSchema({
-      title: `${title} Internship`,
-      description: data.internship_description || data.about_internship || `${title} Internship at ${company}`,
-      datePosted: data.created_at || new Date().toISOString(),
-      validThrough: data.application_deadline || data.lastDate,
-      employmentType: "INTERNSHIP",
-      companyName: company,
-      city: data.district_city || "New Delhi",
-      state: data.state || "Delhi",
-      extra: {
-        "baseSalary": {
-          "@type": "MonetaryAmount",
-          "currency": "INR",
-          "value": {
-            "@type": "QuantitativeValue",
-            "value": stipend === "Unpaid" ? 0 : parseFloat(stipend) || 0,
-            "unitText": "MONTH"
-          }
-        }
-      }
-    }),
-    generateFAQSchema(faqs)
-  ].filter(Boolean);
-
-  // SEO details
-  const seoTitle = `${title} Internship at ${company} in ${location} 2026 | Career Mitra`;
-  const seoDescription = `Apply for the ${title} Internship at ${company} in ${location}. Work mode: ${type}, Duration: ${duration}, Stipend: ${stipend}. Find eligibility and details here.`;
-  const seoKeywords = `${title} Internship, ${company} Internship, Internship in ${location}, ${category} Internship, Career Mitra`;
-
   return (
-    <div className="min-h-screen bg-slate-50/50 pt-28 pb-16 px-4 md:px-8 font-sans">
-      <SEO
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
-        image="https://careermitra.in/default_og_image.png"
-        url={`https://careermitra.in/internships/${generateSlug(title) || slug}`}
-      />
-
+    <div className="min-h-screen bg-slate-50/50 pt-28 pb-16 px-4 md:px-12 font-sans">
       <div className="w-full mx-auto space-y-8">
 
         {/* Back Link */}
         <Link href="/internships"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-orange-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Internships
+          <ArrowLeft className="w-4 h-4" /> Back to Internships / SkillUps
         </Link>
 
         {/* Hero Card */}
-        <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-orange-50/50 rounded-bl-[120px] -z-0 pointer-events-none" />
-
+        <div className="bg-white rounded-3xl border border-orange-100 shadow-xl overflow-hidden relative">
           <div className="p-6 md:p-10 relative z-10 space-y-6">
+            
             <div className="space-y-3">
-              <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold uppercase tracking-wider">
-                {type}
-              </span>
-              <h1 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-xs font-bold uppercase tracking-wider">
+                  {type}
+                </span>
+                {isExpired ? (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+                    Application Closed
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Applications Open
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 {title}
               </h1>
-              <p className="text-base md:text-lg font-semibold text-slate-600 flex items-center gap-2">
+
+              <p className="text-base md:text-lg font-bold text-slate-600 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-slate-400 shrink-0" />
                 {company}
               </p>
@@ -299,23 +237,20 @@ export default function InternshipDetail({ initialData = null }) {
               {[
                 { label: "Work Mode", value: type, icon: Briefcase },
                 { label: "Location", value: location, icon: MapPin },
-                { label: "Stipend", value: stipend, icon: IndianRupee, highlightColor: "text-orange-600" },
+                { label: "Stipend", value: formattedStipend, icon: IndianRupee, highlightColor: "text-orange-600 font-black" },
                 { label: "Stipend Type", value: stipendType, icon: IndianRupee },
                 { label: "Duration", value: duration, icon: Clock },
-                { label: "Openings", value: openings + (typeof openings === "number" || !isNaN(openings) ? " Positions" : ""), icon: Briefcase },
+                { label: "Openings", value: openings, icon: Briefcase },
                 { label: "Category", value: category, icon: Award },
-                { label: "Application Mode", value: "Online", icon: ExternalLink },
                 { label: "Start Date", value: startDate, icon: Calendar },
-                // { label: "No. of Credits", value: credits, icon: Award },
                 { label: "Posted Date", value: postedDate, icon: Calendar },
-                { label: "Last Date to Apply", value: deadline, icon: Calendar },
-                { label: "Status", value: expiryStatus, icon: CheckCircle, isStatus: true }
+                { label: "Application Deadline", value: deadline, icon: Calendar, highlightColor: isExpired ? "text-rose-600 font-bold" : "text-slate-800" },
               ].map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                    <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
-                    <span className={`text-xs font-bold flex items-center gap-1.5 mt-1 ${item.highlightColor || (item.isStatus ? (item.value.toLowerCase() === 'open' ? 'text-green-600' : 'text-red-600') : 'text-slate-800')}`}>
+                  <div key={idx} className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
+                    <span className={`text-xs font-bold flex items-center gap-1.5 mt-1 ${item.highlightColor || 'text-slate-800'}`}>
                       <IconComponent className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">{item.value}</span>
                     </span>
@@ -324,259 +259,180 @@ export default function InternshipDetail({ initialData = null }) {
               })}
             </div>
 
-            {/* Apply Button */}
-            {expiryStatus.toLowerCase() === "expired" ? (
-              <div className="pt-2">
-                <span
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-slate-100 text-slate-400 rounded-2xl text-sm font-bold cursor-not-allowed"
-                  title="Application deadline has passed"
-                  aria-disabled="true"
-                >
-                  Expired <ExternalLink className="w-4 h-4" />
-                </span>
-                <p className="text-xs text-red-500 font-semibold mt-2">This internship's application deadline has passed.</p>
+            {/* ── D5: EDITORIAL VERIFICATION & SOURCE CITATIONS ── */}
+            <div className="bg-gradient-to-r from-orange-50/60 via-amber-50/40 to-slate-50 p-5 rounded-2xl border border-orange-100/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+                    Editorial Verification & Sources
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                  <span><strong>Curated by:</strong> Career Mitra Editorial Desk</span>
+                  <span>•</span>
+                  <span><strong>Fact-Checked by:</strong> Verification Desk</span>
+                  <span>•</span>
+                  <span><strong>Last Verified:</strong> {lastVerifiedDate}</span>
+                </div>
               </div>
-            ) : applyLink ? (
-              <div className="pt-2">
+
+              {/* Action Buttons: Official Notification & Official Apply (D5) */}
+              <div className="flex flex-wrap items-center gap-3">
+                {notificationUrl && (
+                  <a
+                    href={notificationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-white text-slate-800 border border-slate-200 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-orange-600" />
+                    <span>Official Notification</span>
+                  </a>
+                )}
+
+                {isExpired ? (
+                  <span
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold cursor-not-allowed"
+                    title="Application deadline has passed"
+                  >
+                    Application Closed
+                  </span>
+                ) : applyLink ? (
+                  <a
+                    href={applyLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+                  >
+                    <span>Official Apply Online</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Content Details Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Description / Overview */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 space-y-4 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-orange-600" />
+                <span>Internship Overview</span>
+              </h2>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                {data.internship_description || data.about_internship || `Apply for the ${title} at ${company}. This role offers industry-standard hands-on training and mentorship in ${location}.`}
+              </p>
+            </div>
+
+            {/* Eligibility & Qualifications */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 space-y-4 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-orange-600" />
+                <span>Eligibility & Qualifications</span>
+              </h2>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                {data.qualifications || data.requirements || "Candidates pursuing or having completed relevant degrees/diplomas are encouraged to review the official notification for branch-specific guidelines."}
+              </p>
+            </div>
+
+            {/* Responsibilities */}
+            {data.responsibilities && (
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 space-y-4 shadow-sm">
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-orange-600" />
+                  <span>Key Responsibilities</span>
+                </h2>
+                <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                  {data.responsibilities}
+                </div>
+              </div>
+            )}
+
+            {/* Frequently Asked Questions */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 space-y-4 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
+                <HelpCircle className="w-5 h-5 text-orange-600" />
+                <span>Frequently Asked Questions</span>
+              </h2>
+              <div className="space-y-3">
+                {faqs.map((faq, idx) => (
+                  <div key={idx} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">
+                      {faq.q}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            
+            {/* Quick Summary Card */}
+            <div className="bg-white rounded-3xl border border-orange-100 p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-black text-slate-900 pb-3 border-b border-slate-100">
+                Key Opportunity Highlights
+              </h3>
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-400 font-bold uppercase">Stipend:</span>
+                  <span className="font-extrabold text-orange-600">{formattedStipend}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 font-bold uppercase">Duration:</span>
+                  <span className="font-bold text-slate-800">{duration}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 font-bold uppercase">Deadline:</span>
+                  <span className={`font-bold ${isExpired ? 'text-rose-600' : 'text-slate-800'}`}>
+                    {deadline}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 font-bold uppercase">Location:</span>
+                  <span className="font-bold text-slate-800 text-right max-w-[160px] truncate">{location}</span>
+                </div>
+              </div>
+
+              {!isExpired && applyLink && (
                 <a
                   href={applyLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-95 text-white rounded-2xl text-sm font-bold shadow-lg shadow-orange-100 transition-opacity"
+                  className="w-full inline-flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white transition-all shadow-md mt-2 cursor-pointer"
                 >
-                  Apply Now <ExternalLink className="w-4 h-4" />
+                  <span>Apply Now</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </a>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 italic">No direct apply link provided. Refer to organization contacts.</p>
-            )}
+              )}
+            </div>
+
+            {/* Disclaimer Card */}
+            <div className="bg-slate-50 rounded-3xl border border-slate-200/80 p-5 text-xs text-slate-500 leading-relaxed">
+              <p className="font-bold text-slate-700 mb-1">Disclaimer</p>
+              Information on this page is compiled from publicly released official notifications. Candidates must verify criteria on the official portal before applying.
+            </div>
+
           </div>
-        </div>
-
-        {/* Article-Style Content */}
-        <div className="bg-white rounded-3xl border border-orange-100/50 shadow-xl p-6 md:p-10 lg:p-12 space-y-10 leading-relaxed text-slate-700">
-
-          {/* Section: About Internship */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              About {title} Internship 2026:
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              Are you a student, fresh graduate or aspiring professional looking for {title} Internship in {location} then this is a great opportunity for all the candidates to get practical experience in the {category} industry. Students will be able to convert their academic knowledge to real-world situations, work on projects related to their course of study and develop career-ready skills that can help boost their future careers. Internships are a good starting point for candidates who are looking forward to improve their professional knowledge, gain practical experience and familiarise themselves with industry standards. Selected candidates for {title} Internship will gain valuable experience by working on real time projects and working alongside experienced professionals to develop their technical, analytical, communication and problem solving skills.
-            </p>
-            <p className="text-sm md:text-base text-slate-600">
-              The type of internship will vary from organization to organization – paid or unpaid, remote, hybrid, or on-site. Interested and eligible candidates can apply through the official application portal before the last date with the requisite qualifications. The {category} industry, is the best industry of the time and the {title} Internship in {location} is a great opportunity for all the students, fresh graduates and aspiring professionals to get practical experience in {category} industry.
-            </p>
-          </section>
-
-          {/* Section: Highlights Table */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              {title} Internship 2026 Highlights:
-            </h2>
-            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm w-full">
-              <table className="w-full text-left text-xs border-collapse">
-                <tbody className="divide-y divide-slate-100 text-slate-600 font-medium">
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800 w-1/2">Internship Name</td>
-                    <td className="p-3.5">{title}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Organization Name</td>
-                    <td className="p-3.5">{company}</td>
-                  </tr>
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Work Mode</td>
-                    <td className="p-3.5">{type}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Location</td>
-                    <td className="p-3.5">{location}</td>
-                  </tr>
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Internship Category</td>
-                    <td className="p-3.5">{category}</td>
-                  </tr>
-                  {/* <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Total No. of Openings</td>
-                    <td className="p-3.5">{openings}</td>
-                  </tr> */}
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Duration</td>
-                    <td className="p-3.5">{duration}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Stipend</td>
-                    <td className="p-3.5">{stipend}</td>
-                  </tr>
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Stipend type</td>
-                    <td className="p-3.5">{stipendType}</td>
-                  </tr>
-                  {/* <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Application Mode</td>
-                    <td className="p-3.5">Online</td>
-                  </tr> */}
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Start Date</td>
-                    <td className="p-3.5">{startDate}</td>
-                  </tr>
-                  {/* <tr>
-                    <td className="p-3.5 font-bold text-slate-800">No. of Credits</td>
-                    <td className="p-3.5">{credits}</td>
-                  </tr> */}
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Posted Date</td>
-                    <td className="p-3.5">{postedDate}</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 font-bold text-slate-800">Last Date to Apply</td>
-                    <td className="p-3.5">{deadline}</td>
-                  </tr>
-                  <tr className="bg-slate-50/50">
-                    <td className="p-3.5 font-bold text-slate-800">Status</td>
-                    <td className="p-3.5">
-                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${expiryStatus.toLowerCase() === "open" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                        {expiryStatus}
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* Section: Why Apply */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              Why Apply for {title} Internship?
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              The {title} Internship provides practical experience, professional networking and career-oriented learning experiences to the interns. Internships are a good bridge to transition from academic education to the needs of the workplace.
-            </p>
-            <div className="space-y-3">
-              <h4 className="font-bold text-slate-800 text-sm">Advantages of Internship:</h4>
-              <ul className="space-y-2 text-xs md:text-sm font-semibold text-slate-600">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Gain hands-on industry experience.
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Gain experience of professional workflows and tools.
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Improve technical and soft skills.
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Create a more compelling resume and portfolio.
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Better employment opportunities.
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  Work closely or collaborate with experienced professionals.
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Section: Eligibility */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              Eligibility Criteria for {title} Internship
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              Candidates meeting the eligibility required that are specified by {company} can apply for the {title} Internship. This internship requirements may be open for candidates who are pursuing graduation, post-graduation or diploma courses or for freshers and professionals who want to upskill themselves.
-            </p>
-          </section>
-
-          {/* Section: Internship Opportunities in Location */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              Internship Opportunities in {location}
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              The number of internship opportunities in {location} is increasing in various sectors like technology, engineering, management, healthcare, finance, marketing and research. Internships in {location} offer students and graduates valuable work experience and a chance to prepare for future career opportunities.
-            </p>
-          </section>
-
-          {/* Section: Skills you can learn */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              Skills You Can Learn During {title} Internship
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              Depending on the role and responsibilities of the internship, candidates can learn skills like technical skills related to the domain, teamwork and communication, Project planning and execution, Research and analytical thinking, Professional standards and workplace practices, Critical thinking skills and decision-making.
-            </p>
-          </section>
-
-          {/* Section: Career Benefits */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              Career Benefits of Completing an Internship
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              Internships provide candidates with hands-on experience, build confidence, establish industry contacts, and boost employability. Also, an internship adds to the profile of the candidate and future job prospects.
-            </p>
-          </section>
-
-          {/* Section: How to Apply */}
-          <section className="space-y-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-              How to Apply for {title} Internship 2026?
-            </h2>
-            <p className="text-sm md:text-base text-slate-600">
-              Candidates who are eligible and interested are recommended to go through the internship details, eligibility, duration, stipend and how to apply instructions thoroughly before the late date of application. The application can be submitted through the official internship portal before the last date.
-            </p>
-          </section>
-
-          {/* FAQ Accordion Section */}
-          <section className="space-y-6">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <HelpCircle className="w-6 h-6 text-orange-500" /> Frequently Asked Questions (FAQs)
-            </h2>
-            <div className="border border-slate-100 rounded-2xl overflow-hidden divide-y divide-slate-100">
-              {faqs.map((faq, index) => (
-                <div key={index} className="bg-white">
-                  <button
-                    onClick={() => toggleFAQ(index)}
-                    className="w-full flex items-center justify-between p-4 text-left font-bold text-sm text-slate-800 hover:bg-slate-50 transition-colors"
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform ${activeFAQ === index ? "rotate-180 text-orange-500" : ""
-                        }`}
-                    />
-                  </button>
-                  {activeFAQ === index && (
-                    <div className="p-4 pt-0 text-xs md:text-sm text-slate-600 leading-relaxed bg-slate-50/50">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Section: Disclaimer */}
-          <section className="p-5 bg-amber-50/50 border border-amber-100 rounded-2xl text-xs text-slate-500 space-y-2">
-            <h4 className="font-bold text-amber-900 flex items-center gap-1.5">
-              <Info className="w-4 h-4 shrink-0" /> Disclaimer
-            </h4>
-            <p className="leading-relaxed">
-              The internship information listed on this page is for informational purposes only and is based on publicly available internship postings. Candidates are advised to check all the details like eligibility criteria, last date, stipend details and application process from the official notification of internship before applying.
-            </p>
-          </section>
 
         </div>
 
-        {/* Internship Guide Section */}
-        {/* <InternshipGuideContent /> */}
+        {/* Guide Content */}
+        <div className="mt-16">
+          <InternshipGuideContent />
+        </div>
 
       </div>
     </div>

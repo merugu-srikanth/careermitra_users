@@ -21,11 +21,14 @@ function buildCategoryUrl(child, parents) {
   return `/${toSlug(parent.name, parent.slug)}/${toSlug(child.name, child.slug)}`;
 }
 
-export default function Footer() {
+export default function Footer({ initialCategories = null }) {
   const { token } = useAuth();
-  const [cats, setCats] = useState({ parents: [], children: [] });
+  const [cats, setCats] = useState(initialCategories || { parents: [], children: [] });
 
   useEffect(() => {
+    if (initialCategories && (initialCategories.parents?.length > 0 || initialCategories.children?.length > 0)) {
+      return;
+    }
     fetch("https://careermitra.in/api/blogs/filters")
       .then(r => r.json())
       .then(data => {
@@ -33,14 +36,14 @@ export default function Footer() {
         setCats({ parents: d.parents || [], children: d.children || [] });
       })
       .catch(() => { });
-  }, []);
+  }, [initialCategories]);
   // URLs kept in sync with Navbar.jsx's navLinks / dropdown entries.
   const quickLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "/about-us" },
     { label: "Our Team", to: "/meet-our-team" },
     { label: "Latest Job Notifications", to: "/latest-job-notifications" },
-    { label: "Internship Opportunities", to: "/internships" },
+    { label: "Internships / SkillUps", to: "/internships" },
     { label: "Government Jobs", to: "/government-jobs" },
         { label: "Contact Us", to: "/contact-us" },
 
