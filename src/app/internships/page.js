@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import InternshipsClient from "./InternshipsClient";
 import {
   generateWebPageSchema,
@@ -192,14 +193,16 @@ export default async function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <InternshipsClient
-        initialInternships={initialData.internships}
-        initialPagination={initialData.pagination}
-        initialSkillups={initialSkillupsData.skillups}
-        initialSkillupsPagination={initialSkillupsData.pagination}
-        initialFilters={initialFilters}
-        initialError={initialData.error}
-      />
+      <Suspense fallback={null}>
+        <InternshipsClient
+          initialInternships={initialData.internships}
+          initialPagination={initialData.pagination}
+          initialSkillups={initialSkillupsData.skillups}
+          initialSkillupsPagination={initialSkillupsData.pagination}
+          initialFilters={initialFilters}
+          initialError={initialData.error}
+        />
+      </Suspense>
     </>
   );
 }

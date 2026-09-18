@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import fs from 'fs';
 import path from 'path';
 import { notFound } from 'next/navigation';
@@ -171,7 +172,9 @@ export default async function Page({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <InternshipDetail initialData={data} />
+      <Suspense fallback={null}>
+        <InternshipDetail initialData={data} />
+      </Suspense>
     </>
   );
 }
