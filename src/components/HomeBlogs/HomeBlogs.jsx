@@ -293,6 +293,7 @@ const normalizeBlog = (blog) => ({
 });
 
 const buildArticleUrl = (article) => {
+    if (article.url) return article.url;
     const tree = article.categoryTree?.[0];
     if (!tree) return `/${article.slug}`;
     const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);

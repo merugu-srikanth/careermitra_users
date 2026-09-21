@@ -83,19 +83,30 @@ const slugify = (value = "") =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+const buildArticleUrl = (article) => {
+  const tree = article.categoryTree?.[0];
+  if (!tree) return `/${article.slug}`;
+  const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);
+  const childId = article.primary_category?._id || article.primary_category;
+  const child = tree.children?.find(c => c.id === childId || c._id === childId);
+  if (child) {
+    const childSlug = slugify(child.name || child.slug);
+    return `/${parentSlug}/${childSlug}/${article.slug}`;
+  }
+  return `/${parentSlug}/${article.slug}`;
+};
+
 const normalizeBlog = (blog) => ({
   _id: blog._id || blog.id || "",
   id: blog.id || blog._id || "",
   title: blog.title || "",
   slug: blog.slug || "",
+  url: buildArticleUrl(blog),
   short_description: blog.short_description || "",
   featured_image: blog.featured_image || null,
   image_alt_text: blog.image_alt_text || blog.title || "",
   published_at: blog.published_at || blog.created_at || blog.publishedAt || null,
   created_at: blog.created_at || null,
-  categoryTree: blog.categoryTree || [],
-  categories: blog.categories || [],
-  category: blog.category || null,
   read_time: blog.read_time || blog.readTime || null,
   primaryCategory: blog?.categories?.[0]?.name || blog?.category || "General",
   authorDisplayName: blog?.author?.author_name || blog?.author_name || "Career Mitra",
