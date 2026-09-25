@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FaChevronDown } from "react-icons/fa";
-import AnimatedSection from "@/components/Animatedsection";
 
 const FAQS = [
   {
@@ -106,7 +105,9 @@ export default function HomeFAQ() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-15">
-        <AnimatedSection animation="fade-up">
+        {/* No scroll-reveal wrapper here: it hid the heading (opacity 0) until
+            scrolled into view, so full-page renders showed a blank FAQ header. */}
+        <div>
           <div style={{ textAlign: "center", marginBottom: 44 }}>
             <motion.div
               initial={false}
@@ -155,7 +156,7 @@ export default function HomeFAQ() {
               Everything you need to know about finding your next government job on Careermitra.
             </p>
           </div>
-        </AnimatedSection>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
           {/* Left column — questions 1-5 */}

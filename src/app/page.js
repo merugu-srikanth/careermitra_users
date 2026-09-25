@@ -1,5 +1,6 @@
 import HomeClient from "./HomeClient";
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/utils/schemaHelpers';
+import { INTERNAL_API_BASE_URL, buildJobsListUrl } from '@/utils/api';
 
 export const metadata = {
   title: "Personalized Latest Govt Jobs Notifications & Career Guidance in India - Career Mitra",
@@ -31,11 +32,180 @@ export const metadata = {
   },
 };
 
-export default function Home() {
+// Cap each upstream call so a slow API can never stall the whole HTML response;
+// on timeout the section falls back to its client-side fetch.
+const FETCH_TIMEOUT_MS = 8000;
+
+const pickFirst = (obj, keys, fallback = "") => {
+  for (const key of keys) {
+    const value = obj?.[key];
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return fallback;
+};
+
+const toDateOnly = (value) => {
+  if (!value || typeof value !== "string") return "";
+  return value.split("T")[0] || "";
+};
+
+const mapUnifiedJob = (j) => {
+  const postedRaw = pickFirst(j, ["postedDate", "posted_date"]);
+  const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
+
+  return {
+    id: pickFirst(j, ["_id", "id"]),
+    jobSourceId: pickFirst(j, ["job_source_id", "jobSourceId"]),
+    sourceName: pickFirst(j, ["source_name", "sourceName", "jobSource"]),
+    categoryId: String(pickFirst(j, ["category_id", "categoryId"], "")),
+    categoryName: pickFirst(j, ["category_name", "categoryName"]),
+    title: pickFirst(j, ["title"]),
+    category: pickFirst(j, ["category_name", "categoryName"], "General"),
+    jobType: pickFirst(j, ["job_type", "jobType"], "jobs"),
+    org: pickFirst(j, ["jobSource", "source_name", "sourceName"]),
+    noOfPosts: pickFirst(j, ["numberOfPosts", "no_of_posts"]),
+    age: pickFirst(j, ["ageRequirement", "age"]),
+    qualifications: pickFirst(j, ["qualifications"]),
+    applyLink: pickFirst(j, ["applyLink", "apply_link"]),
+    notificationUrl: pickFirst(j, ["notificationUrl", "notificationURL", "notification_url"]),
+    postedDateRaw: postedRaw,
+    lastDateRaw: deadlineRaw,
+    postedDate: toDateOnly(postedRaw),
+    lastDate: toDateOnly(deadlineRaw),
+    status: pickFirst(j, ["status"]),
+    createdAt: pickFirst(j, ["createdAt"]),
+    updatedAt: pickFirst(j, ["updatedAt"]),
+    location: pickFirst(j, ["location"], "All India"),
+  };
+};
+
+const slugify = (value = "") =>
+  String(value)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
+const buildArticleUrl = (article) => {
+  const tree = article.categoryTree?.[0];
+  if (!tree) return `/${article.slug}`;
+  const parentSlug = slugify(tree.parent?.name || tree.parent?.slug);
+  const childId = article.primary_category?._id || article.primary_category;
+  const child = tree.children?.find(c => c.id === childId || c._id === childId);
+  if (child) {
+    const childSlug = slugify(child.name || child.slug);
+    return `/${parentSlug}/${childSlug}/${article.slug}`;
+  }
+  return `/${parentSlug}/${article.slug}`;
+};
+
+const normalizeBlog = (blog) => ({
+  _id: blog._id || blog.id || "",
+  id: blog.id || blog._id || "",
+  title: blog.title || "",
+  slug: blog.slug || "",
+  url: buildArticleUrl(blog),
+  short_description: blog.short_description || "",
+  featured_image: blog.featured_image || null,
+  image_alt_text: blog.image_alt_text || blog.title || "",
+  published_at: blog.published_at || blog.created_at || blog.publishedAt || null,
+  created_at: blog.created_at || null,
+  read_time: blog.read_time || blog.readTime || null,
+  primaryCategory: blog?.categories?.[0]?.name || blog?.category || "General",
+  authorDisplayName: blog?.author?.author_name || blog?.author_name || "Career Mitra",
+  authorId: blog?.author?._id || blog?.author_id || blog?.authorId || "",
+  authorAvatar: blog?.author?.avatar_url || null,
+});
+
+async function getInitialJobs() {
+  try {
+    const url = buildJobsListUrl(INTERNAL_API_BASE_URL, {
+      page: 1,
+      limit: 12,
+      sort: "newest",
+      jobType: "jobs",
+    });
+    const res = await fetch(url, { next: { revalidate: 300 }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+    const json = await res.json();
+    if (json.success && json.data?.jobs) {
+      return json.data.jobs.map(mapUnifiedJob);
+    }
+    return [];
+  } catch (err) {
+    console.error("getInitialJobs error:", err);
+    return [];
+  }
+}
+
+async function getInitialAnnouncements() {
+  try {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/announcements`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+    const json = await res.json();
+    const list = Array.isArray(json?.data) ? json.data : [];
+    return list
+      .filter((a) => a.status === "active")
+      .map((a) => ({
+        id: a.id || a._id || "",
+        title: a.title || "Announcement",
+        slug: a.slug || "",
+        url: a.url || null,
+        date: a.date || a.publishedAt || a.created_at || null,
+      }));
+  } catch (err) {
+    console.error("getInitialAnnouncements error:", err);
+    return [];
+  }
+}
+
+const SECTIONS = [
+  { name: "Career Guidance", slug: "career-guidance" },
+  { name: "Central Government Jobs", slug: "central-government-jobs" },
+  { name: "State Government Jobs", slug: "state-government-jobs" },
+  { name: "Defence Jobs", slug: "defence-jobs" },
+];
+
+async function getInitialBlogs() {
+  try {
+    const filterRes = await fetch(`${INTERNAL_API_BASE_URL}/blogs/filters`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+    const filterJson = await filterRes.json();
+    const parents = (filterJson.data || filterJson).parents || [];
+
+    const sections = await Promise.all(
+      SECTIONS.map(async (sec) => {
+        const parent = parents.find((p) => p.slug === sec.slug || slugify(p.name) === sec.slug);
+        if (!parent) return { ...sec, blogs: [] };
+        try {
+          const res = await fetch(`${INTERNAL_API_BASE_URL}/blogs?parent_category_id=${parent.id}&limit=8`, {
+            next: { revalidate: 300 },
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          });
+          const json = await res.json();
+          const articles = (json.data || json).articles || [];
+          return { ...sec, blogs: articles.slice(0, 8).map(normalizeBlog) };
+        } catch {
+          return { ...sec, blogs: [] };
+        }
+      })
+    );
+    return sections;
+  } catch (err) {
+    console.error("getInitialBlogs error:", err);
+    return [];
+  }
+}
+
+export default async function Home() {
   const homeSchemas = [
     generateOrganizationSchema(),
     generateWebsiteSchema(),
   ];
+
+  const [initialJobs, initialAnnouncements, initialBlogSections] = await Promise.all([
+    getInitialJobs(),
+    getInitialAnnouncements(),
+    getInitialBlogs(),
+  ]);
 
   return (
     <>
@@ -46,7 +216,11 @@ export default function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <HomeClient />
+      <HomeClient
+        initialJobs={initialJobs}
+        initialAnnouncements={initialAnnouncements}
+        initialBlogSections={initialBlogSections}
+      />
     </>
   );
 }
