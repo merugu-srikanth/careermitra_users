@@ -641,7 +641,7 @@ export const SKILLUPS_DATA = [
       "Crack Logical Reasoning puzzles, syllogisms, blood relations, and seating arrangements.",
       "Analyze complex Data Interpretation graphs (Bar, Pie, Radar, Table matrices).",
       "Master Verbal Reasoning: Reading comprehension, sentence correction, and analogies.",
-      "Attempt timed mock tests simulating TCS NQT, Infosys, Capgemini, SSC, and Banking exams."
+      // "Attempt timed mock tests simulating TCS NQT, Infosys, Capgemini, SSC, and Banking exams."
     ],
     skillsCovered: ["Quantitative Aptitude", "Logical Reasoning", "Data Interpretation", "Vedic Math Shortcuts", "Syllogisms", "Speed Math", "Test Strategy"],
     topics: [

@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Markdown documentation and internal reports (ignored from Git/GitHub)
+WEBSITE_FLOW.md
+ENDUSER_FLOW.md
+*.flow.md
+PWA_CACHING_DEBUGGING_REPORT.md
+PWA_TO_PLAYSTORE_GUIDE.md
+nextjs.md
+

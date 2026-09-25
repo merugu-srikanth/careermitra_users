@@ -53,12 +53,12 @@ const navLinks = [
     Icon: FaCompass,
     dropdown: [
       { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
-
       { name: "Events", path: "/events" },
       { name: "Contact Us", path: "/contact-us" },
     ],
   },
 ];
+
 
 /* ─── AVATAR ───────────────────────────────────────────────────────────────── */
 const AvatarSVG = ({ size = 64 }) => (
@@ -455,7 +455,14 @@ export default function Navbar({ initialCategories = null }) {
                           {link.Icon && <link.Icon size={24} />}
                         </span>
                       ) : (
-                        <span className="text-sm">{link.name}</span>
+                        <span className="text-sm flex items-center gap-1.5">
+                          {link.name}
+                          {link.badge && (
+                            <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-gradient-to-r from-orange-500 to-amber-500 text-white uppercase tracking-wider leading-none shadow-xs">
+                              {link.badge}
+                            </span>
+                          )}
+                        </span>
                       )}
                     </Link>
                   );
@@ -948,8 +955,15 @@ export default function Navbar({ initialCategories = null }) {
                             }}
                           >
                             {link.Icon && <link.Icon size={14} className="text-slate-400 shrink-0" />}
-                            <span className="text-sm font-medium">{link.name}</span>
-                            {active && <span className="ml-auto w-2 h-2 rounded-full bg-orange-400" />}
+                            <span className="text-sm font-medium flex-1 flex items-center justify-between">
+                              <span>{link.name}</span>
+                              {link.badge && (
+                                <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-orange-500 text-white uppercase tracking-wider leading-none">
+                                  {link.badge}
+                                </span>
+                              )}
+                            </span>
+                            {active && <span className="w-2 h-2 rounded-full bg-orange-400 shrink-0" />}
                           </Link>
                         );
                       }

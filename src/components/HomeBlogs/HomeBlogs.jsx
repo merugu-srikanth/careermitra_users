@@ -153,7 +153,20 @@ const BLOGLIST_STYLES = `
 }
 @media(min-width:1536px){ .bl-grid { grid-template-columns: repeat(4,1fr); gap: 32px; } }
 @media(max-width:1024px){ .bl-grid { grid-template-columns: repeat(2,1fr); gap: 20px; } }
-@media(max-width:600px) { .bl-grid { grid-template-columns: 1fr; gap: 16px; } }
+/* Mobile: swipeable row instead of 8 stacked cards per section. Stacking made the
+   home page ~20,000px tall on phones, pushing FAQ / Popular Categories / Footer
+   past the height renderers & crawlers capture. All cards remain in the HTML. */
+@media(max-width:600px) {
+  .bl-grid {
+    display: flex; gap: 14px;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-left: 16px;
+    margin: 0 -16px; padding: 4px 16px 12px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .bl-grid::-webkit-scrollbar { display: none; }
+  .bl-grid > .bl-card { flex: 0 0 82%; max-width: 320px; scroll-snap-align: start; }
+}
 
 .bl-card {
   background: #fff; border-radius: 16px;
@@ -264,8 +277,10 @@ if (typeof document !== 'undefined' && !document.getElementById('bl-styles')) {
     document.head.appendChild(el);
 }
 
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+// Fixed timeZone so server (UTC) and browser (IST) render identical text — otherwise
+// React hydration fails (#418) and discards the server HTML.
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) : '';
 
 const getPrimaryCategory = (blog) =>
     blog?.categories?.[0]?.name || blog?.category || 'General';
