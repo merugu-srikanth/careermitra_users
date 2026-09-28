@@ -405,7 +405,7 @@ export default function EventsPage({ initialData }) {
           </p>
           
           <p className="bl-doc-p">
-            Career Mitra is a platform that shares government job notifications and career advice for people across India. The Events and Media page adds a visual side to this work. Anyone can see recent pictures, watch videos, or check <a href="https://www.youtube.com/@CareerMitraaa" target="_blank" rel="noopener noreferrer" className="bl-doc-link">YouTube</a> content in one place. There is no need to search through different parts of the website. Everything lies together in clear categories.
+            Career Mitra is a platform that shares government job notifications and career advice for people across India. The Events and Media page adds a visual side to this work. Anyone can see recent pictures, watch videos, or check <a href="https://www.youtube.com/@Career_Mitra_Official" target="_blank" rel="noopener noreferrer" className="bl-doc-link">YouTube</a> content in one place. There is no need to search through different parts of the website. Everything lies together in clear categories.
           </p>
           
           <p className="bl-doc-p">

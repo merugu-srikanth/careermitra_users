@@ -1,16 +1,17 @@
 import PgEntranceClient from "./PgEntranceClient";
-import { generateWebPageSchema } from "@/utils/schemaHelpers";
+import PgEntranceGuide from "./PgEntranceGuide";
+import { generateWebPageSchema, generateBreadcrumbSchema } from "@/utils/schemaHelpers";
 
 export const metadata = {
-  title: "PG Entrance Exams 2026 - Pan India, Telangana, AP & Institute Entrances | Career Mitra",
-  description: "Find complete PG entrance exam lists: Pan-India (GATE, CUET-PG, JAM, CAT, MAT, XAT, NIPER), Telangana (TS PGECET, TS ICET, CPGET), AP (AP PGECET, AP ICET, APPGCET), and Institutes (CFTRI, TIFR, ISI). Access notifications and apply links.",
-  keywords: "PG Entrance Exams 2026, GATE, CUET-PG, TS PGECET, AP PGECET, CFTRI Food Tech, JAM, CAT, MAT, XAT, NIPER JEE, ISI, TIFR, Career Mitra",
+  title: "PG Entrance Exams 2026 - National & Telangana | Career Mitra",
+  description: "PG entrance exams 2026 in one place: GATE, IIT JAM, CAT, CUET-PG and Telangana TG CPGET, TG PGECET, TG ICET & TG PGLCET, with dates and apply links.",
+  keywords: "PG Entrance Exams 2026, GATE 2027, IIT JAM 2027, CAT 2026, CUET PG, TG CPGET, TG PGECET, TG ICET, TG PGLCET, National Level PG Entrance Exams, Career Mitra",
   alternates: {
     canonical: "https://careermitra.in/pg-entrance",
   },
   openGraph: {
-    title: "PG Entrance Exams 2026 - Pan India, Telangana, AP & Institute Entrances | Career Mitra",
-    description: "Explore all PG entrance exams after graduation. Check exam lists, streams, universities, notifications, and direct apply links.",
+    title: "PG Entrance Exams 2026 - National & Telangana | Career Mitra",
+    description: "PG entrance exams 2026 in one place: GATE, IIT JAM, CAT, CUET-PG and Telangana TG CPGET, TG PGECET, TG ICET & TG PGLCET, with dates and apply links.",
     url: "https://careermitra.in/pg-entrance",
     type: "website",
     siteName: "Career Mitra",
@@ -25,17 +26,21 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PG Entrance Exams 2026 - Career Mitra",
-    description: "Find comprehensive information about PG entrance exams, notifications, and application portals.",
+    title: "PG Entrance Exams 2026 - National & Telangana | Career Mitra",
+    description: "PG entrance exams 2026 in one place: GATE, IIT JAM, CAT, CUET-PG and Telangana TG CPGET, TG PGECET, TG ICET & TG PGLCET, with dates and apply links.",
     images: ["https://careermitra.in/default_og_image.png"],
   },
 };
 
 export default function PgEntrancePage() {
   const schemas = [
+    generateBreadcrumbSchema([
+      { name: "Home", item: "/" },
+      { name: "PG Entrance Exams", item: "/pg-entrance" },
+    ]),
     generateWebPageSchema({
-      name: "PG Entrance Exams 2026 - Career Mitra",
-      description: "Find complete information about PG entrance exams in India including Pan India, Telangana, Andhra Pradesh, and premier institutes like CFTRI, TIFR, ISI.",
+      name: "PG Entrance Exams 2026 - National & Telangana | Career Mitra",
+      description: "PG entrance exams 2026 in one place: GATE, IIT JAM, CAT, CUET-PG and Telangana TG CPGET, TG PGECET, TG ICET & TG PGLCET, with dates and apply links.",
       url: "https://careermitra.in/pg-entrance"
     })
   ].filter(Boolean);
@@ -49,7 +54,7 @@ export default function PgEntrancePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <PgEntranceClient />
+      <PgEntranceClient guide={<PgEntranceGuide />} />
     </>
   );
 }

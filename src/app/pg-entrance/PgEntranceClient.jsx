@@ -29,357 +29,224 @@ import {
 // II. Telangana & Andhra Pradesh State PG Entrance
 // III. Organization / Institute-wise PG Courses (e.g., CFTRI, TIFR, ISI, CMI, NIPER)
 const PG_EXAMS_DATA = [
-  // ─── I. PAN INDIA PG ENTRANCE ───────────────────────────────────────────
+ 
+ {
+    id: "gate-2027",
+    name: "GATE 2027",
+    fullName: "Graduate Aptitude Test in Engineering 2027",
+    section: "national",
+    sectionLabel: "National Level",
+    stream: "Engineering, Technology, Science, Commerce & Humanities",
+    streamCategory: "engineering",
+    degree: "M.Tech, M.E., M.Arch, M.Plan and selected Master's & Doctoral programmes",
+    university: "IITs, IISc and other participating institutes",
+    location: "India",
+    eligibility: "Candidates currently studying in the 3rd year or higher of an undergraduate degree programme, or candidates who have completed a government-approved degree in Engineering, Technology, Architecture, Science, Commerce, Arts or Humanities.",
+    examPeriod: "February 2027",
+    notificationUrl: "https://gate2027.iitm.ac.in/",
+    applyUrl: "https://goaps.iitg.ac.in/",
+    iconBg: "bg-blue-50 text-blue-600 border-blue-200",
+    badgeBg: "bg-blue-100 text-blue-700",
+    description: "National-level examination assessing undergraduate-level knowledge for admission to postgraduate and doctoral programmes and for selected recruitment opportunities.",
+    highlights: [
+      "30 GATE test papers",
+      "No age limit",
+      "Valid GATE score can be used for postgraduate admissions",
+      "Application portal is currently open",
+      "Exam dates: 6, 7, 13, 14, 20 and 21 February 2027"
+    ]
+  },
+
   {
-    id: "cuet-pg",
+    id: "iit-jam-2027",
+    name: "IIT JAM 2027",
+    fullName: "Joint Admission Test for Masters 2027",
+    section: "national",
+    sectionLabel: "National Level",
+    stream: "Science & Mathematics",
+    streamCategory: "science",
+    degree: "M.Sc., M.Sc.-Ph.D., Joint M.Sc.-Ph.D. and other postgraduate programmes",
+    university: "IITs and other participating institutes",
+    location: "India",
+    eligibility: "Candidates who have completed an undergraduate degree or are currently studying in the final year of an undergraduate degree programme, subject to programme-specific eligibility requirements.",
+    examPeriod: "February 2027",
+    notificationUrl: "https://jam.iitkgp.ac.in/",
+    applyUrl: "https://joaps.iitkgp.ac.in/home",
+    iconBg: "bg-purple-50 text-purple-600 border-purple-200",
+    badgeBg: "bg-purple-100 text-purple-700",
+    description: "National-level entrance examination providing admission opportunities to postgraduate science programmes at IITs and participating institutes.",
+    highlights: [
+      "Registration started: 11 September 2026",
+      "Last date to apply: 19 October 2026",
+      "Exam date: 14 February 2027",
+      "More than 3,000 postgraduate seats",
+      "Seven test papers covering major science disciplines"
+    ]
+  },
+
+  {
+    id: "cat-2026",
+    name: "CAT 2026",
+    fullName: "Common Admission Test 2026",
+    section: "national",
+    sectionLabel: "National Level",
+    stream: "Management",
+    streamCategory: "management",
+    degree: "MBA, PGDM and other postgraduate management programmes",
+    university: "Indian Institutes of Management and participating management institutes",
+    location: "India",
+    eligibility: "Bachelor's degree with the minimum percentage or equivalent qualification prescribed by the CAT/IIM admission requirements. Final-year undergraduate students may also apply subject to applicable conditions.",
+    examPeriod: "November 2026",
+    notificationUrl: "https://iimcat.ac.in/",
+    applyUrl: "https://iimcat.ac.in/",
+    iconBg: "bg-red-50 text-red-600 border-red-200",
+    badgeBg: "bg-red-100 text-red-700",
+    description: "National management entrance examination used for admission to postgraduate management programmes at IIMs and other participating institutions.",
+    highlights: [
+      "Gateway to IIM management programmes",
+      "Scores accepted by several non-IIM institutions",
+      "Tests Verbal Ability, Reading Comprehension, Data Interpretation, Logical Reasoning and Quantitative Ability",
+      "National-level computer-based examination"
+    ]
+  },
+
+  {
+    id: "cuet-pg-2027",
     name: "CUET-PG",
-    fullName: "Common University Entrance Test (Postgraduate)",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "All Streams",
-    streamCategory: "all",
-    degree: "M.A., M.Sc., M.Com, MCA, MBA, M.Ed",
-    university: "National Testing Agency (NTA) & 190+ Central / State Universities",
-    location: "All India (Multiple Central Universities)",
-    eligibility: "Bachelor's degree in relevant discipline from a recognized university.",
-    examPeriod: "March - April",
-    notificationUrl: "https://pgcuet.samarth.ac.in",
-    applyUrl: "https://pgcuet.samarth.ac.in",
+    fullName: "Common University Entrance Test – Postgraduate",
+    section: "national",
+    sectionLabel: "National Level",
+    stream: "Arts, Commerce, Science, Management & Professional Courses",
+    streamCategory: "multi-stream",
+    degree: "M.A., M.Com, M.Sc., MCA, MBA and other postgraduate programmes",
+    university: "Central Universities and participating State, Government, Deemed and Private Universities",
+    location: "India",
+    eligibility: "Bachelor's degree or equivalent qualification from a recognized university. Specific eligibility requirements vary according to the selected programme and participating university.",
+    examPeriod: "March 2027",
+    notificationUrl: "https://exams.nta.nic.in/cuet-pg/",
+    applyUrl: "https://exams.nta.nic.in/cuet-pg/",
     iconBg: "bg-orange-50 text-orange-600 border-orange-200",
     badgeBg: "bg-orange-100 text-orange-700",
-    description: "Single-window national entrance examination for admission into postgraduate master degree programs across Central Universities (DU, JNU, BHU, HCU, Pondicherry) and participating institutions.",
-    highlights: ["Score accepted by 190+ Universities", "150+ Subject Question Papers", "Computer-Based Test (CBT)"]
-  },
-  {
-    id: "gate",
-    name: "GATE",
-    fullName: "Graduate Aptitude Test in Engineering",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Engineering & Science",
-    streamCategory: "engineering",
-    degree: "M.Tech, M.E., M.Arch, Ph.D., PSU Recruitments",
-    university: "IITs (Rotational) & IISc Bangalore",
-    location: "All India (IITs, NITs, IIITs, CFTIs)",
-    eligibility: "Bachelor's degree in Engineering / Technology / Architecture / Science (or 3rd/final year).",
-    examPeriod: "February",
-    notificationUrl: "https://gate2026.iitkgp.ac.in",
-    applyUrl: "https://gate2026.iitkgp.ac.in",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "National premier examination testing comprehensive understanding of undergraduate subjects in Engineering, Technology, Architecture, and Science for M.Tech admissions and PSU jobs.",
-    highlights: ["GATE score valid for 3 Years", "Direct pathway to PSU Maharatna recruitments", "MHRD monthly scholarship for M.Tech candidates"]
-  },
-  {
-    id: "jam",
-    name: "IIT JAM",
-    fullName: "Joint Admission Test for Masters",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Pure Sciences",
-    streamCategory: "science",
-    degree: "M.Sc., M.Sc.-Ph.D. Dual Degree, Integrated Ph.D.",
-    university: "IITs (Rotational) & IISc Bangalore",
-    location: "All India (IITs, IISc, NITs, IISERs)",
-    eligibility: "Bachelor's degree with relevant science subjects (Chemistry, Physics, Math, Bio).",
-    examPeriod: "February",
-    notificationUrl: "https://jam2026.iitd.ac.in",
-    applyUrl: "https://jam2026.iitd.ac.in",
-    iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-800",
-    description: "Benchmark admission test for science graduates seeking admission into 2-year M.Sc. and Joint M.Sc.-Ph.D. programs at premier Indian Institutes of Technology.",
-    highlights: ["7 test papers: Biotechnology, Chemistry, Geology, Mathematics, Mathematical Statistics, Physics, Economics", "Centralized admissions across IITs & IISc"]
-  },
-  {
-    id: "cat",
-    name: "CAT",
-    fullName: "Common Admission Test",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Management",
-    streamCategory: "management",
-    degree: "MBA / PGDM",
-    university: "Indian Institutes of Management (IIMs)",
-    location: "All India (21 IIMs, FMS, SPJIMR, MDI, IIT DoMS)",
-    eligibility: "Bachelor's degree with at least 50% marks (45% for SC/ST/PwD) or equivalent.",
-    examPeriod: "November",
-    notificationUrl: "https://iimcat.ac.in",
-    applyUrl: "https://iimcat.ac.in",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "The most prestigious computer-based management entrance test in India for admission into graduate management programs at 21 IIMs and hundreds of top B-schools.",
-    highlights: ["Tests VARC, DILR, and Quantitative Ability", "Scores accepted by 1000+ Business Schools", "Tier-1 corporate career placement opportunities"]
-  },
-  {
-    id: "xat",
-    name: "XAT",
-    fullName: "Xavier Aptitude Test",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Management",
-    streamCategory: "management",
-    degree: "MBA / PGDM",
-    university: "XLRI Xavier School of Management, Jamshedpur",
-    location: "All India (XLRI, XIMB, TAPMI, IMT, 160+ B-Schools)",
-    eligibility: "Recognized Bachelor's degree of minimum 3 years duration in any discipline.",
-    examPeriod: "January",
-    notificationUrl: "https://xatonline.in",
-    applyUrl: "https://xatonline.in",
-    iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-800",
-    description: "National management aptitude examination conducted by XLRI on behalf of XAMI for admission to management programs across 160+ partner institutes.",
-    highlights: ["Unique Decision Making section", "Accepted by XLRI Jamshedpur & Delhi", "High prestige in corporate leadership & HR"]
-  },
-  {
-    id: "mat",
-    name: "MAT",
-    fullName: "Management Aptitude Test",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Management",
-    streamCategory: "management",
-    degree: "MBA / PGDM",
-    university: "All India Management Association (AIMA)",
-    location: "All India (600+ Business Schools)",
-    eligibility: "Graduates in any discipline or final year degree students.",
-    examPeriod: "Feb, May, Sep, Dec",
-    notificationUrl: "https://mat.aima.in",
-    applyUrl: "https://mat.aima.in",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "Standardized national test administered 4 times a year in PBT (Paper Based), CBT (Computer Based), and IBT (Internet Based) formats.",
-    highlights: ["Conducted 4 times a year", "Multiple testing mode choices", "Wide acceptance across government & private B-schools"]
-  },
-  {
-    id: "niper-jee",
-    name: "NIPER JEE",
-    fullName: "NIPER Joint Entrance Examination",
-    section: "pan-india",
-    sectionLabel: "Pan India",
-    stream: "Pharmacy & Pharma Sciences",
-    streamCategory: "pharmacy",
-    degree: "M.Pharm, M.S. (Pharm), M.Tech (Pharm), MBA (Pharm), Ph.D.",
-    university: "National Institutes of Pharmaceutical Education and Research (NIPER)",
-    location: "Hyderabad, Mohali, Ahmedabad, Raebareli, Guwahati, Hajipur, Kolkata",
-    eligibility: "B.Pharm / B.Tech / M.Sc with valid GPAT / GATE / NET score.",
-    examPeriod: "June - July",
-    notificationUrl: "https://www.niperhyd.ac.in",
-    applyUrl: "https://www.niperhyd.ac.in",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "Apex national examination for admission to postgraduate and doctoral programs across all seven NIPER institutes of national importance.",
-    highlights: ["Institutes of National Importance", "Cutting-edge pharmaceutical research", "Excellent placement in R&D and drug manufacturing"]
+    description: "National postgraduate entrance examination conducted by NTA for admission to postgraduate programmes offered by participating universities and institutions.",
+    highlights: [
+      "Central University postgraduate admissions",
+      "Courses available across multiple academic streams",
+      "Conducted by the National Testing Agency",
+      "Participating universities include Central, State, Government, Deemed and Private institutions"
+    ]
   },
 
-  // ─── II. STATE-WISE PG ENTRANCE (TELANGANA & ANDHRA PRADESH) ─────────────
   {
-    id: "ts-pgecet",
-    name: "TS PGECET",
+    id: "tg-cpget-2027",
+    name: "TG CPGET",
+    fullName: "Telangana Common Post Graduate Entrance Tests",
+    section: "state",
+    sectionLabel: "Telangana State",
+    stream: "Arts, Commerce, Science & Other PG Courses",
+    streamCategory: "multi-stream",
+    degree: "M.A., M.Com, M.Sc., M.Li.Sc. and other postgraduate programmes",
+    university: "Osmania University and participating Telangana universities",
+    location: "Telangana",
+    eligibility: "Candidates must possess the relevant Bachelor's degree or equivalent qualification prescribed for the selected postgraduate course.",
+    examPeriod: "July–August",
+    notificationUrl: "https://cpget.tgche.ac.in/",
+    applyUrl: "https://cpget.tgche.ac.in/",
+    iconBg: "bg-green-50 text-green-600 border-green-200",
+    badgeBg: "bg-green-100 text-green-700",
+    description: "Telangana's common postgraduate entrance examination for admission to postgraduate programmes offered by participating universities and affiliated colleges.",
+    highlights: [
+      "Major Telangana PG entrance examination",
+      "Covers Arts, Commerce and Science subjects",
+      "Admissions across participating Telangana universities",
+      "Includes M.A., M.Com and M.Sc. programmes"
+    ]
+  },
+
+  {
+    id: "tg-pgecet-2027",
+    name: "TG PGECET",
     fullName: "Telangana State Post Graduate Engineering Common Entrance Test",
-    section: "telangana",
+    section: "state",
     sectionLabel: "Telangana State",
-    stream: "Engineering & Pharmacy",
+    stream: "Engineering & Architecture",
     streamCategory: "engineering",
-    degree: "M.Tech, M.E., M.Pharm, M.Arch, Graduate Pharm.D",
-    university: "JNTU Hyderabad on behalf of TSCHE",
-    location: "Telangana State Universities (JNTUH, OU, KU)",
-    eligibility: "B.Tech / B.E. / B.Pharm with qualifying percentage in relevant branch.",
+    degree: "M.Tech, M.E., M.Arch and related postgraduate programmes",
+    university: "Telangana universities and participating colleges",
+    location: "Telangana",
+    eligibility: "Candidates must possess the prescribed Bachelor's degree in Engineering, Technology or Architecture for the selected postgraduate programme.",
     examPeriod: "June",
-    notificationUrl: "https://pgecet.tsche.ac.in",
-    applyUrl: "https://pgecet.tsche.ac.in",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "State-level common entrance examination for admission into M.E./M.Tech/M.Pharm/M.Arch/Graduate level Pharm.D programs in Telangana.",
-    highlights: ["State quota reservation & scholarships", "GATE/GPAT qualifiers eligible for direct admission", "CBT mode test across Telangana"]
-  },
-  {
-    id: "ts-icet",
-    name: "TS ICET",
-    fullName: "Telangana State Integrated Common Entrance Test",
-    section: "telangana",
-    sectionLabel: "Telangana State",
-    stream: "Management & MCA",
-    streamCategory: "management",
-    degree: "MBA & MCA (Full Time & Part Time)",
-    university: "Kakatiya University, Warangal on behalf of TSCHE",
-    location: "Telangana State Universities & Affiliated Colleges",
-    eligibility: "Bachelor's degree of minimum 3 years duration with at least 50% (45% for reserved categories).",
-    examPeriod: "May - June",
-    notificationUrl: "https://icet.tsche.ac.in",
-    applyUrl: "https://icet.tsche.ac.in",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "State-level entrance test for admissions into regular MBA and MCA postgraduate programs in all universities and affiliated colleges in Telangana.",
-    highlights: ["Analytical, Mathematical, and Communication Ability sections", "Government fee reimbursement eligibility"]
-  },
-  {
-    id: "cpget-ts",
-    name: "CPGET (OUCET)",
-    fullName: "Common Post Graduate Entrance Tests - Telangana",
-    section: "telangana",
-    sectionLabel: "Telangana State",
-    stream: "Arts, Science & Commerce",
-    streamCategory: "science",
-    degree: "M.A., M.Sc., M.Com, M.Ed, M.P.Ed, PG Diploma",
-    university: "Osmania University on behalf of TS State Universities",
-    location: "OU, Kakatiya Univ, Telangana Univ, Mahatma Gandhi Univ, Palamuru Univ, Satavahana Univ, JNTUH",
-    eligibility: "Qualifying undergraduate degree in relevant discipline from a recognized university.",
-    examPeriod: "June - July",
-    notificationUrl: "https://cpget.tsche.ac.in",
-    applyUrl: "https://cpget.tsche.ac.in",
-    iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-800",
-    description: "Centralized admission test conducted by Osmania University for entry into diverse conventional and professional PG courses across all 7 Telangana state universities.",
-    highlights: ["Covers 50+ subjects in Arts, Sciences, Social Sciences & Commerce", "Single application for multiple state universities"]
-  },
-  {
-    id: "ap-pgecet",
-    name: "AP PGECET",
-    fullName: "Andhra Pradesh Post Graduate Engineering Common Entrance Test",
-    section: "andhra-pradesh",
-    sectionLabel: "Andhra Pradesh",
-    stream: "Engineering & Pharmacy",
-    streamCategory: "engineering",
-    degree: "M.Tech, M.Pharm, Pharma.D",
-    university: "Sri Venkateswara University on behalf of APSCHE",
-    location: "Andhra Pradesh State Universities (AU, SVU, JNTUK, JNTUA)",
-    eligibility: "B.Tech/B.E./B.Pharm with at least 50% marks (45% for reserved category).",
-    examPeriod: "May - June",
-    notificationUrl: "https://cets.apsche.ap.gov.in",
-    applyUrl: "https://cets.apsche.ap.gov.in",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "State-level entrance test for admissions into regular postgraduate engineering and pharmacy programs across universities and affiliated colleges in AP.",
-    highlights: ["State quota counseling & scholarships", "Exemption from test for GATE/GPAT qualifiers", "Online computer-based test"]
-  },
-  {
-    id: "ap-icet",
-    name: "AP ICET",
-    fullName: "Andhra Pradesh Integrated Common Entrance Test",
-    section: "andhra-pradesh",
-    sectionLabel: "Andhra Pradesh",
-    stream: "Management & MCA",
-    streamCategory: "management",
-    degree: "MBA & MCA",
-    university: "Sri Krishnadevaraya University, Anantapur on behalf of APSCHE",
-    location: "Andhra Pradesh Universities & Affiliated Colleges",
-    eligibility: "Graduate degree of 3/4 years duration with required qualifying marks.",
-    examPeriod: "May",
-    notificationUrl: "https://cets.apsche.ap.gov.in",
-    applyUrl: "https://cets.apsche.ap.gov.in",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "State-level integrated examination for students seeking master's degrees in Business Administration (MBA) and Computer Applications (MCA) in AP.",
-    highlights: ["Single counseling process for all colleges in AP", "State Jagananna Vidya Deevena fee reimbursement applicable"]
-  },
-  {
-    id: "appgcet",
-    name: "APPGCET",
-    fullName: "Andhra Pradesh Post Graduate Common Entrance Test",
-    section: "andhra-pradesh",
-    sectionLabel: "Andhra Pradesh",
-    stream: "Arts, Science & Commerce",
-    streamCategory: "science",
-    degree: "M.A., M.Sc., M.Com, M.Ed, M.P.Ed, M.Sc. Tech",
-    university: "Andhra University, Visakhapatnam on behalf of APSCHE",
-    location: "AU, SVU, SKVU, Acharya Nagarjuna Univ, Yogi Vemana Univ, Rayalaseema Univ, SPMVV",
-    eligibility: "Bachelor's degree with matching subject prerequisites.",
-    examPeriod: "June",
-    notificationUrl: "https://cets.apsche.ap.gov.in",
-    applyUrl: "https://cets.apsche.ap.gov.in",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "Common entrance test for admissions into Master of Arts, Science, Commerce, and Education courses across all state university campuses in Andhra Pradesh.",
-    highlights: ["Centralized admission to 14+ State Universities", "40+ Subject Papers", "Online Web Counseling"]
+    notificationUrl: "https://pgecet.tgche.ac.in/",
+    applyUrl: "https://pgecet.tgche.ac.in/",
+    iconBg: "bg-indigo-50 text-indigo-600 border-indigo-200",
+    badgeBg: "bg-indigo-100 text-indigo-700",
+    description: "Telangana state-level entrance examination for admission to postgraduate engineering, technology and architecture programmes.",
+    highlights: [
+      "Telangana M.Tech and M.E. entrance examination",
+      "Covers multiple engineering specializations",
+      "Used for admissions to participating Telangana institutions",
+      "Separate counselling process after the entrance examination"
+    ]
   },
 
-  // ─── III. ORGANISATION / INSTITUTE-WISE PG COURSES & ENTRANCES ───────────
   {
-    id: "cftri",
-    name: "CFTRI M.Sc. Entrance",
-    fullName: "CSIR-Central Food Technological Research Institute Entrance Exam",
-    section: "institute",
-    sectionLabel: "Institute Specific",
-    stream: "Food Technology & Science",
-    streamCategory: "science",
-    degree: "M.Sc. (Food Technology), Ph.D., Post Harvest Tech",
-    university: "CSIR - Central Food Technological Research Institute (AcSIR), Mysore",
-    location: "Mysuru, Karnataka",
-    eligibility: "B.Sc. / B.Tech / B.E. in Agriculture / Food Tech / Chemistry / Bio / Horticulture with 55%+.",
-    examPeriod: "June - July",
-    notificationUrl: "https://cftri.res.in",
-    applyUrl: "https://cftri.res.in/academic/msc",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "Prestigious national entrance for the two-year specialized M.Sc. Food Technology course at CSIR-CFTRI, recognized globally as the gold-standard in food science and industrial processing.",
-    highlights: ["Premier CSIR R&D laboratory", "100% Industry placement record in Top FMCG & Food giants", "World-class pilot plants and food research infrastructure"]
+    id: "tg-icet-2027",
+    name: "TG ICET",
+    fullName: "Telangana Integrated Common Entrance Test",
+    section: "state",
+    sectionLabel: "Telangana State",
+    stream: "Management & Computer Applications",
+    streamCategory: "management",
+    degree: "MBA and MCA",
+    university: "Telangana universities and participating colleges",
+    location: "Telangana",
+    eligibility: "Candidates must hold a Bachelor's degree or equivalent qualification meeting the prescribed eligibility requirements for MBA or MCA admission.",
+    examPeriod: "June",
+    notificationUrl: "https://icet.tgche.ac.in/",
+    applyUrl: "https://icet.tgche.ac.in/",
+    iconBg: "bg-cyan-50 text-cyan-600 border-cyan-200",
+    badgeBg: "bg-cyan-100 text-cyan-700",
+    description: "Telangana state-level entrance examination for admission to MBA and MCA programmes offered by participating universities and colleges.",
+    highlights: [
+      "Telangana MBA entrance examination",
+      "Telangana MCA entrance examination",
+      "Applicable to participating universities and colleges",
+      "State-level counselling after examination"
+    ]
   },
+
   {
-    id: "tifr-gs",
-    name: "TIFR GS",
-    fullName: "Tata Institute of Fundamental Research Graduate School",
-    section: "institute",
-    sectionLabel: "Institute Specific",
-    stream: "Pure Sciences & Research",
-    streamCategory: "science",
-    degree: "M.Sc. & Integrated Ph.D.",
-    university: "Tata Institute of Fundamental Research (TIFR / DAE)",
-    location: "Mumbai, Pune (NCRA), Bangalore (ICTS, NCBS), Hyderabad",
-    eligibility: "B.Sc. / B.Tech / B.E. in relevant scientific disciplines.",
-    examPeriod: "December (Annual)",
-    notificationUrl: "https://www.tifr.res.in/~academics",
-    applyUrl: "https://www.tifr.res.in/~academics",
-    iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-    badgeBg: "bg-amber-100 text-amber-800",
-    description: "Rigorous national examination for aspiring scientific researchers seeking direct M.Sc. and Integrated Ph.D. degrees in Physics, Chemistry, Biology, Mathematics, and Computer Science.",
-    highlights: ["Full fellowship / stipend from Day 1", "Direct research under India's top scientists", "World-renowned international research collaborations"]
-  },
-  {
-    id: "isi-admission",
-    name: "ISI Admission Test",
-    fullName: "Indian Statistical Institute Entrance Examination",
-    section: "institute",
-    sectionLabel: "Institute Specific",
-    stream: "Statistics, Math & Data Science",
-    streamCategory: "science",
-    degree: "M.Stat, M.Math, MS (Quantitative Economics), M.Tech (CS)",
-    university: "Indian Statistical Institute (ISI Kolkata)",
-    location: "Kolkata, Delhi, Bangalore, Chennai, Tezpur",
-    eligibility: "Bachelor's degree with strong background in Mathematics / Statistics / Engineering.",
-    examPeriod: "May",
-    notificationUrl: "https://www.isical.ac.in/~admission",
-    applyUrl: "https://www.isical.ac.in/~admission",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "Elite competitive examination for master's programs in Statistics, Mathematics, Data Science, and Quantitative Economics at the historic Indian Statistical Institute.",
-    highlights: ["Free tuition + monthly stipend for all admitted students", "World-leading statistical & AI research", "Highest tier global actuarial & quantitative analytics placements"]
-  },
-  {
-    id: "cmi-entrance",
-    name: "CMI Entrance Exam",
-    fullName: "Chennai Mathematical Institute Entrance Examination",
-    section: "institute",
-    sectionLabel: "Institute Specific",
-    stream: "Mathematics & Computer Science",
-    streamCategory: "science",
-    degree: "M.Sc. in Mathematics, M.Sc. in Computer Science, M.Sc. in Data Science",
-    university: "Chennai Mathematical Institute (CMI)",
-    location: "Siruseri, Chennai, Tamil Nadu",
-    eligibility: "Undergraduate degree with strong mathematical aptitude.",
-    examPeriod: "May",
-    notificationUrl: "https://www.cmi.ac.in/admissions",
-    applyUrl: "https://www.cmi.ac.in/admissions",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "Premier entrance test for students with a deep passion for Theoretical Computer Science, Pure Mathematics, and Advanced Data Science.",
-    highlights: ["Generous scholarships & fee waivers", "Small batch sizes with personalized faculty mentorship", "Direct access to top global PhD programs"]
+    id: "tg-pglcet-2027",
+    name: "TG PGLCET",
+    fullName: "Telangana State Post Graduate Law Common Entrance Test",
+    section: "state",
+    sectionLabel: "Telangana State",
+    stream: "Law",
+    streamCategory: "law",
+    degree: "LL.M.",
+    university: "Telangana universities and participating law colleges",
+    location: "Telangana",
+    eligibility: "Candidates must possess an LL.B. or equivalent law degree from a recognized institution, subject to the applicable admission requirements.",
+    examPeriod: "June",
+    notificationUrl: "https://lawcet.tgche.ac.in/",
+    applyUrl: "https://lawcet.tgche.ac.in/",
+    iconBg: "bg-yellow-50 text-yellow-600 border-yellow-200",
+    badgeBg: "bg-yellow-100 text-yellow-700",
+    description: "Telangana postgraduate law entrance examination for admission to LL.M. programmes in participating universities and law colleges.",
+    highlights: [
+      "Telangana state-level LL.M. entrance examination",
+      "For eligible LL.B. graduates",
+      "Admissions through participating Telangana institutions",
+      "State-level counselling process"
+    ]
   }
+
+
 ];
 
-export default function PgEntranceClient() {
+export default function PgEntranceClient({ guide = null }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSection, setActiveSection] = useState("all"); // "all", "pan-india", "telangana", "andhra-pradesh", "institute"
-  const [activeStream, setActiveStream] = useState("all"); // "all", "engineering", "science", "management", "pharmacy"
+  const [activeSection, setActiveSection] = useState("all"); // "all", "national", "state"
+  const [activeStream, setActiveStream] = useState("all"); // "all", "engineering", "science", "management", "law", "multi-stream"
   const [viewMode, setViewMode] = useState("grid"); // "grid" | "table"
   const [selectedExamModal, setSelectedExamModal] = useState(null);
 
@@ -411,10 +278,8 @@ export default function PgEntranceClient() {
   const counts = useMemo(() => {
     return {
       all: PG_EXAMS_DATA.length,
-      "pan-india": PG_EXAMS_DATA.filter(e => e.section === "pan-india").length,
-      telangana: PG_EXAMS_DATA.filter(e => e.section === "telangana").length,
-      "andhra-pradesh": PG_EXAMS_DATA.filter(e => e.section === "andhra-pradesh").length,
-      institute: PG_EXAMS_DATA.filter(e => e.section === "institute").length,
+      national: PG_EXAMS_DATA.filter(e => e.section === "national").length,
+      state: PG_EXAMS_DATA.filter(e => e.section === "state").length,
     };
   }, []);
 
@@ -485,7 +350,7 @@ export default function PgEntranceClient() {
 
           {/* Subtitle */}
           <p className="text-gray-600 text-sm sm:text-base font-normal leading-relaxed max-w-4xl mx-auto px-2">
-            Search exam-wise, stream-wise, and university-wise for <span className="font-semibold text-gray-800">Pan-India</span>, <span className="font-semibold text-gray-800">Telangana</span>, <span className="font-semibold text-gray-800">Andhra Pradesh</span>, and premier institutes like <span className="font-semibold text-gray-800">CFTRI, TIFR, ISI</span>.
+            Search exam-wise, stream-wise, and university-wise for <span className="font-semibold text-gray-800">National-level</span> PG entrances like <span className="font-semibold text-gray-800">GATE, IIT JAM, CAT, CUET-PG</span> and <span className="font-semibold text-gray-800">Telangana State</span> entrances like <span className="font-semibold text-gray-800">TG CPGET, TG PGECET, TG ICET, TG PGLCET</span>.
           </p>
 
         </div>
@@ -506,7 +371,7 @@ export default function PgEntranceClient() {
                 <Search className="w-4 h-4 text-orange-500 ml-2.5 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search by exam (GATE, CUET, TS PGECET), stream, or institute..."
+                  placeholder="Search by exam (GATE, CUET-PG, TG PGECET), stream, or institute..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-2.5 py-1.5 text-xs sm:text-sm outline-none bg-transparent text-gray-800 placeholder:text-gray-400 font-normal"
@@ -528,7 +393,7 @@ export default function PgEntranceClient() {
               {/* Quick Popular Keywords / Chips */}
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <span className="text-gray-400 text-[11px] font-medium mr-0.5">Quick:</span>
-                {["GATE", "CUET-PG", "TS PGECET", "AP PGECET", "CFTRI", "JAM", "CAT", "NIPER", "ISI"].map((tag) => {
+                {["GATE", "IIT JAM", "CAT", "CUET-PG", "TG CPGET", "TG PGECET", "TG ICET", "TG PGLCET"].map((tag) => {
                   const isSelected = searchQuery.toLowerCase() === tag.toLowerCase();
                   return (
                     <button
@@ -567,10 +432,8 @@ export default function PgEntranceClient() {
                   className="w-full appearance-none bg-slate-50/80 hover:bg-white focus:bg-white rounded-2xl border border-gray-200 hover:border-orange-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100/70 py-2.5 pl-3.5 pr-10 text-xs sm:text-sm font-medium text-gray-800 outline-none transition-all cursor-pointer shadow-2xs"
                 >
                   <option value="all">All Exams ({counts.all})</option>
-                  <option value="pan-india">Pan India ({counts["pan-india"]})</option>
-                  <option value="telangana">Telangana (TS) ({counts.telangana})</option>
-                  <option value="andhra-pradesh">Andhra Pradesh (AP) ({counts["andhra-pradesh"]})</option>
-                  <option value="institute">Institute Specific ({counts.institute})</option>
+                  <option value="national">National Level ({counts.national})</option>
+                  <option value="state">Telangana State ({counts.state})</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <ChevronDown className="w-4 h-4 text-orange-500" />
@@ -606,9 +469,10 @@ export default function PgEntranceClient() {
                 >
                   <option value="all">All Streams</option>
                   <option value="engineering">Engineering</option>
-                  <option value="science">Science & Food Tech</option>
-                  <option value="management">Management / MBA</option>
-                  <option value="pharmacy">Pharmacy & Pharma</option>
+                  <option value="science">Science & Mathematics</option>
+                  <option value="management">Management / MBA / MCA</option>
+                  <option value="law">Law</option>
+                  <option value="multi-stream">Arts, Commerce & Multi-stream</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <ChevronDown className="w-4 h-4 text-orange-500" />
@@ -685,13 +549,9 @@ export default function PgEntranceClient() {
                     {/* Card Top: Badges & Stream */}
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <span className={`text-[10px] font-semibold uppercase px-2.5 py-1 rounded-md border ${
-                        exam.section === "pan-india"
+                        exam.section === "national"
                           ? "bg-orange-50 text-orange-700 border-orange-200"
-                          : exam.section === "telangana"
-                          ? "bg-amber-50 text-amber-800 border-amber-200"
-                          : exam.section === "andhra-pradesh"
-                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                          : "bg-purple-50 text-purple-800 border-purple-200"
+                          : "bg-amber-50 text-amber-800 border-amber-200"
                       }`}>
                         {exam.sectionLabel}
                       </span>
@@ -845,7 +705,7 @@ export default function PgEntranceClient() {
           <div className="bg-white rounded-3xl border border-orange-100 p-8 sm:p-12 text-center my-8 shadow-sm">
             <Search className="w-12 h-12 text-orange-300 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-800">No matching PG entrance exams found</h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">Try resetting the filters or searching for keywords like GATE, CFTRI, TS ICET, CUET.</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">Try resetting the filters or searching for keywords like GATE, CUET-PG, TG ICET, CAT.</p>
             <button
               onClick={() => {
                 setActiveSection("all");
@@ -860,8 +720,8 @@ export default function PgEntranceClient() {
         )}
       </section>
 
-      {/* ─── 4. SUMMARY ROADMAP / QUICK ACCESS ─────────────── */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 my-10 sm:my-12">
+
+      {/* <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 my-10 sm:my-12">
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-800">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xl sm:text-2xl">🧭</span>
@@ -874,7 +734,7 @@ export default function PgEntranceClient() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-            {/* Box 1: Pan India */}
+           
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
               <div>
                 <span className="text-xs font-semibold uppercase text-orange-300 block mb-1">I. Pan India PG</span>
@@ -894,7 +754,7 @@ export default function PgEntranceClient() {
               </button>
             </div>
 
-            {/* Box 2: State Wise (TS & AP) */}
+          
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
               <div>
                 <span className="text-xs font-semibold uppercase text-green-300 block mb-1">II. Telangana & AP</span>
@@ -915,7 +775,7 @@ export default function PgEntranceClient() {
               </button>
             </div>
 
-            {/* Box 3: Institutes */}
+           
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
               <div>
                 <span className="text-xs font-semibold uppercase text-amber-300 block mb-1">III. Organization Specific</span>
@@ -936,7 +796,10 @@ export default function PgEntranceClient() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+
+      {/* ─── National-level PG entrance guide (server-rendered content) ─── */}
+      {guide}
 
       {/* ─── 5. DETAIL MODAL (DETAILED EXAM INFORMATION POPUP) ─────────────── */}
       {selectedExamModal && (

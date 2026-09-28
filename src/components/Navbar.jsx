@@ -44,7 +44,7 @@ const navLinks = [
   // { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   { name: "Internships / SkillUps", path: "/internships", Icon: FaGraduationCap },
-  // { name: "PG Entrance", path: "/pg-entrance" },
+  { name: "PG Entrance", path: "/pg-entrance" },
 
   { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
 
@@ -409,7 +409,7 @@ export default function Navbar({ initialCategories = null }) {
                 <FaWhatsapp size={19} className="text-green-600" />
               </a>
               <a
-                href="https://www.youtube.com/@CareerMitraaa"
+                href="https://www.youtube.com/@Career_Mitra_Official"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
@@ -697,7 +697,7 @@ export default function Navbar({ initialCategories = null }) {
                 {/* YouTube Link */}
                 <div className="relative group flex items-center justify-center">
                   <a
-                    href="https://www.youtube.com/@CareerMitraaa"
+                    href="https://www.youtube.com/@Career_Mitra_Official"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all duration-200 flex items-center justify-center shadow-3xs"
@@ -1150,7 +1150,7 @@ export default function Navbar({ initialCategories = null }) {
                     <FaWhatsapp size={15} />
                   </a>
                   <a
-                    href="https://www.youtube.com/@CareerMitraaa"
+                    href="https://www.youtube.com/@Career_Mitra_Official"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center transition-colors hover:bg-red-100"

@@ -143,7 +143,7 @@ export default function Footer({ initialCategories = null }) {
 
             <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
               <a
-                href="https://www.youtube.com/@CareerMitraaa"
+                href="https://www.youtube.com/@Career_Mitra_Official"
                 target="_blank"
                 rel="nofollow noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
@@ -152,7 +152,7 @@ export default function Footer({ initialCategories = null }) {
                 <FaYoutube size={22} className="shrink-0 text-red-500 group-hover:text-red-400 sm:size-7" />
                 <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
                   <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">Careermitra</span>
-                  <span className="hidden sm:block text-xs font-medium text-red-400 truncate max-w-full">@CareerMitraaa</span>
+                  <span className="hidden sm:block text-xs font-medium text-red-400 truncate max-w-full">@Career_Mitra_Official</span>
                 </div>
               </a>
 

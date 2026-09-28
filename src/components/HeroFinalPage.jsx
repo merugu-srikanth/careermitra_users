@@ -18,8 +18,10 @@ import {
     FaFire,
     FaCompass,
     FaWhatsapp,
+    FaBookOpen,
 } from "react-icons/fa";
 import { GrAnnounce } from "react-icons/gr";
+import HeroVideoModal from "./HeroVideoModal";
 
 
 const ANNOUNCEMENT_API_BASE =
@@ -32,6 +34,7 @@ const fmtDate = (v) => {
         day: "2-digit",
         month: "short",
         year: "numeric",
+        timeZone: "Asia/Kolkata",
     });
 };
 
@@ -68,18 +71,16 @@ const CARDS = [
     },
     {
         id: 3,
-        title: "Internships",
+        title: "Internships / SkillUps",
         icon: FaGraduationCap,
         iconBg: "#ffedd5",
         iconColor: "#ea580c",
         accentColor: "#ea580c",
         badgeBg: "linear-gradient(135deg,#ea580c,#d97706)",
         btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
-        // badgeBg: "linear-gradient(135deg,#059669,#10b981)",
-        // btnGrad: "linear-gradient(135deg,#059669,#16a34a)",
         btnIcon: FaChartLine,
         description:
-            "Explore internships to accelerate your career.",
+            "Explore internships and upskill with industry-grade programs.",
         button: "Explore Now",
         link: "/internships",
     },
@@ -99,19 +100,19 @@ const CARDS = [
     //     link: "/contact-us",
     // },
     {
-        id: 5,
-        title: "WhatsApp Channel",
-        icon: FaWhatsapp,
-        iconBg: "#dcfce7",
-        iconColor: "#25D366",
-        accentColor: "#25D366",
-        badgeBg: "linear-gradient(135deg,#25D366,#16a34a)",
-        btnGrad: "linear-gradient(135deg,#25D366,#128C7E)",
+        id: 4,
+        title: "PG Entrance",
+        icon: FaBookOpen,
+        iconBg: "#ecfdf5",
+        iconColor: "#059669",
+        accentColor: "#059669",
+        badgeBg: "linear-gradient(135deg,#059669,#10b981)",
+        btnGrad: "linear-gradient(135deg,#059669,#10b981)",
         btnIcon: FaArrowRight,
         description:
-            "Latest Government Job Notifications & Career Updates in the Government Sector ",
-        button: "Follow Channel",
-        link: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37",
+            "Pan-India, State & Institute PG entrance exam notifications and direct apply links.",
+        button: "Explore Now",
+        link: "/pg-entrance",
     }
     // {
     //     id: 6,
@@ -658,6 +659,8 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
                             Careermitra
                         </span>
                     </h2>
+
+                    <HeroVideoModal />
 
                     {/* <p
             className="mt-4 text-lg max-w-xl mx-auto leading-relaxed"

@@ -38,7 +38,8 @@ export function generateOrganizationSchema(customData = {}) {
     "sameAs": customData.sameAs || [
       "https://www.facebook.com/careermitra.in",
       "https://twitter.com/CareerMitraaa",
-      "https://www.linkedin.com/company/careermitra"
+      "https://www.linkedin.com/company/careermitra",
+      "https://www.youtube.com/@Career_Mitra_Official"
     ],
     "contactPoint": customData.contactPoint || {
       "@type": "ContactPoint",
