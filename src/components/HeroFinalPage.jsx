@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
@@ -19,6 +20,10 @@ import {
     FaCompass,
     FaWhatsapp,
     FaBookOpen,
+    FaCode,
+    FaCogs,
+    FaChartBar,
+    FaRocket,
 } from "react-icons/fa";
 import { GrAnnounce } from "react-icons/gr";
 import HeroVideoModal from "./HeroVideoModal";
@@ -45,10 +50,8 @@ const CARDS = [
         icon: FaUserGraduate,
         iconBg: "#ede9fe",
         iconColor: "#7c3aed",
-        accentColor: "#7c3aed",
-        badgeBg: "linear-gradient(135deg,#7c3aed,#a855f7)",
-        btnGrad: "linear-gradient(135deg,#7c3aed,#c026d3)",
-        btnIcon: FaUserPlus,
+        cornerGlow: "radial-gradient(circle at top right, rgba(168, 85, 247, 0.16) 0%, rgba(168, 85, 247, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #7c3aed, #9333ea)",
         description:
             "Register and stay updated with profile-based job alerts on email and your dashboard.",
         button: "Free Registration",
@@ -60,10 +63,8 @@ const CARDS = [
         icon: FaUniversity,
         iconBg: "#dbeafe",
         iconColor: "#2563eb",
-        accentColor: "#2563eb",
-        badgeBg: "linear-gradient(135deg,#2563eb,#6366f1)",
-        btnGrad: "linear-gradient(135deg,#2563eb,#4f46e5)",
-        btnIcon: FaBriefcase,
+        cornerGlow: "radial-gradient(circle at top right, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #2563eb, #1d4ed8)",
         description:
             "Explore the Latest Jobs & Apply Instantly.",
         button: "View Jobs",
@@ -71,65 +72,31 @@ const CARDS = [
     },
     {
         id: 3,
-        title: "Internships / SkillUps",
+        title: "Internships",
         icon: FaGraduationCap,
         iconBg: "#ffedd5",
         iconColor: "#ea580c",
-        accentColor: "#ea580c",
-        badgeBg: "linear-gradient(135deg,#ea580c,#d97706)",
-        btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
-        btnIcon: FaChartLine,
+        cornerGlow: "radial-gradient(circle at top right, rgba(249, 115, 22, 0.16) 0%, rgba(249, 115, 22, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #ea580c, #f97316)",
         description:
-            "Explore internships and upskill with industry-grade programs.",
+            "Explore internships to accelerate your career.",
         button: "Explore Now",
         link: "/internships",
     },
-    // {
-    //     id: 4,
-    //     title: "Career Guidance",
-    //     icon: FaCompass,
-    //     iconBg: "#ffedd5",
-    //     iconColor: "#ea580c",
-    //     accentColor: "#f97316",
-    //     badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
-    //     btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
-    //     btnIcon: FaArrowRight,
-    //     description:
-    //         "Expert guidance for career planning, education and job readiness.",
-    //     button: "Get Guidance",
-    //     link: "/contact-us",
-    // },
     {
         id: 4,
-        title: "PG Entrance",
-        icon: FaBookOpen,
-        iconBg: "#ecfdf5",
-        iconColor: "#059669",
-        accentColor: "#059669",
-        badgeBg: "linear-gradient(135deg,#059669,#10b981)",
-        btnGrad: "linear-gradient(135deg,#059669,#10b981)",
-        btnIcon: FaArrowRight,
+        title: "WhatsApp Channel",
+        icon: FaWhatsapp,
+        iconBg: "#dcfce7",
+        iconColor: "#16a34a",
+        cornerGlow: "radial-gradient(circle at top right, rgba(34, 197, 94, 0.16) 0%, rgba(34, 197, 94, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #16a34a, #15803d)",
         description:
-            "Pan-India, State & Institute PG entrance exam notifications and direct apply links.",
-        button: "Explore Now",
-        link: "/pg-entrance",
+            "Latest Government Job Notifications & Career Updates in the Government Sector",
+        button: "Join Channel",
+        link: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37",
+        isExternal: true,
     }
-    // {
-    //     id: 6,
-    //     title: "Vendor Registration",
-    //     icon: FaHandshake,
-    //     iconBg: "#ffedd5",
-    //     iconColor: "#ea580c",
-    //     accentColor: "#f97316",
-    //     badgeBg: "linear-gradient(135deg,#f97316,#f59e0b)",
-    //     btnGrad: "linear-gradient(135deg,#ea580c,#d97706)",
-    //     btnIcon: FaUserTie,
-    //     description:
-    //         "Register as a vendor and collaborate with us for various opportunities.",
-    //     button: "Register Now",
-    //     link: "/coming-soon",
-    // },
-
 ];
 
 /* ─────────────────────────────────────────
@@ -515,67 +482,170 @@ function VerticalAnnouncements({ list, loading }) {
 ───────────────────────────────────────── */
 function FeatureCard({ card }) {
     const router = useRouter();
-    const navigate = (to, options) => { if (options?.replace) { router.replace(to); } else { router.push(to); } };
+    const navigate = (to, isExt) => {
+        if (isExt) {
+            window.open(to, "_blank");
+        } else {
+            router.push(to);
+        }
+    };
     const Icon = card.icon;
-    const BtnIcon = card.btnIcon;
 
     return (
         <div
-            onClick={() => navigate(card.link)}
-            className="bg-white flex flex-col overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5"
+            onClick={() => navigate(card.link, card.isExternal)}
+            className="bg-white relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl border border-slate-100/90 shadow-xs hover:shadow-xl"
             style={{
-                borderRadius: 20,
-                border: "1px solid #f1f5f9",
-                borderTop: `3px solid ${card.accentColor}`,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                    "0 16px 36px rgba(0,0,0,0.11), 0 4px 10px rgba(0,0,0,0.06)";
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
+                boxShadow: "0 2px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)",
             }}
         >
-            {/* Icon area */}
-            <div className="pt-4 sm:pt-6 pb-1 flex flex-col items-center gap-2">
+            {/* Top-right soft corner gradient wave */}
+            <div
+                className="pointer-events-none absolute -top-2 -right-2 w-32 sm:w-36 h-32 sm:h-36 rounded-bl-full transition-all duration-300 opacity-80 group-hover:opacity-100 group-hover:scale-105"
+                style={{
+                    background: card.cornerGlow,
+                }}
+            />
+
+            {/* Top icon and content */}
+            <div className="relative z-10 text-left">
+                {/* Icon box (rounded squircle) */}
                 <div
-                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-110 shadow-xs"
                     style={{ background: card.iconBg }}
                 >
-                    <Icon style={{ color: card.iconColor, fontSize: 22 }} />
+                    <Icon style={{ color: card.iconColor, fontSize: 20 }} />
                 </div>
-                {/* step badge */}
-                {/* <span
-                    className="w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center shadow"
-                    style={{ background: card.badgeBg }}
-                >
-                    {card.id}
-                </span> */}
-            </div>
 
-            {/* Content */}
-            <div className="px-3 sm:px-4 pt-1 pb-1 flex-1 flex flex-col text-center">
-                <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug mb-1">
+                {/* Title & Description (left aligned) */}
+                <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug mb-1.5">
                     {card.title}
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed flex-1">
+                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed font-normal">
                     {card.description}
                 </p>
             </div>
 
-            {/* CTA */}
-            <div className="px-3 sm:px-4 pb-3 sm:pb-5 pt-2">
+            {/* CTA Button */}
+            <div className="relative z-10 mt-4 sm:mt-5 pt-1">
                 <button
-                    className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all hover:opacity-90 active:scale-95"
+                    type="button"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 sm:py-3 text-white text-xs sm:text-sm font-bold rounded-2xl transition-all hover:opacity-95 active:scale-98 shadow-sm group-hover:shadow-md"
                     style={{ background: card.btnGrad }}
                     suppressHydrationWarning={true}
                 >
-                    <BtnIcon style={{ fontSize: 10 }} />
                     <span className="truncate">{card.button}</span>
+                    <FaArrowRight size={11} className="transition-transform group-hover:translate-x-1 shrink-0" />
                 </button>
             </div>
         </div>
+    );
+}
+
+/* ─────────────────────────────────────────
+   GROW ONLINE BANNER
+───────────────────────────────────────── */
+function GrowOnlineBanner() {
+    return (
+        <Link
+            href="/digital-presence"
+            className="group block relative mt-6 sm:mt-8 w-full rounded-3xl overflow-hidden border border-sky-200/80 bg-linear-to-r from-[#edf5ff] via-[#f4f9ff] to-[#e8f2ff] p-5 sm:p-7 lg:p-9 shadow-xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
+        >
+            {/* Background subtle mesh glow */}
+            <div className="pointer-events-none absolute -right-12 -bottom-12 w-80 h-80 bg-blue-400/15 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500" />
+            <div className="pointer-events-none absolute left-1/4 -top-12 w-56 h-56 bg-sky-300/20 rounded-full blur-2xl" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10">
+                {/* Left content */}
+                <div className="flex-1 text-center lg:text-left">
+                    <span className="inline-block text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-blue-600 mb-2 font-mono">
+                        GROW ONLINE
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                        Launch Your Digital Presence <br className="hidden sm:inline" />
+                        with Confidence
+                    </h3>
+                    <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+                        Whether you&apos;re starting a business, launching a startup, building a personal brand, or taking your existing business online, we provide <strong className="font-bold text-slate-800">affordable website development</strong>, <strong className="font-bold text-slate-800">CRM solutions</strong>, and <strong className="font-bold text-slate-800">digital marketing services</strong> tailored to your needs.
+                    </p>
+
+                    <div className="mt-6 flex items-center justify-center lg:justify-start">
+                        <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-blue-600 group-hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-all">
+                            <span>Get Started</span>
+                            <FaArrowRight size={11} className="transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </div>
+                </div>
+
+                {/* Right Illustration & Feature Pills */}
+                <div className="relative shrink-0 flex flex-col sm:flex-row items-center gap-5 lg:gap-7">
+                    
+                    {/* Laptop & Launching Rocket Illustration */}
+                    <div className="relative flex items-center justify-center">
+                        {/* Floating WWW tag */}
+                        <div className="absolute -top-3 -left-3 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-black shadow-sm z-20">
+                            WWW
+                        </div>
+
+                        {/* Floating Chart Icon */}
+                        <div className="absolute -top-2 right-2 px-1.5 py-1 rounded-md bg-white border border-rose-100 text-rose-500 shadow-sm z-20 text-xs">
+                            📈
+                        </div>
+
+                        {/* Plant Pot */}
+                        <div className="absolute -bottom-1 -left-4 text-xl sm:text-2xl z-20">
+                            🪴
+                        </div>
+
+                        {/* Laptop Mockup */}
+                        <div className="relative w-44 sm:w-52 h-28 sm:h-34 bg-slate-900 rounded-t-xl border-4 border-slate-700 shadow-lg flex items-center justify-center overflow-hidden">
+                            <div className="w-full h-full bg-linear-to-b from-sky-400 via-blue-500 to-indigo-600 flex flex-col items-center justify-center p-2 relative">
+                                
+                                {/* Rocket taking off */}
+                                <div className="text-3xl sm:text-4xl -rotate-45 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300 z-10 filter drop-shadow-md">
+                                    🚀
+                                </div>
+                                
+                                {/* Smoke / Clouds */}
+                                <div className="absolute bottom-0 inset-x-0 h-8 bg-white/30 backdrop-blur-xs rounded-t-full flex items-center justify-around px-2">
+                                    <span className="w-3 h-3 bg-white/70 rounded-full" />
+                                    <span className="w-5 h-5 bg-white/80 rounded-full" />
+                                    <span className="w-3 h-3 bg-white/70 rounded-full" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Laptop Bottom Base */}
+                        <div className="absolute -bottom-1.5 w-52 sm:w-60 h-2 bg-slate-300 rounded-b-lg shadow-sm" />
+                    </div>
+
+                    {/* 3 Pill Cards on Right */}
+                    <div className="flex flex-col gap-2.5 w-48 sm:w-52 shrink-0">
+                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
+                            <span className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-xs">
+                                &lt;/&gt;
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-slate-800">Web Development</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
+                            <span className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 text-sm">
+                                ⚙️
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-slate-800">CRM Solutions</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
+                            <span className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 text-sm">
+                                📊
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-slate-800">Digital Marketing</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </Link>
     );
 }
 
@@ -689,6 +759,9 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
                     </div>
 
                 </div>
+
+                {/* ── Grow Online Banner (Links to /build-your-venture) ── */}
+                <GrowOnlineBanner />
 
             </div>
         </section>

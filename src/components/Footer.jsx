@@ -44,8 +44,9 @@ export default function Footer({ initialCategories = null }) {
     { label: "Our Team", to: "/meet-our-team" },
     { label: "Latest Job Notifications", to: "/latest-job-notifications" },
     { label: "Internships / SkillUps", to: "/internships" },
+    { label: "Digital Presence", to: "/digital-presence" },
     { label: "Government Jobs", to: "/government-jobs" },
-        { label: "Contact Us", to: "/contact-us" },
+    { label: "Contact Us", to: "/contact-us" },
 
     // { label: "Terms of Service", to: "/terms-of-service" },
     // { label: "Privacy Policy", to: "/privacy-policy" },

@@ -13,7 +13,8 @@ import {
   FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
   FaUser, FaEnvelope, FaBell, FaCalendarAlt,
-  FaBriefcase, FaGraduationCap, FaSearch, FaBookOpen, FaCompass
+  FaBriefcase, FaGraduationCap, FaSearch, FaBookOpen, FaCompass,
+  FaRocket
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
@@ -40,11 +41,11 @@ const socials = [
 /* ─── NAV LINKS ────────────────────────────────────────────────────────────── */
 const navLinks = [
   { name: "Home", path: "/", Icon: FaHome },
-  { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
   // { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   { name: "Internships / SkillUps", path: "/internships", Icon: FaGraduationCap },
   { name: "PG Entrance", path: "/pg-entrance" },
+  { name: "Digital Presence", path: "/digital-presence", Icon: FaRocket },
 
   { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
 
@@ -52,9 +53,12 @@ const navLinks = [
     name: "Explore",
     Icon: FaCompass,
     dropdown: [
+      { name: "Digital Presence", path: "/digital-presence", Icon: FaRocket },
       { name: "Our Team", path: "/meet-our-team", Icon: FaUser },
       { name: "Events", path: "/events" },
       { name: "Contact Us", path: "/contact-us" },
+        { name: "About Us", path: "/about-us", Icon: FaInfoCircle },
+
     ],
   },
 ];
