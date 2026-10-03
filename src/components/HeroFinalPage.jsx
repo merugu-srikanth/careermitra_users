@@ -85,17 +85,16 @@ const CARDS = [
     },
     {
         id: 4,
-        title: "WhatsApp Channel",
-        icon: FaWhatsapp,
-        iconBg: "#dcfce7",
-        iconColor: "#16a34a",
-        cornerGlow: "radial-gradient(circle at top right, rgba(34, 197, 94, 0.16) 0%, rgba(34, 197, 94, 0.04) 50%, transparent 70%)",
-        btnGrad: "linear-gradient(135deg, #16a34a, #15803d)",
+        title: "PG Entrance",
+        icon: FaBookOpen,
+        iconBg: "#ecfdf5",
+        iconColor: "#059669",
+        cornerGlow: "radial-gradient(circle at top right, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #059669, #10b981)",
         description:
-            "Latest Government Job Notifications & Career Updates in the Government Sector",
-        button: "Join Channel",
-        link: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37",
-        isExternal: true,
+            "Pan-India, State & Institute PG entrance exam notifications and direct apply links.",
+        button: "Explore Now",
+        link: "/pg-entrance",
     }
 ];
 
