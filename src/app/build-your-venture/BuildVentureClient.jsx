@@ -301,7 +301,7 @@ export default function BuildVentureClient() {
     <div className="min-h-screen bg-[#fafafa] text-slate-800 font-sans selection:bg-orange-500/20 selection:text-orange-900 pb-20">
       
       {/* ─── HERO SECTION ──────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-orange-100 bg-linear-to-b from-orange-50/70 via-white to-[#fafafa]">
+      <section className="relative overflow-hidden pt-25 pb-20 md:pt-20 md:pb-28 border-b border-orange-100 bg-linear-to-b from-orange-50/70 via-white to-[#fafafa]">
         {/* Decorative background glow circles */}
         <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-linear-to-tr from-orange-300/30 via-amber-200/25 to-emerald-300/20 blur-3xl rounded-full" />
         <div className="pointer-events-none absolute top-1/3 -right-24 w-80 h-80 bg-orange-200/25 blur-3xl rounded-full" />
