@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   AUTH: `${API_BASE_URL}/auth`,
   JOBS: `${API_BASE_URL}/jobs`,
   MEDIA: `${API_BASE_URL}/media`,
+  PG_ENTRANCE: `${API_BASE_URL}/pg-entrance`,
 };
 
 // ── Public vs. internal origins ─────────────────────────────────────────────

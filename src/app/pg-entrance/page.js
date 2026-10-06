@@ -1,6 +1,7 @@
 import PgEntranceClient from "./PgEntranceClient";
 import PgEntranceGuide from "./PgEntranceGuide";
 import { generateWebPageSchema, generateBreadcrumbSchema } from "@/utils/schemaHelpers";
+import { INTERNAL_API_BASE_URL } from "@/utils/api";
 
 export const metadata = {
   title: "PG Entrance Exams 2026 - National & Telangana | Career Mitra",
@@ -32,7 +33,28 @@ export const metadata = {
   },
 };
 
-export default function PgEntrancePage() {
+async function getInitialPgEntrances() {
+  try {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/pg-entrance?limit=50`, {
+      next: { revalidate: 120 },
+    });
+    const json = await res.json();
+    if (json.success && json.data) {
+      return {
+        items: json.data.items || [],
+        pagination: json.data.pagination || null,
+      };
+    }
+    return { items: [], pagination: null };
+  } catch (err) {
+    console.error("Failed to prefetch PG entrance data on server:", err);
+    return { items: [], pagination: null };
+  }
+}
+
+export default async function PgEntrancePage() {
+  const data = await getInitialPgEntrances();
+
   const schemas = [
     generateBreadcrumbSchema([
       { name: "Home", item: "/" },
@@ -54,7 +76,11 @@ export default function PgEntrancePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
         />
       ))}
-      <PgEntranceClient guide={<PgEntranceGuide />} />
+      <PgEntranceClient
+        initialExams={data.items}
+        initialPagination={data.pagination}
+        guide={<PgEntranceGuide />}
+      />
     </>
   );
 }

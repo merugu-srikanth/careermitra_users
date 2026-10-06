@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import Link from "next/link";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -21,271 +20,136 @@ import {
   LayoutGrid,
   Table as TableIcon,
   ChevronDown,
-  RotateCcw
+  RotateCcw,
+  RefreshCw,
 } from "lucide-react";
+import { PUBLIC_API_BASE_URL } from "@/utils/api";
 
-// Master dataset structured strictly around the user's handwritten roadmap:
-// I. Pan India PG Entrance
-// II. Telangana & Andhra Pradesh State PG Entrance
-// III. Organization / Institute-wise PG Courses (e.g., CFTRI, TIFR, ISI, CMI, NIPER)
-const PG_EXAMS_DATA = [
- 
- {
-    id: "gate-2027",
-    name: "GATE 2027",
-    fullName: "Graduate Aptitude Test in Engineering 2027",
-    section: "national",
-    sectionLabel: "National Level",
-    stream: "Engineering, Technology, Science, Commerce & Humanities",
-    streamCategory: "engineering",
-    degree: "M.Tech, M.E., M.Arch, M.Plan and selected Master's & Doctoral programmes",
-    university: "IITs, IISc and other participating institutes",
-    location: "India",
-    eligibility: "Candidates currently studying in the 3rd year or higher of an undergraduate degree programme, or candidates who have completed a government-approved degree in Engineering, Technology, Architecture, Science, Commerce, Arts or Humanities.",
-    examPeriod: "February 2027",
-    notificationUrl: "https://gate2027.iitm.ac.in/",
-    applyUrl: "https://goaps.iitg.ac.in/",
-    iconBg: "bg-blue-50 text-blue-600 border-blue-200",
-    badgeBg: "bg-blue-100 text-blue-700",
-    description: "National-level examination assessing undergraduate-level knowledge for admission to postgraduate and doctoral programmes and for selected recruitment opportunities.",
-    highlights: [
-      "30 GATE test papers",
-      "No age limit",
-      "Valid GATE score can be used for postgraduate admissions",
-      "Application portal is currently open",
-      "Exam dates: 6, 7, 13, 14, 20 and 21 February 2027"
-    ]
-  },
+// ── SKELETON LOADERS ────────────────────────────────────────────────────────
+function CardSkeleton() {
+  return (
+    <div className="bg-white rounded-3xl border border-gray-200/90 shadow-sm overflow-hidden flex flex-col justify-between animate-pulse">
+      <div className="h-1.5 w-full bg-slate-200" />
+      <div className="p-5 sm:p-6 flex flex-col h-full justify-between space-y-4">
+        <div>
+          {/* Badges */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="h-5 w-24 bg-slate-200 rounded-md" />
+            <div className="h-5 w-28 bg-slate-100 rounded-md" />
+          </div>
 
-  {
-    id: "iit-jam-2027",
-    name: "IIT JAM 2027",
-    fullName: "Joint Admission Test for Masters 2027",
-    section: "national",
-    sectionLabel: "National Level",
-    stream: "Science & Mathematics",
-    streamCategory: "science",
-    degree: "M.Sc., M.Sc.-Ph.D., Joint M.Sc.-Ph.D. and other postgraduate programmes",
-    university: "IITs and other participating institutes",
-    location: "India",
-    eligibility: "Candidates who have completed an undergraduate degree or are currently studying in the final year of an undergraduate degree programme, subject to programme-specific eligibility requirements.",
-    examPeriod: "February 2027",
-    notificationUrl: "https://jam.iitkgp.ac.in/",
-    applyUrl: "https://joaps.iitkgp.ac.in/home",
-    iconBg: "bg-purple-50 text-purple-600 border-purple-200",
-    badgeBg: "bg-purple-100 text-purple-700",
-    description: "National-level entrance examination providing admission opportunities to postgraduate science programmes at IITs and participating institutes.",
-    highlights: [
-      "Registration started: 11 September 2026",
-      "Last date to apply: 19 October 2026",
-      "Exam date: 14 February 2027",
-      "More than 3,000 postgraduate seats",
-      "Seven test papers covering major science disciplines"
-    ]
-  },
+          {/* Title */}
+          <div className="space-y-2 mb-4">
+            <div className="h-6 w-3/4 bg-slate-200 rounded-lg" />
+            <div className="h-3.5 w-full bg-slate-100 rounded" />
+          </div>
 
-  {
-    id: "cat-2026",
-    name: "CAT 2026",
-    fullName: "Common Admission Test 2026",
-    section: "national",
-    sectionLabel: "National Level",
-    stream: "Management",
-    streamCategory: "management",
-    degree: "MBA, PGDM and other postgraduate management programmes",
-    university: "Indian Institutes of Management and participating management institutes",
-    location: "India",
-    eligibility: "Bachelor's degree with the minimum percentage or equivalent qualification prescribed by the CAT/IIM admission requirements. Final-year undergraduate students may also apply subject to applicable conditions.",
-    examPeriod: "November 2026",
-    notificationUrl: "https://iimcat.ac.in/",
-    applyUrl: "https://iimcat.ac.in/",
-    iconBg: "bg-red-50 text-red-600 border-red-200",
-    badgeBg: "bg-red-100 text-red-700",
-    description: "National management entrance examination used for admission to postgraduate management programmes at IIMs and other participating institutions.",
-    highlights: [
-      "Gateway to IIM management programmes",
-      "Scores accepted by several non-IIM institutions",
-      "Tests Verbal Ability, Reading Comprehension, Data Interpretation, Logical Reasoning and Quantitative Ability",
-      "National-level computer-based examination"
-    ]
-  },
+          {/* Authority Box */}
+          <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-100 space-y-2 mb-3.5">
+            <div className="h-4 w-4/5 bg-slate-200 rounded" />
+            <div className="h-3 w-1/3 bg-slate-100 rounded" />
+          </div>
 
-  {
-    id: "cuet-pg-2027",
-    name: "CUET-PG",
-    fullName: "Common University Entrance Test – Postgraduate",
-    section: "national",
-    sectionLabel: "National Level",
-    stream: "Arts, Commerce, Science, Management & Professional Courses",
-    streamCategory: "multi-stream",
-    degree: "M.A., M.Com, M.Sc., MCA, MBA and other postgraduate programmes",
-    university: "Central Universities and participating State, Government, Deemed and Private Universities",
-    location: "India",
-    eligibility: "Bachelor's degree or equivalent qualification from a recognized university. Specific eligibility requirements vary according to the selected programme and participating university.",
-    examPeriod: "March 2027",
-    notificationUrl: "https://exams.nta.nic.in/cuet-pg/",
-    applyUrl: "https://exams.nta.nic.in/cuet-pg/",
-    iconBg: "bg-orange-50 text-orange-600 border-orange-200",
-    badgeBg: "bg-orange-100 text-orange-700",
-    description: "National postgraduate entrance examination conducted by NTA for admission to postgraduate programmes offered by participating universities and institutions.",
-    highlights: [
-      "Central University postgraduate admissions",
-      "Courses available across multiple academic streams",
-      "Conducted by the National Testing Agency",
-      "Participating universities include Central, State, Government, Deemed and Private institutions"
-    ]
-  },
+          {/* Degrees */}
+          <div className="space-y-1.5 mb-3">
+            <div className="h-3 w-20 bg-slate-100 rounded" />
+            <div className="h-4 w-full bg-slate-200 rounded" />
+          </div>
 
-  {
-    id: "tg-cpget-2027",
-    name: "TG CPGET",
-    fullName: "Telangana Common Post Graduate Entrance Tests",
-    section: "state",
-    sectionLabel: "Telangana State",
-    stream: "Arts, Commerce, Science & Other PG Courses",
-    streamCategory: "multi-stream",
-    degree: "M.A., M.Com, M.Sc., M.Li.Sc. and other postgraduate programmes",
-    university: "Osmania University and participating Telangana universities",
-    location: "Telangana",
-    eligibility: "Candidates must possess the relevant Bachelor's degree or equivalent qualification prescribed for the selected postgraduate course.",
-    examPeriod: "July–August",
-    notificationUrl: "https://cpget.tgche.ac.in/",
-    applyUrl: "https://cpget.tgche.ac.in/",
-    iconBg: "bg-green-50 text-green-600 border-green-200",
-    badgeBg: "bg-green-100 text-green-700",
-    description: "Telangana's common postgraduate entrance examination for admission to postgraduate programmes offered by participating universities and affiliated colleges.",
-    highlights: [
-      "Major Telangana PG entrance examination",
-      "Covers Arts, Commerce and Science subjects",
-      "Admissions across participating Telangana universities",
-      "Includes M.A., M.Com and M.Sc. programmes"
-    ]
-  },
+          {/* Exam Period */}
+          <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+            <div className="h-4 w-24 bg-slate-200 rounded" />
+            <div className="h-4 w-20 bg-slate-100 rounded" />
+          </div>
+        </div>
 
-  {
-    id: "tg-pgecet-2027",
-    name: "TG PGECET",
-    fullName: "Telangana State Post Graduate Engineering Common Entrance Test",
-    section: "state",
-    sectionLabel: "Telangana State",
-    stream: "Engineering & Architecture",
-    streamCategory: "engineering",
-    degree: "M.Tech, M.E., M.Arch and related postgraduate programmes",
-    university: "Telangana universities and participating colleges",
-    location: "Telangana",
-    eligibility: "Candidates must possess the prescribed Bachelor's degree in Engineering, Technology or Architecture for the selected postgraduate programme.",
-    examPeriod: "June",
-    notificationUrl: "https://pgecet.tgche.ac.in/",
-    applyUrl: "https://pgecet.tgche.ac.in/",
-    iconBg: "bg-indigo-50 text-indigo-600 border-indigo-200",
-    badgeBg: "bg-indigo-100 text-indigo-700",
-    description: "Telangana state-level entrance examination for admission to postgraduate engineering, technology and architecture programmes.",
-    highlights: [
-      "Telangana M.Tech and M.E. entrance examination",
-      "Covers multiple engineering specializations",
-      "Used for admissions to participating Telangana institutions",
-      "Separate counselling process after the entrance examination"
-    ]
-  },
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2.5 pt-3.5 border-t border-orange-50">
+          <div className="h-10 bg-slate-100 rounded-xl" />
+          <div className="h-10 bg-slate-200 rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  {
-    id: "tg-icet-2027",
-    name: "TG ICET",
-    fullName: "Telangana Integrated Common Entrance Test",
-    section: "state",
-    sectionLabel: "Telangana State",
-    stream: "Management & Computer Applications",
-    streamCategory: "management",
-    degree: "MBA and MCA",
-    university: "Telangana universities and participating colleges",
-    location: "Telangana",
-    eligibility: "Candidates must hold a Bachelor's degree or equivalent qualification meeting the prescribed eligibility requirements for MBA or MCA admission.",
-    examPeriod: "June",
-    notificationUrl: "https://icet.tgche.ac.in/",
-    applyUrl: "https://icet.tgche.ac.in/",
-    iconBg: "bg-cyan-50 text-cyan-600 border-cyan-200",
-    badgeBg: "bg-cyan-100 text-cyan-700",
-    description: "Telangana state-level entrance examination for admission to MBA and MCA programmes offered by participating universities and colleges.",
-    highlights: [
-      "Telangana MBA entrance examination",
-      "Telangana MCA entrance examination",
-      "Applicable to participating universities and colleges",
-      "State-level counselling after examination"
-    ]
-  },
+function TableSkeleton() {
+  return (
+    <div className="mb-8 bg-white rounded-3xl border border-orange-100 shadow-md overflow-hidden animate-pulse">
+      <div className="h-12 bg-gradient-to-r from-orange-400 to-orange-500" />
+      <div className="p-4 space-y-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 gap-4">
+            <div className="h-5 w-40 bg-slate-200 rounded" />
+            <div className="h-5 w-24 bg-slate-100 rounded" />
+            <div className="h-5 w-32 bg-slate-100 rounded" />
+            <div className="h-5 w-36 bg-slate-200 rounded" />
+            <div className="h-5 w-24 bg-slate-100 rounded" />
+            <div className="h-8 w-28 bg-slate-200 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  {
-    id: "tg-pglcet-2027",
-    name: "TG PGLCET",
-    fullName: "Telangana State Post Graduate Law Common Entrance Test",
-    section: "state",
-    sectionLabel: "Telangana State",
-    stream: "Law",
-    streamCategory: "law",
-    degree: "LL.M.",
-    university: "Telangana universities and participating law colleges",
-    location: "Telangana",
-    eligibility: "Candidates must possess an LL.B. or equivalent law degree from a recognized institution, subject to the applicable admission requirements.",
-    examPeriod: "June",
-    notificationUrl: "https://lawcet.tgche.ac.in/",
-    applyUrl: "https://lawcet.tgche.ac.in/",
-    iconBg: "bg-yellow-50 text-yellow-600 border-yellow-200",
-    badgeBg: "bg-yellow-100 text-yellow-700",
-    description: "Telangana postgraduate law entrance examination for admission to LL.M. programmes in participating universities and law colleges.",
-    highlights: [
-      "Telangana state-level LL.M. entrance examination",
-      "For eligible LL.B. graduates",
-      "Admissions through participating Telangana institutions",
-      "State-level counselling process"
-    ]
-  }
-
-
-];
-
-export default function PgEntranceClient({ guide = null }) {
+export default function PgEntranceClient({ initialExams = [], initialPagination = null, guide = null }) {
+  const [exams, setExams] = useState(initialExams);
+  const [loading, setLoading] = useState(initialExams.length === 0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSection, setActiveSection] = useState("all"); // "all", "national", "state"
-  const [activeStream, setActiveStream] = useState("all"); // "all", "engineering", "science", "management", "law", "multi-stream"
-  const [viewMode, setViewMode] = useState("grid"); // "grid" | "table"
+  const [activeSection, setActiveSection] = useState("all");
+  const [activeStream, setActiveStream] = useState("all");
+  const [viewMode, setViewMode] = useState("grid");
   const [selectedExamModal, setSelectedExamModal] = useState(null);
 
-  // Filter logic matching exam name, stream, university, location, degrees
-  const filteredExams = useMemo(() => {
-    return PG_EXAMS_DATA.filter((exam) => {
-      if (activeSection !== "all" && exam.section !== activeSection) {
-        return false;
-      }
-      if (activeStream !== "all" && exam.streamCategory !== activeStream) {
-        return false;
-      }
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchName = exam.name.toLowerCase().includes(query);
-        const matchFullName = exam.fullName.toLowerCase().includes(query);
-        const matchStream = exam.stream.toLowerCase().includes(query);
-        const matchUniv = exam.university.toLowerCase().includes(query);
-        const matchLoc = exam.location.toLowerCase().includes(query);
-        const matchDegree = exam.degree.toLowerCase().includes(query);
+  // Fetch from live backend API
+  const fetchLiveExams = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("limit", "100");
+      if (activeSection !== "all") params.set("section", activeSection);
+      if (activeStream !== "all") params.set("streamCategory", activeStream);
+      if (searchQuery.trim()) params.set("search", searchQuery.trim());
 
-        return matchName || matchFullName || matchStream || matchUniv || matchLoc || matchDegree;
+      const res = await fetch(`${PUBLIC_API_BASE_URL}/pg-entrance?${params.toString()}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        setExams(json.data.items || []);
       }
-      return true;
-    });
-  }, [searchQuery, activeSection, activeStream]);
+    } catch (err) {
+      console.error("Failed to fetch live PG entrance data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeSection, activeStream, searchQuery]);
 
-  // Section Counts
+  // Trigger search/filter fetch on change
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchLiveExams();
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [fetchLiveExams]);
+
+  // Dynamic quick keyword chips from fetched exams
+  const quickKeywords = useMemo(() => {
+    if (!exams.length) return ["GATE", "IIT JAM", "CAT", "CUET-PG", "TG CPGET", "TG PGECET", "TG ICET", "TG PGLCET"];
+    const names = exams.map((e) => e.name.split(" ")[0]);
+    return Array.from(new Set(names)).slice(0, 8);
+  }, [exams]);
+
+  // Dynamic counts
   const counts = useMemo(() => {
     return {
-      all: PG_EXAMS_DATA.length,
-      national: PG_EXAMS_DATA.filter(e => e.section === "national").length,
-      state: PG_EXAMS_DATA.filter(e => e.section === "state").length,
+      all: exams.length,
+      national: exams.filter((e) => e.section === "national").length,
+      state: exams.filter((e) => e.section === "state").length,
     };
-  }, []);
+  }, [exams]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-gray-900 pt-24 sm:pt-28 pb-20 overflow-x-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
-
       {/* Decorative ambient background gradient blobs */}
       <div
         style={{
@@ -314,10 +178,9 @@ export default function PgEntranceClient({ guide = null }) {
         }}
       />
 
-      {/* ─── 1. HERO HEADER WITH SIGNATURE GRADIENT ──────────────────────── */}
+      {/* ─── 1. HERO HEADER ─────────────────────────────────────────────────── */}
       <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 pt-2 pb-4">
         <div className="text-center max-w-5xl mx-auto space-y-3.5">
-          
           {/* Eyebrow Badge */}
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider shadow-xs"
@@ -352,15 +215,13 @@ export default function PgEntranceClient({ guide = null }) {
           <p className="text-gray-600 text-sm sm:text-base font-normal leading-relaxed max-w-4xl mx-auto px-2">
             Search exam-wise, stream-wise, and university-wise for <span className="font-semibold text-gray-800">National-level</span> PG entrances like <span className="font-semibold text-gray-800">GATE, IIT JAM, CAT, CUET-PG</span> and <span className="font-semibold text-gray-800">Telangana State</span> entrances like <span className="font-semibold text-gray-800">TG CPGET, TG PGECET, TG ICET, TG PGLCET</span>.
           </p>
-
         </div>
       </section>
 
-      {/* ─── 2. UNIFIED FILTER BAR (Left: Search & Chips | Center: All Exams Dropdown | Right: Streams Dropdown) ─── */}
+      {/* ─── 2. UNIFIED FILTER BAR ────────────────────────────────────────── */}
       <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 my-3 sm:my-5">
         <div className="bg-white rounded-3xl border border-gray-200/90 shadow-sm p-4 sm:p-5">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-start gap-4 sm:gap-5">
-            
             {/* ── LEFT SIDE: Search Input & Quick Chips ── */}
             <div className="flex-1 min-w-0 space-y-2.5">
               <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block">
@@ -386,14 +247,14 @@ export default function PgEntranceClient({ guide = null }) {
                   </button>
                 )}
                 <span className="px-2.5 py-1 bg-orange-50 text-orange-700 border border-orange-100 text-[11px] font-medium rounded-lg shrink-0 hidden sm:inline-block">
-                  {filteredExams.length} Found
+                  {exams.length} Found
                 </span>
               </div>
 
               {/* Quick Popular Keywords / Chips */}
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <span className="text-gray-400 text-[11px] font-medium mr-0.5">Quick:</span>
-                {["GATE", "IIT JAM", "CAT", "CUET-PG", "TG CPGET", "TG PGECET", "TG ICET", "TG PGLCET"].map((tag) => {
+                {quickKeywords.map((tag) => {
                   const isSelected = searchQuery.toLowerCase() === tag.toLowerCase();
                   return (
                     <button
@@ -412,7 +273,7 @@ export default function PgEntranceClient({ guide = null }) {
               </div>
             </div>
 
-            {/* ── CENTER: All Exams / Section Dropdown ── */}
+            {/* ── CENTER: Category Dropdown ── */}
             <div className="w-full lg:w-60 shrink-0 space-y-2.5">
               <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
@@ -424,7 +285,7 @@ export default function PgEntranceClient({ guide = null }) {
                   </span>
                 )}
               </label>
-              
+
               <div className="relative">
                 <select
                   value={activeSection}
@@ -434,6 +295,7 @@ export default function PgEntranceClient({ guide = null }) {
                   <option value="all">All Exams ({counts.all})</option>
                   <option value="national">National Level ({counts.national})</option>
                   <option value="state">Telangana State ({counts.state})</option>
+                  <option value="institute">Institute Specific</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <ChevronDown className="w-4 h-4 text-orange-500" />
@@ -441,7 +303,7 @@ export default function PgEntranceClient({ guide = null }) {
               </div>
             </div>
 
-            {/* ── RIGHT SIDE: Streams Dropdown & Reset ── */}
+            {/* ── RIGHT SIDE: Stream Dropdown ── */}
             <div className="w-full lg:w-60 shrink-0 space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -473,27 +335,26 @@ export default function PgEntranceClient({ guide = null }) {
                   <option value="management">Management / MBA / MCA</option>
                   <option value="law">Law</option>
                   <option value="multi-stream">Arts, Commerce & Multi-stream</option>
+                  <option value="medical">Medical / Pharmacy</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <ChevronDown className="w-4 h-4 text-orange-500" />
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ─── 3. EXAM LISTINGS (GRID & TABLE MODES) ──── */}
+      {/* ─── 3. EXAM LISTINGS ─────────────────────────────────────────────── */}
       <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 py-4">
-        
-        {/* Section Header with View Toggle (Grid / Table) */}
+        {/* Header with View Toggle */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
               <span>PG Entrance Opportunities</span>
               <span className="text-xs font-semibold bg-orange-100 text-orange-700 px-2.5 py-0.5 rounded-full">
-                {filteredExams.length} Available
+                {exams.length} Available
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 font-normal mt-0.5">
@@ -501,7 +362,7 @@ export default function PgEntranceClient({ guide = null }) {
             </p>
           </div>
 
-          {/* View Mode Toggle (Grid / Table) */}
+          {/* View Mode Toggle */}
           <div className="hidden sm:flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-xs">
             <button
               onClick={() => setViewMode("grid")}
@@ -528,280 +389,225 @@ export default function PgEntranceClient({ guide = null }) {
           </div>
         </div>
 
-        {/* ─── A. GRID VIEW ─── */}
-        {viewMode === "grid" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {filteredExams.map((exam) => (
-              <motion.article
-                key={exam.id}
-                whileHover={{
-                  y: -6,
-                  boxShadow: "0 20px 45px rgba(234,88,12,0.12)",
-                }}
-                transition={{ duration: 0.2 }}
-                className="bg-white rounded-3xl border border-gray-200/90 hover:border-orange-400 shadow-sm overflow-hidden flex flex-col justify-between group relative"
-              >
-                {/* Top Signature Gradient Bar */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-orange-400 via-yellow-400 to-green-400" />
+        {/* ─── LOADING SKELETON ─── */}
+        {loading ? (
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {[1, 2, 3, 4, 5, 6].map((k) => (
+                <CardSkeleton key={k} />
+              ))}
+            </div>
+          ) : (
+            <TableSkeleton />
+          )
+        ) : (
+          <>
+            {/* ─── GRID VIEW ─── */}
+            {viewMode === "grid" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                {exams.map((exam) => (
+                  <motion.article
+                    key={exam.id || exam.slug}
+                    whileHover={{
+                      y: -6,
+                      boxShadow: "0 20px 45px rgba(234,88,12,0.12)",
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white rounded-3xl border border-gray-200/90 hover:border-orange-400 shadow-sm overflow-hidden flex flex-col justify-between group relative"
+                  >
+                    {/* Top Signature Gradient Bar */}
+                    <div className="h-1.5 w-full bg-gradient-to-r from-orange-400 via-yellow-400 to-green-400" />
 
-                <div className="p-5 sm:p-6 flex flex-col h-full justify-between">
-                  <div>
-                    {/* Card Top: Badges & Stream */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className={`text-[10px] font-semibold uppercase px-2.5 py-1 rounded-md border ${
-                        exam.section === "national"
-                          ? "bg-orange-50 text-orange-700 border-orange-200"
-                          : "bg-amber-50 text-amber-800 border-amber-200"
-                      }`}>
-                        {exam.sectionLabel}
-                      </span>
-                      <span className="text-[11px] font-medium text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded-md truncate max-w-[150px] border border-gray-200">
-                        {exam.stream}
-                      </span>
-                    </div>
+                    <div className="p-5 sm:p-6 flex flex-col h-full justify-between">
+                      <div>
+                        {/* Top: Badges */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span
+                            className={`text-[10px] font-semibold uppercase px-2.5 py-1 rounded-md border ${
+                              exam.section === "national"
+                                ? "bg-orange-50 text-orange-700 border-orange-200"
+                                : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            }`}
+                          >
+                            {exam.sectionLabel || (exam.section === "state" ? "State Level" : "National Level")}
+                          </span>
+                          <span className="text-[11px] font-medium text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded-md truncate max-w-[150px] border border-gray-200">
+                            {exam.stream}
+                          </span>
+                        </div>
 
-                    {/* Exam Title & Full Name */}
-                    <div className="mb-3">
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                        {exam.name}
-                      </h3>
-                      <p className="text-xs font-normal text-gray-500 mt-0.5 line-clamp-1" title={exam.fullName}>
-                        {exam.fullName}
-                      </p>
-                    </div>
+                        {/* Exam Title & Full Name */}
+                        <div className="mb-3">
+                          <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                            {exam.name}
+                          </h3>
+                          <p className="text-xs font-normal text-gray-500 mt-0.5 line-clamp-1" title={exam.fullName}>
+                            {exam.fullName}
+                          </p>
+                        </div>
 
-                    {/* Institution / University */}
-                    <div className="bg-slate-50/80 rounded-2xl p-3 sm:p-3.5 border border-slate-200/80 mb-3.5 space-y-1.5">
-                      <div className="flex items-start gap-2 text-xs text-gray-800">
-                        <Building2 className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
-                        <span className="font-semibold line-clamp-2" title={exam.university}>
-                          {exam.university}
-                        </span>
-                      </div>
+                        {/* University & Location */}
+                        <div className="bg-slate-50/80 rounded-2xl p-3 sm:p-3.5 border border-slate-200/80 mb-3.5 space-y-1.5">
+                          <div className="flex items-start gap-2 text-xs text-gray-800">
+                            <Building2 className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
+                            <span className="font-semibold line-clamp-2" title={exam.university}>
+                              {exam.university}
+                            </span>
+                          </div>
 
-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 font-normal">
-                        <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                        <span className="truncate">{exam.location}</span>
-                      </div>
-                    </div>
+                          <div className="flex items-center gap-2 text-[11px] text-gray-500 font-normal">
+                            <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                            <span className="truncate">{exam.location || "India"}</span>
+                          </div>
+                        </div>
 
-                    {/* Courses / Degrees Offered */}
-                    <div className="mb-3">
-                      <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">
-                        Degrees / Courses
-                      </p>
-                      <p className="text-xs font-medium text-gray-700 line-clamp-2" title={exam.degree}>
-                        {exam.degree}
-                      </p>
-                    </div>
+                        {/* Degrees Offered */}
+                        <div className="mb-3">
+                          <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1">
+                            Degrees / Courses
+                          </p>
+                          <p className="text-xs font-medium text-gray-700 line-clamp-2" title={exam.degree}>
+                            {exam.degree}
+                          </p>
+                        </div>
 
-                    {/* Exam Period & Info Modal Button */}
-                    <div className="flex items-center justify-between text-xs text-gray-600 mb-4 pt-2.5 border-t border-gray-100">
-                      <span className="flex items-center gap-1.5 font-medium text-gray-700">
-                        <Calendar className="w-3.5 h-3.5 text-orange-500" />
-                        {exam.examPeriod}
-                      </span>
-                      <button
-                        onClick={() => setSelectedExamModal(exam)}
-                        className="text-[11px] font-medium text-orange-600 hover:text-orange-800 underline flex items-center gap-0.5 cursor-pointer py-1"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> View Details
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ─── ACTION BUTTONS (Notification & Apply) ─── */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-3.5 border-t border-orange-50">
-                    <a
-                      href={exam.notificationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl text-xs font-medium bg-orange-50 hover:bg-orange-100 text-orange-700 transition-all text-center border border-orange-200 min-h-[42px]"
-                    >
-                      <FileText className="w-3.5 h-3.5 text-orange-600" />
-                      <span>Notification</span>
-                    </a>
-
-                    <a
-                      href={exam.applyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl text-xs font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white transition-all shadow-sm shadow-green-500/20 text-center min-h-[42px]"
-                    >
-                      <span>Apply Now</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        )}
-
-        {/* ─── B. TABLE VIEW ─── */}
-        {viewMode === "table" && (
-          <div className="mb-8 bg-white rounded-3xl border border-orange-100 shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px]">
-                <thead>
-                  <tr className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Exam Name</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Category</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Stream</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Degrees</th>
-                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Exam Period</th>
-                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredExams.map((exam) => (
-                    <tr key={exam.id} className="border-b border-gray-100 hover:bg-orange-50/40 transition-colors">
-                      <td className="px-5 py-4">
-                        <p className="text-sm font-semibold text-gray-900">{exam.name}</p>
-                        <p className="text-xs text-orange-600 font-normal truncate max-w-[200px]" title={exam.university}>{exam.university}</p>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full uppercase ${exam.badgeBg}`}>
-                          {exam.sectionLabel}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-xs text-gray-600 font-normal">
-                        {exam.stream}
-                      </td>
-                      <td className="px-4 py-4 text-xs text-gray-700 font-normal max-w-[220px]">
-                        <span className="line-clamp-1" title={exam.degree}>{exam.degree}</span>
-                      </td>
-                      <td className="px-4 py-4 text-xs font-medium text-gray-600">
-                        {exam.examPeriod}
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
+                        {/* Exam Period & View Details */}
+                        <div className="flex items-center justify-between text-xs text-gray-600 mb-4 pt-2.5 border-t border-gray-100">
+                          <span className="flex items-center gap-1.5 font-medium text-gray-700">
+                            <Calendar className="w-3.5 h-3.5 text-orange-500" />
+                            {exam.examPeriod}
+                          </span>
                           <button
                             onClick={() => setSelectedExamModal(exam)}
-                            className="px-3 py-1.5 text-xs font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg transition-colors cursor-pointer"
+                            className="text-[11px] font-medium text-orange-600 hover:text-orange-800 underline flex items-center gap-0.5 cursor-pointer py-1"
                           >
-                            Details
+                            <Eye className="w-3.5 h-3.5" /> View Details
                           </button>
-                          <a
-                            href={exam.applyUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3.5 py-1.5 text-xs font-semibold bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors inline-flex items-center gap-1"
-                          >
-                            Apply <ExternalLink className="w-3 h-3" />
-                          </a>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                      </div>
 
-        {/* Empty State */}
-        {filteredExams.length === 0 && (
-          <div className="bg-white rounded-3xl border border-orange-100 p-8 sm:p-12 text-center my-8 shadow-sm">
-            <Search className="w-12 h-12 text-orange-300 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-gray-800">No matching PG entrance exams found</h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">Try resetting the filters or searching for keywords like GATE, CUET-PG, TG ICET, CAT.</p>
-            <button
-              onClick={() => {
-                setActiveSection("all");
-                setActiveStream("all");
-                setSearchQuery("");
-              }}
-              className="mt-4 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md cursor-pointer"
-            >
-              Reset All Filters
-            </button>
-          </div>
+                      {/* Action Links */}
+                      <div className="grid grid-cols-2 gap-2.5 pt-3.5 border-t border-orange-50">
+                        <a
+                          href={exam.notificationUrl || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl text-xs font-medium bg-orange-50 hover:bg-orange-100 text-orange-700 transition-all text-center border border-orange-200 min-h-[42px]"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-orange-600" />
+                          <span>Notification</span>
+                        </a>
+
+                        <a
+                          href={exam.applyUrl || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl text-xs font-semibold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white transition-all shadow-sm shadow-green-500/20 text-center min-h-[42px]"
+                        >
+                          <span>Apply Now</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </motion.article>
+                ))}
+              </div>
+            )}
+
+            {/* ─── TABLE VIEW ─── */}
+            {viewMode === "table" && (
+              <div className="mb-8 bg-white rounded-3xl border border-orange-100 shadow-md overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px]">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Exam Name</th>
+                        <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Category</th>
+                        <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Stream</th>
+                        <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Degrees</th>
+                        <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Exam Period</th>
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {exams.map((exam) => (
+                        <tr key={exam.id || exam.slug} className="hover:bg-orange-50/40 transition-colors">
+                          <td className="px-5 py-4">
+                            <p className="text-sm font-semibold text-gray-900">{exam.name}</p>
+                            <p className="text-xs text-orange-600 font-normal truncate max-w-[200px]" title={exam.university}>
+                              {exam.university}
+                            </p>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase ${
+                                exam.section === "national"
+                                  ? "bg-orange-100 text-orange-800"
+                                  : "bg-emerald-100 text-emerald-800"
+                              }`}
+                            >
+                              {exam.sectionLabel || exam.section}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-xs text-gray-600 font-normal">{exam.stream}</td>
+                          <td className="px-4 py-4 text-xs text-gray-700 font-normal max-w-[220px]">
+                            <span className="line-clamp-1" title={exam.degree}>{exam.degree}</span>
+                          </td>
+                          <td className="px-4 py-4 text-xs font-medium text-gray-600">{exam.examPeriod}</td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedExamModal(exam)}
+                                className="px-3 py-1.5 text-xs font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg transition-colors cursor-pointer"
+                              >
+                                Details
+                              </button>
+                              <a
+                                href={exam.applyUrl || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3.5 py-1.5 text-xs font-semibold bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors inline-flex items-center gap-1"
+                              >
+                                Apply <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {exams.length === 0 && (
+              <div className="bg-white rounded-3xl border border-orange-100 p-8 sm:p-12 text-center my-8 shadow-sm">
+                <Search className="w-12 h-12 text-orange-300 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-gray-800">No matching PG entrance exams found</h3>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  Try resetting your search or filters to see all available entrance opportunities.
+                </p>
+                <button
+                  onClick={() => {
+                    setActiveSection("all");
+                    setActiveStream("all");
+                    setSearchQuery("");
+                  }}
+                  className="mt-4 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
-
-      {/* <section className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-15 my-10 sm:my-12">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-800">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl sm:text-2xl">🧭</span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-              Quick PG Entrance Roadmaps
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-gray-300 font-normal mb-6 sm:mb-8">
-            Direct roadmap classifications for state and national PG aspirants:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-           
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-semibold uppercase text-orange-300 block mb-1">I. Pan India PG</span>
-                <h4 className="font-semibold text-sm sm:text-base text-white">National Central Exams</h4>
-                <p className="text-xs text-gray-300 leading-relaxed mt-1.5 font-normal">
-                  <span className="font-medium text-white">GATE</span> (M.Tech/PSU), <span className="font-medium text-white">CUET-PG</span> (Central Universities), <span className="font-medium text-white">JAM</span> (M.Sc), <span className="font-medium text-white">CAT/XAT/MAT</span> (MBA), <span className="font-medium text-white">NIPER</span> (Pharma).
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setActiveSection("pan-india");
-                  window.scrollTo({ top: 300, behavior: "smooth" });
-                }}
-                className="text-xs font-medium text-orange-400 hover:text-orange-200 flex items-center gap-1 pt-3 cursor-pointer"
-              >
-                Filter Pan India Exams <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-          
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-semibold uppercase text-green-300 block mb-1">II. Telangana & AP</span>
-                <h4 className="font-semibold text-sm sm:text-base text-white">State Universities Common Tests</h4>
-                <p className="text-xs text-gray-300 leading-relaxed mt-1.5 font-normal">
-                  <span className="font-medium text-white">Telangana:</span> TS PGECET, TS ICET, CPGET (OUCET)<br />
-                  <span className="font-medium text-white">Andhra Pradesh:</span> AP PGECET, AP ICET, APPGCET
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setActiveSection("telangana");
-                  window.scrollTo({ top: 300, behavior: "smooth" });
-                }}
-                className="text-xs font-medium text-green-400 hover:text-green-200 flex items-center gap-1 pt-3 cursor-pointer"
-              >
-                Filter State Exams <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-           
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 space-y-2.5 hover:bg-white/15 transition-colors flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-semibold uppercase text-amber-300 block mb-1">III. Organization Specific</span>
-                <h4 className="font-semibold text-sm sm:text-base text-white">Premier Research Institutes</h4>
-                <p className="text-xs text-gray-300 leading-relaxed mt-1.5 font-normal">
-                  <span className="font-medium text-white">CFTRI</span> (Food Tech), <span className="font-medium text-white">TIFR GS</span> (Pure Sciences), <span className="font-medium text-white">ISI</span> (Stats & Math), <span className="font-medium text-white">CMI</span> (Data Science), IISERs.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setActiveSection("institute");
-                  window.scrollTo({ top: 300, behavior: "smooth" });
-                }}
-                className="text-xs font-medium text-amber-400 hover:text-amber-200 flex items-center gap-1 pt-3 cursor-pointer"
-              >
-                Filter Institute Exams <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      {/* ─── National-level PG entrance guide (server-rendered content) ─── */}
+      {/* ─── 4. BOTTOM PAGE CONTENT (GUIDE & SEO ARTICLE) ──────────────────── */}
       {guide}
 
-      {/* ─── 5. DETAIL MODAL (DETAILED EXAM INFORMATION POPUP) ─────────────── */}
+      {/* ─── 5. DETAIL MODAL ───────────────────────────────────────────────── */}
       {selectedExamModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs"
@@ -823,30 +629,28 @@ export default function PgEntranceClient({ guide = null }) {
             {/* Header */}
             <div className="mb-4 sm:mb-5 pr-8">
               <div className="flex items-center gap-2 mb-2">
-                <span className={`text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-md ${selectedExamModal.badgeBg}`}>
-                  {selectedExamModal.sectionLabel}
+                <span className="text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800">
+                  {selectedExamModal.sectionLabel || selectedExamModal.section}
                 </span>
                 <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-0.5 rounded-md">
                   {selectedExamModal.stream}
                 </span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">
-                {selectedExamModal.name}
-              </h3>
+              <h3 className="text-2xl font-bold text-gray-900">{selectedExamModal.name}</h3>
               <p className="text-xs font-normal text-gray-500 mt-0.5">{selectedExamModal.fullName}</p>
             </div>
 
-            {/* University / Conducting Body */}
+            {/* Conducting Body */}
             <div className="bg-orange-50/40 rounded-2xl p-3.5 sm:p-4 border border-orange-100 mb-4 space-y-1">
               <p className="text-[10px] font-semibold uppercase text-orange-600">Conducting Body & Participating Institutions</p>
               <p className="text-xs sm:text-sm font-semibold text-gray-900">{selectedExamModal.university}</p>
-              <p className="text-[11px] sm:text-xs text-gray-600">📍 {selectedExamModal.location}</p>
+              <p className="text-[11px] sm:text-xs text-gray-600">📍 {selectedExamModal.location || "India"}</p>
             </div>
 
-            {/* Details & Eligibility */}
+            {/* Description & Eligibility */}
             <div className="space-y-3 text-xs sm:text-sm text-gray-600 leading-relaxed font-normal mb-5">
-              <p>{selectedExamModal.description}</p>
-              
+              {selectedExamModal.description && <p>{selectedExamModal.description}</p>}
+
               <div className="bg-orange-50/60 border border-orange-100 rounded-2xl p-3.5 sm:p-4">
                 <p className="text-xs font-semibold text-orange-900 mb-0.5">🎓 Degree Programs Offered</p>
                 <p className="text-xs text-orange-800 font-normal">{selectedExamModal.degree}</p>
@@ -857,7 +661,7 @@ export default function PgEntranceClient({ guide = null }) {
                 <p className="text-xs text-green-800 font-normal">{selectedExamModal.eligibility}</p>
               </div>
 
-              {selectedExamModal.highlights && (
+              {selectedExamModal.highlights?.length > 0 && (
                 <div className="space-y-1.5 pt-1">
                   <p className="text-xs font-semibold text-gray-800">Key Highlights:</p>
                   {selectedExamModal.highlights.map((h, i) => (
@@ -870,10 +674,10 @@ export default function PgEntranceClient({ guide = null }) {
               )}
             </div>
 
-            {/* Modal Direct Action Buttons */}
+            {/* Modal Actions */}
             <div className="grid grid-cols-2 gap-3 pt-2">
               <a
-                href={selectedExamModal.notificationUrl}
+                href={selectedExamModal.notificationUrl || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3 px-4 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-medium text-xs text-center flex items-center justify-center gap-1.5 transition-all border border-orange-200"
@@ -883,7 +687,7 @@ export default function PgEntranceClient({ guide = null }) {
               </a>
 
               <a
-                href={selectedExamModal.applyUrl}
+                href={selectedExamModal.applyUrl || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3 px-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold text-xs text-center flex items-center justify-center gap-1.5 transition-all shadow-md shadow-green-500/20"
@@ -894,8 +698,6 @@ export default function PgEntranceClient({ guide = null }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }
-
