@@ -45,7 +45,7 @@ const navLinks = [
   { name: "Latest Job Notifications", path: "/latest-job-notifications", Icon: FaInfoCircle },
   { name: "Internships / SkillUps", path: "/internships", Icon: FaGraduationCap },
   { name: "PG Entrance", path: "/pg-entrance", Icon: FaBookOpen },
-  { name: "Digital Presence", path: "/digital-presence", Icon: FaRocket },
+  // { name: "Digital Presence", path: "/digital-presence", Icon: FaRocket },
 
   { name: "Government Jobs", path: "/government-jobs", Icon: FaBriefcase, blogsDropdown: true },
 
