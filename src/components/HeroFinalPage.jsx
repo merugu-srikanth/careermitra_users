@@ -72,14 +72,14 @@ const CARDS = [
     },
     {
         id: 3,
-        title: "Internships",
+        title: "Internships / SkillUps",
         icon: FaGraduationCap,
         iconBg: "#ffedd5",
         iconColor: "#ea580c",
         cornerGlow: "radial-gradient(circle at top right, rgba(249, 115, 22, 0.16) 0%, rgba(249, 115, 22, 0.04) 50%, transparent 70%)",
         btnGrad: "linear-gradient(135deg, #ea580c, #f97316)",
         description:
-            "Explore internships to accelerate your career.",
+            "Explore Internships / SkillUps to accelerate your career.",
         button: "Explore Now",
         link: "/internships",
     },
