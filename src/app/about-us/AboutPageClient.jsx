@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FaStar, FaLeaf, FaUsers, FaLightbulb, FaHandshake,
   FaShieldAlt, FaGlobe, FaArrowRight, FaQuoteLeft,
-  FaMedal, FaChartLine, FaBullseye
+  FaMedal, FaChartLine, FaBullseye, FaLinkedin
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import Link from "next/link";
@@ -104,6 +104,9 @@ const teamMembers = [
     accentText: "text-orange-600",
     dotColor: "bg-orange-400",
     tag: "Developer",
+    socials: {
+      linkedin: "https://www.linkedin.com/in/srikanth-m-7b1221393/"
+    }
   },
   {
     name: "Mr. B. Mani Kumar",
@@ -445,8 +448,22 @@ function TeamSection() {
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${m.gradFrom} ${m.gradTo} flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0`}>
                         {m.avatar}
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="font-black text-gray-900 text-lg leading-tight whitespace-nowrap overflow-hidden text-ellipsis">{m.name}</h3>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="font-black text-gray-900 text-lg leading-tight truncate">{m.name}</h3>
+                          {m.socials?.linkedin && (
+                            <a
+                              href={m.socials.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={`${m.name} on LinkedIn`}
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/70 transition-all shrink-0 shadow-2xs"
+                            >
+                              <FaLinkedin size={11} />
+                              <span>LinkedIn</span>
+                            </a>
+                          )}
+                        </div>
                         <span className={`text-xs font-semibold ${m.accentText} bg-opacity-50 ${m.accentBg} px-2 py-0.5 rounded-full`}>{m.credentials}</span>
                         <p className="text-xs text-gray-400 mt-1 font-medium">{m.domain}</p>
                       </div>

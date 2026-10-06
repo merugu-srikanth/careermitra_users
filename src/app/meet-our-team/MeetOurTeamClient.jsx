@@ -98,7 +98,9 @@ const teamMembers = [
     accentText: "text-orange-600",
     dotColor: "bg-orange-400",
     tag: "Full-Stack Developer",
-    socials: {}
+    socials: {
+      linkedin: "https://www.linkedin.com/in/srikanth-m-7b1221393/"
+    }
   },
   {
     name: "Mr. B. Mani Kumar",
@@ -209,11 +211,26 @@ function TeamCard({ member }) {
               {/* Header without avatar for full visibility */}
               <div className="mb-5">
                 <h3 className="font-black text-slate-800 text-lg md:text-xl leading-tight">{member.name}</h3>
-                <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${member.accentText} bg-opacity-70 ${member.accentBg} px-2 py-0.5 rounded-md`}>
-                    {member.credentials}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold">{member.domain}</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${member.accentText} bg-opacity-70 ${member.accentBg} px-2 py-0.5 rounded-md`}>
+                      {member.credentials}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-semibold">{member.domain}</span>
+                  </div>
+                  {member.socials?.linkedin && (
+                    <a
+                      href={member.socials.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${member.name} on LinkedIn`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-white hover:bg-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/70 transition-all shadow-2xs"
+                    >
+                      <FaLinkedin size={11} />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -296,6 +313,18 @@ function TeamCard({ member }) {
             {/* Bottom Section */}
             <div className="mt-8 pt-5 border-t border-slate-800 flex items-center justify-between">
               <div className="flex gap-2">
+                {member.socials?.linkedin && (
+                  <a
+                    href={member.socials.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="LinkedIn Profile"
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-blue-400 hover:text-white hover:bg-blue-600 hover:border-blue-600 flex items-center justify-center transition-all"
+                  >
+                    <FaLinkedin size={14} />
+                  </a>
+                )}
                 {member.socials?.email && (
                   <a
                     href={`mailto:${member.socials.email}`}
