@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams, useParams } from "next/navigation";
 import axios from "axios";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import SEO from '@/components/SEO';
 import { generateArticleSchema } from '@/utils/schemaHelpers';
 
@@ -39,11 +39,18 @@ const formatDate = (value) => {
   });
 };
 
+// Admin-entered announcement HTML is sometimes a full document with its own
+// <style> block (e.g. `body { max-width: 850px; font-family: Georgia }`, global
+// h1/h2 rules). Injected as-is, those rules restyle the whole site — narrow
+// centred page, serif fonts. Strip document-level tags; .ann-prose styles the
+// content instead. isomorphic-dompurify runs identically on server and client,
+// so SSR output is sanitized too and hydration matches.
 const sanitizeHtml = (html) => {
   if (!html) return "";
-  if (typeof window === "undefined") return html;
-  const purify = DOMPurify.sanitize ? DOMPurify : (DOMPurify.default || DOMPurify);
-  return purify.sanitize(html, { ADD_ATTR: ["target", "rel"] }).replace(
+  return DOMPurify.sanitize(html, {
+    ADD_ATTR: ["target", "rel"],
+    FORBID_TAGS: ["style", "link", "meta", "title", "base"],
+  }).replace(
     /<a /g,
     '<a target="_blank" rel="noopener noreferrer" '
   );
@@ -239,7 +246,7 @@ export default function AnnouncementDetail({ initialData = null }) {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
  
         {/* ── Hero Banner ── */}
-        <div className="bg-white border-b border-gray-100 pt-26 sm:pt-30 pb-5 sm:pb-8 px-4 shadow-sm">
+        <div className="bg-white border-b border-gray-100 pt-26 sm:pt-30 pb-5 sm:pb-8 px-4 md:px-15 shadow-sm">
           <div className="w-full mx-auto">
  
             {/* Breadcrumb + back */}
