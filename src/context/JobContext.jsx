@@ -1,52 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { PUBLIC_API_BASE_URL, buildJobsListingUrl } from "@/utils/api";
+import { mapUnifiedJob } from "@/utils/jobMapper";
 
 const JobContext = createContext(null);
 
-const pickFirst = (obj, keys, fallback = "") => {
-  for (const key of keys) {
-    const value = obj?.[key];
-    if (value !== undefined && value !== null && value !== "") return value;
-  }
-  return fallback;
-};
-
-const toDateOnly = (value) => {
-  if (!value || typeof value !== "string") return "";
-  return value.split("T")[0] || "";
-};
-
-export const mapUnifiedJob = (j) => {
-  const postedRaw = pickFirst(j, ["postedDate", "posted_date"]);
-  const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
-
-  return {
-    raw: j,
-    id: pickFirst(j, ["_id", "id"]),
-    jobSourceId: pickFirst(j, ["job_source_id", "jobSourceId"]),
-    sourceName: pickFirst(j, ["source_name", "sourceName", "jobSource"]),
-    categoryId: String(pickFirst(j, ["category_id", "categoryId"], "")),
-    categoryName: pickFirst(j, ["category_name", "categoryName"]),
-    title: pickFirst(j, ["title"]),
-    category: pickFirst(j, ["category_name", "categoryName"], "General"),
-    jobType: pickFirst(j, ["job_type", "jobType"], "jobs"),
-    org: pickFirst(j, ["jobSource", "source_name", "sourceName"]),
-    noOfPosts: pickFirst(j, ["numberOfPosts", "no_of_posts"]),
-    age: pickFirst(j, ["ageRequirement", "age"]),
-    qualifications: pickFirst(j, ["qualifications"]),
-    applyLink: pickFirst(j, ["applyLink", "apply_link"]),
-    notificationUrl: pickFirst(j, ["notificationUrl", "notificationURL", "notification_url"]),
-    postedDateRaw: postedRaw,
-    lastDateRaw: deadlineRaw,
-    postedDate: toDateOnly(postedRaw),
-    lastDate: toDateOnly(deadlineRaw),
-    status: pickFirst(j, ["status"]),
-    createdAt: pickFirst(j, ["createdAt"]),
-    updatedAt: pickFirst(j, ["updatedAt"]),
-    location: pickFirst(j, ["location"], "All India"),
-  };
-};
+// Shared with the Server Components — see utils/jobMapper.js.
+export { mapUnifiedJob };
 
 export function JobProvider({ children }) {
   const [allJobs, setAllJobs] = useState([]);
@@ -64,7 +25,7 @@ export function JobProvider({ children }) {
       await Promise.all(
         types.map(async (type) => {
           try {
-            const res = await fetch(`https://careermitra.in/api/jobs?page=1&limit=100&sort=newest&job_type=${type}`);
+            const res = await fetch(buildJobsListingUrl(PUBLIC_API_BASE_URL, type, { page: 1, limit: 100, sort: "newest" }));
             const data = await res.json();
             if (data.success && data.data?.jobs) {
               fetchedJobs = fetchedJobs.concat(data.data.jobs);
@@ -75,7 +36,16 @@ export function JobProvider({ children }) {
         })
       );
 
-      const mapped = fetchedJobs.map(mapUnifiedJob);
+      // "both" records are listed under jobs AND internship — keep one copy.
+      const seen = new Set();
+      const unique = fetchedJobs.filter((j) => {
+        const id = String(j?._id ?? j?.id ?? "");
+        if (!id) return true;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      const mapped = unique.map(mapUnifiedJob);
       setAllJobs(mapped);
     } catch (err) {
       console.error("Failed to fetch jobs in JobContext:", err);

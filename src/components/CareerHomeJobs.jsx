@@ -5,6 +5,9 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useJobs } from "../context/JobContext";
+import JobRichText from "./JobRichText";
+import { mapUnifiedJob, pickFirst } from "../utils/jobMapper";
+import { formatISTDateNumeric, getDaysLeft } from "../utils/istDate";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -115,56 +118,23 @@ const Badge = ({ label }) => {
     );
 };
 
-const formatDateDDMMYYYY = (value) => {
-    if (!value) return "—";
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const [y, m, d] = value.split("-");
-        return `${d}/${m}/${y}`;
-    }
-
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) return value;
-
-    const dd = String(parsed.getDate()).padStart(2, "0");
-    const mm = String(parsed.getMonth() + 1).padStart(2, "0");
-    const yyyy = parsed.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-};
+// Dates are IST calendar days — never the visitor's local timezone.
+const formatDateDDMMYYYY = (value) => (value ? formatISTDateNumeric(value) || value : "—");
 
 const getDaysLeftText = (value) => {
-    if (!value) return "";
-
-    const deadline = new Date(value);
-    if (Number.isNaN(deadline.getTime())) return "";
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    deadline.setHours(0, 0, 0, 0);
-
-    const msPerDay = 1000 * 60 * 60 * 24;
-    const days = Math.ceil((deadline.getTime() - today.getTime()) / msPerDay);
-
+    const days = getDaysLeft(value);
+    if (days === null) return "";
     if (days < 0) {
         const expiredDays = Math.abs(days);
         return `Expired ${expiredDays} day${expiredDays === 1 ? "" : "s"} ago`;
     }
-
     if (days === 0) return "Expires Today";
     return `Expires in ${days} day${days === 1 ? "" : "s"}`;
 };
 
 const isDeadlineExpired = (value) => {
-    if (!value) return false;
-
-    const deadline = new Date(value);
-    if (Number.isNaN(deadline.getTime())) return false;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    deadline.setHours(0, 0, 0, 0);
-
-    return deadline.getTime() < today.getTime();
+    const days = getDaysLeft(value);
+    return days !== null && days < 0;
 };
 
 const normalizeExternalUrl = (value) => {
@@ -174,24 +144,12 @@ const normalizeExternalUrl = (value) => {
     return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
-const pickFirst = (obj, keys, fallback = "") => {
-    for (const key of keys) {
-        const value = obj?.[key];
-        if (value !== undefined && value !== null && value !== "") return value;
-    }
-    return fallback;
-};
-
-const toDateOnly = (value) => {
-    if (!value || typeof value !== "string") return "";
-    return value.split("T")[0] || "";
-};
-
 const formatDateTime = (value) => {
     if (!value) return "Not specified";
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return String(value);
     return parsed.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -200,34 +158,8 @@ const formatDateTime = (value) => {
     });
 };
 
-const mapApiJob = (job) => {
-    const postedRaw = pickFirst(job, ["postedDate", "posted_date"]);
-    const deadlineRaw = pickFirst(job, ["applicationDeadline", "application_deadline"]);
-
-    return {
-        raw: job,
-        id: pickFirst(job, ["_id", "id"]),
-        jobSourceId: pickFirst(job, ["job_source_id", "jobSourceId"]),
-        sourceName: pickFirst(job, ["source_name", "sourceName", "jobSource"]),
-        categoryId: pickFirst(job, ["category_id", "categoryId"]),
-        categoryName: pickFirst(job, ["category_name", "categoryName"]),
-        title: pickFirst(job, ["title"]),
-        category: pickFirst(job, ["jobType", "job_type"], "Job"),
-        org: pickFirst(job, ["jobSource", "source_name", "sourceName"]),
-        noOfPosts: pickFirst(job, ["numberOfPosts", "no_of_posts"]),
-        age: pickFirst(job, ["ageRequirement", "age"]),
-        qualifications: pickFirst(job, ["qualifications"]),
-        applyLink: pickFirst(job, ["applyLink", "apply_link"]),
-        notificationUrl: pickFirst(job, ["notificationUrl", "notificationURL", "notification_url"]),
-        postedDateRaw: postedRaw,
-        lastDateRaw: deadlineRaw,
-        postedDate: toDateOnly(postedRaw),
-        lastDate: toDateOnly(deadlineRaw),
-        status: pickFirst(job, ["status"]),
-        createdAt: pickFirst(job, ["createdAt"]),
-        updatedAt: pickFirst(job, ["updatedAt"]),
-    };
-};
+// Same mapper as the listing, but this card shows the job type as its category.
+const mapApiJob = (job) => ({ ...mapUnifiedJob(job), category: pickFirst(job, ["jobType", "job_type"], "Job") });
 
 // ─── Grid Card ────────────────────────────────────────────────────────────────
 
@@ -547,24 +479,25 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                             <p className="text-sm font-black text-gray-800 mb-3">Detail View</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                 {[
-                                    // ["_id", job?.id],
-                                    // ["job_source_id", job?.jobSourceId],
-                                    ["source_name", job?.sourceName || job?.org],
-                                    // ["category_id", job?.categoryId],
-                                    ["category_name", job?.categoryName],
-                                    ["title", job?.title],
-                                    ["job_type", job?.category],
-                                    ["posted_date", formatDateDDMMYYYY(job?.postedDate)],
-                                    ["application_deadline", formatDateDDMMYYYY(job?.lastDate)],
-                                    ["qualifications", job?.qualifications],
-                                    ["age", job?.age],
-                                    ["no_of_posts", job?.noOfPosts],
-                                    ["status", job?.status],
-                                    ["createdAt", formatDateTime(job?.createdAt)],
-                                    ["updatedAt", formatDateTime(job?.updatedAt)],
-                                    ["notification_url", normalizeExternalUrl(job?.notificationUrl) || "Not specified"],
-                                    ["apply_link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
-
+                                    ["Organisation", job?.sourceName || job?.org],
+                                    ["Category", job?.categoryName],
+                                    ["Job Type", job?.category],
+                                    ["Sector", job?.sector],
+                                    ["Job Category", job?.jobCategory],
+                                    ["Employment", job?.employmentNature],
+                                    ...(job?.experienceLevel ? [["Experience", job.experienceLevel]] : []),
+                                    ...(job?.experienceYears ? [["Experience Years", job.experienceYears]] : []),
+                                    ["Posted Date", formatDateDDMMYYYY(job?.postedDate)],
+                                    ["Last Date", formatDateDDMMYYYY(job?.lastDate)],
+                                    ["Qualifications", job?.qualifications],
+                                    ["Qualification Level", [job?.qualificationLevel, job?.qualificationStream].filter(Boolean).join(" · ")],
+                                    ["Age", job?.age],
+                                    ["No. of Posts", job?.noOfPosts],
+                                    ["Location", job?.location],
+                                    ["Language", job?.language],
+                                    ["Updated", formatDateTime(job?.updatedAt)],
+                                    ["Notification", normalizeExternalUrl(job?.notificationUrl) || "Not specified"],
+                                    ["Apply Link", normalizeExternalUrl(job?.applyLink) || "Not specified"],
                                 ].map(([key, value]) => (
                                     <div key={key} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
                                         <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{key}</p>
@@ -573,6 +506,15 @@ const JobModal = ({ job, loading, onClose, isLoggedIn }) => (
                                 ))}
                             </div>
                         </div>
+
+                        {[["Description", job?.description], ["Remark", job?.remark], ["Note", job?.note]].map(([label, value]) =>
+                            value ? (
+                                <div key={label} className="rounded-2xl border border-gray-200 bg-white p-4">
+                                    <p className="text-sm font-black text-gray-800 mb-2">{label}</p>
+                                    <JobRichText value={value} />
+                                </div>
+                            ) : null
+                        )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <motion.a

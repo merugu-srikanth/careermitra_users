@@ -1,6 +1,7 @@
 import AllJobsClient from "./AllJobsClient";
 import { generateCollectionPageSchema } from '@/utils/schemaHelpers';
 import { INTERNAL_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl } from '@/utils/api';
+import { mapUnifiedJob } from '@/utils/jobMapper';
 
 const PAGE_TITLE = "Latest Government Jobs Notifications 2026 - Careermitra";
 const PAGE_DESCRIPTION =
@@ -36,56 +37,6 @@ export const metadata = {
     description: PAGE_DESCRIPTION,
     images: ["https://careermitra.in/default_og_image.png"],
   },
-};
-
-// Mirrors mapUnifiedJob() in src/context/JobContext.jsx field-for-field.
-// Duplicated (not imported) deliberately: that file is a "use client" module,
-// and pulling a plain function out of it into a Server Component risks it
-// being treated as an opaque client reference rather than a callable function
-// under this Next.js version's RSC handling. Keep the two in sync by hand if
-// the API's job shape changes.
-const pickFirst = (obj, keys, fallback = "") => {
-  for (const key of keys) {
-    const value = obj?.[key];
-    if (value !== undefined && value !== null && value !== "") return value;
-  }
-  return fallback;
-};
-
-const toDateOnly = (value) => {
-  if (!value || typeof value !== "string") return "";
-  return value.split("T")[0] || "";
-};
-
-const mapUnifiedJob = (j) => {
-  const postedRaw = pickFirst(j, ["postedDate", "posted_date"]);
-  const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
-
-  return {
-    raw: j,
-    id: pickFirst(j, ["_id", "id"]),
-    jobSourceId: pickFirst(j, ["job_source_id", "jobSourceId"]),
-    sourceName: pickFirst(j, ["source_name", "sourceName", "jobSource"]),
-    categoryId: String(pickFirst(j, ["category_id", "categoryId"], "")),
-    categoryName: pickFirst(j, ["category_name", "categoryName"]),
-    title: pickFirst(j, ["title"]),
-    category: pickFirst(j, ["category_name", "categoryName"], "General"),
-    jobType: pickFirst(j, ["job_type", "jobType"], "jobs"),
-    org: pickFirst(j, ["jobSource", "source_name", "sourceName"]),
-    noOfPosts: pickFirst(j, ["numberOfPosts", "no_of_posts"]),
-    age: pickFirst(j, ["ageRequirement", "age"]),
-    qualifications: pickFirst(j, ["qualifications"]),
-    applyLink: pickFirst(j, ["applyLink", "apply_link"]),
-    notificationUrl: pickFirst(j, ["notificationUrl", "notificationURL", "notification_url"]),
-    postedDateRaw: postedRaw,
-    lastDateRaw: deadlineRaw,
-    postedDate: toDateOnly(postedRaw),
-    lastDate: toDateOnly(deadlineRaw),
-    status: pickFirst(j, ["status"]),
-    createdAt: pickFirst(j, ["createdAt"]),
-    updatedAt: pickFirst(j, ["updatedAt"]),
-    location: pickFirst(j, ["location"], "All India"),
-  };
 };
 
 // Fetches exactly the default listing view (page 1, no filters) so

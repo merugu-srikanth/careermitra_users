@@ -89,7 +89,7 @@ async function getInitialInternships() {
 
 async function getInitialSkillups() {
   try {
-    const res = await fetch(`${INTERNAL_API_BASE_URL}/jobs?job_type=skillup&page=1&limit=20&sort=newest`, {
+    const res = await fetch(`${INTERNAL_API_BASE_URL}/jobs/skillup?page=1&limit=20&sort=newest`, {
       next: { revalidate: 300 },
     });
     const json = await res.json();

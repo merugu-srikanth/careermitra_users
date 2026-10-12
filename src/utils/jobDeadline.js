@@ -1,23 +1,9 @@
-const getDateOnly = (value) => {
-  if (!value) return null;
+import { getDaysLeft } from "./istDate";
 
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-
-  parsed.setHours(0, 0, 0, 0);
-  return parsed;
-};
-
-export const getDeadlineDayDifference = (value) => {
-  const deadline = getDateOnly(value);
-  if (!deadline) return null;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-  return Math.ceil((deadline.getTime() - today.getTime()) / msPerDay);
-};
+// Whole days from today to the deadline, both as IST calendar days
+// (0 = closes today, negative = closed). The old version used the browser's
+// local midnight, which shifted the day for visitors outside India.
+export const getDeadlineDayDifference = (value) => getDaysLeft(value);
 
 export const isDeadlineExpired = (value) => {
   const days = getDeadlineDayDifference(value);

@@ -20,6 +20,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { generateTableSchema } from "../utils/schemaHelpers";
+import { PUBLIC_API_BASE_URL, buildJobsListingUrl } from "../utils/api";
 import {
   formatStipend,
   normalizeDuration,
@@ -72,24 +73,24 @@ const normalizeItem = (item, type = "internships") => {
     };
   } else {
     const rawTitle = item.title || "Skill Up Program";
-    const rawOrg = item.source_name || item.sourceName || item.org || "N/A";
+    const rawOrg = item.jobSource || item.source_name || item.sourceName || item.org || "N/A";
     return {
       id: item._id || item.id || generateSlug(rawTitle),
       slug: generateSlug(rawTitle),
       title: toTitleCase(rawTitle),
       org: rawOrg,
       type: "Skill Up",
-      domain: item.category_name || "Skill Training",
+      domain: item.categoryName || item.category_name || "Skill Training",
       location: item.location || "Online / All India",
       stipend: "Free Course",
       stipendCategory: "Free",
       duration: normalizeDuration(item.duration) || "Self Paced",
       qualifications: item.qualifications || "All Candidates",
-      applyLink: item.apply_link || item.applyLink || null,
-      notificationUrl: item.notification_url || item.notificationUrl || null,
-      postedDate: item.posted_date || item.postedDate || null,
-      deadline: item.application_deadline || item.lastDate || null,
-      isExpired: isItemExpired(item.application_deadline || item.lastDate),
+      applyLink: item.applyLink || item.apply_link || null,
+      notificationUrl: item.notificationUrl || item.notification_url || null,
+      postedDate: item.postedDate || item.posted_date || null,
+      deadline: item.deadline || item.application_deadline || item.lastDate || null,
+      isExpired: isItemExpired(item.deadline || item.application_deadline || item.lastDate),
       category: "skillups",
     };
   }
@@ -412,7 +413,7 @@ const InternshipTable = ({
             setError(json.message || "Failed to load internships");
           }
         } else {
-          const url = `https://careermitra.in/api/jobs/skillup?page=${currentPage}&limit=10`;
+          const url = buildJobsListingUrl(PUBLIC_API_BASE_URL, "skillup", { page: currentPage, limit: 10 });
           const res = await fetch(url);
           const json = await res.json();
           if (json.success && json.data) {

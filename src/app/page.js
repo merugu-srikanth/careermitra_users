@@ -1,6 +1,7 @@
 import HomeClient from "./HomeClient";
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/utils/schemaHelpers';
 import { INTERNAL_API_BASE_URL, buildJobsListUrl } from '@/utils/api';
+import { mapUnifiedJob as mapJob } from '@/utils/jobMapper';
 
 export const metadata = {
   title: "Personalized Latest Govt Jobs Notifications & Career Guidance in India - Career Mitra",
@@ -36,48 +37,8 @@ export const metadata = {
 // on timeout the section falls back to its client-side fetch.
 const FETCH_TIMEOUT_MS = 8000;
 
-const pickFirst = (obj, keys, fallback = "") => {
-  for (const key of keys) {
-    const value = obj?.[key];
-    if (value !== undefined && value !== null && value !== "") return value;
-  }
-  return fallback;
-};
-
-const toDateOnly = (value) => {
-  if (!value || typeof value !== "string") return "";
-  return value.split("T")[0] || "";
-};
-
-const mapUnifiedJob = (j) => {
-  const postedRaw = pickFirst(j, ["postedDate", "posted_date"]);
-  const deadlineRaw = pickFirst(j, ["applicationDeadline", "application_deadline"]);
-
-  return {
-    id: pickFirst(j, ["_id", "id"]),
-    jobSourceId: pickFirst(j, ["job_source_id", "jobSourceId"]),
-    sourceName: pickFirst(j, ["source_name", "sourceName", "jobSource"]),
-    categoryId: String(pickFirst(j, ["category_id", "categoryId"], "")),
-    categoryName: pickFirst(j, ["category_name", "categoryName"]),
-    title: pickFirst(j, ["title"]),
-    category: pickFirst(j, ["category_name", "categoryName"], "General"),
-    jobType: pickFirst(j, ["job_type", "jobType"], "jobs"),
-    org: pickFirst(j, ["jobSource", "source_name", "sourceName"]),
-    noOfPosts: pickFirst(j, ["numberOfPosts", "no_of_posts"]),
-    age: pickFirst(j, ["ageRequirement", "age"]),
-    qualifications: pickFirst(j, ["qualifications"]),
-    applyLink: pickFirst(j, ["applyLink", "apply_link"]),
-    notificationUrl: pickFirst(j, ["notificationUrl", "notificationURL", "notification_url"]),
-    postedDateRaw: postedRaw,
-    lastDateRaw: deadlineRaw,
-    postedDate: toDateOnly(postedRaw),
-    lastDate: toDateOnly(deadlineRaw),
-    status: pickFirst(j, ["status"]),
-    createdAt: pickFirst(j, ["createdAt"]),
-    updatedAt: pickFirst(j, ["updatedAt"]),
-    location: pickFirst(j, ["location"], "All India"),
-  };
-};
+// Home page props don't need the raw job object.
+const mapUnifiedJob = (j) => mapJob(j, { includeRaw: false });
 
 const slugify = (value = "") =>
   String(value)

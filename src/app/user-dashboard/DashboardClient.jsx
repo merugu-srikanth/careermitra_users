@@ -14,6 +14,8 @@ import { API_BASE_URL, API_ENDPOINTS, getApiMessage, isApiSuccess } from "@/util
 import { calculateProfileCompletion } from "@/utils/profileCompletion";
 import ProfileCard from "@/components/ProfileCard";
 import { getDeadlineStatusText, isDeadlineExpired } from "@/utils/jobDeadline";
+import { parseISTDate, formatISTDate, getDaysLeft, todayIST } from "@/utils/istDate";
+import { formatAge } from "@/utils/jobMapper";
 import ChatPanel from "@/components/ChatPanel";
 
 /* ═══════════════════════════════════════════════
@@ -79,9 +81,22 @@ const fmtINR = (n) => { if (n === null || n === undefined || n === "") return ""
 const normSubStatus = (s) => { if (!s) return "Not specified"; const v = String(s).toLowerCase(); if (v === "success" || v === "active") return "Active"; if (v === "failed") return "Failed"; if (v === "pending") return "Pending"; if (v === "expired") return "Expired"; return s; };
 const getAlertType = (p) => { if (!p) return "Not specified"; if (normBool(p.alert_both)) return "Both Job & Internship"; if (normBool(p.alert_job)) return "Government Jobs"; if (normBool(p.alert_internship)) return "Government Internships"; return "Not specified"; };
 const toTC = (t) => { if (!t) return ""; return t.toString().toLowerCase().split(" ").filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(" "); };
-const parseDate = (d) => { if (!d) return null; if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) { const [y, m, day] = d.split("-").map(Number); const dt = new Date(y, m - 1, day); return isNaN(dt) ? null : dt; } const dt = new Date(d); return isNaN(dt) ? null : dt; };
-const fmtDate2 = (d) => { const dt = parseDate(d); if (!dt) return "—"; return dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); };
-const daysLeft = (d) => { const dt = parseDate(d); if (!dt) return null; return Math.ceil((dt - new Date()) / 86400000); };
+// Job dates are IST calendar days (see utils/istDate.js) — never the browser's timezone.
+const parseDate = (d) => parseISTDate(d);
+const fmtDate2 = (d) => formatISTDate(d) || "—";
+const daysLeft = (d) => getDaysLeft(d);
+// The jobs API now uses camelCase keys; this page still reads the older names.
+const toDashboardJob = (j) => ({
+  ...j,
+  application_deadline: j?.deadline ?? j?.application_deadline ?? null,
+  posted_date: j?.postedDate ?? j?.posted_date ?? null,
+  source_name: j?.jobSource ?? j?.source_name ?? "",
+  job_type: j?.jobType ?? j?.job_type ?? "",
+  no_of_posts: j?.noOfPosts ?? j?.no_of_posts ?? null,
+  age: formatAge(j),
+  apply_link: j?.applyLink ?? j?.apply_link ?? "",
+  notification_url: j?.notificationUrl ?? j?.notification_url ?? "",
+});
 const safe = (v) => (v === null || v === undefined || v === "" ? "—" : v);
 const toDateOrNull = (d) => {
   const dt = parseDate(d);
@@ -509,7 +524,8 @@ const JobsPanel = ({ token }) => {
   const [status, setStatus] = useState("all");
   const [selJob, setSelJob] = useState(null);
   const [view, setView] = useState("cards");
-  const today = useMemo(() => new Date(), []);
+  // Midnight of today's IST date: a job stays live for its whole deadline day.
+  const today = useMemo(() => todayIST(), []);
 
   const [allJobs, setAllJobs] = useState([]);
 
@@ -524,7 +540,7 @@ const JobsPanel = ({ token }) => {
           params: { page: 1, limit: 1000 },
         });
         if (resAll.data?.success === true) {
-          const list = resAll.data?.data?.jobs || [];
+          const list = (resAll.data?.data?.jobs || []).map(toDashboardJob);
           setAllJobs(list);
         }
 
@@ -533,7 +549,7 @@ const JobsPanel = ({ token }) => {
           params: { page, limit: LIMIT },
         });
         if (res.data?.success === true) {
-          setJobs(res.data?.data?.jobs || []);
+          setJobs((res.data?.data?.jobs || []).map(toDashboardJob));
           setPagination(res.data?.data?.pagination || {});
         } else {
           setError(res.data?.message || "Failed to load recommended jobs");
@@ -1183,7 +1199,7 @@ const UserProfilePage = () => {
 
         if (jobsResult.status === "fulfilled") {
           const jobsData = jobsResult.value?.data;
-          const jobs = jobsData?.data?.jobs || jobsData?.jobs || [];
+          const jobs = (jobsData?.data?.jobs || jobsData?.jobs || []).map(toDashboardJob);
           const jobsTotal = jobsData?.data?.pagination?.total ?? jobs.length;
           const jobsNewCount = jobs.filter((j) => {
             const created = toDateOrNull(j?.posted_date || j?.createdAt || j?.updatedAt);

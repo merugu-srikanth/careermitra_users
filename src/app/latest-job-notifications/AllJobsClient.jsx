@@ -7,10 +7,18 @@ import AllJobCard from "@/components/AllJobCard";
 
 import { generateCollectionPageSchema, generateItemListSchema, generateTableSchema } from "@/utils/schemaHelpers";
 import { getDeadlineStatusText, isDeadlineExpired, getDeadlineDayDifference } from "@/utils/jobDeadline";
+import { formatISTDateNumeric } from "@/utils/istDate";
 import { useJobs, mapUnifiedJob } from "@/context/JobContext";
 import { useAuth } from "@/context/AuthContext";
-import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl } from "@/utils/api";
+import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl, buildJobsListingUrl } from "@/utils/api";
 import JobsSeoArticle from "./JobsSeoArticle";
+import JobFilterPanel from "@/components/jobs/JobFilterPanel";
+import JobQuickFilters from "@/components/jobs/JobQuickFilters";
+import JobTabs from "@/components/jobs/JobTabs";
+import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
+import {
+  EMPTY_JOB_FILTERS, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
+} from "@/utils/jobFilters";
 
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -115,22 +123,8 @@ const normalizeExternalUrl = (value) => {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
-const formatDateDDMMYYYY = (value) => {
-  if (!value) return "-";
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [y, m, d] = value.split("-");
-    return `${d}/${m}/${y}`;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-
-  const dd = String(parsed.getDate()).padStart(2, "0");
-  const mm = String(parsed.getMonth() + 1).padStart(2, "0");
-  const yyyy = parsed.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-};
+// Always the IST calendar day, whatever the visitor's timezone.
+const formatDateDDMMYYYY = (value) => (value ? formatISTDateNumeric(value) || value : "-");
 
 const JobCardSkeleton = () => (
   <div className="bg-white rounded-3xl border border-gray-100 p-6 space-y-4 animate-pulse">
@@ -386,15 +380,32 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
 // client-side-only rendering, which would silently undo the SSR/ISR fix
 // below. Suspense fallback is null since there's nothing to visually show —
 // it never renders a placeholder, only ever real (or absent) output.
-function QueryPrefill({ onQuery }) {
+function QueryPrefill({ onQuery, onFilters }) {
   const searchParams = useSearchParams();
   useEffect(() => {
     const q = searchParams.get("q");
     if (q) onQuery(q);
+    // Shared filter links: ?state=Telangana&qualificationLevel=Graduation&sort=deadline ...
+    const sort = searchParams.get("sort");
+    onFilters(filtersFromSearchParams(searchParams), SORT_OPTIONS.some((o) => o.value === sort) ? sort : null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;
 }
+
+// Client-side order for the loaded dataset — same keys as the API's sort.
+const compareJobs = (sortBy) => (a, b) => {
+  if (sortBy === "deadline") {
+    if (!a.lastDate) return b.lastDate ? 1 : 0;
+    if (!b.lastDate) return -1;
+    return a.lastDate.localeCompare(b.lastDate);
+  }
+  if (sortBy === "posts") return (Number(b.noOfPosts) || 0) - (Number(a.noOfPosts) || 0);
+  if (sortBy === "title") return String(a.title).localeCompare(String(b.title));
+  // latest: posted date (IST day), then creation time
+  return String(b.postedDate || "").localeCompare(String(a.postedDate || ""))
+    || new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+};
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 // initialJobs/initialTotalItems — server-fetched (page.js) default listing
@@ -420,6 +431,11 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const [sortBy, setSortBy] = useState(JOBS_LIST_DEFAULT_QUERY.sort);
   const [jobType, setJobType] = useState(JOBS_LIST_DEFAULT_QUERY.jobType);
   const [page, setPage] = useState(JOBS_LIST_DEFAULT_QUERY.page);
+  // Filter panel (state, qualification, category, sector, language, age, status) — kept in the URL.
+  const [filters, setFilters] = useState(EMPTY_JOB_FILTERS);
+  const filterKey = JSON.stringify(filtersToApiParams(filters));
+  const urlReadyRef = useRef(false);
+  const { options: filterOptions, loaded: filterOptionsLoaded } = useJobFilterOptions(jobType, filters.state, filters.qualificationLevel);
 
   // Consumed exactly once, on the effect's very first run. Since page/jobType/
   // sortBy/selectedCategory are all seeded directly from JOBS_LIST_DEFAULT_QUERY
@@ -445,7 +461,31 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const trimmedSearch = search.trim();
   const isSearchMode = trimmedSearch.length > 0;
 
-  const hasFilters = Boolean(search || selectedCategory || sortBy !== "newest" || jobType !== "jobs");
+  const activeFilterCount = countActiveFilters(filters);
+  const hasFilters = Boolean(search || selectedCategory || activeFilterCount || sortBy !== "latest" || jobType !== "jobs");
+
+  const changeFilter = (key, value) => {
+    setFilters((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === "state") next.district = "";
+      if (key === "qualificationLevel") next.qualificationStream = "";
+      return next;
+    });
+    setPage(1);
+  };
+  // Several keys at once (tabs, state picker).
+  const patchFilters = (patch) => {
+    setFilters((prev) => ({ ...prev, ...patch }));
+    setPage(1);
+  };
+
+  // Keep the URL in step with the filters so the link can be shared.
+  useEffect(() => {
+    if (!urlReadyRef.current || typeof window === "undefined") return;
+    const qs = filtersToUrlQuery(filters, { q: search, sort: sortBy });
+    const next = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(null, "", next);
+  }, [filters, sortBy, search]);
 
   // Fetch dynamic tab counts on search change
   useEffect(() => {
@@ -455,7 +495,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
         const counts = { jobs: 0, internship: 0, skillup: 0 };
         await Promise.all(
           types.map(async (type) => {
-            const url = `https://www.careermitra.in/api/jobs?page=1&limit=1&job_type=${type}${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+            const url = buildJobsListingUrl(PUBLIC_API_BASE_URL, type, { page: 1, limit: 1, search });
             const res = await fetch(url);
             const json = await res.json();
             if (json.success) {
@@ -492,6 +532,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
           sort: sortBy,
           jobType,
           categoryId: selectedCategory,
+          filters,
         });
         const res = await fetch(url);
         const json = await res.json();
@@ -510,17 +551,21 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
       }
     };
     fetchPageJobs();
-  }, [page, jobType, sortBy, selectedCategory, isSearchMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filterKey stands for `filters`
+  }, [page, jobType, sortBy, selectedCategory, isSearchMode, filterKey]);
 
   // Fetch the entire (current job_type's) dataset once, lazily, on first search
   // keystroke, so search can match "anything" across every field, not just title.
+  const allRequestRef = useRef(0);
   const fetchAllForSearch = async () => {
+    const requestId = ++allRequestRef.current;
     try {
       setAllLoading(true);
       setSearchError(null);
 
-      const base = `https://www.careermitra.in/api/jobs?job_type=${jobType}&limit=100&sort=newest`;
-      const first = await fetch(`${base}&page=1`);
+      const apiFilters = filtersToApiParams(filters);
+      const pageUrl = (p) => buildJobsListingUrl(PUBLIC_API_BASE_URL, jobType, { limit: 100, sort: "latest", page: p, ...apiFilters });
+      const first = await fetch(pageUrl(1));
       const firstJson = await first.json();
       if (!firstJson.success) throw new Error(firstJson.message || "Failed to load jobs");
 
@@ -530,7 +575,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
       if (totalPagesAll > 1) {
         const pagePromises = [];
         for (let p = 2; p <= totalPagesAll; p++) {
-          pagePromises.push(fetch(`${base}&page=${p}`).then((r) => r.json()));
+          pagePromises.push(fetch(pageUrl(p)).then((r) => r.json()));
         }
         const results = await Promise.all(pagePromises);
         results.forEach((r) => {
@@ -538,13 +583,14 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
         });
       }
 
+      if (requestId !== allRequestRef.current) return; // a newer filter change won
       setAllJobs(items);
       setAllLoaded(true);
     } catch (err) {
       console.error("Error fetching jobs for search:", err);
-      setSearchError("Unable to load jobs for search.");
+      if (requestId === allRequestRef.current) setSearchError("Unable to load jobs for search.");
     } finally {
-      setAllLoading(false);
+      if (requestId === allRequestRef.current) setAllLoading(false);
     }
   };
 
@@ -554,11 +600,11 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   // shown here came from the unrelated blog taxonomy (`/api/blogs/filters`),
   // whose ids never matched a real job's category_id, so the filter always
   // silently returned zero jobs.
+  // ...and fetched again (server-filtered) whenever the filter panel changes.
   useEffect(() => {
-    if (!allLoaded && !allLoading) {
-      fetchAllForSearch();
-    }
-  }, [allLoaded, allLoading]);
+    fetchAllForSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filterKey stands for `filters`
+  }, [filterKey, jobType]);
 
   const categoriesList = useMemo(() => {
     const map = new Map();
@@ -593,8 +639,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     const scored = scoreAndFilter(filtered, words);
     scored.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      if (sortBy === "deadline") return new Date(a.job.lastDate || 0) - new Date(b.job.lastDate || 0);
-      return new Date(b.job.createdAt || b.job.postedDate || 0) - new Date(a.job.createdAt || a.job.postedDate || 0);
+      return compareJobs(sortBy)(a.job, b.job);
     });
 
     return scored.map((entry) => entry.job);
@@ -673,11 +718,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     }
 
     if (!isSearchMode && allLoaded && allJobs.length > 0) {
-      if (sortBy === "deadline") {
-        list = [...list].sort((a, b) => new Date(a.lastDate || 0) - new Date(b.lastDate || 0));
-      } else {
-        list = [...list].sort((a, b) => new Date(b.createdAt || b.postedDate || 0) - new Date(a.createdAt || a.postedDate || 0));
-      }
+      list = [...list].sort(compareJobs(sortBy));
     }
 
     return list;
@@ -702,7 +743,8 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     setSearch("");
     setSelectedCategory("");
     setStatusFilter("all");
-    setSortBy("newest");
+    setFilters(EMPTY_JOB_FILTERS);
+    setSortBy("latest");
     setJobType("jobs");
     setPage(1);
   };
@@ -749,7 +791,14 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   return (
     <div className="min-h-screen bg-linear-to-br from-orange-50/40 via-white to-green-50/20">
       <Suspense fallback={null}>
-        <QueryPrefill onQuery={setSearch} />
+        <QueryPrefill
+          onQuery={setSearch}
+          onFilters={(fromUrl, sortFromUrl) => {
+            if (countActiveFilters(fromUrl)) setFilters(fromUrl);
+            if (sortFromUrl) setSortBy(sortFromUrl);
+            urlReadyRef.current = true;
+          }}
+        />
       </Suspense>
       {tableSchema && (
         <script
@@ -774,9 +823,11 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
             Government{" "}
             <span className="text-orange-600">Job Listings</span>
           </h1>
-          <p className="text-orange-600 text-xl max-w-2xl mx-auto mb-10">
+          <p className="text-orange-600 text-xl max-w-2xl mx-auto mb-8">
             Verified government vacancies from top organisations across India. Updated regularly.
           </p>
+
+          <JobTabs options={filterOptions} filters={filters} onPatch={patchFilters} />
 
           <div className="max-w-2xl mx-auto relative">
             <div ref={searchBarRef} className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-2xl p-1.5 gap-2 border border-white/30">
@@ -865,6 +916,25 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
 
       <div className="w-full mx-auto px-4 md:px-15 py-8">
 
+        {/* ── Department / State chips ─────────────────────────────────────── */}
+        <JobQuickFilters
+          options={filterOptions}
+          loaded={filterOptionsLoaded}
+          filters={filters}
+          onChange={changeFilter}
+        />
+
+        {/* ── Filters ────────────────────────────────────────────────────────── */}
+        <JobFilterPanel
+          filters={filters}
+          sort={sortBy}
+          options={filterOptions}
+          onChange={changeFilter}
+          onSortChange={(v) => { setSortBy(v); setPage(1); }}
+          onClear={clearFilters}
+          resultCount={displayedTotalItems}
+        />
+
         {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
@@ -898,28 +968,6 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               </button>
             </div>
  
-            {/* Sort Tabs */}
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl w-full sm:w-auto">
-              <button
-                onClick={() => { setSortBy("newest"); setPage(1); }}
-                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "newest"
-                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
-                    : "text-gray-500 hover:text-orange-400"
-                  }`}
-              >
-                Latest Posted
-              </button>
-              <button
-                onClick={() => { setSortBy("deadline"); setPage(1); }}
-                className={`flex-1 sm:flex-initial text-center px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap ${sortBy === "deadline"
-                    ? "bg-white shadow-sm text-orange-500 font-extrabold"
-                    : "text-gray-500 hover:text-orange-400"
-                  }`}
-              >
-                Closing within 1 Week
-              </button>
-            </div>
-
             {/* Category Dropdown */}
             <select
               value={selectedCategory}

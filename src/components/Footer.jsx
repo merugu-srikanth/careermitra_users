@@ -1,6 +1,6 @@
 "use client";
 
-import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaInstagram } from "react-icons/fa";
+import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -40,10 +40,14 @@ export default function Footer({ initialCategories = null }) {
   // URLs kept in sync with Navbar.jsx's navLinks / dropdown entries.
   const quickLinks = [
     { label: "Home", to: "/" },
+        { label: "Internships / SkillUps", to: "/internships" },
+
     { label: "About Us", to: "/about-us" },
+        { label: "Latest Job Notifications", to: "/latest-job-notifications" },
+
     { label: "Our Team", to: "/meet-our-team" },
-    { label: "Latest Job Notifications", to: "/latest-job-notifications" },
-    { label: "Internships / SkillUps", to: "/internships" },
+    // { label: "Latest Job Notifications", to: "/latest-job-notifications" },
+    { label: "PG Entrance", to: "/pg-entrance" },
     { label: "Digital Presence", to: "/digital-presence" },
     { label: "Government Jobs", to: "/government-jobs" },
     { label: "Contact Us", to: "/contact-us" },
@@ -134,26 +138,27 @@ export default function Footer({ initialCategories = null }) {
           </div>
         )} */}
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-5 sm:p-6">
-            <img src={logo.src || logo} alt="Careermitra Logo" className="block mx-auto sm:mx-0 h-20 w-auto sm:h-24" />
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-300">
-              Your one-stop gateway for government jobs and career guidance across India.            </p>
+        {/* Brand + Quick Links sit open (no card) so they never stretch into empty boxes
+            next to the taller Job Alert card. */}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-8 md:items-start">
+          <section className="md:col-span-4">
+            <img src={logo.src || logo} alt="Careermitra Logo" className="block mx-auto sm:mx-0 h-16 w-auto sm:h-20" />
+            <p className="mt-3 max-w-sm mx-auto sm:mx-0 text-center sm:text-left text-sm leading-relaxed text-slate-300">
+              Your one-stop gateway for government jobs and career guidance across India.
+            </p>
 
-
-
-            <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-3 max-w-sm mx-auto sm:mx-0">
               <a
                 href="https://www.youtube.com/@Career_Mitra_Official"
                 target="_blank"
                 rel="nofollow noopener noreferrer"
                 aria-label="Careermitra YouTube Channel"
-                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-red-500/40 bg-red-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300 min-w-0"
+                className="group flex items-center gap-3 rounded-xl border border-red-500/40 bg-red-600/10 px-3 py-2.5 text-red-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-red-500 hover:bg-red-600/20 hover:text-red-300 min-w-0"
               >
-                <FaYoutube size={22} className="shrink-0 text-red-500 group-hover:text-red-400 sm:size-7" />
-                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
-                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">Careermitra</span>
-                  <span className="hidden sm:block text-xs font-medium text-red-400 truncate max-w-full">@Career_Mitra_Official</span>
+                <FaYoutube size={24} className="shrink-0 text-red-500 group-hover:text-red-400" />
+                <div className="flex flex-col items-start leading-tight text-left min-w-0">
+                  <span className="text-sm font-black text-white truncate max-w-full">YouTube</span>
+                  <span className="block text-xs font-medium text-red-400 truncate max-w-full">Watch &amp; subscribe</span>
                 </div>
               </a>
 
@@ -162,35 +167,21 @@ export default function Footer({ initialCategories = null }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat with Careermitra on WhatsApp"
-                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-green-500/40 bg-green-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-green-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-green-500 hover:bg-green-600/20 hover:text-green-300 min-w-0"
+                className="group flex items-center gap-3 rounded-xl border border-green-500/40 bg-green-600/10 px-3 py-2.5 text-green-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-green-500 hover:bg-green-600/20 hover:text-green-300 min-w-0"
               >
-                <FaWhatsapp size={22} className="shrink-0 text-green-500 group-hover:text-green-400 sm:size-7" />
-                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
-                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">WhatsApp</span>
-                  <span className="hidden sm:block text-xs font-medium text-green-400 truncate max-w-full">Chat with us</span>
-                </div>
-              </a>
-
-              <a
-                href="https://www.instagram.com/career_mitra_official?igsh=MTd0aXJrbHppZWpmYg=="
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-                aria-label="Careermitra on Instagram"
-                className="group flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 rounded-2xl border border-pink-500/40 bg-pink-600/10 px-2 sm:px-5 py-2.5 sm:py-3 text-pink-400 transition-all duration-200 hover:-translate-y-0.5 hover:border-pink-500 hover:bg-pink-600/20 hover:text-pink-300 min-w-0"
-              >
-                <FaInstagram size={22} className="shrink-0 text-pink-500 group-hover:text-pink-400 sm:size-7" />
-                <div className="flex flex-col items-center sm:items-start leading-tight text-center sm:text-left min-w-0">
-                  <span className="text-[11px] sm:text-sm font-black text-white truncate max-w-full">Instagram</span>
-                  <span className="hidden sm:block text-xs font-medium text-pink-400 truncate max-w-full">@career_mitra_official</span>
+                <FaWhatsapp size={24} className="shrink-0 text-green-500 group-hover:text-green-400" />
+                <div className="flex flex-col items-start leading-tight text-left min-w-0">
+                  <span className="text-sm font-black text-white truncate max-w-full">WhatsApp</span>
+                  <span className="block text-xs font-medium text-green-400 truncate max-w-full">Chat with us</span>
                 </div>
               </a>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 backdrop-blur-sm md:col-span-3 sm:p-6">
+          <section className="md:col-span-4 md:pt-2">
             <h3 className="text-base font-bold text-white">Quick Links</h3>
             <div className="mt-2 h-0.5 w-14 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
-            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-1">
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               {quickLinks.map((item) => (
                 <li key={item.to}>
                   <Link href={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
@@ -230,13 +221,13 @@ export default function Footer({ initialCategories = null }) {
                 Smart job recommendations based on your education and profile details.
               </p>
 
-               <div className="mt-4 flex flex-wrap gap-2">
+               {/* <div className="mt-4 flex flex-wrap gap-2">
               {trustPoints.map((point) => (
                 <span key={point} className="rounded-full border border-orange-300/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-200">
                   {point}
                 </span>
               ))}
-            </div>
+            </div> */}
               {/* divider */}
               <div className="my-4 h-px w-full bg-linear-to-r from-green-500/30 via-slate-700 to-transparent" />
 

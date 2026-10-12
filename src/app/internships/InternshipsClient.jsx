@@ -8,6 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { generateCollectionPageSchema, generateItemListSchema, generateTableSchema } from '@/utils/schemaHelpers';
 import InternshipGuideContent from '@/components/InternshipGuideContent';
 import { isDeadlineExpired } from "@/utils/jobDeadline";
+import { formatAge } from "@/utils/jobMapper";
+import { formatISTDateNumeric } from "@/utils/istDate";
+import JobRichText from "@/components/JobRichText";
 
 import {
   Calendar,
@@ -49,19 +52,8 @@ import { API_BASE_URL } from "@/utils/api";
 const BASE_URL = `${API_BASE_URL}/internships`;
 const SKILLUPS_API_BASE = `${API_BASE_URL}/jobs`;
 
-const formatDateDDMMYYYY = (value) => {
-  if (!value) return "-";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [y, m, d] = value.split("-");
-    return `${d}/${m}/${y}`;
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  const dd = String(parsed.getDate()).padStart(2, "0");
-  const mm = String(parsed.getMonth() + 1).padStart(2, "0");
-  const yyyy = parsed.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-};
+// IST calendar day, whatever the visitor's timezone.
+const formatDateDDMMYYYY = (value) => (value ? formatISTDateNumeric(value) || value : "-");
 
 const normalizeLink = (link) => {
   if (!link) return null;
@@ -75,22 +67,25 @@ const generateSlug = (title) => {
 };
 
 const mapDynamicSkillUp = (j) => {
-  const deadline = j.application_deadline || j.lastDate || null;
+  const deadline = j.deadline || j.application_deadline || j.lastDate || null;
   return {
     id: j._id || j.id,
     title: j.title || "SkillUp Opportunity",
-    org: j.source_name || j.sourceName || j.org || "SWAYAM / Ministry of Education",
-    category: j.category_name || j.categoryName || j.category || "Skill Development",
+    org: j.jobSource || j.source_name || j.sourceName || j.org || "SWAYAM / Ministry of Education",
+    category: j.categoryName || j.category_name || j.category || "Skill Development",
     qualifications: j.qualifications && j.qualifications !== "Not available in the website"
       ? j.qualifications
       : "Open to all students, graduates & working professionals",
-    applyLink: j.apply_link || j.applyLink || null,
-    notificationUrl: j.notification_url || j.notificationUrl || null,
-    postedDate: j.posted_date || j.postedDate || null,
+    applyLink: j.applyLink || j.apply_link || null,
+    notificationUrl: j.notificationUrl || j.notification_url || null,
+    postedDate: j.postedDate || j.posted_date || null,
     deadline: deadline,
+    description: j.description || "",
+    remark: j.remark || "",
+    note: j.note || "",
     isExpired: isDeadlineExpired(deadline),
-    age: j.age && j.age !== "-" ? j.age : "No Age Limit",
-    posts: j.no_of_posts ?? j.noOfPosts ?? 1,
+    age: (formatAge(j) && formatAge(j) !== "-") ? formatAge(j) : "No Age Limit",
+    posts: j.noOfPosts ?? j.no_of_posts ?? 1,
     status: j.status || "approved",
     type: "skillup",
   };
@@ -680,7 +675,7 @@ export default function InternshipsClient({
 
       // Fetch all pages of skillups
       let allItems = [];
-      const firstRes = await fetch(`${SKILLUPS_API_BASE}?job_type=skillup&page=1&limit=100&sort=newest`);
+      const firstRes = await fetch(`${SKILLUPS_API_BASE}/skillup?page=1&limit=100&sort=newest`);
       const firstJson = await firstRes.json();
 
       if (firstJson.success && firstJson.data?.jobs) {
@@ -690,7 +685,7 @@ export default function InternshipsClient({
           const promises = [];
           for (let p = 2; p <= totalPages; p++) {
             promises.push(
-              fetch(`${SKILLUPS_API_BASE}?job_type=skillup&page=${p}&limit=100&sort=newest`).then(r => r.json())
+              fetch(`${SKILLUPS_API_BASE}/skillup?page=${p}&limit=100&sort=newest`).then(r => r.json())
             );
           }
           const results = await Promise.all(promises);
@@ -1774,10 +1769,25 @@ export default function InternshipsClient({
                   <BookOpen className="w-4 h-4 text-orange-600" />
                   <span>Program Description</span>
                 </h3>
-                <p className="text-sm text-slate-700 leading-relaxed bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
-                  This SkillUp program ({selectedSkillDetail.title}) is offered under {selectedSkillDetail.org} to equip candidates with recognized practical competencies and vocational proficiency.
-                </p>
+                {selectedSkillDetail.description ? (
+                  <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+                    <JobRichText value={selectedSkillDetail.description} />
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-700 leading-relaxed bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+                    This SkillUp program ({selectedSkillDetail.title}) is offered under {selectedSkillDetail.org} to equip candidates with recognized practical competencies and vocational proficiency.
+                  </p>
+                )}
               </div>
+
+              {[["Remark", selectedSkillDetail.remark], ["Note", selectedSkillDetail.note]].map(([label, value]) => value ? (
+                <div key={label}>
+                  <h3 className="text-base font-extrabold text-slate-900 mb-2">{label}</h3>
+                  <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+                    <JobRichText value={value} />
+                  </div>
+                </div>
+              ) : null)}
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-100">

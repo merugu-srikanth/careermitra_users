@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FaHome, FaInfoCircle, FaBlog, FaPhoneAlt,
   FaSignInAlt, FaSignOutAlt, FaTachometerAlt,
-  FaLinkedin, FaTwitter, FaWhatsapp, FaInstagram,
+  FaLinkedin, FaTwitter, FaWhatsapp,
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
   FaUser, FaEnvelope, FaBell, FaCalendarAlt,
   FaBriefcase, FaGraduationCap, FaSearch, FaBookOpen, FaCompass,
@@ -34,7 +34,6 @@ const socials = [
   { Icon: FaLinkedin, href: "#", color: "hover:text-blue-600", label: "LinkedIn" },
   { Icon: FaTwitter, href: "#", color: "hover:text-sky-500", label: "Twitter" },
   { Icon: FaWhatsapp, href: "https://whatsapp.com/channel/0029Vb7zTcp7j6g6O0OHfn37", color: "hover:text-green-500", label: "WhatsApp Channel" },
-  { Icon: FaInstagram, href: "#", color: "hover:text-pink-500", label: "Instagram" },
   { Icon: FaFacebook, href: "#", color: "hover:text-blue-700", label: "Facebook" },
 ];
 
@@ -310,7 +309,7 @@ export default function Navbar({ initialCategories = null }) {
           : [];
 
         const jobsNewCount = liveJobs.filter((j) => {
-          const created = toDateOrNull(j?.posted_date || j?.created_at || j?.updated_at);
+          const created = toDateOrNull(j?.postedDate || j?.posted_date || j?.createdAt || j?.created_at || j?.updated_at);
           if (!created) return false;
           return !jobsSeenAt || created > jobsSeenAt;
         }).length;

@@ -4,9 +4,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaSearch, FaTimes, FaNewspaper, FaGraduationCap, FaBriefcase } from "react-icons/fa";
 import { useBlogs } from "@/context/BlogContext";
+import { PUBLIC_API_BASE_URL, buildJobsListingUrl } from "@/utils/api";
 
 const INTERNSHIPS_URL = "https://www.careermitra.in/api/internships";
-const JOBS_URL = "https://www.careermitra.in/api/jobs";
 
 const generateSlug = (title) =>
   title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "";
@@ -77,7 +77,7 @@ export default function GlobalSearchModal({ open, onClose, categoryTree }) {
         : fetchAllPages(`${INTERNSHIPS_URL}?limit=100&sort=newest`, (j) => j.data?.internships || []),
       jobsLoaded
         ? Promise.resolve(null)
-        : fetchAllPages(`${JOBS_URL}?limit=100&sort=newest&job_type=jobs`, (j) => j.data?.jobs || []),
+        : fetchAllPages(buildJobsListingUrl(PUBLIC_API_BASE_URL, "jobs", { limit: 100, sort: "newest" }), (j) => j.data?.jobs || []),
     ])
       .then(([internships, jobs]) => {
         if (internships) {
@@ -141,12 +141,12 @@ export default function GlobalSearchModal({ open, onClose, categoryTree }) {
 
   const jobResults = useMemo(() => {
     if (!words.length) return [];
-    return scoreAndFilter(allJobs, words, (j) => [j.title, j.source_name, j.category_name, j.qualifications])
+    return scoreAndFilter(allJobs, words, (j) => [j.title, j.jobSource || j.source_name, j.categoryName || j.category_name, j.qualifications])
       .slice(0, 5)
       .map(({ item }) => ({
         key: `job-${item._id}`,
         title: item.title,
-        subtitle: item.source_name,
+        subtitle: item.jobSource || item.source_name,
         url: `/latest-job-notifications?q=${encodeURIComponent(item.title)}`,
       }));
   }, [words, allJobs]);

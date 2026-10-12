@@ -1,3 +1,5 @@
+import { formatISTDate, getDaysLeft } from "./istDate";
+
 /**
  * Uniform Formatters & Sanitizers for CareerMitra
  * Fixes:
@@ -71,32 +73,10 @@ export function normalizeDuration(val) {
   return str;
 }
 
+// Dates are shown as their IST calendar day ("17 Oct 2026"), whatever the visitor's timezone.
 export function formatDateDDMonYYYY(val) {
   if (!val) return "-";
-  
-  // Format DD/MM/YYYY string
-  if (typeof val === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
-    const [d, m, y] = val.split("/");
-    const date = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
-    if (!isNaN(date.getTime())) {
-      return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    }
-  }
-
-  // Format YYYY-MM-DD
-  if (typeof val === "string" && /^\d{4}-\d{2}-\d{2}/.test(val)) {
-    const parsed = new Date(val);
-    if (!isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    }
-  }
-
-  const parsed = new Date(val);
-  if (!isNaN(parsed.getTime())) {
-    return parsed.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-  }
-
-  return String(val);
+  return formatISTDate(val) || String(val);
 }
 
 export function toTitleCase(str) {
@@ -106,18 +86,8 @@ export function toTitleCase(str) {
     .replace(/(?:^|\s|-|\/)\S/g, (char) => char.toUpperCase());
 }
 
+// Open for the whole deadline day in IST.
 export function isItemExpired(deadline) {
-  if (!deadline) return false;
-  
-  let targetDate = null;
-  if (typeof deadline === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(deadline)) {
-    const [d, m, y] = deadline.split("/");
-    targetDate = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10), 23, 59, 59);
-  } else {
-    targetDate = new Date(deadline);
-    if (isNaN(targetDate.getTime())) return false;
-    targetDate.setHours(23, 59, 59, 999);
-  }
-
-  return targetDate.getTime() < Date.now();
+  const days = getDaysLeft(deadline);
+  return days !== null && days < 0;
 }

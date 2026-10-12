@@ -95,8 +95,24 @@ const CARDS = [
             "Pan-India, State & Institute PG entrance exam notifications and direct apply links.",
         button: "Explore Now",
         link: "/pg-entrance",
-    }
+    },
+    {
+        id: 5,
+        title: "Digital Presence",
+        icon: FaRocket,
+        iconBg: "#e0f2fe",
+        iconColor: "#0284c7",
+        cornerGlow: "radial-gradient(circle at top right, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0.04) 50%, transparent 70%)",
+        btnGrad: "linear-gradient(135deg, #0284c7, #2563eb)",
+        description:
+            "Websites, CRM and digital marketing to launch your business online with confidence.",
+        button: "Grow Online",
+        link: "/digital-presence",
+    },
 ];
+
+// Announcements panel next to the cards — hidden for now (set to true to bring it back).
+const SHOW_ANNOUNCEMENTS = false;
 
 /* ─────────────────────────────────────────
    COMPACT ANNOUNCEMENTS — mobile / tablet only
@@ -479,7 +495,7 @@ function VerticalAnnouncements({ list, loading }) {
 /* ─────────────────────────────────────────
    FEATURE CARD  (responsive)
 ───────────────────────────────────────── */
-function FeatureCard({ card }) {
+function FeatureCard({ card, className = "" }) {
     const router = useRouter();
     const navigate = (to, isExt) => {
         if (isExt) {
@@ -493,7 +509,7 @@ function FeatureCard({ card }) {
     return (
         <div
             onClick={() => navigate(card.link, card.isExternal)}
-            className="bg-white relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl border border-slate-100/90 shadow-xs hover:shadow-xl"
+            className={`${className} bg-white relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl border border-slate-100/90 shadow-xs hover:shadow-xl`}
             style={{
                 boxShadow: "0 2px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)",
             }}
@@ -673,7 +689,7 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
     });
 
     useEffect(() => {
-        if (initialAnnouncements && initialAnnouncements.length > 0) {
+        if (!SHOW_ANNOUNCEMENTS || (initialAnnouncements && initialAnnouncements.length > 0)) {
             return;
         }
         axios
@@ -742,25 +758,28 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
                 {/* ── Cards + Announcements ── */}
                 <div className="flex flex-col xl:flex-row gap-4 xl:gap-5 items-stretch w-full">
 
-                    {/* Cards — 2 col on mobile, 2 col on tablet, 4 col on xl+ */}
-                    <div className="w-full xl:flex-1 grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
-                        {dynamicCards.map((card) => (
-                            <FeatureCard key={card.id} card={card} />
+                    {/* Cards — 2 col on mobile (5th card full width), 3 col on tablet, 5 col on xl+ */}
+                    <div className="w-full xl:flex-1 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-4">
+                        {dynamicCards.map((card, i) => (
+                            <FeatureCard key={card.id} card={card}
+                                className={i === dynamicCards.length - 1 && dynamicCards.length % 2 === 1 ? "col-span-2 sm:col-span-1" : ""} />
                         ))}
                     </div>
 
-                    {/* Announcements */}
-                    <div className="w-full xl:w-96 xl:shrink-0">
-                        {/* Auto-scrolling announcements panel on all screen sizes */}
-                        <div className="flex flex-col" style={{ height: 250 }}>
-                            <VerticalAnnouncements list={annList} loading={annLoading} />
+                    {/* Announcements — hidden (SHOW_ANNOUNCEMENTS) */}
+                    {SHOW_ANNOUNCEMENTS && (
+                        <div className="w-full xl:w-96 xl:shrink-0">
+                            {/* Auto-scrolling announcements panel on all screen sizes */}
+                            <div className="flex flex-col" style={{ height: 250 }}>
+                                <VerticalAnnouncements list={annList} loading={annLoading} />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                 </div>
 
-                {/* ── Grow Online Banner (Links to /build-your-venture) ── */}
-                <GrowOnlineBanner />
+                {/* ── Grow Online Banner — removed; the "Digital Presence" card above links there ── */}
+                {/* <GrowOnlineBanner /> */}
 
             </div>
         </section>

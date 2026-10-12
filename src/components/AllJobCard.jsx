@@ -1,4 +1,5 @@
 import { getDeadlineStatusText, isDeadlineExpired } from "../utils/jobDeadline";
+import { formatISTDateNumeric } from "../utils/istDate";
 
 const normalizeExternalUrl = (value) => {
   if (!value || typeof value !== "string") return "";
@@ -7,22 +8,8 @@ const normalizeExternalUrl = (value) => {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
-const formatDateDDMMYYYY = (value) => {
-  if (!value) return "-";
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [y, m, d] = value.split("-");
-    return `${d}/${m}/${y}`;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-
-  const dd = String(parsed.getDate()).padStart(2, "0");
-  const mm = String(parsed.getMonth() + 1).padStart(2, "0");
-  const yyyy = parsed.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-};
+// Always the IST calendar day, whatever the visitor's timezone.
+const formatDateDDMMYYYY = (value) => (value ? formatISTDateNumeric(value) || value : "-");
 
 const getIsNew = (postedDate) => {
   if (!postedDate) return false;
