@@ -57,8 +57,8 @@ const EVENTS_DOC_STYLES = `
 const MEDIA_TABS = [
   { key: "all",     label: "All",     icon: FaCalendarAlt },
   { key: "image",   label: "Images",  icon: FaImage },
-  { key: "video",   label: "Videos",  icon: FaVideo },
-  { key: "youtube", label: "YouTube", icon: FaYoutube },
+  // Videos = uploaded videos + YouTube videos (no separate YouTube tab).
+  { key: "video",   label: "Videos",  icon: FaVideo, types: ["video", "youtube"] },
 ];
 
 /* ─── Helpers ─────────────────────────────────────────────── */
@@ -228,14 +228,29 @@ export default function EventsPage({ initialData }) {
     async function fetchMedia() {
       setLoading(true); setError("");
       try {
-        const params = new URLSearchParams({ page: String(page), limit: String(DEFAULT_LIMIT), sort: sortOrder });
-        if (activeTab !== "all") params.set("media_type", activeTab);
-        if (search.trim()) params.set("search", search.trim());
-        const response = await fetch(`${API_BASE}?${params.toString()}`);
-        const payload  = await response.json();
+        // The API filters one media_type per request — a tab with several types
+        // (Videos = video + youtube) fetches each and merges them in date order.
+        const tab = MEDIA_TABS.find((t) => t.key === activeTab);
+        const types = activeTab === "all" ? [null] : (tab?.types ?? [activeTab]);
+        const responses = await Promise.all(types.map(async (type) => {
+          const params = new URLSearchParams({ page: String(page), limit: String(DEFAULT_LIMIT), sort: sortOrder });
+          if (type) params.set("media_type", type);
+          if (search.trim()) params.set("search", search.trim());
+          const response = await fetch(`${API_BASE}?${params.toString()}`);
+          const payload  = await response.json();
+          return payload?.data || payload || {};
+        }));
         if (cancelled) return;
-        const data = payload?.data || payload || {};
-        const newMedia = Array.isArray(data.media) ? data.media : [];
+        const time = (m) => new Date(m?.created_at || m?.createdAt || 0).getTime();
+        const newMedia = responses
+          .flatMap((d) => (Array.isArray(d.media) ? d.media : []))
+          .sort((a, b) => (sortOrder === "oldest" ? time(a) - time(b) : time(b) - time(a)));
+        const data = {
+          pagination: {
+            total: responses.reduce((sum, d) => sum + (d.pagination?.total ?? 0), 0),
+            totalPages: Math.max(1, ...responses.map((d) => d.pagination?.totalPages ?? 1)),
+          },
+        };
 
         if (page === 1) {
           setMedia(newMedia);
@@ -277,10 +292,10 @@ export default function EventsPage({ initialData }) {
 
       {/* ── Controls ── */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="w-full mx-auto px-4 md:px-15 py-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] items-center">
+        <div className="w-full mx-auto px-4 md:px-15 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
           {/* Tabs */}
-          <div className="grid w-full grid-cols-2 gap-1 rounded-3xl border border-slate-200/80 bg-slate-100/90 p-1 shadow-sm sm:grid-cols-4">
+          <div className="grid w-full sm:w-[28rem] grid-cols-3 gap-1 rounded-full border border-slate-200/80 bg-slate-100/90 p-1 shadow-sm">
             {MEDIA_TABS.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.key;
@@ -288,7 +303,7 @@ export default function EventsPage({ initialData }) {
                 <button
                   key={tab.key}
                   onClick={() => { setActiveTab(tab.key); setPage(1); }}
-                  className={`relative flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+                  className={`relative flex h-9 w-full items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold transition-all duration-200 ${
                     active
                       ? "text-white"
                       : "text-slate-600 hover:text-slate-900"
@@ -311,21 +326,21 @@ export default function EventsPage({ initialData }) {
           </div>
 
           {/* Search + Sort */}
-          <div className="flex flex-wrap items-center gap-2 justify-end">
-            <div className="relative">
+          <div className="flex items-center gap-2 sm:justify-end">
+            <div className="relative flex-1 sm:flex-none">
               <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-[11px]" />
               <input
                 type="search"
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 placeholder="Search…"
-                className="w-40 sm:w-52 rounded-xl border border-slate-200 bg-white py-2 pl-8 pr-3 text-xs text-slate-700 placeholder:text-slate-300 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-200 transition"
+                className="h-11 w-full sm:w-60 rounded-full border border-slate-200 bg-white pl-8 pr-3 text-sm text-slate-700 placeholder:text-slate-300 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-200 transition"
               />
             </div>
             <select
               value={sortOrder}
               onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
-              className="rounded-xl border border-slate-200 bg-white py-2 px-3 text-xs font-medium text-slate-600 focus:border-violet-400 focus:outline-none transition"
+              className="h-11 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 cursor-pointer focus:border-violet-400 focus:outline-none transition"
             >
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>

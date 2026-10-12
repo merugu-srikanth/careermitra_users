@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl, buildJobsListingUrl } from "@/utils/api";
 import JobsSeoArticle from "./JobsSeoArticle";
 import JobFilterPanel from "@/components/jobs/JobFilterPanel";
-import JobQuickFilters from "@/components/jobs/JobQuickFilters";
+// import JobQuickFilters from "@/components/jobs/JobQuickFilters"; // Department chips — hidden for now
 import JobTabs from "@/components/jobs/JobTabs";
 import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
 import {
@@ -227,6 +227,14 @@ function Pagination({ current, total, onChange }) {
 }
 
 // ── Table View Component ──────────────────────────────────────────────────────
+/** "Karnataka · Bengaluru", "All India" — district only when it names a real place. */
+const jobPlace = (job) => {
+  const state = String(job?.state || "").trim();
+  const district = String(job?.district || "").trim();
+  const realDistrict = district && !/all india|multiple/i.test(district) && district !== state;
+  return [state, realDistrict ? district : ""].filter(Boolean).join(" · ");
+};
+
 function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex = 0 }) {
   const containerRef = useRef(null);
 
@@ -270,6 +278,12 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
                       <BuildingIcon />
                       <span className="whitespace-normal wrap-break-word leading-snug">{job.org}</span>
                     </div>
+                    {jobPlace(job) && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                        <LocationIcon />
+                        <span className={`font-semibold ${job.state === "All India" ? "text-blue-600" : "text-emerald-700"}`}>{jobPlace(job)}</span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
                     <div className="text-xs text-gray-600 leading-snug">
@@ -435,7 +449,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const [filters, setFilters] = useState(EMPTY_JOB_FILTERS);
   const filterKey = JSON.stringify(filtersToApiParams(filters));
   const urlReadyRef = useRef(false);
-  const { options: filterOptions, loaded: filterOptionsLoaded } = useJobFilterOptions(jobType, filters.state, filters.qualificationLevel);
+  const { options: filterOptions } = useJobFilterOptions(jobType, filters);
 
   // Consumed exactly once, on the effect's very first run. Since page/jobType/
   // sortBy/selectedCategory are all seeded directly from JOBS_LIST_DEFAULT_QUERY
@@ -916,13 +930,13 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
 
       <div className="w-full mx-auto px-4 md:px-15 py-8">
 
-        {/* ── Department / State chips ─────────────────────────────────────── */}
-        <JobQuickFilters
+        {/* ── Department chips — hidden for now ───────────────────────────── */}
+        {/* <JobQuickFilters
           options={filterOptions}
           loaded={filterOptionsLoaded}
           filters={filters}
           onChange={changeFilter}
-        />
+        /> */}
 
         {/* ── Filters ────────────────────────────────────────────────────────── */}
         <JobFilterPanel
@@ -942,8 +956,14 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               "Searching..."
             ) : (
               <>
-                Showing <span className="font-bold text-gray-800">{displayedJobs.length}</span> jobs
-                {hasFilters && <span className="text-orange-500 font-semibold"> (filtered)</span>}
+                Showing <span className="font-bold text-gray-800">{displayedJobs.length}</span> of{" "}
+                <span className="font-bold text-gray-800">{displayedTotalItems}</span> jobs
+                {filters.state && (
+                  <span className="text-orange-600 font-semibold">
+                    {" "}in {filters.state}{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}
+                  </span>
+                )}
+                {hasFilters && !filters.state && <span className="text-orange-500 font-semibold"> (filtered)</span>}
                 <span className="text-gray-400"> • Page {page} of {displayedTotalPages || 1}</span>
               </>
             )}
@@ -1050,6 +1070,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 age={job.age}
                 qualifications={job.qualifications}
                 category={job.category}
+                location={jobPlace(job)}
               />
             ))}
           </div>
@@ -1072,6 +1093,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                     age={job.age}
                     qualifications={job.qualifications}
                     category={job.category}
+                    location={jobPlace(job)}
                   />
                 ))}
               </div>

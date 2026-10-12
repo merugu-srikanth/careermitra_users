@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PUBLIC_API_BASE_URL } from "@/utils/api";
-import { APPLICATION_STATUS_OPTIONS, SORT_OPTIONS, countActiveFilters } from "@/utils/jobFilters";
+import { CLOSING_WITHIN_OPTIONS, SORT_OPTIONS, countActiveFilters } from "@/utils/jobFilters";
 
 /**
- * Public jobs filter panel. Options + counts come from GET /api/jobs/filters
- * (Approved, open jobs), e.g. "Telangana (12)". District options follow the
- * chosen state and stream options follow the chosen qualification level.
- * Inline on desktop; a slide-in drawer on mobile.
+ * Public jobs filter bar (under the hero). State lives in the tabs above the
+ * search, so it isn't repeated here. Options + counts come from
+ * GET /api/jobs/filters (passed in as `options`); only values that have open
+ * jobs are listed. Inline on desktop; a slide-in drawer on mobile.
  */
 
 const LABELS = {
@@ -22,101 +21,76 @@ const LABELS = {
   experienceLevel: "Experience",
   employmentNature: "Employment",
   age: "Age",
-  applicationStatus: "Status",
+  closingWithin: "Deadline",
 };
 
 const SELECT =
-  "w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-gray-700 cursor-pointer " +
-  "focus:outline-none focus:ring-2 focus:ring-orange-300 hover:border-orange-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "w-full h-11 text-sm border border-gray-200 bg-gray-50 rounded-xl px-3 text-gray-800 cursor-pointer " +
+  "focus:outline-none focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100 hover:border-orange-300 transition-colors";
 
-function useFilterOptions(jobType, state, qualificationLevel) {
-  const [options, setOptions] = useState({});
-  useEffect(() => {
-    const params = new URLSearchParams({ jobType });
-    if (state) params.set("state", state);
-    if (qualificationLevel) params.set("qualificationLevel", qualificationLevel);
-    let alive = true;
-    fetch(`${PUBLIC_API_BASE_URL}/jobs/filters?${params}`)
-      .then((r) => r.json())
-      .then((json) => { if (alive && json?.success) setOptions(json.data?.options ?? {}); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [jobType, state, qualificationLevel]);
-  return options;
+function FieldLabel({ children }) {
+  return <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">{children}</span>;
 }
 
-function OptionSelect({ name, value, options = [], onChange, placeholder, disabled }) {
-  const list = value && !options.some((o) => o.value === value) ? [...options, { value, count: null }] : options;
+/** Only options that have jobs (count > 0), plus the current value if it came from a link. */
+function OptionSelect({ name, value, options = [], onChange }) {
+  const list = options.filter((o) => o.count > 0 || o.value === value);
+  if (value && !list.some((o) => o.value === value)) list.push({ value, count: 0 });
   return (
-    <label className="block">
-      <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">{LABELS[name]}</span>
-      <select value={value} onChange={(e) => onChange(name, e.target.value)} disabled={disabled} className={SELECT}>
-        <option value="">{placeholder ?? `All`}</option>
+    <label className="block min-w-0">
+      <FieldLabel>{LABELS[name]}</FieldLabel>
+      <select value={value} onChange={(e) => onChange(name, e.target.value)} className={SELECT}>
+        <option value="">All</option>
         {list.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.count === null || o.count === undefined ? o.value : `${o.value} (${o.count})`}
-          </option>
+          <option key={o.value} value={o.value}>{o.count ? `${o.value} (${o.count})` : o.value}</option>
         ))}
       </select>
     </label>
   );
 }
 
-function Fields({ filters, sort, options, onChange, onSortChange }) {
-  const stateChosen = filters.state && filters.state !== "All India";
+/** "All open | Closing in 7 days | Closing in 30 days" */
+function ClosingSegment({ value, onChange, fullWidth }) {
   return (
-    <>
-      <OptionSelect name="state" value={filters.state} options={options.state} onChange={onChange} />
-      {/* <OptionSelect name="district" value={filters.district} options={options.district} onChange={onChange}
-        disabled={!stateChosen} placeholder={stateChosen ? "All districts" : "Pick a state first"} />
-      <OptionSelect name="qualificationLevel" value={filters.qualificationLevel} options={options.qualificationLevel} onChange={onChange} />
-      <OptionSelect name="qualificationStream" value={filters.qualificationStream} options={options.qualificationStream} onChange={onChange}
-        disabled={!filters.qualificationLevel || !(options.qualificationStream?.length || filters.qualificationStream)}
-        placeholder={filters.qualificationLevel ? "All streams" : "Pick a qualification first"} /> */}
-      {/* <OptionSelect name="jobCategory" value={filters.jobCategory} options={options.jobCategory} onChange={onChange} /> */}
-      <OptionSelect name="sector" value={filters.sector} options={options.sector} onChange={onChange} />
-      <OptionSelect name="language" value={filters.language} options={options.language} onChange={onChange} />
-      {/* <label className="block">
-        <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Your age</span>
-        <input type="number" inputMode="numeric" min="14" max="70" value={filters.age}
-          onChange={(e) => onChange("age", e.target.value.replace(/\D/g, "").slice(0, 3))}
-          placeholder="e.g. 24" className={SELECT + " cursor-text"} />
-      </label> */}
-      <label className="block">
-        <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Application status</span>
-        <select value={filters.applicationStatus} onChange={(e) => onChange("applicationStatus", e.target.value)} className={SELECT}>
-          {APPLICATION_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      </label>
-      <label className="block">
-        <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1">Sort by</span>
-        <select value={sort} onChange={(e) => onSortChange(e.target.value)} className={SELECT}>
-          {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      </label>
-      {stateChosen && (
-        <label className="flex items-center gap-2 text-sm text-gray-600 sm:col-span-2 lg:col-span-1 self-end pb-2.5 cursor-pointer">
-          <input type="checkbox" checked={filters.includeAllIndia} onChange={(e) => onChange("includeAllIndia", e.target.checked)}
-            className="w-4 h-4 accent-orange-500" />
-          Include All-India jobs
-        </label>
-      )}
-    </>
+    <div className="min-w-0">
+      <FieldLabel>Deadline</FieldLabel>
+      <div className={`h-11 flex items-center gap-1 bg-gray-100 p-1 rounded-xl ${fullWidth ? "w-full" : "w-fit"}`}>
+        {CLOSING_WITHIN_OPTIONS.map((o) => (
+          <button key={o.value || "all"} type="button" onClick={() => onChange(o.value)}
+            className={`h-full flex-1 px-3.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${value === o.value
+              ? "bg-white shadow-sm text-orange-600"
+              : "text-gray-500 hover:text-orange-500"}`}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function ActiveChips({ filters, onChange }) {
+function SortSelect({ sort, onSortChange }) {
+  return (
+    <label className="block min-w-0">
+      <FieldLabel>Sort by</FieldLabel>
+      <select value={sort} onChange={(e) => onSortChange(e.target.value)} className={SELECT}>
+        {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function ActiveChips({ filters, onChange, onClear }) {
   const chips = Object.keys(LABELS)
     .filter((key) => filters[key] !== "" && filters[key] !== undefined)
     .map((key) => ({
       key,
       text: key === "age" ? `Age ${filters.age}`
-        : key === "applicationStatus" ? APPLICATION_STATUS_OPTIONS.find((o) => o.value === filters.applicationStatus)?.label
+        : key === "closingWithin" ? CLOSING_WITHIN_OPTIONS.find((o) => o.value === filters.closingWithin)?.label
         : filters[key],
     }));
   if (!chips.length) return null;
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {chips.map((c) => (
         <button key={c.key} type="button" onClick={() => onChange(c.key, "")}
           className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full hover:bg-orange-100"
@@ -124,13 +98,13 @@ function ActiveChips({ filters, onChange }) {
           {c.text} <span aria-hidden className="text-orange-400">×</span>
         </button>
       ))}
+      <button type="button" onClick={onClear} className="text-xs font-bold text-gray-500 hover:text-orange-600 px-1">Clear all</button>
     </div>
   );
 }
 
-export default function JobFilterPanel({ filters, sort, onChange, onSortChange, onClear, jobType = "jobs", resultCount }) {
+export default function JobFilterPanel({ filters, sort, options = {}, onChange, onSortChange, onClear, resultCount }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const options = useFilterOptions(jobType, filters.state === "All India" ? "" : filters.state, filters.qualificationLevel);
   const active = countActiveFilters(filters);
 
   useEffect(() => {
@@ -142,7 +116,12 @@ export default function JobFilterPanel({ filters, sort, onChange, onSortChange, 
     return () => { document.body.style.overflow = original; window.removeEventListener("keydown", onKey); };
   }, [drawerOpen]);
 
-  const fieldProps = { filters, sort, options, onChange, onSortChange };
+  // A deadline window reads best soonest-first; going back to "All open" restores latest.
+  const changeClosing = (value) => {
+    onChange("closingWithin", value);
+    if (value && sort === "latest") onSortChange("deadline");
+    if (!value && sort === "deadline") onSortChange("latest");
+  };
 
   return (
     <div className="mb-6 space-y-3">
@@ -152,9 +131,6 @@ export default function JobFilterPanel({ filters, sort, onChange, onSortChange, 
           className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm">
           Filters & sort{active > 0 && <span className="bg-orange-500 text-white text-[11px] rounded-full px-2 py-0.5">{active}</span>}
         </button>
-        {active > 0 && (
-          <button type="button" onClick={onClear} className="px-3 py-2.5 text-sm font-bold text-orange-600">Clear all</button>
-        )}
       </div>
       {drawerOpen && (
         <div className="md:hidden fixed inset-0 z-[90]" role="dialog" aria-modal="true" aria-label="Job filters">
@@ -164,7 +140,12 @@ export default function JobFilterPanel({ filters, sort, onChange, onSortChange, 
               <p className="font-black text-gray-800">Filters & sort</p>
               <button type="button" onClick={() => setDrawerOpen(false)} className="text-gray-400 text-2xl leading-none px-2" aria-label="Close filters">×</button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4"><Fields {...fieldProps} /></div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <ClosingSegment value={filters.closingWithin} onChange={changeClosing} fullWidth />
+              <OptionSelect name="sector" value={filters.sector} options={options.sector} onChange={onChange} />
+              <OptionSelect name="language" value={filters.language} options={options.language} onChange={onChange} />
+              <SortSelect sort={sort} onSortChange={onSortChange} />
+            </div>
             <div className="flex gap-2 p-4 border-t border-gray-100">
               <button type="button" onClick={onClear} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600">Clear all</button>
               <button type="button" onClick={() => setDrawerOpen(false)} className="flex-[2] py-2.5 rounded-xl bg-orange-500 text-white text-sm font-bold">
@@ -175,16 +156,19 @@ export default function JobFilterPanel({ filters, sort, onChange, onSortChange, 
         </div>
       )}
 
-      {/* Desktop: inline grid */}
-      <div className="hidden md:block bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-black text-gray-800">Filter jobs</p>
-          {active > 0 && <button type="button" onClick={onClear} className="text-sm font-bold text-orange-600 hover:text-orange-700">Clear all</button>}
+      {/* Desktop: one aligned row */}
+      <div className="hidden md:block bg-white border border-gray-100 rounded-2xl shadow-sm px-5 py-4">
+        <div className="flex items-end gap-4">
+          <ClosingSegment value={filters.closingWithin} onChange={changeClosing} />
+          <div className="flex-1 grid grid-cols-3 gap-4 min-w-0">
+            <OptionSelect name="sector" value={filters.sector} options={options.sector} onChange={onChange} />
+            <OptionSelect name="language" value={filters.language} options={options.language} onChange={onChange} />
+            <SortSelect sort={sort} onSortChange={onSortChange} />
+          </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3"><Fields {...fieldProps} /></div>
       </div>
 
-      <ActiveChips filters={filters} onChange={onChange} />
+      <ActiveChips filters={filters} onChange={onChange} onClear={onClear} />
     </div>
   );
 }

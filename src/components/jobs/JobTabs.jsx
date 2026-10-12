@@ -6,21 +6,24 @@ import { LayoutGrid, Sprout, BriefcaseBusiness, FileText, MapPin, Globe, Chevron
 /**
  * Tabs above the jobs search bar: All / Freshers / Experienced / Contract,
  * plus a "State-wise" tab that opens the list of states that have open jobs.
- * The first four are exclusive (they set experienceLevel / employmentNature);
- * the state choice combines with any of them.
+ * All five are exclusive: a type tab clears the state, picking a state
+ * clears the type (experienceLevel / employmentNature).
  * Counts come from GET /api/jobs/filters (`options`).
  */
 
 const countOf = (list = [], value) => list.find((o) => o.value === value)?.count ?? 0;
 
+const NO_STATE = { state: "", district: "", includeAllIndia: true };
+const NO_TYPE = { experienceLevel: "", employmentNature: "" };
 const TABS = [
-  { id: "all", label: "All Jobs", Icon: LayoutGrid, patch: { experienceLevel: "", employmentNature: "" } },
-  { id: "freshers", label: "Freshers", Icon: Sprout, patch: { experienceLevel: "Freshers", employmentNature: "" } },
-  { id: "experienced", label: "Experienced", Icon: BriefcaseBusiness, patch: { experienceLevel: "Experienced", employmentNature: "" } },
-  { id: "contract", label: "Contract", Icon: FileText, patch: { experienceLevel: "", employmentNature: "Contract" } },
+  { id: "all", label: "All Jobs", Icon: LayoutGrid, patch: { ...NO_TYPE, ...NO_STATE } },
+  { id: "freshers", label: "Freshers", Icon: Sprout, patch: { ...NO_STATE, experienceLevel: "Freshers", employmentNature: "" } },
+  { id: "experienced", label: "Experienced", Icon: BriefcaseBusiness, patch: { ...NO_STATE, experienceLevel: "Experienced", employmentNature: "" } },
+  { id: "contract", label: "Contract", Icon: FileText, patch: { ...NO_STATE, experienceLevel: "", employmentNature: "Contract" } },
 ];
 
 function activeTab(filters) {
+  if (filters.state) return "state";
   if (filters.employmentNature === "Contract" && !filters.experienceLevel) return "contract";
   if (filters.experienceLevel === "Freshers" && !filters.employmentNature) return "freshers";
   if (filters.experienceLevel === "Experienced" && !filters.employmentNature) return "experienced";
@@ -49,19 +52,20 @@ export default function JobTabs({ options = {}, filters, onPatch }) {
   const stateChosen = filters.state && filters.state !== "All India";
 
   const pickState = (value) => {
-    onPatch({ state: filters.state === value ? "" : value, district: "" });
+    // Only that state's jobs by default, so the list matches the count shown; All-India jobs are opt-in.
+    onPatch(filters.state === value ? NO_STATE : { ...NO_TYPE, state: value, district: "", includeAllIndia: false });
     setStatesOpen(false);
   };
 
   return (
-    <div className="max-w-3xl mx-auto mb-5">
-      <div className="flex gap-1.5 overflow-x-auto no-scrollbar bg-white/80 backdrop-blur-sm border border-white rounded-2xl p-1.5 shadow-lg shadow-orange-900/5"
+    <div className="max-w-4xl mx-auto mb-5">
+      <div className="flex w-fit max-w-full mx-auto gap-1.5 overflow-x-auto no-scrollbar bg-white/80 backdrop-blur-sm border border-white rounded-2xl p-1.5 shadow-lg shadow-orange-900/5"
         role="tablist" aria-label="Job type">
         {TABS.map(({ id, label, Icon, patch }) => {
           const active = current === id;
           const count = tabCount(id, options);
           return (
-            <button key={id} type="button" role="tab" aria-selected={active} onClick={() => onPatch(patch)}
+            <button key={id} type="button" role="tab" aria-selected={active} onClick={() => { onPatch(patch); setStatesOpen(false); }}
               className={`${TAB_BASE} ${active ? "bg-orange-500 text-white shadow-md shadow-orange-500/30" : "text-gray-600 hover:bg-orange-50 hover:text-orange-700"}`}>
               <Icon size={16} />
               {label}
@@ -75,8 +79,8 @@ export default function JobTabs({ options = {}, filters, onPatch }) {
         <span className="w-px my-2 bg-gray-200 shrink-0" aria-hidden />
 
         <button type="button" onClick={() => setStatesOpen((v) => !v)} aria-expanded={statesOpen}
-          className={`${TAB_BASE} ml-auto ${filters.state
-            ? "bg-orange-50 text-orange-700 ring-1 ring-orange-300"
+          className={`${TAB_BASE} ${filters.state
+            ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
             : statesOpen ? "bg-gray-100 text-gray-800" : "text-gray-600 hover:bg-orange-50 hover:text-orange-700"}`}>
           <MapPin size={16} />
           {filters.state || "State-wise"}
