@@ -71,18 +71,30 @@ const mapDynamicSkillUp = (j) => {
   return {
     id: j._id || j.id,
     title: j.title || "SkillUp Opportunity",
-    org: j.jobSource || j.source_name || j.sourceName || j.org || "SWAYAM / Ministry of Education",
+    org: j.platform || j.jobSource || j.source_name || j.sourceName || j.org || "SWAYAM / Ministry of Education",
     category: j.categoryName || j.category_name || j.category || "Skill Development",
-    qualifications: j.qualifications && j.qualifications !== "Not available in the website"
-      ? j.qualifications
-      : "Open to all students, graduates & working professionals",
-    applyLink: j.applyLink || j.apply_link || null,
+    qualifications: j.qualificationLevel
+      || (j.qualifications && j.qualifications !== "Not available in the website" ? j.qualifications : "")
+      || "Open to all students, graduates & working professionals",
+    applyLink: j.courseLink || j.applyLink || j.apply_link || null,
     notificationUrl: j.notificationUrl || j.notification_url || null,
     postedDate: j.postedDate || j.posted_date || null,
     deadline: deadline,
     description: j.description || "",
     remark: j.remark || "",
     note: j.note || "",
+    courseLayout: j.courseLayout || "",
+    // Skill-up columns, shown exactly as the admin typed them (dates can be "TBA" / "Closed").
+    enrollmentEndText: j.enrollmentEndDate || "",
+    details: [
+      ["National Coordinator", j.nationalCoordinator], ["Institute", j.institute], ["Instructor", j.instructor],
+      ["Course Status", j.courseStatus], ["Course Type", j.courseType], ["Duration", j.duration], ["Credit Points", j.creditPoints],
+      ["Start Date", j.startDate], ["End Date", j.endDate], ["Exam Date", j.examDate],
+      ["Exam Registration End Date", j.examRegistrationEndDate], ["Fee", j.fee], ["Certificate", j.certificate],
+      ["Mode", j.mode], ["Prerequisites", j.prerequisites], ["Stipend", j.stipend],
+    ].filter(([, v]) => v != null && String(v).trim() !== ""),
+    isPinned: Boolean(j.isPinned),
+    imageUrl: j.imageUrl || "",
     isExpired: isDeadlineExpired(deadline),
     age: (formatAge(j) && formatAge(j) !== "-") ? formatAge(j) : "No Age Limit",
     posts: j.noOfPosts ?? j.no_of_posts ?? 1,
@@ -1736,11 +1748,11 @@ export default function InternshipsClient({
 
                 <div className="p-4 bg-orange-50/60 rounded-2xl border border-orange-100">
                   <span className="block text-[11px] font-bold text-orange-700 uppercase tracking-wider mb-1">
-                    Application Deadline
+                    {selectedSkillDetail.enrollmentEndText ? "Enrollment End Date" : "Application Deadline"}
                   </span>
                   <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-orange-600" />
-                    {formatDateDDMMYYYY(selectedSkillDetail.deadline)}
+                    {selectedSkillDetail.enrollmentEndText || formatDateDDMMYYYY(selectedSkillDetail.deadline)}
                   </p>
                 </div>
 
@@ -1763,6 +1775,20 @@ export default function InternshipsClient({
                 </div>
               </div>
 
+              {/* Course details — every skill-up column that has a value */}
+              {selectedSkillDetail.details?.length > 0 && (
+                <div className="rounded-2xl border border-slate-100 overflow-hidden">
+                  <dl className="grid grid-cols-1 sm:grid-cols-2">
+                    {selectedSkillDetail.details.map(([label, value]) => (
+                      <div key={label} className="px-4 py-3 border-b border-slate-100 sm:odd:border-r">
+                        <dt className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</dt>
+                        <dd className="text-sm font-semibold text-slate-800 mt-0.5 whitespace-pre-line">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+
               {/* Course Overview */}
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 mb-2 flex items-center gap-2">
@@ -1780,7 +1806,7 @@ export default function InternshipsClient({
                 )}
               </div>
 
-              {[["Remark", selectedSkillDetail.remark], ["Note", selectedSkillDetail.note]].map(([label, value]) => value ? (
+              {[["Course Layout", selectedSkillDetail.courseLayout], ["Remark", selectedSkillDetail.remark], ["Note", selectedSkillDetail.note]].map(([label, value]) => value ? (
                 <div key={label}>
                   <h3 className="text-base font-extrabold text-slate-900 mb-2">{label}</h3>
                   <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
