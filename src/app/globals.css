@@ -131,3 +131,10 @@ button, a {
 /* Horizontal scrollers (job tabs) without a visible scrollbar */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Thin scrollbar (jobs filter sidebar) */
+.thin-scrollbar { scrollbar-width: thin; scrollbar-color: #fdba74 transparent; }
+.thin-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+.thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 9999px; }
+.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: #f97316; }

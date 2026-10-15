@@ -12,12 +12,13 @@ import { useJobs, mapUnifiedJob } from "@/context/JobContext";
 import { useAuth } from "@/context/AuthContext";
 import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl, buildJobsListingUrl } from "@/utils/api";
 import JobsSeoArticle from "./JobsSeoArticle";
-import JobFilterPanel from "@/components/jobs/JobFilterPanel";
+import JobFilterSidebar, { ActiveFilterPills, ClosingSegment, JobFilterMobileBar, JobFilterSheet, changeClosingWithin } from "@/components/jobs/JobFilterPanel";
+import { MapPin } from "lucide-react";
 // import JobQuickFilters from "@/components/jobs/JobQuickFilters"; // Department chips — hidden for now
 import JobTabs from "@/components/jobs/JobTabs";
 import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
 import {
-  EMPTY_JOB_FILTERS, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
+  EMPTY_JOB_FILTERS, DEFAULT_JOB_FILTERS, isDefaultJobFilters, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
 } from "@/utils/jobFilters";
 
 
@@ -235,7 +236,10 @@ const jobPlace = (job) => {
   return [state, realDistrict ? district : ""].filter(Boolean).join(" · ");
 };
 
-function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex = 0 }) {
+/** "Experienced · 3 years" — shown only while an Experience filter is on. */
+const jobExperience = (job) => [job?.experienceLevel, job?.experienceYears].filter(Boolean).join(" · ") || "-";
+
+function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex = 0, showExperience = false }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -251,11 +255,13 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
           <thead className="bg-linear-to-r from-orange-50 to-amber-50 sticky top-0 z-20 isolate">
             <tr>
               <th scope="col" className="w-10 px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">s no</th>
-              <th scope="col" className="w-[28%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Job Title</th>
+              <th scope="col" className={`${showExperience ? "w-[28%]" : "w-[34%]"} px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider`}>Job Title</th>
               <th scope="col" className="w-[16%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Qualification</th>
-              <th scope="col" className="w-[12%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
               <th scope="col" className="w-[8%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Posts</th>
               <th scope="col" className="w-[8%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Age Limit</th>
+              {showExperience && (
+                <th scope="col" className="w-[10%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Experience</th>
+              )}
               {/* <th scope="col" className="px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Location</th> */}
               <th scope="col" className="w-[14%] px-2 py-3 border border-amber-300 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Dates</th>
               <th scope="col" className="w-[14%] px-2 py-3 border border-amber-300 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
@@ -291,19 +297,20 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
                         ? `${job.qualifications.substring(0, 45)}...`
                         : (job.qualifications || "-")}
                     </div>
-                    {job.qualifications && job.qualifications.length > 45 && (
+                    {((job.qualifications && job.qualifications.length > 45) || job.qualificationLevel) && (
                       <button
-                        onClick={() => onViewQual({ title: job.title, qualifications: job.qualifications })}
+                        onClick={() => onViewQual({
+                          title: job.title,
+                          org: job.org,
+                          qualifications: job.qualifications,
+                          qualificationLevel: job.qualificationLevel,
+                          qualificationStream: job.qualificationStream,
+                        })}
                         className="mt-1 text-[11px] font-semibold text-orange-500 hover:text-orange-700 hover:underline transition-colors"
                       >
                         View More ↓
                       </button>
                     )}
-                  </td>
-                  <td className="px-2 py-3 border border-amber-300 align-top">
-                    <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium whitespace-normal wrap-break-word leading-snug">
-                      {job.category}
-                    </span>
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top">
                     <div className="flex items-center gap-1.5">
@@ -312,6 +319,12 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
                     </div>
                   </td>
                   <td className="px-2 py-3 border border-amber-300 align-top text-sm text-gray-600 whitespace-normal wrap-break-word">{job.age} years</td>
+                  {showExperience && (
+                    <td className="px-2 py-3 border border-amber-300 align-top text-xs leading-snug">
+                      <div className="font-semibold text-gray-700">{job.experienceLevel || "-"}</div>
+                      {job.experienceYears && <div className="mt-0.5 text-gray-500">{job.experienceYears}</div>}
+                    </td>
+                  )}
                   {/* <td className="px-2 py-3 border border-amber-300 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <LocationIcon />
@@ -446,7 +459,9 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const [jobType, setJobType] = useState(JOBS_LIST_DEFAULT_QUERY.jobType);
   const [page, setPage] = useState(JOBS_LIST_DEFAULT_QUERY.page);
   // Filter panel (state, qualification, category, sector, language, age, status) — kept in the URL.
-  const [filters, setFilters] = useState(EMPTY_JOB_FILTERS);
+  // Starts on Telangana (DEFAULT_JOB_FILTERS) — the server pre-fetched exactly this view.
+  const [filters, setFilters] = useState(JOBS_LIST_DEFAULT_QUERY.filters);
+  const [sheet, setSheet] = useState(null); // mobile filters sheet: null | "filters" | "state"
   const filterKey = JSON.stringify(filtersToApiParams(filters));
   const urlReadyRef = useRef(false);
   const { options: filterOptions } = useJobFilterOptions(jobType, filters);
@@ -481,7 +496,10 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const changeFilter = (key, value) => {
     setFilters((prev) => {
       const next = { ...prev, [key]: value };
-      if (key === "state") next.district = "";
+      if (key === "state") {
+        next.district = "";
+        next.includeAllIndia = !value || value === "All India"; // a picked state shows only its own jobs
+      }
       if (key === "qualificationLevel") next.qualificationStream = "";
       return next;
     });
@@ -492,11 +510,35 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     setFilters((prev) => ({ ...prev, ...patch }));
     setPage(1);
   };
+  // Sidebar / sheet work on a draft = { ...filters, category, sort } and apply it in one go.
+  const appliedDraft = useMemo(() => ({ ...filters, category: selectedCategory, sort: sortBy }), [filters, selectedCategory, sortBy]);
+  const applyFilters = ({ category, sort, ...next }) => {
+    setFilters({ ...EMPTY_JOB_FILTERS, ...next });
+    setSelectedCategory(category);
+    setSortBy(sort);
+    setPage(1);
+  };
+  const removeFilter = (key) => {
+    if (key === "category") { setSelectedCategory(""); setPage(1); return; }
+    if (key === "closingWithin") { changeClosingWithin("", sortBy, changeFilter, setSortBy); return; }
+    changeFilter(key, "");
+  };
+  // "Change state": the sidebar's state box on desktop, the state picker on mobile.
+  const openStateChooser = () => {
+    const select = document.getElementById("job-filter-state");
+    if (select && window.matchMedia("(min-width: 1024px)").matches) {
+      select.focus();
+      select.click(); // opens the state list
+    } else {
+      setSheet("state");
+    }
+  };
 
   // Keep the URL in step with the filters so the link can be shared.
   useEffect(() => {
     if (!urlReadyRef.current || typeof window === "undefined") return;
-    const qs = filtersToUrlQuery(filters, { q: search, sort: sortBy });
+    // The default (Telangana) view keeps a clean URL.
+    const qs = filtersToUrlQuery(isDefaultJobFilters(filters) ? EMPTY_JOB_FILTERS : filters, { q: search, sort: sortBy });
     const next = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
     if (next !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(null, "", next);
   }, [filters, sortBy, search]);
@@ -753,15 +795,16 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const clearFilters = () => {
+  const clearFilters = (base = EMPTY_JOB_FILTERS) => {
     setSearch("");
     setSelectedCategory("");
     setStatusFilter("all");
-    setFilters(EMPTY_JOB_FILTERS);
+    setFilters(base);
     setSortBy("latest");
     setJobType("jobs");
     setPage(1);
   };
+  const resetFilters = () => clearFilters(DEFAULT_JOB_FILTERS);
 
   const handleApply = (applyLink, isExpired) => {
     if (isExpired) return;
@@ -787,13 +830,12 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
       name: "Latest Government Job Notifications",
       description: "Verified government vacancies from top organisations across India, updated regularly.",
       url: "/latest-job-notifications",
-      headers: ["S No", "Job Title", "Organization", "Qualification", "Category", "Posts", "Age Limit", "Start Date", "Deadline"],
+      headers: ["S No", "Job Title", "Organization", "Qualification", "Posts", "Age Limit", "Start Date", "Deadline"],
       rows: displayedJobs.map((job, idx) => [
         String((page - 1) * ITEMS_PER_PAGE + idx + 1),
         job.title || "N/A",
         job.org || "N/A",
         job.qualifications || "N/A",
-        job.category || "N/A",
         job.noOfPosts != null ? String(job.noOfPosts) : "N/A",
         job.age ? `${job.age} years` : "N/A",
         formatDateDDMMYYYY(job.postedDate),
@@ -821,155 +863,128 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
         />
       )}
 
-      {/* ── Hero ──────────────────────────────────────────────────────────────── */}
-      <div className="relative bg-linear-to-b from-orange-100 via-orange-100 to-orange-700 overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="w-full mx-auto px-4 md:px-8 xl:px-15 pt-24 lg:pt-28 pb-8">
+        <div className="flex items-start gap-5">
+          {/* ── Filters: sticky sidebar (desktop) ───────────────────────────────── */}
+          <aside className="hidden lg:block w-60 xl:w-64 shrink-0 sticky top-24" aria-label="Filter jobs">
+            <JobFilterSidebar
+              applied={appliedDraft}
+              options={filterOptions}
+              categories={categoriesList}
+              onApply={applyFilters}
+              onReset={resetFilters}
+              onClearAll={() => clearFilters()}
+            />
+          </aside>
 
-        <div className="relative z-10 w-full mx-auto px-4 md:px-15 py-16 text-center mt-9">
-          {/* <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-orange-500/90 text-xs font-bold px-4 py-1.5 rounded-full mb-3 border border-white/25">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            {totalItems} Active Listings • {totalPosts.toLocaleString()} Total Vacancies
-          </div> */}
+          <div className="flex-1 min-w-0">
+        {/* ── Header ──────────────────────────────────────────────────────────── */}
+        <div className="relative overflow-hidden bg-white border border-gray-200/80 rounded-2xl shadow-sm px-5 sm:px-6 py-5 mb-4">
+          <div className="absolute -right-20 -top-24 w-64 h-64 rounded-full bg-orange-50 pointer-events-none" aria-hidden />
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-black mb-4 tracking-tight leading-none">
-            Government{" "}
-            <span className="text-orange-600">Job Listings</span>
-          </h1>
-          <p className="text-orange-600 text-xl max-w-2xl mx-auto mb-8">
-            Verified government vacancies from top organisations across India. Updated regularly.
-          </p>
+          <div className="relative">
+            <h1 className="text-2xl lg:text-[28px] font-extrabold text-gray-900 tracking-tight leading-tight">
+              Latest Government <span className="text-orange-600">Job Notifications</span>
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 max-w-2xl">
+              Verified government vacancies from top organisations across India. Updated regularly.
+            </p>
 
-          <JobTabs options={filterOptions} filters={filters} onPatch={patchFilters} />
-
-          <div className="max-w-2xl mx-auto relative">
-            <div ref={searchBarRef} className="flex flex-col sm:flex-row bg-white rounded-2xl shadow-2xl p-1.5 gap-2 border border-white/30">
-              <div className="flex-1 flex items-center gap-2.5 px-3 min-w-0">
-                <SearchIcon />
-                <input
-                  suppressHydrationWarning={true}
-                  type="text"
-                  autoComplete="off"
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); setShowSuggestions(true); }}
-                  onFocus={() => { if (trimmedSearch) setShowSuggestions(true); }}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
-                  placeholder="Try 'Civil Aviation', HCL, Chennai..."
-                  className="flex-1 min-w-0 text-base text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent py-2.5"
-                />
-                {search && (
-                  <button onClick={() => { setSearch(""); setPage(1); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-                    <XIcon />
-                  </button>
-                )}
-              </div>
-              <button
-                type="button"
-                suppressHydrationWarning={true}
-                onClick={() => setShowSuggestions(false)}
-                className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-base font-bold px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200 shadow-md shrink-0 w-full sm:w-auto"
-              >
-                Search
+            {/* Which state the list is showing — change it anytime */}
+            <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl bg-linear-to-r from-orange-500 to-orange-600 pl-3 pr-1.5 py-1.5 text-[13px] text-white shadow-md shadow-orange-500/25">
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={15} className="shrink-0" />
+                {filters.state ? (
+                  <span>Showing jobs in <b className="font-bold">{filters.state}</b>{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}</span>
+                ) : <span>Showing jobs from <b className="font-bold">all states</b></span>}
+              </span>
+              <button type="button" onClick={openStateChooser}
+                className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors">
+                Change state
               </button>
             </div>
 
-            {/* Suggestions Dropdown — portaled to <body> so it isn't clipped by
-                the hero section's overflow-hidden (used for its blur circles) */}
-            {showSuggestions && trimmedSearch && dropdownRect && typeof document !== "undefined" && createPortal(
-              <div
-                style={{ position: "fixed", top: dropdownRect.top, left: dropdownRect.left, width: dropdownRect.width }}
-                className="z-100 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto text-left"
-              >
-                {!allLoaded ? (
-                  <div className="px-4 py-3 text-xs text-gray-400 font-semibold">Loading suggestions...</div>
-                ) : suggestions.length === 0 ? (
-                  <div className="px-4 py-3 text-xs text-gray-400 font-semibold">No matches for "{trimmedSearch}"</div>
-                ) : (
-                  suggestions.map((job) => (
-                    <button
-                      key={job.id}
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setSearch(job.title);
-                        setPage(1);
-                        setShowSuggestions(false);
-                      }}
-                      className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0"
-                    >
-                      <p className="text-xs font-bold text-gray-800 truncate">{job.title}</p>
-                      <p className="text-[11px] text-gray-500 truncate">
-                        {job.org}
-                        {job.category ? ` · ${job.category}` : ""}
-                      </p>
-                    </button>
-                  ))
-                )}
-              </div>,
-              document.body
-            )}
+        <div className="max-w-xl mt-4 relative">
+          <div ref={searchBarRef} className="flex flex-col sm:flex-row bg-gray-50 rounded-xl p-1 gap-2 border border-gray-200 focus-within:border-orange-300 focus-within:bg-white">
+            <div className="flex-1 flex items-center gap-2.5 px-3 min-w-0">
+              <SearchIcon />
+              <input
+                suppressHydrationWarning={true}
+                type="text"
+                autoComplete="off"
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); setShowSuggestions(true); }}
+                onFocus={() => { if (trimmedSearch) setShowSuggestions(true); }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
+                placeholder="Try 'Civil Aviation', HCL, Chennai..."
+                className="flex-1 min-w-0 text-sm text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent py-2"
+              />
+              {search && (
+                <button onClick={() => { setSearch(""); setPage(1); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+                  <XIcon />
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              suppressHydrationWarning={true}
+              onClick={() => setShowSuggestions(false)}
+              className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-semibold px-6 py-2 rounded-lg transition-all duration-200 shrink-0 w-full sm:w-auto"
+            >
+              Search
+            </button>
           </div>
 
-          {/* <div className="flex flex-wrap justify-center gap-4 mt-8">
-            {[
-              { label: "Total Jobs", val: totalItems },
-              { label: "Total Posts", val: totalPosts.toLocaleString() },
-              { label: "Organisations", val: organisationsCount },
-              { label: "Categories", val: categoryOptions.length },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl px-5 py-2.5 text-white text-center min-w-25">
-                <div className="text-2xl font-black">{stat.val}</div>
-                <div className="text-sm text-orange-100 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div> */}
+          {/* Suggestions Dropdown — portaled to <body> so it isn't clipped by
+              the hero section's overflow-hidden (used for its blur circles) */}
+          {showSuggestions && trimmedSearch && dropdownRect && typeof document !== "undefined" && createPortal(
+            <div
+              style={{ position: "fixed", top: dropdownRect.top, left: dropdownRect.left, width: dropdownRect.width }}
+              className="z-100 bg-white border border-orange-100 rounded-2xl shadow-lg max-h-80 overflow-y-auto text-left"
+            >
+              {!allLoaded ? (
+                <div className="px-4 py-3 text-xs text-gray-400 font-semibold">Loading suggestions...</div>
+              ) : suggestions.length === 0 ? (
+                <div className="px-4 py-3 text-xs text-gray-400 font-semibold">No matches for "{trimmedSearch}"</div>
+              ) : (
+                suggestions.map((job) => (
+                  <button
+                    key={job.id}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setSearch(job.title);
+                      setPage(1);
+                      setShowSuggestions(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0"
+                  >
+                    <p className="text-xs font-bold text-gray-800 truncate">{job.title}</p>
+                    <p className="text-[11px] text-gray-500 truncate">
+                      {job.org}
+                      {job.category ? ` · ${job.category}` : ""}
+                    </p>
+                  </button>
+                ))
+              )}
+            </div>,
+            document.body
+          )}
         </div>
-      </div>
+          </div>
+        </div>
 
-      <div className="w-full mx-auto px-4 md:px-15 py-8">
+        {/* ── Tabs | deadline window + view toggle ─────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <JobTabs jobType={jobType} filters={filters} categoryId={selectedCategory} onPatch={patchFilters} />
+          <div className="flex items-center justify-end gap-2.5">
+            {/* Deadline window (mobile has it above the filters bar) */}
+            <div className="hidden lg:block">
+              <ClosingSegment value={filters.closingWithin}
+                onChange={(v) => changeClosingWithin(v, sortBy, changeFilter, (s) => { setSortBy(s); setPage(1); })} />
+            </div>
 
-        {/* ── Department chips — hidden for now ───────────────────────────── */}
-        {/* <JobQuickFilters
-          options={filterOptions}
-          loaded={filterOptionsLoaded}
-          filters={filters}
-          onChange={changeFilter}
-        /> */}
-
-        {/* ── Filters ────────────────────────────────────────────────────────── */}
-        <JobFilterPanel
-          filters={filters}
-          sort={sortBy}
-          options={filterOptions}
-          onChange={changeFilter}
-          onSortChange={(v) => { setSortBy(v); setPage(1); }}
-          onClear={clearFilters}
-          resultCount={displayedTotalItems}
-        />
-
-        {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <p className="text-sm sm:text-base text-gray-500 text-center sm:text-left">
-            {isSearchMode && allLoading && !allLoaded ? (
-              "Searching..."
-            ) : (
-              <>
-                Showing <span className="font-bold text-gray-800">{displayedJobs.length}</span> of{" "}
-                <span className="font-bold text-gray-800">{displayedTotalItems}</span> jobs
-                {filters.state && (
-                  <span className="text-orange-600 font-semibold">
-                    {" "}in {filters.state}{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}
-                  </span>
-                )}
-                {hasFilters && !filters.state && <span className="text-orange-500 font-semibold"> (filtered)</span>}
-                <span className="text-gray-400"> • Page {page} of {displayedTotalPages || 1}</span>
-              </>
-            )}
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             {/* View Toggle */}
             <div className="hidden sm:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
               <button
@@ -987,25 +1002,44 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 <TableIcon />
               </button>
             </div>
- 
-            {/* Category Dropdown */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
-              className="text-xs font-bold border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-700 cursor-pointer shadow-sm hover:border-orange-300 transition-colors w-full sm:w-auto"
-            >
-              <option value="">All Categories</option>
-              {categoriesList.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
+          </div>
+        </div>
+
+        {/* ── Mobile: deadline + filters bar ──────────────────────────────────── */}
+        <div className="lg:hidden space-y-3 mb-3">
+          <ClosingSegment fullWidth value={filters.closingWithin}
+            onChange={(v) => changeClosingWithin(v, sortBy, changeFilter, (s) => { setSortBy(s); setPage(1); })} />
+          <JobFilterMobileBar applied={appliedDraft} categories={categoriesList} onOpen={() => setSheet("filters")} onRemove={removeFilter} />
+        </div>
+
+        {/* ── Result count | selected filters (desktop) ───────────────────────── */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+          <p className="shrink-0 text-xs text-gray-500 text-center sm:text-left">
+            {isSearchMode && allLoading && !allLoaded ? (
+              "Searching..."
+            ) : (
+              <>
+                Showing <span className="font-bold text-gray-800">{displayedJobs.length}</span> of{" "}
+                <span className="font-bold text-gray-800">{displayedTotalItems}</span> jobs
+                {filters.state && (
+                  <span className="text-orange-600 font-semibold">
+                    {" "}in {filters.state}{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}
+                  </span>
+                )}
+                {hasFilters && !filters.state && <span className="text-orange-500 font-semibold"> (filtered)</span>}
+                <span className="text-gray-400"> • Page {page} of {displayedTotalPages || 1}</span>
+              </>
+            )}
+          </p>
+          <div className="hidden lg:block min-w-0">
+            <ActiveFilterPills applied={appliedDraft} categories={categoriesList} onRemove={removeFilter} onClearAll={() => clearFilters()} />
           </div>
         </div>
 
         {/* ── Job Display (Grid or Table) ───────────────────────────────────────── */}
         {displayedLoading ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {[...Array(6)].map((_, i) => (
                 <JobCardSkeleton key={i} />
               ))}
@@ -1048,7 +1082,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
             </p>
             {hasFilters && (
               <button
-                onClick={clearFilters}
+                onClick={() => clearFilters()}
                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm px-4 md:px-15 py-2.5 rounded-xl transition-all duration-200"
               >
                 Clear All Filters
@@ -1056,7 +1090,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
             )}
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {displayedJobs.map((job) => (
               <AllJobCard
                 key={job.id}
@@ -1071,11 +1105,12 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 qualifications={job.qualifications}
                 category={job.category}
                 location={jobPlace(job)}
+                experience={filters.experienceLevel ? jobExperience(job) : ""}
               />
             ))}
           </div>
         ) : viewMode === "table" ? (
-          <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
+          <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} showExperience={Boolean(filters.experienceLevel)} />
         ) : (
           <>
             <div className="block md:hidden">
@@ -1094,12 +1129,13 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                     qualifications={job.qualifications}
                     category={job.category}
                     location={jobPlace(job)}
+                    experience={filters.experienceLevel ? jobExperience(job) : ""}
                   />
                 ))}
               </div>
             </div>
             <div className="hidden md:block">
-              <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} />
+              <TableView jobs={displayedJobs} onApply={handleApply} onViewNotification={handleViewNotification} onViewQual={setQualModal} startIndex={(page - 1) * ITEMS_PER_PAGE} showExperience={Boolean(filters.experienceLevel)} />
             </div>
           </>
         )}
@@ -1113,9 +1149,22 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
           </p>
         )}
 
+          </div>
+        </div>
+
         {/* ── SEO Article ───────────────────────────────────────────────────────── */}
         <JobsSeoArticle />
       </div>
+
+      <JobFilterSheet
+        view={sheet}
+        onView={setSheet}
+        applied={appliedDraft}
+        options={filterOptions}
+        categories={categoriesList}
+        onApply={applyFilters}
+        onReset={resetFilters}
+      />
 
       {/* ── Qualification Modal ── */}
       {qualModal && (
@@ -1126,26 +1175,47 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
-                  <svg width="14" height="14" fill="none" stroke="#f97316" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-sm font-bold text-gray-800">Qualification Requirements</h3>
+            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100">
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-orange-600">Qualification Requirements</p>
+                <h3 className="mt-1 text-[15px] font-bold text-gray-900 leading-snug">{qualModal.title}</h3>
+                {qualModal.org && <p className="mt-0.5 text-xs text-gray-500">{qualModal.org}</p>}
               </div>
               <button
                 onClick={() => setQualModal(null)}
-                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                aria-label="Close"
+                className="shrink-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
               >
                 <XIcon />
               </button>
             </div>
             {/* Body */}
-            <div className="overflow-y-auto px-5 py-4">
-              <h4 className="text-sm font-bold text-slate-900 mb-3">{qualModal.title}</h4>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{qualModal.qualifications}</p>
+            <div className="overflow-y-auto px-5 py-4 space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1.5">Qualification Level</p>
+                {qualModal.qualificationLevel || qualModal.qualificationStream ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {qualModal.qualificationLevel && (
+                      <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200 px-2.5 py-1 text-xs font-semibold text-orange-700">
+                        {qualModal.qualificationLevel}
+                      </span>
+                    )}
+                    {qualModal.qualificationStream && (
+                      <span className="inline-flex items-center rounded-full bg-gray-50 border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700">
+                        {qualModal.qualificationStream}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">Not specified</p>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1.5">Qualifications</p>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap rounded-xl bg-gray-50 border border-gray-100 px-3.5 py-3">
+                  {qualModal.qualifications || "Not specified"}
+                </p>
+              </div>
             </div>
             {/* Footer */}
             <div className="px-5 py-3 border-t border-gray-100">

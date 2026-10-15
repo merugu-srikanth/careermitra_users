@@ -1,4 +1,4 @@
-import { filtersToApiParams } from "./jobFilters";
+import { filtersToApiParams, DEFAULT_JOB_FILTERS } from "./jobFilters";
 
 export const API_BASE_URL = "https://www.careermitra.in/api";
 
@@ -34,6 +34,7 @@ export const JOBS_LIST_DEFAULT_QUERY = {
   sort: "latest",
   jobType: "jobs",
   categoryId: "",
+  filters: DEFAULT_JOB_FILTERS, // Telangana — see utils/jobFilters.js
 };
 
 // ── Job-collection listing endpoint per job type ────────────────────────────

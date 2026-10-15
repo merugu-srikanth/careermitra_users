@@ -28,6 +28,14 @@ export const EMPTY_JOB_FILTERS = {
   closingWithin: "", // "" | "7" | "30" — deadline within N days (IST), sent as deadlineFrom / deadlineTo
 };
 
+// Visitors who open the page without filters in the link land on Telangana jobs
+// (only that state's jobs; they can change or clear the state anytime).
+export const DEFAULT_JOB_STATE = "Telangana";
+export const DEFAULT_JOB_FILTERS = { ...EMPTY_JOB_FILTERS, state: DEFAULT_JOB_STATE, includeAllIndia: false };
+
+export const isDefaultJobFilters = (filters) => JSON.stringify(filtersToApiParams(filters)) === JSON.stringify(filtersToApiParams(DEFAULT_JOB_FILTERS))
+  && filters.includeAllIndia === DEFAULT_JOB_FILTERS.includeAllIndia;
+
 export const CLOSING_WITHIN_OPTIONS = [
   { value: "", label: "All open" },
   { value: "7", label: "Closing in 7 days" },

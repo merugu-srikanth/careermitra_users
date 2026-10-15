@@ -19,7 +19,7 @@ const getIsNew = (postedDate) => {
   return diffDays <= 7;
 };
 
-export default function AllJobCard({ title, org, lastDate, postedDate, location, applyLink, notificationUrl, noOfPosts, age, qualifications, category }) {
+export default function AllJobCard({ title, org, lastDate, postedDate, location, applyLink, notificationUrl, noOfPosts, age, qualifications, category, experience }) {
   const isExpired = isDeadlineExpired(lastDate);
   const deadlineStatusText = getDeadlineStatusText(lastDate);
   const isNew = getIsNew(postedDate);
@@ -98,6 +98,14 @@ export default function AllJobCard({ title, org, lastDate, postedDate, location,
             <span className="text-gray-400">No of Posts</span>
             <span className="font-medium">{noOfPosts || "-"}</span>
           </div>
+
+          {/* Only passed while an Experience filter is on */}
+          {experience && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Experience</span>
+              <span className="font-medium text-right max-w-[60%] truncate block" title={experience}>{experience}</span>
+            </div>
+          )}
         </div>
 
         <div className="mt-3 flex w-full gap-2 justify-center text-center">
