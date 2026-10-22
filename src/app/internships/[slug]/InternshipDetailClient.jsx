@@ -153,7 +153,13 @@ export default function InternshipDetail({ initialData = null }) {
   const company = data.company_name || "Verified Organization";
   const location = data.location || [data.district_city, data.state].filter(Boolean).join(", ") || "India";
   const category = data.domain_sector || data.category || "Professional";
-  const type = data.internship_type || data.work_mode || "Virtual Internship";
+  const type = data.internship_type || "Virtual Internship";
+  const workMode = data.work_mode || "";
+  // Stipend range from Stipend Min / Max when the stipend text is empty.
+  const rupees = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+  const stipendRange = data.stipend_min || data.stipend_max
+    ? [data.stipend_min, data.stipend_max].filter((n) => n != null && n !== "").map(rupees).join(" – ")
+    : "";
   const openings = data.openings || "Not Disclosed";
   const duration = normalizeDuration(data.duration);
   const formattedStipend = formatStipend(data);
@@ -165,7 +171,24 @@ export default function InternshipDetail({ initialData = null }) {
   const rawDeadline = data.deadline || data.last_date_to_apply || data.application_deadline;
   const deadline = formatDateDDMonYYYY(rawDeadline);
   const isExpired = isItemExpired(rawDeadline) || data.is_expired || data.expiry_status === "expired";
-  const lastVerifiedDate = formatDateDDMonYYYY(data.updated_at || data.updatedAt || data.created_at || new Date());
+  const lastVerifiedDate = formatDateDDMonYYYY(data.last_verified_date || data.updated_at || data.updatedAt || data.created_at || new Date());
+  // Internship-sheet details (shown only when filled in).
+  const sheetDetails = [
+    ["Qualification Level", data.qualification_level],
+    ["Qualification", data.qualification],
+    ["Branch / Specialization", data.branch_specialization],
+    ["Academic Year", data.academic_year],
+    ["Eligibility / Who Can Apply", data.eligibility],
+    ["Skills Required", data.skills_required],
+    ["Experience Required", data.experience_required],
+    ["Age Limit", data.age_limit],
+    ["Gender Eligibility", data.gender_eligibility],
+    ["Organization Type", data.organization_type],
+    ["Selection Process", data.selection_process],
+    ["Certificate Provided", data.certificate_provided],
+    ["PPO / Job Opportunity", data.ppo_opportunity],
+    ["Source", data.source],
+  ].filter(([, v]) => v != null && String(v).trim() !== "");
 
   // Structured FAQs
   const faqs = [
@@ -235,10 +258,12 @@ export default function InternshipDetail({ initialData = null }) {
             {/* Dynamic Grid of Info Keys */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-4 border-t border-slate-100">
               {[
-                { label: "Work Mode", value: type, icon: Briefcase },
+                { label: "Internship Type", value: type, icon: Briefcase },
+                ...(workMode ? [{ label: "Work Mode", value: workMode, icon: Briefcase }] : []),
+                ...(data.qualification_level ? [{ label: "Qualification Level", value: data.qualification_level, icon: BookOpen }] : []),
                 { label: "Location", value: location, icon: MapPin },
-                { label: "Stipend", value: formattedStipend, icon: IndianRupee, highlightColor: "text-orange-600 font-black" },
-                { label: "Stipend Type", value: stipendType, icon: IndianRupee },
+                { label: "Stipend", value: data.stipend ? formattedStipend : (stipendRange || formattedStipend), icon: IndianRupee, highlightColor: "text-orange-600 font-black" },
+                { label: "Stipend Type", value: data.stipend_type || stipendType, icon: IndianRupee },
                 { label: "Duration", value: duration, icon: Clock },
                 { label: "Openings", value: openings, icon: Briefcase },
                 { label: "Category", value: category, icon: Award },
@@ -258,6 +283,23 @@ export default function InternshipDetail({ initialData = null }) {
                 );
               })}
             </div>
+
+            {/* Eligibility & other details from the internship sheet */}
+            {sheetDetails.length > 0 && (
+              <div className="rounded-2xl border border-slate-100 overflow-hidden">
+                <p className="px-4 py-2.5 bg-slate-50 text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-orange-500" /> Eligibility &amp; Details
+                </p>
+                <dl className="divide-y divide-slate-100">
+                  {sheetDetails.map(([label, value]) => (
+                    <div key={label} className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 px-4 py-2.5 text-sm">
+                      <dt className="text-xs font-bold text-slate-500">{label}</dt>
+                      <dd className="text-slate-800 font-medium whitespace-pre-line">{String(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
 
             {/* ── D5: EDITORIAL VERIFICATION & SOURCE CITATIONS ── */}
             <div className="bg-gradient-to-r from-orange-50/60 via-amber-50/40 to-slate-50 p-5 rounded-2xl border border-orange-100/80 flex flex-col md:flex-row md:items-center justify-between gap-4">

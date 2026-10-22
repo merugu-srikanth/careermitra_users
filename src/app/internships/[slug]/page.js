@@ -12,10 +12,13 @@ const generateSlug = (title) => {
   return title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "";
 };
 
-async function getInternshipData(slug) {
+const OBJECT_ID = /^[0-9a-fA-F]{24}$/;
+
+/** `?id=` (from the internships list) picks the exact internship when several share a title slug. */
+async function getInternshipData(slug, idParam) {
   try {
-    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(slug);
-    let id = isValidObjectId ? slug : null;
+    const isValidObjectId = OBJECT_ID.test(slug);
+    let id = typeof idParam === "string" && OBJECT_ID.test(idParam) ? idParam : isValidObjectId ? slug : null;
 
     if (!id) {
       const mapPath = path.resolve("public/internships-map.json");
@@ -66,9 +69,10 @@ async function getInternshipData(slug) {
   return null;
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const { slug } = await params;
-  const data = await getInternshipData(slug);
+  const { id } = (await searchParams) ?? {};
+  const data = await getInternshipData(slug, id);
   
   if (!data) {
     return {
@@ -122,9 +126,10 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params, searchParams }) {
   const { slug } = await params;
-  const data = await getInternshipData(slug);
+  const { id } = (await searchParams) ?? {};
+  const data = await getInternshipData(slug, id);
   
   // D1: Real 404 / 410 response for removed/non-existent records (No soft-404s in Search Console)
   if (!data) {

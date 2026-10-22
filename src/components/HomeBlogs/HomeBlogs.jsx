@@ -147,11 +147,13 @@ const BLOGLIST_STYLES = `
 /* ── BLOG CARDS GRID ── */
 .bl-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  /* 4 per row on desktop → each section's 8 blogs fill 2 rows of 4. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
   align-content: start;
 }
-@media(min-width:1536px){ .bl-grid { grid-template-columns: repeat(4,1fr); gap: 32px; } }
+@media(min-width:1536px){ .bl-grid { gap: 28px; } }
+@media(max-width:1280px) and (min-width:1025px){ .bl-grid .bl-card-title { font-size: 0.98rem; } }
 @media(max-width:1024px){ .bl-grid { grid-template-columns: repeat(2,1fr); gap: 20px; } }
 /* Mobile: swipeable row instead of 8 stacked cards per section. Stacking made the
    home page ~20,000px tall on phones, pushing FAQ / Popular Categories / Footer
