@@ -144,7 +144,7 @@ export default function Footer({ initialCategories = null }) {
           <section className="md:col-span-4">
             <img src={logo.src || logo} alt="Careermitra Logo" className="block mx-auto sm:mx-0 h-16 w-auto sm:h-20" />
             <p className="mt-3 max-w-sm mx-auto sm:mx-0 text-center sm:text-left text-sm leading-relaxed text-slate-300">
-              Your one-stop gateway for government jobs and career guidance across India.
+              Your one stop gateway for government jobs and career guidance across India.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3 max-w-sm mx-auto sm:mx-0">
