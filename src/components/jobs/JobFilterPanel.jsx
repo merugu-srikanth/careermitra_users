@@ -323,7 +323,7 @@ export function JobFilterSheet({ view, onView, applied, options = {}, categories
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search state..." className="flex-1 min-w-0 text-sm focus:outline-none" />
               </label>
             </div>
-            <div className="flex-1 overflow-y-auto px-4 pb-2">
+            {/* <div className="flex-1 overflow-y-auto px-4 pb-2">
               {[...(query ? [] : [""]), ...states].map((v) => {
                 const active = draft.state === v;
                 return (
@@ -338,7 +338,7 @@ export function JobFilterSheet({ view, onView, applied, options = {}, categories
                 );
               })}
               {states.length === 0 && query && <p className="text-sm text-gray-400 text-center py-6">No state matches “{query}”.</p>}
-            </div>
+            </div> */}
             <div className="p-4 border-t border-gray-100">
               <button type="button" onClick={() => (cameFromFilters ? onView("filters") : apply(draft))}
                 className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold">
