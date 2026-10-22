@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import InternshipCard from "./InternshipCard";
 import InternshipTable from "./InternshipTable";
+import { InternshipTableSkeleton, InternshipCardSkeleton } from "@/components/skeletons/Skeletons";
 import MoreFiltersPanel from "./MoreFiltersPanel";
 import { API_BASE_URL } from "@/utils/api";
 import { generateTableSchema } from "@/utils/schemaHelpers";
@@ -382,9 +383,10 @@ export default function InternshipFinder({ initialInternships = [] }) {
       {error && !openItems.length ? (
         <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center text-sm text-red-700">Couldn&apos;t load internships. Please refresh the page.</div>
       ) : loadingFirst ? (
-        <div className="space-y-3">
-          {[0, 1, 2, 3].map((i) => <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 animate-pulse" />)}
-        </div>
+        <>
+          {view === "table" && <div className="hidden md:block"><InternshipTableSkeleton /></div>}
+          <div className={view === "table" ? "md:hidden" : ""}><InternshipCardSkeleton /></div>
+        </>
       ) : total === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
           <p className="text-base font-bold text-slate-800">No internships match these filters</p>

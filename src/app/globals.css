@@ -138,3 +138,43 @@ button, a {
 .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .thin-scrollbar::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 9999px; }
 .thin-scrollbar::-webkit-scrollbar-thumb:hover { background: #f97316; }
+
+/* Home hero feature cards — soft shadow, accent-coloured glow + edge on hover (accent set per card via --accent). */
+.hero-feature-card {
+  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+.hero-feature-card:hover {
+  box-shadow: 0 24px 44px -24px var(--accent), 0 6px 16px rgba(15, 23, 42, 0.06);
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent) !important;
+}
+
+/* ── Loading skeletons: soft shimmer sweep + staggered fade-in (components/skeletons) ── */
+.skel {
+  position: relative;
+  overflow: hidden;
+  background: #edf0f4;
+  border-radius: 9999px;
+}
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+  animation: skel-shimmer 1.5s ease-in-out infinite;
+}
+.skel-warm { background: #fdeee2; }
+.skel-item {
+  opacity: 0;
+  animation: skel-in 0.45s ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@keyframes skel-shimmer { 100% { transform: translateX(100%); } }
+@keyframes skel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skel::after { animation: none; }
+  .skel-item { animation: none; opacity: 1; }
+}

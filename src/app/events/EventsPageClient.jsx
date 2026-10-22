@@ -202,7 +202,7 @@ export default function EventsPage({ initialData }) {
   const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
   const [totalCount, setTotalCount] = useState(initialData?.totalCount ?? 0);
   const [activeTab, setActiveTab]   = useState("all");
-  const [sortOrder, setSortOrder]   = useState("newest");
+  const [sortOrder, setSortOrder]   = useState("order"); // "order" = as arranged in the admin panel
   const [search, setSearch]         = useState("");
   const [error, setError]           = useState("");
   const skipNextFetch               = useRef(hasInitialData);
@@ -236,15 +236,23 @@ export default function EventsPage({ initialData }) {
           const params = new URLSearchParams({ page: String(page), limit: String(DEFAULT_LIMIT), sort: sortOrder });
           if (type) params.set("media_type", type);
           if (search.trim()) params.set("search", search.trim());
-          const response = await fetch(`${API_BASE}?${params.toString()}`);
+          let response = await fetch(`${API_BASE}?${params.toString()}`);
+          if (!response.ok && sortOrder === "order") {
+            // Older API without the "order" sort → newest first.
+            params.set("sort", "newest");
+            response = await fetch(`${API_BASE}?${params.toString()}`);
+          }
           const payload  = await response.json();
           return payload?.data || payload || {};
         }));
         if (cancelled) return;
         const time = (m) => new Date(m?.created_at || m?.createdAt || 0).getTime();
+        const position = (m) => m?.display_order ?? Number.MAX_SAFE_INTEGER;
         const newMedia = responses
           .flatMap((d) => (Array.isArray(d.media) ? d.media : []))
-          .sort((a, b) => (sortOrder === "oldest" ? time(a) - time(b) : time(b) - time(a)));
+          .sort((a, b) => (sortOrder === "oldest" ? time(a) - time(b)
+            : sortOrder === "order" ? position(a) - position(b) || time(b) - time(a)
+            : time(b) - time(a)));
         const data = {
           pagination: {
             total: responses.reduce((sum, d) => sum + (d.pagination?.total ?? 0), 0),
@@ -342,6 +350,7 @@ export default function EventsPage({ initialData }) {
               onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
               className="h-11 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 cursor-pointer focus:border-violet-400 focus:outline-none transition"
             >
+              <option value="order">Featured</option>
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
             </select>

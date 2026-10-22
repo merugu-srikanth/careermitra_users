@@ -12,6 +12,7 @@ import { formatAge } from "@/utils/jobMapper";
 import { formatISTDateNumeric } from "@/utils/istDate";
 import JobRichText from "@/components/JobRichText";
 import InternshipFinder from "@/components/internships/InternshipFinder";
+import { SkillupCardsSkeleton, SkillupTableSkeleton } from "@/components/skeletons/Skeletons";
 
 import {
   Calendar,
@@ -461,20 +462,20 @@ export default function InternshipsClient({
           </p>
 
           {/* ── TWO-TAB SWITCHER (Internships | SkillUps) ── */}
-          <div className="inline-flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-2xl border border-orange-200/80 shadow-lg mb-8">
+          <div className="flex w-full max-w-md mx-auto sm:inline-flex sm:w-auto sm:max-w-none items-center p-1 sm:p-1.5 bg-white/80 backdrop-blur-md rounded-2xl border border-orange-200/80 shadow-lg mb-8">
             <button
               type="button"
               onClick={() => handleTabSwitch("internships")}
-              className={`flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl text-sm sm:text-base font-extrabold transition-all duration-200 cursor-pointer ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 px-2.5 sm:px-8 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-extrabold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                 activeTab === "internships"
                   ? "bg-orange-500 text-white shadow-md scale-100"
                   : "text-slate-700 hover:text-orange-600 hover:bg-orange-50"
               }`}
             >
-              <GraduationCap className="w-5 h-5" />
+              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>Internships</span>
               <span
-                className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${
                   activeTab === "internships"
                     ? "bg-white text-orange-600"
                     : "bg-slate-200 text-slate-700"
@@ -487,22 +488,22 @@ export default function InternshipsClient({
             <button
               type="button"
               onClick={() => handleTabSwitch("skillups")}
-              className={`flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl text-sm sm:text-base font-extrabold transition-all duration-200 cursor-pointer ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 px-2.5 sm:px-8 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-extrabold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                 activeTab === "skillups"
                   ? "bg-orange-500 text-white shadow-md scale-100"
                   : "text-slate-700 hover:text-orange-600 hover:bg-orange-50"
               }`}
             >
-              <Zap className="w-5 h-5" />
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>SkillUps</span>
               <span
-                className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${
                   activeTab === "skillups"
                     ? "bg-white text-orange-600"
                     : "bg-slate-200 text-slate-700"
                 }`}
               >
-                {allSkillups.length > 0 ? allSkillups.length : "65+"} Live
+                {allSkillups.length > 0 ? allSkillups.length : "65+"}<span className="hidden sm:inline"> Live</span>
               </span>
             </button>
           </div>
@@ -652,16 +653,7 @@ export default function InternshipsClient({
 
             {/* Dynamic Content Rendering */}
             {skillupsLoading && allSkillups.length === 0 ? (
-              <div className="space-y-4">
-                <div className="rounded-3xl border border-orange-50 bg-white shadow-sm overflow-hidden animate-pulse p-6">
-                  <div className="h-10 bg-slate-100 rounded-xl mb-4" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-48 bg-slate-100 rounded-2xl" />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              skillViewMode === "table" ? <SkillupTableSkeleton /> : <SkillupCardsSkeleton />
             ) : skillupsError && filteredDynamicSkillUps.length === 0 ? (
               <div className="bg-red-50/50 border border-red-200 text-red-700 rounded-3xl p-6 text-center">
                 <p className="font-bold">{skillupsError}</p>

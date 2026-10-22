@@ -20,8 +20,10 @@ const DEFAULT_LIMIT = 32;
 
 async function getInitialMedia() {
   try {
-    const params = new URLSearchParams({ page: "1", limit: String(DEFAULT_LIMIT), sort: "newest" });
-    const res = await fetch(`${API_BASE}?${params.toString()}`, { next: { revalidate: 300 } });
+    // "order" = the order chosen in the admin panel (older API versions don't know it → newest).
+    const url = (sort) => `${API_BASE}?${new URLSearchParams({ page: "1", limit: String(DEFAULT_LIMIT), sort })}`;
+    let res = await fetch(url("order"), { next: { revalidate: 300 } });
+    if (!res.ok) res = await fetch(url("newest"), { next: { revalidate: 300 } });
     if (!res.ok) throw new Error(`Media API responded ${res.status}`);
     const payload = await res.json();
     const data = payload?.data || payload || {};

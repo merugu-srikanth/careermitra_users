@@ -17,6 +17,7 @@ import { MapPin } from "lucide-react";
 // import JobQuickFilters from "@/components/jobs/JobQuickFilters"; // Department chips — hidden for now
 import JobTabs from "@/components/jobs/JobTabs";
 import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
+import { JobCardsSkeleton, JobTableSkeleton } from "@/components/skeletons/Skeletons";
 import {
   EMPTY_JOB_FILTERS, DEFAULT_JOB_FILTERS, isDefaultJobFilters, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
 } from "@/utils/jobFilters";
@@ -126,55 +127,6 @@ const normalizeExternalUrl = (value) => {
 
 // Always the IST calendar day, whatever the visitor's timezone.
 const formatDateDDMMYYYY = (value) => (value ? formatISTDateNumeric(value) || value : "-");
-
-const JobCardSkeleton = () => (
-  <div className="bg-white rounded-3xl border border-gray-100 p-6 space-y-4 animate-pulse">
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 bg-gray-200 rounded-2xl" />
-      <div className="space-y-2 flex-1">
-        <div className="h-4 bg-gray-200 rounded-full w-24" />
-        <div className="h-3 bg-gray-200 rounded-full w-36" />
-      </div>
-    </div>
-    <div className="h-6 bg-gray-200 rounded-full w-3/4" />
-    <div className="space-y-2">
-      <div className="h-3.5 bg-gray-200 rounded-full w-full" />
-      <div className="h-3.5 bg-gray-200 rounded-full w-5/6" />
-    </div>
-    <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
-      <div className="h-3 bg-gray-200 rounded-full w-20" />
-      <div className="h-8 bg-gray-200 rounded-xl w-24" />
-    </div>
-  </div>
-);
-
-const JobTableSkeleton = () => (
-  <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm animate-pulse">
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          {[...Array(5)].map((_, i) => (
-            <th key={i} className="px-4 md:px-15 py-4"><div className="h-4 bg-gray-200 rounded-full w-20" /></th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200">
-        {[...Array(5)].map((_, r) => (
-          <tr key={r}>
-            {[...Array(5)].map((_, c) => (
-              <td key={c} className="px-4 md:px-15 py-5">
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded-full w-3/4" />
-                  {c === 0 && <div className="h-3 bg-gray-200 rounded-full w-1/2" />}
-                </div>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
 
 // ── Pagination ─────────────────────────────────────────────────────────────────
 function Pagination({ current, total, onChange }) {
@@ -1039,21 +991,13 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
         {/* ── Job Display (Grid or Table) ───────────────────────────────────────── */}
         {displayedLoading ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {[...Array(6)].map((_, i) => (
-                <JobCardSkeleton key={i} />
-              ))}
-            </div>
+            <JobCardsSkeleton count={6} />
           ) : viewMode === "table" ? (
             <JobTableSkeleton />
           ) : (
             <>
               <div className="block md:hidden">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {[...Array(6)].map((_, i) => (
-                    <JobCardSkeleton key={i} />
-                  ))}
-                </div>
+                <JobCardsSkeleton count={4} className="grid grid-cols-1 sm:grid-cols-2 gap-5" />
               </div>
               <div className="hidden md:block">
                 <JobTableSkeleton />

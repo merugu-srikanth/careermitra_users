@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa";
 import { GrAnnounce } from "react-icons/gr";
 import HeroVideoModal from "./HeroVideoModal";
+import HeroPrimaryVideo from "./HeroPrimaryVideo";
 
 
 const ANNOUNCEMENT_API_BASE =
@@ -505,48 +506,72 @@ function FeatureCard({ card, className = "" }) {
         }
     };
     const Icon = card.icon;
+    const accent = card.iconColor;
 
     return (
         <div
             onClick={() => navigate(card.link, card.isExternal)}
-            className={`${className} bg-white relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl border border-slate-100/90 shadow-xs hover:shadow-xl`}
+            className={`${className} hero-feature-card relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl`}
             style={{
-                boxShadow: "0 2px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)",
+                "--accent": accent,
+                background: `linear-gradient(160deg, #ffffff 55%, ${card.iconBg}99 100%)`,
+                border: `1px solid ${accent}22`,
             }}
         >
-            {/* Top-right soft corner gradient wave */}
+            {/* Coloured top edge */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-1 opacity-90" style={{ background: card.btnGrad }} />
+
+            {/* Dotted texture, fading out from the top-right corner */}
             <div
-                className="pointer-events-none absolute -top-2 -right-2 w-32 sm:w-36 h-32 sm:h-36 rounded-bl-full transition-all duration-300 opacity-80 group-hover:opacity-100 group-hover:scale-105"
+                className="pointer-events-none absolute inset-0 opacity-70 group-hover:opacity-100 transition-opacity duration-300"
                 style={{
-                    background: card.cornerGlow,
+                    backgroundImage: `radial-gradient(${accent}33 1.1px, transparent 1.3px)`,
+                    backgroundSize: "12px 12px",
+                    WebkitMaskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 62%)",
+                    maskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 62%)",
                 }}
             />
+
+            {/* Top-right soft corner glow + rings */}
+            <div
+                className="pointer-events-none absolute -top-2 -right-2 w-32 sm:w-36 h-32 sm:h-36 rounded-bl-full transition-all duration-300 opacity-80 group-hover:opacity-100 group-hover:scale-105"
+                style={{ background: card.cornerGlow }}
+            />
+            <div className="pointer-events-none absolute -top-10 -right-10 w-28 h-28 rounded-full transition-transform duration-500 group-hover:scale-110"
+                style={{ border: `1.5px solid ${accent}1f` }} />
+            <div className="pointer-events-none absolute -top-16 -right-16 w-44 h-44 rounded-full transition-transform duration-500 group-hover:scale-110"
+                style={{ border: `1.5px dashed ${accent}1a` }} />
+
+            {/* Bottom-left soft blob */}
+            <div className="pointer-events-none absolute -bottom-12 -left-10 w-32 h-32 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-300"
+                style={{ background: card.iconBg }} />
 
             {/* Top icon and content */}
             <div className="relative z-10 text-left">
                 {/* Icon box (rounded squircle) */}
                 <div
-                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-110 shadow-xs"
-                    style={{ background: card.iconBg }}
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-2.5 sm:mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                    style={{ background: card.iconBg, boxShadow: `0 6px 16px -6px ${accent}66, inset 0 0 0 1px ${accent}1f` }}
                 >
                     <Icon style={{ color: card.iconColor, fontSize: 20 }} />
                 </div>
 
                 {/* Title & Description (left aligned) */}
-                <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug mb-1.5">
+                <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug sm:mb-1.5">
                     {card.title}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed font-normal">
+                {/* Phones: title + button only. */}
+                <p className="hidden sm:block text-[11px] sm:text-xs text-slate-500 leading-relaxed font-normal">
                     {card.description}
                 </p>
             </div>
 
             {/* CTA Button */}
-            <div className="relative z-10 mt-4 sm:mt-5 pt-1">
+            <div className="relative z-10 mt-3 sm:mt-5 sm:pt-1">
                 <button
                     type="button"
-                    className="w-full flex items-center justify-center gap-1.5 py-2.5 sm:py-3 text-white text-xs sm:text-sm font-bold rounded-2xl transition-all hover:opacity-95 active:scale-98 shadow-sm group-hover:shadow-md"
-                    style={{ background: card.btnGrad }}
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 sm:py-3 text-white text-xs sm:text-sm font-bold rounded-2xl transition-all hover:opacity-95 active:scale-98"
+                    style={{ background: card.btnGrad, boxShadow: `0 8px 18px -8px ${accent}99, inset 0 1px 0 rgba(255,255,255,0.25)` }}
                     suppressHydrationWarning={true}
                 >
                     <span className="truncate">{card.button}</span>
@@ -715,7 +740,7 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
     }, [initialAnnouncements]);
 
     return (
-        <section className="bg-white w-full py-8 sm:py-12 xl:py-16">
+        <section className="relative bg-white w-full py-8 sm:py-12 xl:py-16">
             <div className="w-full px-4 md:px-15 mx-auto">
 
                 {/* ── Section heading ── */}
@@ -746,6 +771,9 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
                     </h2>
 
                     <HeroVideoModal />
+
+                    {/* The video chosen in the admin panel (Media Library → ★ Set home). */}
+                    <HeroPrimaryVideo />
 
                     {/* <p
             className="mt-4 text-lg max-w-xl mx-auto leading-relaxed"

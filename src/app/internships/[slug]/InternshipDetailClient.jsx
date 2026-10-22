@@ -311,12 +311,12 @@ export default function InternshipDetail({ initialData = null }) {
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
-                  <span><strong>Curated by:</strong> Career Mitra Editorial Desk</span>
+                 {/*  <span><strong>Curated by:</strong> Career Mitra Editorial Desk</span>
                   <span>•</span>
                   <span><strong>Fact-Checked by:</strong> Verification Desk</span>
-                  <span>•</span>
+                  <span>•</span> */}
                   <span><strong>Last Verified:</strong> {lastVerifiedDate}</span>
-                </div>
+                </div> 
               </div>
 
               {/* Action Buttons: Official Notification & Official Apply (D5) */}
