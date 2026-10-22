@@ -5,7 +5,7 @@ import {
   Filter, RotateCcw, LayoutGrid, MapPin, BriefcaseBusiness, FileText, Building2, Globe,
   CalendarDays, ArrowDownUp, Search, X, ChevronDown, ChevronRight, ArrowLeft, Map as MapIcon,
 } from "lucide-react";
-import { CLOSING_WITHIN_OPTIONS, SORT_OPTIONS, countActiveFilters } from "@/utils/jobFilters";
+import { ALL_INDIA, CLOSING_WITHIN_OPTIONS, SORT_OPTIONS, countActiveFilters } from "@/utils/jobFilters";
 import FilterDropdown from "./FilterDropdown";
 
 /**
@@ -35,8 +35,9 @@ const valuesOf = (list = [], current) => {
   return values;
 };
 
+// "All India" is not listed as a state: the first choice ("All India", value "") already shows every job.
 const stateValues = (options, current) =>
-  valuesOf(options.state, current).sort((a, b) => (a === "All India" ? -1 : b === "All India" ? 1 : a.localeCompare(b)));
+  valuesOf(options.state, current).filter((v) => v !== ALL_INDIA).sort((a, b) => a.localeCompare(b));
 
 /** A deadline window reads best soonest-first; going back to "All open" restores latest. */
 export function changeClosingWithin(value, sort, onChange, onSortChange) {
@@ -73,8 +74,9 @@ function useDraft(applied) {
   const setField = (key, value) => setDraft((d) => {
     const next = { ...d, [key]: value };
     if (key === "state") {
+      if (value === ALL_INDIA) next.state = ""; // "All India" = every job
       next.district = "";
-      next.includeAllIndia = !value || value === "All India"; // a picked state shows only its own jobs
+      next.includeAllIndia = !next.state; // a picked state shows only its own jobs
     }
     if (key === "closingWithin") {
       if (value && d.sort === "latest") next.sort = "deadline";
@@ -121,13 +123,13 @@ function StateField({ draft, setField, options, onOpenPicker }) {
         <div className="relative">
           <button type="button" onClick={onOpenPicker}
             className={`${SELECT} text-left ${picked ? "border-orange-300 font-medium" : "text-gray-500"}`}>
-            {draft.state || "All states"}
+            {draft.state || ALL_INDIA}
           </button>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
       ) : (
         <FilterDropdown id="job-filter-state" ariaLabel="State" value={draft.state} onChange={(v) => setField("state", v)}
-          options={toOptions(stateValues(options, draft.state), "All states")} highlight clearable />
+          options={toOptions(stateValues(options, draft.state), ALL_INDIA)} highlight clearable />
       )}
     </FieldRow>
   );
@@ -323,8 +325,8 @@ export function JobFilterSheet({ view, onView, applied, options = {}, categories
                 <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search state..." className="flex-1 min-w-0 text-sm focus:outline-none" />
               </label>
             </div>
-            {/* <div className="flex-1 overflow-y-auto px-4 pb-2">
-              {[...(query ? [] : [""]), ...states].map((v) => {
+            <div className="flex-1 overflow-y-auto px-4 pb-2">
+              {[...(!query.trim() || ALL_INDIA.toLowerCase().includes(query.trim().toLowerCase()) ? [""] : []), ...states].map((v) => {
                 const active = draft.state === v;
                 return (
                   <button key={v || "all"} type="button" onClick={() => setField("state", v)}
@@ -333,12 +335,12 @@ export function JobFilterSheet({ view, onView, applied, options = {}, categories
                     <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? "border-orange-500" : "border-gray-300"}`}>
                       {active && <span className="w-2 h-2 rounded-full bg-orange-500" />}
                     </span>
-                    {v || "All states"}
+                    {v || ALL_INDIA}
                   </button>
                 );
               })}
-              {states.length === 0 && query && <p className="text-sm text-gray-400 text-center py-6">No state matches “{query}”.</p>}
-            </div> */}
+              {states.length === 0 && query && !ALL_INDIA.toLowerCase().includes(query.trim().toLowerCase()) && <p className="text-sm text-gray-400 text-center py-6">No state matches “{query}”.</p>}
+            </div>
             <div className="p-4 border-t border-gray-100">
               <button type="button" onClick={() => (cameFromFilters ? onView("filters") : apply(draft))}
                 className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold">

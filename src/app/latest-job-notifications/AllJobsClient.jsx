@@ -20,6 +20,7 @@ import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
 import { JobCardsSkeleton, JobTableSkeleton } from "@/components/skeletons/Skeletons";
 import {
   EMPTY_JOB_FILTERS, DEFAULT_JOB_FILTERS, isDefaultJobFilters, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
+  ALL_INDIA,
 } from "@/utils/jobFilters";
 
 
@@ -449,8 +450,9 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     setFilters((prev) => {
       const next = { ...prev, [key]: value };
       if (key === "state") {
+        if (value === ALL_INDIA) next.state = ""; // "All India" = every job
         next.district = "";
-        next.includeAllIndia = !value || value === "All India"; // a picked state shows only its own jobs
+        next.includeAllIndia = !next.state; // a picked state shows only its own jobs
       }
       if (key === "qualificationLevel") next.qualificationStream = "";
       return next;
@@ -848,7 +850,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 <MapPin size={15} className="shrink-0" />
                 {filters.state ? (
                   <span>Showing jobs in <b className="font-bold">{filters.state}</b>{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}</span>
-                ) : <span>Showing jobs from <b className="font-bold">all states</b></span>}
+                ) : <span>Showing jobs from <b className="font-bold">{ALL_INDIA}</b></span>}
               </span>
               <button type="button" onClick={openStateChooser}
                 className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors">

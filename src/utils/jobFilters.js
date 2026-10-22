@@ -31,6 +31,9 @@ export const EMPTY_JOB_FILTERS = {
 // Visitors who open the page without filters in the link land on Telangana jobs
 // (only that state's jobs; they can change or clear the state anytime).
 export const DEFAULT_JOB_STATE = "Telangana";
+/** Label of the "no state filter" choice — every job, nationwide ones included. */
+export const ALL_INDIA = "All India";
+
 export const DEFAULT_JOB_FILTERS = { ...EMPTY_JOB_FILTERS, state: DEFAULT_JOB_STATE, includeAllIndia: false };
 
 export const isDefaultJobFilters = (filters) => JSON.stringify(filtersToApiParams(filters)) === JSON.stringify(filtersToApiParams(DEFAULT_JOB_FILTERS))
@@ -61,6 +64,8 @@ const addDaysKey = (key, n) => new Date(new Date(`${key}T00:00:00Z`).getTime() +
 export function filtersFromSearchParams(sp) {
   const filters = { ...EMPTY_JOB_FILTERS };
   for (const key of LIST_FILTER_KEYS) filters[key] = sp.get(key) || "";
+  // "All India" = no state filter (every job) — the same as leaving State empty.
+  if (filters.state === ALL_INDIA) filters.state = "";
   const age = sp.get("age");
   if (age && /^\d{1,3}$/.test(age)) filters.age = age;
   const status = sp.get("applicationStatus");
