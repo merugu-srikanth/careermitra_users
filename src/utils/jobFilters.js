@@ -28,13 +28,32 @@ export const EMPTY_JOB_FILTERS = {
   closingWithin: "", // "" | "7" | "30" — deadline within N days (IST), sent as deadlineFrom / deadlineTo
 };
 
-// Visitors who open the page without filters in the link land on Telangana jobs
-// (only that state's jobs; they can change or clear the state anytime).
+// Visitors who open the page without filters in the link land on Telangana +
+// All India (nationwide) jobs; they can pick more states or clear them anytime.
 export const DEFAULT_JOB_STATE = "Telangana";
 /** Label of the "no state filter" choice — every job, nationwide ones included. */
 export const ALL_INDIA = "All India";
 
-export const DEFAULT_JOB_FILTERS = { ...EMPTY_JOB_FILTERS, state: DEFAULT_JOB_STATE, includeAllIndia: false };
+export const DEFAULT_JOB_FILTERS = { ...EMPTY_JOB_FILTERS, state: DEFAULT_JOB_STATE, includeAllIndia: true };
+
+/**
+ * Several states can be picked. `filters.state` holds them comma-separated
+ * ("Telangana,Andhra Pradesh") — the same form GET /api/jobs?state= takes.
+ * "All India" is never stored: no state = every job.
+ */
+export const splitStates = (value) =>
+  [...new Set(String(value ?? "").split(",").map((s) => s.trim()).filter((s) => s && s !== ALL_INDIA))];
+export const joinStates = (list) => splitStates(list.join(",")).join(",");
+export const toggleState = (value, state) => {
+  const list = splitStates(value);
+  return joinStates(list.includes(state) ? list.filter((s) => s !== state) : [...list, state]);
+};
+/** "Telangana" · "Telangana, Andhra Pradesh" · "Telangana, Andhra Pradesh +2" */
+export function statesLabel(value, max = 2) {
+  const list = splitStates(value);
+  if (!list.length) return ALL_INDIA;
+  return list.length <= max ? list.join(", ") : `${list.slice(0, max).join(", ")} +${list.length - max}`;
+}
 
 export const isDefaultJobFilters = (filters) => JSON.stringify(filtersToApiParams(filters)) === JSON.stringify(filtersToApiParams(DEFAULT_JOB_FILTERS))
   && filters.includeAllIndia === DEFAULT_JOB_FILTERS.includeAllIndia;
@@ -65,7 +84,7 @@ export function filtersFromSearchParams(sp) {
   const filters = { ...EMPTY_JOB_FILTERS };
   for (const key of LIST_FILTER_KEYS) filters[key] = sp.get(key) || "";
   // "All India" = no state filter (every job) — the same as leaving State empty.
-  if (filters.state === ALL_INDIA) filters.state = "";
+  filters.state = joinStates([filters.state]);
   const age = sp.get("age");
   if (age && /^\d{1,3}$/.test(age)) filters.age = age;
   const status = sp.get("applicationStatus");
@@ -80,7 +99,7 @@ export function filtersFromSearchParams(sp) {
 export function filtersToApiParams(filters = {}) {
   const params = {};
   for (const key of LIST_FILTER_KEYS) if (filters[key]) params[key] = filters[key];
-  if (filters.state && filters.state !== "All India" && filters.includeAllIndia) params.includeAllIndia = "true";
+  if (filters.state && filters.includeAllIndia) params.includeAllIndia = "true";
   if (filters.age !== "" && filters.age !== undefined) params.age = filters.age;
   if (filters.applicationStatus) params.applicationStatus = filters.applicationStatus;
   if (filters.closingWithin) {
@@ -98,7 +117,7 @@ export function filtersToUrlQuery(filters, { q = "", sort = "" } = {}) {
   for (const [key, value] of Object.entries(filtersToApiParams(filters))) {
     if (!["includeAllIndia", "deadlineFrom", "deadlineTo"].includes(key)) params.set(key, value);
   }
-  if (filters.state && filters.state !== "All India" && !filters.includeAllIndia) params.set("includeAllIndia", "false");
+  if (filters.state && !filters.includeAllIndia) params.set("includeAllIndia", "false");
   if (filters.closingWithin) params.set("closingWithin", filters.closingWithin);
   if (sort && sort !== "latest") params.set("sort", sort);
   return params.toString();

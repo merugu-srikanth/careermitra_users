@@ -1,6 +1,6 @@
 "use client";
 
-import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp } from "react-icons/fa";
+import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -176,6 +176,21 @@ export default function Footer({ initialCategories = null }) {
                 </div>
               </a>
             </div>
+
+            {/* Office address */}
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Vasavi+MPM+Mall+Ameerpet+Hyderabad+500016"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-5 flex items-start gap-3 max-w-sm mx-auto sm:mx-0 text-left"
+            >
+              <FaMapMarkerAlt size={18} className="mt-0.5 shrink-0 text-orange-400" />
+              <address className="not-italic text-sm leading-relaxed text-slate-300 group-hover:text-white transition-colors">
+                <span className="block font-semibold text-white">Sootradhara Venture Pvt Ltd</span>
+                <span className="block">7th Floor, 806, Vasavi MPM Mall,</span>
+                <span className="block">Ameerpet, Hyderabad, Telangana – 500016, India</span>
+              </address>
+            </a>
           </section>
 
           <section className="md:col-span-4 md:pt-2">

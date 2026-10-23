@@ -11,12 +11,14 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
  * is no room below. Long lists get a search box.
  *
  * options: [{ value, label }] — value "" is the "All" choice.
+ * multi: value is comma-separated; options toggle (checkboxes) and the list
+ * stays open; "" clears the selection. `multiLabel(value)` names the button.
  */
 
 const SEARCH_FROM = 9; // show a search box once a list has this many options
 const PANEL_MAX = 264; // px
 
-export default function FilterDropdown({ id, value, options, onChange, highlight = false, clearable = false, ariaLabel }) {
+export default function FilterDropdown({ id, value, options, onChange, highlight = false, clearable = false, ariaLabel, multi = false, multiLabel }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [rect, setRect] = useState(null);
@@ -26,6 +28,8 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
   const listRef = useRef(null);
 
   const selected = options.find((o) => o.value === value);
+  const selectedValues = multi ? String(value ?? "").split(",").filter(Boolean) : [];
+  const isOn = (v) => (multi ? (v === "" ? selectedValues.length === 0 : selectedValues.includes(v)) : v === value);
   const searchable = options.length >= SEARCH_FROM;
   const q = query.trim().toLowerCase();
   const visible = q ? options.filter((o) => o.label.toLowerCase().includes(q)) : options;
@@ -41,14 +45,19 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
   const openList = () => {
     place();
     setQuery("");
-    setActive(Math.max(0, options.findIndex((o) => o.value === value)));
+    setActive(Math.max(0, options.findIndex((o) => isOn(o.value))));
     setOpen(true);
   };
   const close = (focusButton = false) => {
     setOpen(false);
     if (focusButton) buttonRef.current?.focus();
   };
-  const choose = (v) => { onChange(v); close(true); };
+  const choose = (v) => {
+    if (!multi) { onChange(v); close(true); return; }
+    if (v === "") { onChange(""); return; }
+    const next = selectedValues.includes(v) ? selectedValues.filter((x) => x !== v) : [...selectedValues, v];
+    onChange(next.join(","));
+  };
 
   // Close on outside click, page scroll / resize (the button moves), Escape.
   useEffect(() => {
@@ -100,7 +109,9 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
           ? "border-orange-400 ring-4 ring-orange-100"
           : highlight && picked ? "border-orange-300 hover:border-orange-400" : "border-gray-200 hover:border-orange-300"}`}
       >
-        <span className={`flex-1 truncate ${picked ? "text-gray-900 font-medium" : "text-gray-600"}`}>{selected?.label ?? value}</span>
+        <span className={`flex-1 truncate ${picked ? "text-gray-900 font-medium" : "text-gray-600"}`}>
+          {multi ? (multiLabel ? multiLabel(value) : selectedValues.join(", ") || options.find((o) => o.value === "")?.label) : (selected?.label ?? value)}
+        </span>
         {clearable && picked && (
           <span role="button" tabIndex={-1} aria-label="Clear" onClick={(e) => { e.stopPropagation(); onChange(""); }}
             className="p-0.5 rounded-full text-gray-400 hover:text-orange-600 hover:bg-orange-100">
@@ -130,10 +141,10 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
               </label>
             </div>
           )}
-          <ul ref={listRef} role="listbox" className="overflow-y-auto py-1" style={{ maxHeight: searchable ? PANEL_MAX - 48 : PANEL_MAX }}>
+          <ul ref={listRef} role="listbox" aria-multiselectable={multi || undefined} className="overflow-y-auto py-1" style={{ maxHeight: searchable ? PANEL_MAX - 48 : PANEL_MAX }}>
             {visible.length === 0 && <li className="px-3 py-3 text-xs text-gray-400 text-center">No matches</li>}
             {visible.map((o, i) => {
-              const isSelected = o.value === value;
+              const isSelected = isOn(o.value);
               return (
                 <li
                   key={o.value || "__all"}
@@ -146,8 +157,13 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
                     ? "bg-orange-50 text-orange-700 font-semibold"
                     : i === active ? "bg-gray-50 text-gray-900" : "text-gray-700"}`}
                 >
+                  {multi && (
+                    <span className={`w-3.5 h-3.5 shrink-0 rounded border flex items-center justify-center ${isSelected ? "bg-orange-500 border-orange-500" : "border-gray-300 bg-white"}`}>
+                      {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                    </span>
+                  )}
                   <span className="flex-1 truncate">{o.label}</span>
-                  {isSelected && <Check size={13} className="shrink-0 text-orange-500" />}
+                  {!multi && isSelected && <Check size={13} className="shrink-0 text-orange-500" />}
                 </li>
               );
             })}

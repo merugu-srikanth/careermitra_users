@@ -47,7 +47,9 @@ const contactInfo = [
   {
     icon: <FaMapMarkerAlt size={18} />,
     label: "Visit Us",
-    value: "Hyderabad, Telangana, India",
+    value: "Sootradhara Venture Pvt Ltd",
+    lines: ["7th Floor, 806, Vasavi MPM Mall,", "Ameerpet, Hyderabad, Telangana – 500016, India"],
+    href: "https://www.google.com/maps/search/?api=1&query=Vasavi+MPM+Mall+Ameerpet+Hyderabad+500016",
     iconBg: "bg-blue-50 border border-blue-200",
     iconColor: "text-blue-500",
     hoverBorder: "hover:border-blue-300",
@@ -129,6 +131,16 @@ function ContactCard({ item, onClick }) {
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">{item.label}</p>
         <p className="text-sm font-semibold text-gray-800">{item.value}</p>
+        {item.lines && (
+          <address className="not-italic mt-0.5 text-sm leading-relaxed text-gray-600">
+            {item.lines.map((line) => <span key={line} className="block">{line}</span>)}
+          </address>
+        )}
+        {item.href && (
+          <a href={item.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-1.5 text-xs font-semibold text-blue-600 hover:underline">
+            View on Google Maps →
+          </a>
+        )}
       </div>
     </motion.div>
   );

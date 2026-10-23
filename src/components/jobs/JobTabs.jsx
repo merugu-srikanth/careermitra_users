@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { PUBLIC_API_BASE_URL, buildJobsListUrl } from "@/utils/api";
 
 /**
- * All Jobs / Freshers / Experienced / Contract — above the results. The tabs
+ * All Jobs / Freshers / Experienced / Contract / Apprenticeship — above the results. The tabs
  * are exclusive with each other and combine with every other filter (state,
  * category, sector, …). Each count is the number of jobs the tab would show
  * with the current filters, read from the list API (limit=1 → pagination.total).
@@ -16,6 +16,7 @@ export const JOB_TABS = [
   { id: "freshers", label: "Freshers", patch: { experienceLevel: "Freshers", employmentNature: "" } },
   { id: "experienced", label: "Experienced", patch: { experienceLevel: "Experienced", employmentNature: "" } },
   { id: "contract", label: "Contract", patch: { experienceLevel: "", employmentNature: "Contract" } },
+  { id: "apprenticeship", label: "Apprenticeship", patch: { experienceLevel: "", employmentNature: "Apprenticeship" } },
 ];
 
 function activeTab(filters) {
@@ -48,12 +49,12 @@ export default function JobTabs({ jobType = "jobs", filters, categoryId = "", on
   const current = activeTab(filters);
 
   return (
-    <div className="grid grid-cols-4 sm:inline-flex gap-1 bg-white border border-gray-200/80 rounded-xl p-1 shadow-sm" role="tablist" aria-label="Job type">
+    <div className="flex max-w-full overflow-x-auto no-scrollbar sm:inline-flex gap-1 bg-white border border-gray-200/80 rounded-xl p-1 shadow-sm" role="tablist" aria-label="Job type">
       {JOB_TABS.map(({ id, label, patch }) => {
         const active = current === id;
         return (
           <button key={id} type="button" role="tab" aria-selected={active} onClick={() => onPatch(patch)}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 rounded-lg px-1 py-1.5 sm:h-9 sm:py-0 sm:px-4 transition-colors ${active
+            className={`shrink-0 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 rounded-lg px-2.5 py-1.5 sm:h-9 sm:py-0 sm:px-4 transition-colors ${active
               ? "bg-orange-500 text-white"
               : "text-gray-600 hover:bg-orange-50 hover:text-orange-700"}`}>
             <span className="text-xs sm:text-[13px] font-semibold leading-tight whitespace-nowrap">{label}</span>

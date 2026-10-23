@@ -20,7 +20,7 @@ import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
 import { JobCardsSkeleton, JobTableSkeleton } from "@/components/skeletons/Skeletons";
 import {
   EMPTY_JOB_FILTERS, DEFAULT_JOB_FILTERS, isDefaultJobFilters, SORT_OPTIONS, filtersFromSearchParams, filtersToApiParams, filtersToUrlQuery, countActiveFilters,
-  ALL_INDIA,
+  ALL_INDIA, joinStates, toggleState, statesLabel,
 } from "@/utils/jobFilters";
 
 
@@ -450,9 +450,9 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
     setFilters((prev) => {
       const next = { ...prev, [key]: value };
       if (key === "state") {
-        if (value === ALL_INDIA) next.state = ""; // "All India" = every job
+        next.state = joinStates([value]); // several states, comma-separated; "All India" = every job
         next.district = "";
-        next.includeAllIndia = !next.state; // a picked state shows only its own jobs
+        next.includeAllIndia = true; // picked states + nationwide (All India) jobs
       }
       if (key === "qualificationLevel") next.qualificationStream = "";
       return next;
@@ -475,6 +475,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
   const removeFilter = (key) => {
     if (key === "category") { setSelectedCategory(""); setPage(1); return; }
     if (key === "closingWithin") { changeClosingWithin("", sortBy, changeFilter, setSortBy); return; }
+    if (key.startsWith("state:")) { changeFilter("state", toggleState(filters.state, key.slice(6))); return; }
     changeFilter(key, "");
   };
   // "Change state": the sidebar's state box on desktop, the state picker on mobile.
@@ -849,12 +850,12 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               <span className="inline-flex items-center gap-1.5">
                 <MapPin size={15} className="shrink-0" />
                 {filters.state ? (
-                  <span>Showing jobs in <b className="font-bold">{filters.state}</b>{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}</span>
+                  <span>Showing jobs in <b className="font-bold">{statesLabel(filters.state, 3)}</b>{filters.includeAllIndia ? " + All India" : ""}</span>
                 ) : <span>Showing jobs from <b className="font-bold">{ALL_INDIA}</b></span>}
               </span>
               <button type="button" onClick={openStateChooser}
                 className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-orange-600 hover:bg-orange-50 transition-colors">
-                Change state
+                Change states
               </button>
             </div>
 
@@ -930,9 +931,10 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
         </div>
 
         {/* ── Tabs | deadline window + view toggle ─────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+        {/* Wraps: when the 5 tabs + deadline switch don't fit one line, the switch moves below. */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 mb-3">
           <JobTabs jobType={jobType} filters={filters} categoryId={selectedCategory} onPatch={patchFilters} />
-          <div className="flex items-center justify-end gap-2.5">
+          <div className="flex items-center justify-end gap-2.5 sm:ml-auto">
             {/* Deadline window (mobile has it above the filters bar) */}
             <div className="hidden lg:block">
               <ClosingSegment value={filters.closingWithin}
@@ -977,7 +979,7 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
                 <span className="font-bold text-gray-800">{displayedTotalItems}</span> jobs
                 {filters.state && (
                   <span className="text-orange-600 font-semibold">
-                    {" "}in {filters.state}{filters.state !== "All India" && filters.includeAllIndia ? " + All India" : ""}
+                    {" "}in {statesLabel(filters.state, 3)}{filters.includeAllIndia ? " + All India" : ""}
                   </span>
                 )}
                 {hasFilters && !filters.state && <span className="text-orange-500 font-semibold"> (filtered)</span>}
