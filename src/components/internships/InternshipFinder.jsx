@@ -1,48 +1,63 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Search, X, Flame, Wallet, Home, GraduationCap, Landmark, Code2, MapPin, BookOpen, Briefcase, IndianRupee, Clock,
-  SlidersHorizontal, ChevronDown, Check, ArrowUpDown, Trash2, Loader2, LayoutGrid, Table2,
-} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BookOpen, Code2, Briefcase, IndianRupee, Clock, MapPin, CalendarDays, ArrowDownUp, GitBranch, Laptop, Eye, Loader2 } from "lucide-react";
 import InternshipCard from "./InternshipCard";
 import InternshipTable from "./InternshipTable";
 import { InternshipTableSkeleton, InternshipCardSkeleton } from "@/components/skeletons/Skeletons";
-import MoreFiltersPanel from "./MoreFiltersPanel";
+import FilterDropdown from "@/components/jobs/FilterDropdown";
+import {
+  ListingShell, ListingHeader, ListingSearch, CountTabs, Segment, ViewToggle, MiniPager, Pagination, FilterPills,
+  SidebarCard, SideField, ResetButton, MobileFilterBar, MobileFilterSheet,
+} from "@/components/listing/ListingKit";
 import { API_BASE_URL } from "@/utils/api";
 import { generateTableSchema } from "@/utils/schemaHelpers";
 import {
-  EDUCATION_OPTIONS, SKILL_OPTIONS, INTERNSHIP_TYPE_OPTIONS, STIPEND_OPTIONS, DURATION_OPTIONS, SORT_OPTIONS,
-  EMPTY_FINDER_FILTERS, readInternship, filterInternships, sortInternships, locationOptions, activeFilterChips,
-  removeFilter, toggleIn, nearestState,
+  EDUCATION_OPTIONS, BRANCH_OPTIONS, SKILL_OPTIONS, WORK_MODE_OPTIONS, INTERNSHIP_TYPE_OPTIONS, STIPEND_OPTIONS, DURATION_OPTIONS,
+  DEADLINE_OPTIONS, SORT_OPTIONS, EMPTY_FINDER_FILTERS, readInternship, filterInternships, sortInternships, locationOptions,
+  activeFilterChips, removeFilter,
 } from "@/utils/internshipFinder";
 
 /**
- * /internships — search, quick filters, main filters, "More Filters",
- * applied-filter chips, count, sort and the list. Every open internship is
- * loaded once (a few pages of 100) and filtered in the browser, so filters
- * combine freely and respond instantly. Expired ones load only when asked.
+ * /internships — jobs-page layout: filters on the left (sidebar / phone sheet),
+ * header with search, count tabs, results table or cards with pages.
+ * Every internship is loaded once and filtered in the browser, so filters
+ * combine freely and respond instantly. Active ones first, expired last.
  */
 
 const API = `${API_BASE_URL}/internships`;
 const PAGE = 20;
 const VIEW_KEY = "cm_internship_view";
 
+// Tabs over the results; each shows how many internships it would list with the current filters.
+const TABS = [
+  { id: "all", label: "All Internships", test: () => true },
+  { id: "paid", label: "Paid", test: (r) => r.paid },
+  { id: "wfh", label: "Work From Home", test: (r) => r.workModes.has("Work From Home") },
+  { id: "government", label: "Government", test: (r) => r.government },
+  { id: "it", label: "IT / Software", test: (r) => r.it },
+  { id: "expired", label: "Expired", test: (r) => r.expired },
+];
+
+const DEADLINE_SEGMENT = [
+  { value: "", label: "All", title: "All internships" },
+  { value: "7", label: "7 days", title: "Closing in 7 days" },
+  { value: "30", label: "30 days", title: "Closing in 30 days" },
+];
+
 // ── Loading ───────────────────────────────────────────────────────────────────
 
-async function fetchAllPages(params, onProgress) {
+async function fetchAllPages(params) {
   const url = (page) => `${API}?${new URLSearchParams({ ...params, page, limit: 100, sort: "newest" })}`;
   const first = await fetch(url(1)).then((r) => r.json());
   if (!first?.success) throw new Error(first?.message || "Failed to load internships");
   let items = first.data?.internships ?? [];
   const pages = first.data?.pagination?.totalPages ?? 1;
-  onProgress?.(1, pages);
   // A few requests at a time so the API isn't flooded.
   for (let start = 2; start <= pages; start += 6) {
     const batch = [];
     for (let p = start; p < start + 6 && p <= pages; p++) batch.push(fetch(url(p)).then((r) => r.json()).catch(() => null));
     for (const res of await Promise.all(batch)) if (res?.success) items = items.concat(res.data?.internships ?? []);
-    onProgress?.(Math.min(start + 5, pages), pages);
   }
   return items;
 }
@@ -53,96 +68,65 @@ const mergeById = (...lists) => {
   return [...seen.values()];
 };
 
-// ── Small pieces ──────────────────────────────────────────────────────────────
+// ── Filter fields (sidebar + phone sheet) ─────────────────────────────────────
 
-/** A filter-bar button with a dropdown menu under it. */
-function FilterMenu({ Icon, label, summary, active, children, wide }) {
-  const [open, setOpen] = useState(false);
-  const [alignRight, setAlignRight] = useState(false);
-  const ref = useRef(null);
-  const toggleOpen = () => {
-    // Open towards the left when the menu would run off the right edge (right-hand column on phones).
-    const rect = ref.current?.getBoundingClientRect();
-    if (rect) setAlignRight(rect.left + (wide ? 288 : 240) > window.innerWidth - 8);
-    setOpen((v) => !v);
-  };
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
-    const onKey = (e) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDown); window.removeEventListener("keydown", onKey); };
-  }, [open]);
+const opts = (list, allLabel = "All") => [{ value: "", label: allLabel }, ...list.map((o) => (typeof o === "string" ? { value: o, label: o } : { value: o.value, label: o.label ?? o.value }))];
+const join = (list) => list.join(",");
+const split = (v) => String(v || "").split(",").filter(Boolean);
+const multiLabel = (allLabel) => (v) => { const l = split(v); return !l.length ? allLabel : l.length <= 2 ? l.join(", ") : `${l.slice(0, 2).join(", ")} +${l.length - 2}`; };
 
-  return (
-    <div ref={ref} className="relative min-w-0">
-      <button type="button" onClick={toggleOpen} aria-expanded={open}
-        className={`w-full h-14 flex items-center gap-3 rounded-xl border bg-white px-3.5 text-left transition-colors ${open || active
-          ? "border-orange-300 ring-2 ring-orange-100" : "border-slate-200 hover:border-orange-200"}`}>
-        <Icon className={`w-5 h-5 shrink-0 ${active ? "text-orange-500" : "text-slate-500"}`} />
-        <span className="flex-1 min-w-0">
-          <span className="block text-[13px] font-bold text-slate-900 leading-tight">{label}</span>
-          <span className={`block text-xs truncate ${active ? "text-orange-600 font-semibold" : "text-slate-500"}`}>{summary}</span>
-        </span>
-        <ChevronDown className={`w-4 h-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        <div className={`absolute z-40 top-full mt-2 ${alignRight ? "right-0" : "left-0"} ${wide ? "w-72" : "w-60"} max-h-80 overflow-y-auto thin-scrollbar bg-white rounded-xl border border-slate-200 shadow-xl p-1.5`}>
-          {children(() => setOpen(false))}
-        </div>
-      )}
-    </div>
+function InternshipFields({ filters, update, locations, sort, setSort }) {
+  const multi = (key, Icon, label, options, allLabel) => (
+    <SideField Icon={Icon} label={label} highlight={filters[key].length > 0}>
+      <FilterDropdown ariaLabel={label} value={join(filters[key])} onChange={(v) => update({ [key]: split(v) })}
+        options={opts(options, allLabel)} multi multiLabel={multiLabel(allLabel)} highlight clearable />
+    </SideField>
   );
-}
-
-function MenuItem({ selected, onClick, children, count, multi }) {
-  return (
-    <button type="button" onClick={onClick}
-      className={`w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] text-left ${selected ? "bg-orange-50 text-orange-700 font-semibold" : "text-slate-700 hover:bg-slate-50"}`}>
-      {multi && (
-        <span className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center ${selected ? "bg-orange-500 border-orange-500" : "border-slate-300"}`}>
-          {selected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-        </span>
-      )}
-      <span className="flex-1 truncate">{children}</span>
-      {count != null && <span className="text-[11px] text-slate-400">{count}</span>}
-      {!multi && selected && <Check className="w-4 h-4 text-orange-500" />}
-    </button>
+  const single = (key, Icon, label, options, allLabel = "All") => (
+    <SideField Icon={Icon} label={label} highlight={Boolean(filters[key])}>
+      <FilterDropdown ariaLabel={label} value={filters[key]} onChange={(v) => update({ [key]: v })}
+        options={opts(options, allLabel)} highlight clearable />
+    </SideField>
   );
-}
-
-const multiSummary = (list) => (!list.length ? "All" : list.length === 1 ? list[0] : `${list.length} selected`);
-
-function QuickChip({ Icon, iconCls, active, onClick, children }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={active}
-      className={`shrink-0 inline-flex items-center gap-2 h-10 px-4 rounded-full border text-sm font-medium transition-colors ${active
-        ? "bg-orange-500 border-orange-500 text-white shadow-sm shadow-orange-500/30"
-        : "bg-white border-slate-200 text-slate-700 hover:border-orange-300"}`}>
-      <Icon className={`w-4 h-4 ${active ? "text-white" : iconCls}`} />
-      {children}
-    </button>
+    <>
+      {single("location", MapPin, "Location", locations.map((o) => o.value), "All locations")}
+      {multi("education", BookOpen, "Education", EDUCATION_OPTIONS, "All education")}
+      {multi("skills", Code2, "Domain / Skills", SKILL_OPTIONS, "All domains")}
+      {multi("branches", GitBranch, "Branch", BRANCH_OPTIONS, "All branches")}
+      {single("type", Briefcase, "Internship Type", INTERNSHIP_TYPE_OPTIONS, "All types")}
+      {multi("workModes", Laptop, "Work Mode", WORK_MODE_OPTIONS, "All modes")}
+      {single("stipend", IndianRupee, "Stipend", STIPEND_OPTIONS)}
+      {single("duration", Clock, "Duration", DURATION_OPTIONS)}
+      {single("deadline", CalendarDays, "Deadline", DEADLINE_OPTIONS.filter((o) => o.value))}
+      <SideField Icon={Eye} label="Status" highlight={!filters.showExpired}>
+        <FilterDropdown ariaLabel="Status" value={filters.showExpired ? "all" : "active"} onChange={(v) => update({ showExpired: v !== "active" })}
+          options={[{ value: "all", label: "All (active first)" }, { value: "active", label: "Active only" }]} />
+      </SideField>
+      <SideField Icon={ArrowDownUp} label="Sort by">
+        <FilterDropdown ariaLabel="Sort by" value={sort} onChange={setSort} options={SORT_OPTIONS} />
+      </SideField>
+    </>
   );
 }
 
 // ── Finder ────────────────────────────────────────────────────────────────────
 
-export default function InternshipFinder({ initialInternships = [] }) {
+export default function InternshipFinder({ initialInternships = [], switcher = null }) {
   const [openItems, setOpenItems] = useState(() => initialInternships.filter((i) => !i.is_expired));
   const [expiredItems, setExpiredItems] = useState([]);
   const [loadingOpen, setLoadingOpen] = useState(true);
-  const [expiredProgress, setExpiredProgress] = useState(null); // null | { done, total } | "done"
+  const [loadingExpired, setLoadingExpired] = useState(false);
   const [error, setError] = useState(null);
 
   const [filters, setFilters] = useState(EMPTY_FINDER_FILTERS);
   const [searchInput, setSearchInput] = useState("");
   const [sort, setSort] = useState("relevant");
-  const [visible, setVisible] = useState(PAGE);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [nearby, setNearby] = useState({ state: "", status: "" }); // status: "" | "locating" | "denied"
+  const [tab, setTab] = useState("all");
+  const [page, setPage] = useState(1);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [view, setView] = useState("table"); // "table" | "cards" (phones always get cards)
-  const closeMore = useCallback(() => setMoreOpen(false), []);
+  const listTopRef = useRef(null);
 
   // Open internships, once.
   useEffect(() => {
@@ -154,15 +138,16 @@ export default function InternshipFinder({ initialInternships = [] }) {
     return () => { alive = false; };
   }, []);
 
-  // Expired ones only when asked for (once).
+  // Expired ones (listed after the active ones), once.
   const expiredRequested = useRef(false);
   useEffect(() => {
     if (!filters.showExpired || expiredRequested.current) return;
     expiredRequested.current = true;
-    fetchAllPages({ expired: "true" }, (done, total) => setExpiredProgress({ done, total }))
+    setLoadingExpired(true);
+    fetchAllPages({ expired: "true" })
       .then((items) => setExpiredItems(items))
       .catch(() => {})
-      .finally(() => setExpiredProgress("done"));
+      .finally(() => setLoadingExpired(false));
   }, [filters.showExpired]);
 
   // Remember the chosen view in this browser.
@@ -182,51 +167,50 @@ export default function InternshipFinder({ initialInternships = [] }) {
   }, [searchInput]);
 
   const rows = useMemo(() => mergeById(openItems, filters.showExpired ? expiredItems : []).map(readInternship), [openItems, expiredItems, filters.showExpired]);
-  const results = useMemo(() => sortInternships(filterInternships(rows, filters), sort), [rows, filters, sort]);
+  const filtered = useMemo(() => filterInternships(rows, filters), [rows, filters]);
+  const tabCounts = useMemo(() => Object.fromEntries(TABS.map((t) => [t.id, filtered.filter(t.test).length])), [filtered]);
+  const results = useMemo(() => {
+    const test = TABS.find((t) => t.id === tab)?.test ?? (() => true);
+    return sortInternships(filtered.filter(test), sort);
+  }, [filtered, tab, sort]);
   const locations = useMemo(() => locationOptions(rows.filter((r) => filters.showExpired || !r.expired)), [rows, filters.showExpired]);
-  const chips = activeFilterChips(filters);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- back to the first page whenever the result set changes
-  useEffect(() => { setVisible(PAGE); }, [filters, sort]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- back to page 1 whenever the result set changes
+  useEffect(() => { setPage(1); }, [filters, sort, tab]);
 
   const update = (patch) => setFilters((f) => ({ ...f, ...patch }));
-  const clearAll = () => { setFilters({ ...EMPTY_FINDER_FILTERS }); setSearchInput(""); };
+  const clearAll = () => { setFilters({ ...EMPTY_FINDER_FILTERS }); setSearchInput(""); setTab("all"); };
 
-  // ── Quick filters ──
-  const toggleNearby = () => {
-    if (nearby.state && filters.location === nearby.state) { update({ location: "" }); return; }
-    if (nearby.state) { update({ location: nearby.state }); return; }
-    if (!navigator.geolocation) { setNearby({ state: "", status: "denied" }); return; }
-    setNearby({ state: "", status: "locating" });
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const state = nearestState(coords.latitude, coords.longitude);
-        setNearby({ state, status: "" });
-        update({ location: state });
-      },
-      () => setNearby({ state: "", status: "denied" }),
-      { timeout: 8000, maximumAge: 600000 },
-    );
-  };
-  const quick = [
-    { id: "closing", label: "Closing Soon", Icon: Flame, iconCls: "text-red-500", active: filters.deadline === "7", toggle: () => update({ deadline: filters.deadline === "7" ? "" : "7" }) },
-    { id: "paid", label: "Paid", Icon: Wallet, iconCls: "text-amber-500", active: filters.stipend === "paid", toggle: () => update({ stipend: filters.stipend === "paid" ? "" : "paid" }) },
-    { id: "wfh", label: "Work From Home", Icon: Home, iconCls: "text-emerald-600", active: filters.workModes.includes("Work From Home"), toggle: () => update({ workModes: toggleIn(filters.workModes, "Work From Home") }) },
-    { id: "fresher", label: "Fresher", Icon: GraduationCap, iconCls: "text-blue-600", active: filters.fresher, toggle: () => update({ fresher: !filters.fresher }) },
-    { id: "gov", label: "Government", Icon: Landmark, iconCls: "text-blue-700", active: filters.government, toggle: () => update({ government: !filters.government }) },
-    { id: "it", label: "IT / Software", Icon: Code2, iconCls: "text-violet-600", active: filters.it, toggle: () => update({ it: !filters.it }) },
-    { id: "nearby", label: nearby.status === "locating" ? "Locating…" : nearby.state ? `Nearby · ${nearby.state}` : "Nearby", Icon: MapPin, iconCls: "text-red-500", active: Boolean(nearby.state) && filters.location === nearby.state, toggle: toggleNearby },
+  const chips = [
+    ...(filters.q ? [{ key: "q", label: `“${filters.q}”`, raw: { key: "q" } }] : []),
+    ...activeFilterChips(filters)
+      .filter((c) => !["fresher", "government", "it"].includes(c.key))
+      .map((c) => ({ key: `${c.key}:${c.value ?? ""}`, label: c.label, raw: c })),
   ];
+  const removeChip = ({ raw }) => {
+    if (raw.key === "q") { setSearchInput(""); return; }
+    setFilters((f) => removeFilter(f, raw));
+  };
+
+  const total = results.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE));
+  const shown = results.slice((page - 1) * PAGE, page * PAGE);
+  const activeCount = useMemo(() => results.filter((r) => !r.expired).length, [results]);
+  const loadingFirst = loadingOpen && openItems.length === 0;
+  const goTo = (p, scroll = false) => {
+    setPage(Math.min(totalPages, Math.max(1, p)));
+    if (scroll) listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const tableSchema = useMemo(() => {
-    const shown = results.slice(0, PAGE);
-    if (!shown.length) return null;
+    const first = results.slice(0, PAGE);
+    if (!first.length) return null;
     return generateTableSchema({
       name: "Internship Opportunities",
       description: "Verified internship opportunities across states, sectors, and roles listed on Career Mitra.",
       url: "/internships",
       headers: ["#", "Internship Title", "Company", "Type", "Location", "Stipend", "Duration"],
-      rows: shown.map(({ item, amount }, idx) => [
+      rows: first.map(({ item, amount }, idx) => [
         String(idx + 1), item.internship_title || "N/A", item.company_name || "N/A", item.internship_type || "N/A",
         item.location || [item.district_city, item.state].filter(Boolean).join(", ") || "N/A",
         amount > 0 ? (item.stipend || `₹${amount}`) : "Unpaid", item.duration || "N/A",
@@ -234,150 +218,54 @@ export default function InternshipFinder({ initialInternships = [] }) {
     });
   }, [results]);
 
-  const loadingFirst = loadingOpen && openItems.length === 0;
-  const total = results.length;
-  const activeCount = useMemo(() => results.filter((r) => !r.expired).length, [results]);
+  const fields = <InternshipFields filters={filters} update={update} locations={locations} sort={sort} setSort={setSort} />;
 
   return (
-    <div className="space-y-4">
+    <ListingShell sidebarLabel="Filter internships" sidebar={
+      <SidebarCard title="Filter Internships" onClearAll={clearAll} footer={<ResetButton onClick={clearAll} />}>{fields}</SidebarCard>
+    }>
       {tableSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tableSchema).replace(/</g, "\\u003c") }} />
       )}
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-500" />
-        <input
-          type="search"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search company, skill, role or internship…"
-          aria-label="Search internships"
-          className="w-full h-14 pl-12 pr-12 rounded-2xl border border-slate-200 bg-white text-[15px] text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
-        />
-        {searchInput && (
-          <button type="button" onClick={() => setSearchInput("")} aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+      <ListingHeader
+        title="Explore" highlight="Internships"
+        subtitle="Verified virtual, paid and government internships to kickstart your career. Updated regularly."
+        bar={switcher}
+        search={<ListingSearch value={searchInput} onChange={setSearchInput} placeholder="Search company, skill, role or internship…" ariaLabel="Search internships" />}
+      />
 
-      {/* Quick filters */}
-      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
-        {quick.map(({ id, label, Icon, iconCls, active, toggle }) => (
-          <QuickChip key={id} Icon={Icon} iconCls={iconCls} active={active} onClick={toggle}>{label}</QuickChip>
-        ))}
-      </div>
-      {nearby.status === "denied" && (
-        <p className="text-xs text-slate-500 -mt-2">Couldn&apos;t get your location — pick a state under <b>Location</b> instead.</p>
-      )}
-
-      {/* Main filters */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2.5">
-        <FilterMenu Icon={BookOpen} label="Education" summary={multiSummary(filters.education)} active={filters.education.length > 0}>
-          {() => EDUCATION_OPTIONS.map((o) => (
-            <MenuItem key={o.value} multi selected={filters.education.includes(o.value)} onClick={() => update({ education: toggleIn(filters.education, o.value) })}>{o.label}</MenuItem>
-          ))}
-        </FilterMenu>
-        <FilterMenu Icon={Code2} label="Domain / Skills" summary={multiSummary(filters.skills)} active={filters.skills.length > 0}>
-          {() => SKILL_OPTIONS.map((o) => (
-            <MenuItem key={o.value} multi selected={filters.skills.includes(o.value)} onClick={() => update({ skills: toggleIn(filters.skills, o.value) })}>{o.value}</MenuItem>
-          ))}
-        </FilterMenu>
-        <FilterMenu Icon={Briefcase} label="Type" summary={filters.type || "All"} active={Boolean(filters.type)} wide>
-          {(close) => ["", ...INTERNSHIP_TYPE_OPTIONS].map((v) => (
-            <MenuItem key={v || "all"} selected={filters.type === v} onClick={() => { update({ type: v }); close(); }}>{v || "All types"}</MenuItem>
-          ))}
-        </FilterMenu>
-        <FilterMenu Icon={IndianRupee} label="Stipend" summary={STIPEND_OPTIONS.find((o) => o.value === filters.stipend)?.label || "All"} active={Boolean(filters.stipend)}>
-          {(close) => [{ value: "", label: "All" }, ...STIPEND_OPTIONS].map((o) => (
-            <MenuItem key={o.value || "all"} selected={filters.stipend === o.value} onClick={() => { update({ stipend: o.value }); close(); }}>{o.label}</MenuItem>
-          ))}
-        </FilterMenu>
-        <FilterMenu Icon={Clock} label="Duration" summary={DURATION_OPTIONS.find((o) => o.value === filters.duration)?.label || "All"} active={Boolean(filters.duration)}>
-          {(close) => [{ value: "", label: "All" }, ...DURATION_OPTIONS].map((o) => (
-            <MenuItem key={o.value || "all"} selected={filters.duration === o.value} onClick={() => { update({ duration: o.value }); close(); }}>{o.label}</MenuItem>
-          ))}
-        </FilterMenu>
-        <FilterMenu Icon={MapPin} label="Location" summary={filters.location || "All"} active={Boolean(filters.location)} wide>
-          {(close) => [{ value: "" }, ...locations].map((o) => (
-            <MenuItem key={o.value || "all"} selected={filters.location === o.value} count={o.count}
-              onClick={() => { update({ location: o.value }); close(); }}>{o.value || "All locations"}</MenuItem>
-          ))}
-        </FilterMenu>
-        <button type="button" onClick={() => setMoreOpen(true)}
-          className="h-14 col-span-2 md:col-span-1 inline-flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 text-orange-700 text-sm font-bold hover:bg-orange-100 transition-colors">
-          <SlidersHorizontal className="w-4 h-4" /> More Filters
-          {chips.length > 0 && <span className="bg-orange-500 text-white text-[11px] rounded-full px-1.5 py-px">{chips.length}</span>}
-        </button>
-      </div>
-
-      {/* Applied filters */}
-      {(chips.length > 0 || filters.q) && (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-orange-50/60 border border-orange-100 px-4 py-3">
-          <span className="text-sm font-bold text-slate-800 mr-1">Active Filters:</span>
-          {filters.q && (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-orange-200 px-2.5 py-1 text-[13px] text-slate-700">
-              “{filters.q}”
-              <button type="button" onClick={() => setSearchInput("")} aria-label="Clear search" className="text-slate-400 hover:text-orange-600"><X className="w-3.5 h-3.5" /></button>
-            </span>
-          )}
-          {chips.map((c) => (
-            <span key={`${c.key}-${c.value ?? ""}`} className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-orange-200 px-2.5 py-1 text-[13px] text-slate-700">
-              {c.label}
-              <button type="button" onClick={() => setFilters((f) => removeFilter(f, c))} aria-label={`Remove ${c.label}`} className="text-slate-400 hover:text-orange-600">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </span>
-          ))}
-          <button type="button" onClick={clearAll} className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700">
-            Clear All <Trash2 className="w-4 h-4" />
-          </button>
+      {/* Tabs | deadline + view */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap xl:flex-nowrap sm:items-center sm:justify-between gap-2 mb-3">
+        <CountTabs tabs={TABS.map((t) => ({ ...t, count: loadingFirst ? null : tabCounts[t.id] }))} value={tab} onChange={setTab} ariaLabel="Internship type" />
+        <div className="shrink-0 flex items-center justify-end gap-1.5 sm:ml-auto">
+          <div className="hidden lg:block">
+            <Segment options={DEADLINE_SEGMENT} value={["", "7", "30"].includes(filters.deadline) ? filters.deadline : ""} onChange={(v) => update({ deadline: v })} />
+          </div>
+          <ViewToggle value={view} onChange={changeView} />
         </div>
-      )}
+      </div>
 
-      {/* Count + sort */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <p className="text-lg sm:text-xl text-slate-800">
-          {/* The big number is the active (open) internships; expired ones are listed after them. */}
-          <span className="font-black text-2xl sm:text-3xl text-orange-600">{loadingFirst ? "…" : activeCount.toLocaleString("en-IN")}</span>{" "}
-          <span className="font-bold">active internship{activeCount === 1 ? "" : "s"}</span>
-          {loadingOpen && !loadingFirst && <Loader2 className="inline w-4 h-4 ml-2 animate-spin text-slate-400" aria-label="Loading more" />}
-          {!loadingFirst && total > activeCount && (
-            <span className="block sm:inline sm:ml-2 text-xs font-semibold text-slate-500">
-              + {(total - activeCount).toLocaleString("en-IN")} expired · {total.toLocaleString("en-IN")} total
-            </span>
+      <MobileFilterBar chips={chips} onOpen={() => setSheetOpen(true)} onRemove={removeChip} />
+
+      {/* Count | pills | pager */}
+      <div ref={listTopRef} className="scroll-mt-28 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-4">
+        <p className="shrink-0 text-xs text-gray-500 text-center sm:text-left">
+          {loadingFirst ? "Loading internships…" : (
+            <>
+              Showing <span className="font-bold text-gray-800">{shown.length}</span> of{" "}
+              <span className="font-bold text-orange-600">{activeCount.toLocaleString("en-IN")}</span> active internships
+              {total > activeCount && <> + {(total - activeCount).toLocaleString("en-IN")} expired</>}
+              <span className="text-gray-400"> • Page {page} of {totalPages}</span>
+              {(loadingOpen || loadingExpired) && <Loader2 className="inline w-3.5 h-3.5 ml-1.5 animate-spin text-gray-400" aria-label="Loading more" />}
+            </>
           )}
         </p>
-        <div className="flex items-center gap-2.5">
-        <div className="hidden md:inline-flex items-center rounded-xl border border-slate-200 bg-white p-1" role="group" aria-label="View">
-          {[{ v: "table", label: "Table", Icon: Table2 }, { v: "cards", label: "Cards", Icon: LayoutGrid }].map(({ v, label, Icon }) => (
-            <button key={v} type="button" onClick={() => changeView(v)} aria-pressed={view === v}
-              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-bold transition-colors ${view === v ? "bg-orange-500 text-white shadow-sm" : "text-slate-600 hover:text-orange-600"}`}>
-              <Icon className="w-4 h-4" /> {label}
-            </button>
-          ))}
-        </div>
-        <label className="inline-flex items-center gap-2 text-sm">
-          <span className="font-semibold text-slate-600">Sort by:</span>
-          <span className="relative">
-            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-            <select value={sort} onChange={(e) => setSort(e.target.value)}
-              className="h-11 pl-9 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 appearance-none cursor-pointer focus:outline-none focus:border-orange-400">
-              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          </span>
-        </label>
+        <div className="flex items-center justify-center lg:justify-end gap-3 min-w-0">
+          <div className="hidden lg:block min-w-0"><FilterPills chips={chips} onRemove={removeChip} onClearAll={clearAll} /></div>
+          <MiniPager page={page} total={totalPages} onChange={(p) => goTo(p)} />
         </div>
       </div>
-
-      {filters.showExpired && expiredProgress && expiredProgress !== "done" && (
-        <p className="text-xs text-slate-500 flex items-center gap-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading expired internships… {expiredProgress.done}/{expiredProgress.total}
-        </p>
-      )}
 
       {/* List */}
       {error && !openItems.length ? (
@@ -388,35 +276,29 @@ export default function InternshipFinder({ initialInternships = [] }) {
           <div className={view === "table" ? "md:hidden" : ""}><InternshipCardSkeleton /></div>
         </>
       ) : total === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
-          <p className="text-base font-bold text-slate-800">No internships match these filters</p>
-          <p className="text-sm text-slate-500 mt-1">Try removing a filter or two.</p>
+        <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center">
+          <p className="text-base font-bold text-gray-800">No internships match these filters</p>
+          <p className="text-sm text-gray-500 mt-1">Try removing a filter or two.</p>
           <button type="button" onClick={clearAll} className="mt-4 h-10 px-5 rounded-xl bg-orange-500 text-white text-sm font-bold">Clear all filters</button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <>
           {view === "table" && (
-            <div className="hidden md:block">
-              <InternshipTable rows={results.slice(0, visible)} />
-            </div>
+            <div className="hidden md:block"><InternshipTable rows={shown} startIndex={(page - 1) * PAGE} /></div>
           )}
           <div className={`space-y-3 ${view === "table" ? "md:hidden" : ""}`}>
-            {results.slice(0, visible).map((r, idx) => (
-              <InternshipCard key={r.item.id} r={r} colorIndex={idx} />
-            ))}
+            {shown.map((r, idx) => <InternshipCard key={r.item.id} r={r} colorIndex={(page - 1) * PAGE + idx} />)}
           </div>
-          {visible < total && (
-            <div className="text-center pt-2">
-              <button type="button" onClick={() => setVisible((v) => v + PAGE)}
-                className="h-11 px-8 rounded-xl border border-orange-200 bg-white text-orange-700 text-sm font-bold hover:bg-orange-50">
-                Show more ({(total - visible).toLocaleString("en-IN")} left)
-              </button>
-            </div>
-          )}
-        </div>
+          <Pagination current={page} total={totalPages} onChange={(p) => goTo(p, true)} />
+        </>
       )}
 
-      <MoreFiltersPanel open={moreOpen} filters={filters} onApply={setFilters} onClose={closeMore} />
-    </div>
+      <MobileFilterSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Filter Internships" resultCount={total} onReset={clearAll}>
+        <SideField Icon={CalendarDays} label="Closing">
+          <Segment fullWidth options={DEADLINE_SEGMENT} value={["", "7", "30"].includes(filters.deadline) ? filters.deadline : ""} onChange={(v) => update({ deadline: v })} />
+        </SideField>
+        {fields}
+      </MobileFilterSheet>
+    </ListingShell>
   );
 }

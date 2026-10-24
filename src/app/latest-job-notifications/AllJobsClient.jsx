@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { PUBLIC_API_BASE_URL, JOBS_LIST_DEFAULT_QUERY, buildJobsListUrl, buildJobsListingUrl } from "@/utils/api";
 import JobsSeoArticle from "./JobsSeoArticle";
 import JobFilterSidebar, { ActiveFilterPills, ClosingSegment, JobFilterMobileBar, JobFilterSheet, changeClosingWithin } from "@/components/jobs/JobFilterPanel";
-import { MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 // import JobQuickFilters from "@/components/jobs/JobQuickFilters"; // Department chips — hidden for now
 import JobTabs from "@/components/jobs/JobTabs";
 import useJobFilterOptions from "@/components/jobs/useJobFilterOptions";
@@ -201,8 +201,25 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
     }
   }, [startIndex]);
 
+  const scrollerRef = useRef(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const update = () => setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+  }, [jobs]);
+  const nudge = (dir) => scrollerRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  const sideArrow = "absolute top-1/2 -translate-y-1/2 z-30 w-9 h-9 flex items-center justify-center rounded-full bg-white/95 border border-orange-200 text-orange-600 shadow-lg hover:bg-orange-500 hover:text-white transition-colors";
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="relative">
+    {edges.left && <button type="button" aria-label="Scroll left" onClick={() => nudge(-1)} className={`${sideArrow} -left-3`}><ChevronLeft size={18} /></button>}
+    {edges.right && <button type="button" aria-label="Scroll right" onClick={() => nudge(1)} className={`${sideArrow} -right-3`}><ChevronRight size={18} /></button>}
+    <div ref={scrollerRef} className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div ref={containerRef} className="overflow-y-auto max-h-[70vh]">
         <table className="min-w-full table-fixed divide-y divide-gray-200">
           <thead className="bg-linear-to-r from-orange-50 to-amber-50 sticky top-0 z-20 isolate">
@@ -347,6 +364,7 @@ function TableView({ jobs, onApply, onViewNotification, onViewQual, startIndex =
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }
@@ -932,27 +950,27 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
 
         {/* ── Tabs | deadline window + view toggle ─────────────────────────────── */}
         {/* Wraps: when the 5 tabs + deadline switch don't fit one line, the switch moves below. */}
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 mb-3">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap xl:flex-nowrap sm:items-center sm:justify-between gap-2 mb-3">
           <JobTabs jobType={jobType} filters={filters} categoryId={selectedCategory} onPatch={patchFilters} />
-          <div className="flex items-center justify-end gap-2.5 sm:ml-auto">
+          <div className="shrink-0 flex items-center justify-end gap-1.5 sm:ml-auto">
             {/* Deadline window (mobile has it above the filters bar) */}
             <div className="hidden lg:block">
-              <ClosingSegment value={filters.closingWithin}
+              <ClosingSegment compact value={filters.closingWithin}
                 onChange={(v) => changeClosingWithin(v, sortBy, changeFilter, (s) => { setSortBy(s); setPage(1); })} />
             </div>
 
             {/* View Toggle */}
-            <div className="hidden sm:flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+            <div className="hidden sm:flex h-8 items-center gap-0.5 bg-gray-100 p-0.5 rounded-xl">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "grid" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
+                className={`p-1 rounded-lg transition-all duration-200 ${viewMode === "grid" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
                 title="Grid View"
               >
                 <GridIcon />
               </button>
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg transition-all duration-200 ${viewMode === "table" || viewMode === "auto" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
+                className={`p-1 rounded-lg transition-all duration-200 ${viewMode === "table" || viewMode === "auto" ? "bg-white shadow-sm text-orange-500" : "text-gray-500 hover:text-orange-400"}`}
                 title="Table View"
               >
                 <TableIcon />
@@ -987,8 +1005,23 @@ export default function AllJobs({ initialJobs = [], initialTotalItems = 0, initi
               </>
             )}
           </p>
-          <div className="hidden lg:block min-w-0">
-            <ActiveFilterPills applied={appliedDraft} categories={categoriesList} onRemove={removeFilter} onClearAll={() => clearFilters()} />
+          <div className="flex items-center justify-center lg:justify-end gap-3 min-w-0">
+            <div className="hidden lg:block min-w-0">
+              <ActiveFilterPills applied={appliedDraft} categories={categoriesList} onRemove={removeFilter} onClearAll={() => clearFilters()} />
+            </div>
+            {displayedTotalPages > 1 && (
+              <div className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-white p-0.5 shadow-sm">
+                <button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} aria-label="Previous page"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-600 hover:bg-orange-50 hover:text-orange-600 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-gray-600">
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="px-1 text-xs font-semibold text-gray-600 tabular-nums">{page} / {displayedTotalPages}</span>
+                <button type="button" onClick={() => setPage(Math.min(displayedTotalPages, page + 1))} disabled={page >= displayedTotalPages} aria-label="Next page"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-600 hover:bg-orange-50 hover:text-orange-600 disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-gray-600">
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

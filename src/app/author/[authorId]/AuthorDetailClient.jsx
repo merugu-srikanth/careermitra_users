@@ -187,9 +187,7 @@ export default function AuthorProfilePage({ initialData = null }) {
     </div>
   );
 
-  const { author_name, bio, avatar_url, social_links, createdAt, handle: authorHandle, role } = author;
-  const totalViews = assignedBlogs.reduce((sum, b) => sum + (b.views || 0), 0);
-  
+  const { author_name, bio, avatar_url, social_links, handle: authorHandle, role } = author;
   const normalizedSocials = [
     { key: "linkedin", label: "LinkedIn", icon: LinkedInIcon, url: social_links?.linkedin },
     { key: "twitter", label: "Twitter", icon: TwitterIcon, url: social_links?.twitter },
@@ -231,7 +229,7 @@ export default function AuthorProfilePage({ initialData = null }) {
           <div className="relative mx-auto grid w-full overflow-hidden rounded-[24px] border border-[#ece9e2] bg-white/90 shadow-[0_20px_50px_rgba(0,0,0,0.06)] backdrop-blur-sm grid-cols-1 md:grid-cols-[240px_1fr] p-6 md:p-8 gap-6 md:gap-8 items-center max-w-[1300px]">
             {/* Avatar Column */}
             <div className="flex flex-col items-center justify-center">
-              <div className="relative h-32 w-32 md:h-40 md:w-40 rounded-full p-1 bg-gradient-to-tr from-[#f97316] via-[#ea580c] to-[#e11d48] shadow-lg">
+              <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full p-0.75 bg-linear-to-tr from-[#f97316] via-[#ea580c] to-[#e11d48] shadow-[0_16px_40px_rgba(234,88,12,0.25)] ring-8 ring-orange-50">
                 <div className="h-full w-full rounded-full overflow-hidden bg-white flex items-center justify-center relative">
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#fed7aa] to-[#fecdd3] text-4xl md:text-5xl font-extrabold text-[#ea580c]" aria-hidden="true">
                     {author_name?.charAt(0)?.toUpperCase()}
@@ -257,14 +255,9 @@ export default function AuthorProfilePage({ initialData = null }) {
                   <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#f97316] bg-[#fff7ed] px-2.5 py-1 rounded-full border border-orange-100">
                     {role || "Author"}
                   </span>
-                  {createdAt && (
-                    <span className="text-[0.7rem] font-semibold text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
-                      Joined {fmtDate(createdAt)}
-                    </span>
-                  )}
                 </div>
 
-                <h1 className="mb-1 text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111827]">
+                <h1 className="mb-1 text-2xl md:text-4xl font-extrabold tracking-tight text-[#111827]">
                   {author_name}
                 </h1>
                 <p className="mb-4 text-xs font-semibold text-gray-400">
@@ -276,39 +269,43 @@ export default function AuthorProfilePage({ initialData = null }) {
                 </p>
               </div>
 
-              {/* Stats & Social links row */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#efede8] pt-4 mt-auto">
-                <div className="flex gap-6 items-center">
-                  <div className="text-center sm:text-left">
-                    <span className="block text-xl font-bold text-gray-900">{assignedBlogs.length}</span>
-                    <span className="text-xs text-gray-400 font-medium">Articles</span>
-                  </div>
-                  {totalViews > 0 && (
-                    <div className="text-center sm:text-left border-l border-gray-200 pl-6">
-                      <span className="block text-xl font-bold text-gray-900">{totalViews.toLocaleString()}</span>
-                      <span className="text-xs text-gray-400 font-medium">Total Views</span>
-                    </div>
-                  )}
-                </div>
-
-                {normalizedSocials.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    {normalizedSocials.map(({ key, label, icon: Icon, href }) => (
+              {/* Social links */}
+              {normalizedSocials.length > 0 && (
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 border-t border-[#efede8] pt-5 mt-auto">
+                  {normalizedSocials.map(({ key, label, icon: Icon, href }) =>
+                    key === "linkedin" ? (
                       <a
                         key={key}
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:-translate-y-0.5 hover:border-[#ea580c] hover:bg-[#fff7ed] hover:text-[#ea580c] shadow-sm [&_svg]:h-4 [&_svg]:w-4"
+                        className="group inline-flex items-center gap-2.5 rounded-full bg-[#0A66C2] pl-1.5 pr-5 py-1.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(10,102,194,0.28)] transition hover:-translate-y-0.5 hover:bg-[#004182] hover:shadow-[0_10px_24px_rgba(10,102,194,0.35)]"
+                        aria-label={`Connect with ${author_name} on LinkedIn`}
+                      >
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#0A66C2] [&_svg]:h-3.5 [&_svg]:w-3.5">
+                          <Icon />
+                        </span>
+                        Connect on LinkedIn
+                        <span className="transition-transform group-hover:translate-x-1 [&_svg]:h-3.5 [&_svg]:w-3.5">
+                          <ArrowRight />
+                        </span>
+                      </a>
+                    ) : (
+                      <a
+                        key={key}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:-translate-y-0.5 hover:border-[#ea580c] hover:bg-[#fff7ed] hover:text-[#ea580c] shadow-sm [&_svg]:h-4 [&_svg]:w-4"
                         aria-label={label}
                         title={label}
                       >
                         <Icon />
                       </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    )
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -321,8 +318,7 @@ export default function AuthorProfilePage({ initialData = null }) {
             <>
               <div className="ap-section-head">
                 <h2>Articles by {author_name}</h2>
-                <div className="ap-section-line" />
-                <span className="ap-section-badge">{assignedBlogs.length} posts</span>
+                <div className="ap-section-head-line" />
               </div>
 
               <div className="ap-blogs-grid">

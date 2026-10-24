@@ -18,7 +18,7 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
 const SEARCH_FROM = 9; // show a search box once a list has this many options
 const PANEL_MAX = 264; // px
 
-export default function FilterDropdown({ id, value, options, onChange, highlight = false, clearable = false, ariaLabel, multi = false, multiLabel }) {
+export default function FilterDropdown({ id, value, options, onChange, highlight = false, clearable = false, ariaLabel, multi = false, multiLabel, allAlwaysOn = false }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [rect, setRect] = useState(null);
@@ -29,7 +29,7 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
 
   const selected = options.find((o) => o.value === value);
   const selectedValues = multi ? String(value ?? "").split(",").filter(Boolean) : [];
-  const isOn = (v) => (multi ? (v === "" ? selectedValues.length === 0 : selectedValues.includes(v)) : v === value);
+  const isOn = (v) => (multi ? (v === "" ? allAlwaysOn || selectedValues.length === 0 : selectedValues.includes(v)) : v === value);
   const searchable = options.length >= SEARCH_FROM;
   const q = query.trim().toLowerCase();
   const visible = q ? options.filter((o) => o.label.toLowerCase().includes(q)) : options;

@@ -5,7 +5,7 @@ import {
   Filter, RotateCcw, LayoutGrid, MapPin, BriefcaseBusiness, FileText, Building2, Globe,
   CalendarDays, ArrowDownUp, Search, X, ChevronDown, ChevronRight, ArrowLeft, Map as MapIcon, Check,
 } from "lucide-react";
-import { ALL_INDIA, CLOSING_WITHIN_OPTIONS, SORT_OPTIONS, countActiveFilters, splitStates, joinStates, toggleState, statesLabel } from "@/utils/jobFilters";
+import { ALL_INDIA, CLOSING_WITHIN_OPTIONS, SORT_OPTIONS, countActiveFilters, splitStates, joinStates, toggleState, statesLabel, statesFieldLabel } from "@/utils/jobFilters";
 import FilterDropdown from "./FilterDropdown";
 
 /**
@@ -40,7 +40,7 @@ const valuesOf = (list = [], current) => {
 const stateValues = (options, current) => {
   const picked = splitStates(current);
   const values = (options.state ?? []).filter((o) => o.count > 0 || picked.includes(o.value)).map((o) => o.value);
-  return [...new Set([...values, ...picked])].filter((v) => v !== ALL_INDIA).sort((a, b) => a.localeCompare(b));
+  return [...new Set([...values, ...picked])].filter((v) => v !== ALL_INDIA).sort((a, b) => (picked.includes(b) - picked.includes(a)) || a.localeCompare(b));
 };
 
 /** A deadline window reads best soonest-first; going back to "All open" restores latest. */
@@ -51,15 +51,19 @@ export function changeClosingWithin(value, sort, onChange, onSortChange) {
 }
 
 /** "All open | Closing in 7 days | Closing in 30 days" — the results toolbar (desktop) and above the results (mobile). */
-export function ClosingSegment({ value, onChange, fullWidth }) {
+// Short labels for the compact (desktop toolbar) version.
+const CLOSING_SHORT = { "": "All open", "7": "7 days", "30": "30 days" };
+
+export function ClosingSegment({ value, onChange, fullWidth, compact = false }) {
   return (
-    <div className={`h-10 flex items-center gap-1 bg-gray-100 p-1 rounded-xl ${fullWidth ? "w-full" : "w-fit"}`}>
+    <div className={`${compact ? "h-8 p-0.5 gap-0.5" : "h-10 p-1 gap-1"} flex items-center bg-gray-100 rounded-xl ${fullWidth ? "w-full" : "w-fit"}`}>
       {CLOSING_WITHIN_OPTIONS.map((o) => (
         <button key={o.value || "all"} type="button" onClick={() => onChange(o.value)}
-          className={`h-full flex-1 px-2.5 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all ${value === o.value
+          title={compact ? o.label : undefined}
+          className={`h-full flex-1 ${compact ? "px-2 text-[11px]" : "px-2.5 sm:px-3.5 text-[11px] sm:text-xs"} rounded-lg font-bold whitespace-nowrap transition-all ${value === o.value
             ? "bg-white shadow-sm text-orange-600"
             : "text-gray-500 hover:text-orange-500"}`}>
-          {o.label}
+          {compact ? CLOSING_SHORT[o.value] ?? o.label : o.label}
         </button>
       ))}
     </div>
@@ -142,13 +146,13 @@ function StateField({ draft, setField, options, onOpenPicker }) {
         <div className="relative">
           <button type="button" onClick={onOpenPicker}
             className={`${SELECT} text-left ${picked ? "border-orange-300 font-medium" : "text-gray-500"}`}>
-            {statesLabel(draft.state)}
+            {statesFieldLabel(draft.state)}
           </button>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
       ) : (
         <FilterDropdown id="job-filter-state" ariaLabel="State" value={draft.state} onChange={(v) => setField("state", v)}
-          options={toOptions(stateValues(options, draft.state), ALL_INDIA)} highlight clearable multi multiLabel={statesLabel} />
+          options={toOptions(stateValues(options, draft.state), ALL_INDIA)} highlight clearable multi allAlwaysOn multiLabel={statesFieldLabel} />
       )}
     </FieldRow>
   );
@@ -239,6 +243,7 @@ export default function JobFilterSidebar({ applied, options = {}, categories = [
 function activeChips(applied, categories) {
   // One chip per picked state (key "state:<name>" → × removes just that state).
   const stateChips = splitStates(applied.state).map((s) => ({ key: `state:${s}`, text: s, isState: true }));
+  if (stateChips.length) stateChips.push({ key: "allIndia", text: ALL_INDIA, isState: true, fixed: true });
   const chips = Object.keys(CHIP_LABELS)
     .filter((key) => key !== "state" && applied[key])
     .map((key) => ({
@@ -260,13 +265,15 @@ export function ActiveFilterPills({ applied, categories = [], onRemove, onClearA
         <span key={c.key} className={`inline-flex items-center gap-1 rounded-full border pl-2.5 pr-1.5 py-0.5 text-xs font-medium ${c.isState
           ? "bg-orange-50 border-orange-200 text-orange-700" : "bg-white border-gray-200 text-gray-700"}`}>
           {c.text}
-          <button type="button" onClick={() => onRemove(c.key)} aria-label={`Remove ${c.text}`}
-            className="p-0.5 rounded-full text-gray-400 hover:text-orange-600 hover:bg-orange-100">
-            <X size={11} />
-          </button>
+          {c.fixed ? <span className="w-1" /> : (
+            <button type="button" onClick={() => onRemove(c.key)} aria-label={`Remove ${c.text}`}
+              className="p-0.5 rounded-full text-gray-400 hover:text-orange-600 hover:bg-orange-100">
+              <X size={11} />
+            </button>
+          )}
         </span>
       ))}
-      {chips.length > 1 && (
+      {chips.filter((c) => !c.fixed).length > 1 && (
         <button type="button" onClick={onClearAll} className="text-xs font-semibold text-gray-500 hover:text-orange-600 px-1">Clear all</button>
       )}
     </div>
@@ -279,16 +286,18 @@ export function JobFilterMobileBar({ applied, categories = [], onOpen, onRemove 
   return (
     <div className="flex items-center gap-2 bg-white border border-orange-300 rounded-2xl pl-3 pr-1.5 py-1.5 shadow-sm">
       <button type="button" onClick={onOpen} className="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-orange-600 py-1.5">
-        <Filter size={16} /> Filters ({chips.length})
+        <Filter size={16} /> Filters ({chips.filter((c) => !c.fixed).length})
       </button>
       <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
         {chips.map((c) => (
           <span key={c.key} className={`shrink-0 inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-semibold ${c.isState
             ? "bg-orange-500 border-orange-500 text-white" : "bg-white border-gray-200 text-gray-700"}`}>
             {c.text}
-            <button type="button" onClick={() => onRemove(c.key)} aria-label={`Remove ${c.text}`} className="opacity-80 hover:opacity-100">
-              <X size={13} />
-            </button>
+            {!c.fixed && (
+              <button type="button" onClick={() => onRemove(c.key)} aria-label={`Remove ${c.text}`} className="opacity-80 hover:opacity-100">
+                <X size={13} />
+              </button>
+            )}
           </span>
         ))}
       </div>
@@ -354,7 +363,7 @@ export function JobFilterSheet({ view, onView, applied, options = {}, categories
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-2">
               {[...(!query.trim() || ALL_INDIA.toLowerCase().includes(query.trim().toLowerCase()) ? [""] : []), ...states].map((v) => {
-                const active = v ? splitStates(draft.state).includes(v) : !draft.state;
+                const active = v ? splitStates(draft.state).includes(v) : true; // All India jobs are always shown
                 return (
                   <button key={v || "all"} type="button" onClick={() => setField("state", v ? toggleState(draft.state, v) : "")}
                     role="checkbox" aria-checked={active}

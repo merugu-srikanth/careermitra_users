@@ -49,16 +49,16 @@ export default function JobTabs({ jobType = "jobs", filters, categoryId = "", on
   const current = activeTab(filters);
 
   return (
-    <div className="flex max-w-full overflow-x-auto no-scrollbar sm:inline-flex gap-1 bg-white border border-gray-200/80 rounded-xl p-1 shadow-sm" role="tablist" aria-label="Job type">
+    <div className="flex max-w-full overflow-x-auto no-scrollbar sm:inline-flex gap-0.5 bg-white border border-gray-200/80 rounded-xl p-0.5 shadow-sm" role="tablist" aria-label="Job type">
       {JOB_TABS.map(({ id, label, patch }) => {
         const active = current === id;
         return (
           <button key={id} type="button" role="tab" aria-selected={active} onClick={() => onPatch(patch)}
-            className={`shrink-0 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 rounded-lg px-2.5 py-1.5 sm:h-9 sm:py-0 sm:px-4 transition-colors ${active
+            className={`shrink-0 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 rounded-lg px-2.5 py-1.5 sm:h-8 sm:py-0 sm:px-2.5 transition-colors ${active
               ? "bg-orange-500 text-white"
               : "text-gray-600 hover:bg-orange-50 hover:text-orange-700"}`}>
-            <span className="text-xs sm:text-[13px] font-semibold leading-tight whitespace-nowrap">{label}</span>
-            <span className={`text-[11px] font-semibold leading-none rounded-full px-1.5 py-0.5 ${active ? "bg-white/25 text-white" : "bg-gray-100 text-gray-500"}`}>
+            <span className="text-xs font-semibold leading-tight whitespace-nowrap">{label}</span>
+            <span className={`text-[10px] font-semibold leading-none rounded-full px-1.5 py-0.5 ${active ? "bg-white/25 text-white" : "bg-gray-100 text-gray-500"}`}>
               {counts[id] ?? "–"}
             </span>
           </button>

@@ -55,6 +55,13 @@ export function statesLabel(value, max = 2) {
   return list.length <= max ? list.join(", ") : `${list.slice(0, max).join(", ")} +${list.length - max}`;
 }
 
+/** Label for the State field: picked states always come with All India jobs. */
+export function statesFieldLabel(value) {
+  const list = splitStates(value);
+  if (!list.length) return ALL_INDIA;
+  return `${list.length === 1 ? list[0] : `${list.length} states`} + ${ALL_INDIA}`;
+}
+
 export const isDefaultJobFilters = (filters) => JSON.stringify(filtersToApiParams(filters)) === JSON.stringify(filtersToApiParams(DEFAULT_JOB_FILTERS))
   && filters.includeAllIndia === DEFAULT_JOB_FILTERS.includeAllIndia;
 
