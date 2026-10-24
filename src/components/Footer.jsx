@@ -1,6 +1,6 @@
 "use client";
 
-import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
+import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaMapMarkerAlt, FaDirections } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -14,6 +14,10 @@ const toSlug = (name = "", apiSlug = "") =>
 const WHATSAPP_NUMBER = "917794045533";
 const WHATSAPP_MESSAGE = encodeURIComponent("Hi Career Mitra team, I need help with a job opportunity.");
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+
+// Same office location as the contact page (contact-us/ContactSectionClient.jsx).
+const OFFICE_MAP_LINK = "https://maps.app.goo.gl/VPuEeCzYzvKbVNt98";
+const OFFICE_DIRECTIONS_LINK = "https://www.google.com/maps/dir/?api=1&destination=17.4344216,78.4449091&travelmode=driving";
 
 function buildCategoryUrl(child, parents) {
   const parent = parents.find(p => p.id === child.parent_id);
@@ -178,19 +182,32 @@ export default function Footer({ initialCategories = null }) {
             </div>
 
             {/* Office address */}
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Vasavi+MPM+Mall+Ameerpet+Hyderabad+500016"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-5 flex items-start gap-3 max-w-sm mx-auto sm:mx-0 text-left"
-            >
+            <div className="mt-5 flex items-start gap-3 max-w-sm mx-auto sm:mx-0 text-left">
               <FaMapMarkerAlt size={18} className="mt-0.5 shrink-0 text-orange-400" />
-              <address className="not-italic text-sm leading-relaxed text-slate-300 group-hover:text-white transition-colors">
-                <span className="block font-semibold text-white">Sootradhara Venture Pvt Ltd</span>
-                <span className="block">7th Floor, 806, Vasavi MPM Mall,</span>
-                <span className="block">Ameerpet, Hyderabad, Telangana – 500016, India</span>
-              </address>
-            </a>
+              <div>
+                <a
+                  href={OFFICE_MAP_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <address className="not-italic text-sm leading-relaxed text-slate-300 group-hover:text-white transition-colors">
+                    <span className="block font-semibold text-white">Career Mitra</span>
+                    <span className="block">7th Floor, 806, Vasavi MPM Mall,</span>
+                    <span className="block">Ameerpet, Hyderabad, Telangana – 500016, India</span>
+                  </address>
+                </a>
+                <a
+                  href={OFFICE_DIRECTIONS_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-orange-400/40 bg-orange-500/10 px-3 py-1.5 text-xs font-bold text-orange-300 transition hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-500/20 hover:text-orange-200"
+                >
+                  <FaDirections size={13} />
+                  Get Directions
+                </a>
+              </div>
+            </div>
           </section>
 
           <section className="md:col-span-4 md:pt-2">

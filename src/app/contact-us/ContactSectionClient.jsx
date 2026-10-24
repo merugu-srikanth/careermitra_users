@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaEnvelope, FaPhone, FaMapMarkerAlt, FaLinkedin,
-  FaWhatsapp, FaArrowRight, FaCheckCircle
+  FaWhatsapp, FaArrowRight, FaCheckCircle, FaDirections
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
@@ -24,12 +24,23 @@ const floatingIcons = [
   { icon: "⭐", top: "60%", left: "44%", delay: 3.5, size: "text-xl" },
 ];
 
+// ─── OFFICE LOCATION ──────────────────────────────────────────────────────────
+const OFFICE = {
+  lat: 17.4344216,
+  lng: 78.4449091,
+  mapLink: "https://maps.app.goo.gl/VPuEeCzYzvKbVNt98",
+};
+// Opens turn-by-turn navigation straight to the office (Google Maps app on phones)
+const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${OFFICE.lat},${OFFICE.lng}&travelmode=driving`;
+const MAP_EMBED_URL = `https://maps.google.com/maps?q=${OFFICE.lat},${OFFICE.lng}&z=17&output=embed`;
+
 // ─── CONTACT INFO ─────────────────────────────────────────────────────────────
 const contactInfo = [
   {
     icon: <FaEnvelope size={18} />,
     label: "Email Us",
     value: "info@careermitra.in",
+    link: "mailto:info@careermitra.in",
     iconBg: "bg-orange-50 border border-orange-200",
     iconColor: "text-orange-500",
     hoverBorder: "hover:border-orange-300",
@@ -39,6 +50,7 @@ const contactInfo = [
     icon: <FaPhone size={16} />,
     label: "Call Us",
     value: "+91 7794045533",
+    link: "tel:+917794045533",
     iconBg: "bg-green-50 border border-green-200",
     iconColor: "text-green-600",
     hoverBorder: "hover:border-green-300",
@@ -49,7 +61,6 @@ const contactInfo = [
     label: "Visit Us",
     value: "Sootradhara Venture Pvt Ltd",
     lines: ["7th Floor, 806, Vasavi MPM Mall,", "Ameerpet, Hyderabad, Telangana – 500016, India"],
-    href: "https://www.google.com/maps/search/?api=1&query=Vasavi+MPM+Mall+Ameerpet+Hyderabad+500016",
     iconBg: "bg-blue-50 border border-blue-200",
     iconColor: "text-blue-500",
     hoverBorder: "hover:border-blue-300",
@@ -130,17 +141,59 @@ function ContactCard({ item, onClick }) {
       </div>
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">{item.label}</p>
-        <p className="text-sm font-semibold text-gray-800">{item.value}</p>
+        {item.link ? (
+          <a href={item.link} className="text-sm font-semibold text-gray-800 hover:text-orange-600 transition-colors">
+            {item.value}
+          </a>
+        ) : (
+          <p className="text-sm font-semibold text-gray-800">{item.value}</p>
+        )}
         {item.lines && (
           <address className="not-italic mt-0.5 text-sm leading-relaxed text-gray-600">
             {item.lines.map((line) => <span key={line} className="block">{line}</span>)}
           </address>
         )}
-        {item.href && (
-          <a href={item.href} target="_blank" rel="noopener noreferrer" className="inline-block mt-1.5 text-xs font-semibold text-blue-600 hover:underline">
-            View on Google Maps →
-          </a>
-        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── MAP CARD ─────────────────────────────────────────────────────────────────
+function MapCard() {
+  return (
+    <motion.div
+      variants={fadeUp}
+      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+    >
+      <div className="relative h-56 w-full bg-gray-100">
+        <iframe
+          title="Career Mitra office location"
+          src={MAP_EMBED_URL}
+          className="absolute inset-0 h-full w-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2 p-3">
+        <a
+          href={DIRECTIONS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-100 transition hover:bg-blue-700 hover:-translate-y-0.5"
+        >
+          <FaDirections size={16} />
+          Get Directions
+        </a>
+        <a
+          href={OFFICE.mapLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-blue-300 hover:text-blue-600"
+        >
+          <FaMapMarkerAlt size={14} />
+          Open in Google Maps
+        </a>
       </div>
     </motion.div>
   );
@@ -308,23 +361,11 @@ export default function ContactSection() {
               {contactInfo.map((item, i) => (
                 <ContactCard key={i} item={item}  />
               ))}
+              <MapCard />
             </motion.div>
 
             {/* divider */}
             <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent my-6" />
-
-            {/* promise box */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-4 rounded-2xl bg-linear-to-br from-orange-50 to-green-50 border border-orange-100 flex items-start gap-3 mb-6"
-            >
-              <span className="text-2xl">⚡</span>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                We respond within{" "}
-                <span className="font-bold text-orange-600">48 hours</span>.
-                Personalized guidance from experienced government officials - not bots.
-              </p>
-            </motion.div>
 
             {/* socials */}
             <div className="flex gap-3">
@@ -489,6 +530,16 @@ export default function ContactSection() {
                       <FaArrowRight size={14} />
                     </motion.span>
                   </motion.button>
+
+                  {/* promise box */}
+                  <div className="mt-5 p-4 rounded-2xl bg-linear-to-br from-orange-50 to-green-50 border border-orange-100 flex items-start gap-3">
+                    <span className="text-2xl">⚡</span>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      We respond within{" "}
+                      <span className="font-bold text-orange-600">48 hours</span>.
+                      Personalized guidance from experienced government officials - not bots.
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
