@@ -57,7 +57,7 @@ const CLOSING_SHORT = { "": "All open", "7": "7 days", "30": "30 days" };
 export function ClosingSegment({ value, onChange, fullWidth, compact = false }) {
   return (
     <div className={`${compact ? "h-8 p-0.5 gap-0.5" : "h-10 p-1 gap-1"} flex items-center bg-gray-100 rounded-xl ${fullWidth ? "w-full" : "w-fit"}`}>
-      {CLOSING_WITHIN_OPTIONS.map((o) => (
+        {CLOSING_WITHIN_OPTIONS.map((o) => (
         <button key={o.value || "all"} type="button" onClick={() => onChange(o.value)}
           title={compact ? o.label : undefined}
           className={`h-full flex-1 ${compact ? "px-2 text-[11px]" : "px-2.5 sm:px-3.5 text-[11px] sm:text-xs"} rounded-lg font-bold whitespace-nowrap transition-all ${value === o.value

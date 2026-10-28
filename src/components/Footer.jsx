@@ -84,8 +84,14 @@ export default function Footer({ initialCategories = null }) {
       {(cats.parents.length > 0 || cats.children.length > 0) && (
         <div className="border-b border-slate-800/70">
           <div className="mx-auto w-full px-4 md:px-15 py-8">
-            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1">Popular Categories</h3>
-            <div className="h-0.5 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400 mb-6" />
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400 mb-1.5">Popular Categories</p>
+            <h3 className="text-lg sm:text-xl font-black text-white leading-snug mb-2">
+              Explore Government Jobs by Sector, State, and Organization
+            </h3>
+            <div className="h-0.5 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400 mb-4" />
+            <p className="max-w-7xl text-sm leading-relaxed text-slate-400 mb-6">
+              Browse government jobs by sector, state, or organization to narrow your search. Sector-wise categories include banking, railways, SSC, UPSC, defense, teaching, and PSUs. You can also check state-wise recruitment for Telangana, Bihar, West Bengal, Rajasthan, and more, or find notifications from organizations such as ICAI, AIIMS, and EPFO. Each category gathers the latest job notifications and career guides, with details on eligibility, selection stages, and application deadlines.
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2.5">
               {cats.parents.map(parent => (
                 <Link
@@ -148,10 +154,30 @@ export default function Footer({ initialCategories = null }) {
           <section className="md:col-span-4">
             <img src={logo.src || logo} alt="Careermitra Logo" className="block mx-auto sm:mx-0 h-16 w-auto sm:h-20" />
             <p className="mt-3 max-w-sm mx-auto sm:mx-0 text-center sm:text-left text-sm leading-relaxed text-slate-300">
-              Your one stop gateway for government jobs and career guidance across India.
+              CareerMitra offers services that assist students, graduates, and job seekers in finding out more about government jobs, PG entrance exam updates, internships, and skills development. To students and qualified alumni who have startup ideas, it offers web development and digital marketing assistance to make their ideas turn into real businesses. Whether you are getting ready for your next job or starting something of your own, CareerMitra gives you the information and support to take the next step.
             </p>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 max-w-sm mx-auto sm:mx-0">
+          </section>
+
+          <section className="md:col-span-4 md:pt-2">
+            <h3 className="text-base font-bold text-white">Quick Links</h3>
+            <div className="mt-2 h-0.5 w-14 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+              {quickLinks.map((item) => (
+                <li key={item.to}>
+                  <Link href={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
+                    <span className="text-orange-400 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="md:col-span-4 md:pt-2">
+            <h3 className="text-base font-bold text-white">Get in Touch</h3>
+            <div className="mt-2 h-0.5 w-14 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
+            <div className="mt-4 grid grid-cols-2 gap-3 max-w-sm mx-auto sm:mx-0">
               <a
                 href="https://www.youtube.com/@Career_Mitra_Official"
                 target="_blank"
@@ -207,89 +233,6 @@ export default function Footer({ initialCategories = null }) {
                   Get Directions
                 </a>
               </div>
-            </div>
-          </section>
-
-          <section className="md:col-span-4 md:pt-2">
-            <h3 className="text-base font-bold text-white">Quick Links</h3>
-            <div className="mt-2 h-0.5 w-14 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
-            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              {quickLinks.map((item) => (
-                <li key={item.to}>
-                  <Link href={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
-                    <span className="text-orange-400 transition-transform duration-200 group-hover:translate-x-1">→</span>
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="relative overflow-hidden rounded-2xl border border-green-500/20 md:col-span-4" style={{ background: "linear-gradient(145deg,#0f1e14 0%,#0d1f1a 50%,#0a1a12 100%)" }}>
-            {/* glow blobs */}
-            <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-green-500/20 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-orange-500/15 blur-2xl" />
-            {/* dot grid */}
-            <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
-              style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
-
-            <div className="relative p-5 sm:p-6">
-              {/* Icon badge */}
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
-                </span>
-                <span className="text-xs font-bold uppercase tracking-widest text-green-400">Live Alerts</span>
-              </div>
-
-              <h3 className="text-xl font-black leading-tight text-white">
-                Never Miss {" "}
-                <span className="bg-linear-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
-                  a Job Alert
-                </span>
-              </h3>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">
-                Smart job recommendations based on your education and profile details.
-              </p>
-
-               {/* <div className="mt-4 flex flex-wrap gap-2">
-              {trustPoints.map((point) => (
-                <span key={point} className="rounded-full border border-orange-300/40 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-200">
-                  {point}
-                </span>
-              ))}
-            </div> */}
-              {/* divider */}
-              <div className="my-4 h-px w-full bg-linear-to-r from-green-500/30 via-slate-700 to-transparent" />
-
-              {/* CTA button */}
-              <Link
-                href={token ? "/user-dashboard" : "/register"}
-                className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-4 py-3 text-sm font-black text-white shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-green-500/30"
-                style={{ background: "linear-gradient(135deg,#22c55e,#16a34a)" }}
-              >
-                <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
-                <FaUserPlus size={14} />
-                {token ? "Go to Dashboard" : "Subscribe for Job Alerts"}
-                <HiOutlineArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
-              </Link>
-
-              {/* account links */}
-              {!token && (
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {accountLinks.map(({ label, to, Icon }) => (
-                    <Link
-                      key={to}
-                      href={to}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/60 px-2 py-2.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:border-orange-400/50 hover:text-orange-300 text-center"
-                    >
-                      <Icon size={12} />
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-              )}
             </div>
           </section>
         </div>

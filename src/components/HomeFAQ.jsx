@@ -7,43 +7,55 @@ import { FaChevronDown } from "react-icons/fa";
 const FAQS = [
   {
     q: "What is Careermitra, and how does it help government job aspirants?",
-    a: "Careermitra is a platform built for people looking for government jobs in India. It collects job notifications, career guidance, exam information, and internship resources all in one place. You create a profile, and the platform uses your details to show you jobs that actually fit your background.",
+    a: "Careermitra brings government job notifications, career guidance, exam information, and internship resources together in one place. Create a free profile to start finding listings that suit you.",
   },
   {
     q: "How does Careermitra send personalized job notifications?",
-    a: "When you fill in your education and profile details, Careermitra matches those details against available government job listings. Instead of going through hundreds of notifications yourself, you get to see only the ones relevant to you.",
+    a: "Once you add your education and other profile details, Careermitra uses them to show government job listings relevant to your background. This helps you focus on suitable listings instead of browsing every notification.",
   },
   {
-    q: "How do I find the latest government jobs that suit my profile?",
-    a: "Browse the job listings on Careermitra and let your profile do the filtering. Each listing shows you the post details, who can apply and how to apply, so you know what you're getting into before you take the next step.",
+    q: "How do I find government jobs that match my profile?",
+    a: "Browse the job listings or create a profile with your education details to narrow your search. Each listing includes the post, eligibility criteria, and application instructions, helping you check whether you meet the requirements.",
   },
   {
-    q: "Does Careermitra update job notifications every day?",
-    a: "Yes. New government recruitment notifications are added regularly, and job alerts go out to keep you in the loop. Creating a free account means you get updates that are matched to your profile rather than generic ones.",
+    q: "How often does Careermitra update job notifications?",
+    a: "Careermitra adds government recruitment notifications as they become available. A free account lets you receive job alerts based on your profile. Check the listing and official notification for the latest details and application deadlines.",
   },
   {
     q: "What kinds of government jobs are listed on Careermitra?",
-    a: "You'll find opportunities from central government departments, state governments, banks, and defence organisations. The listings cover a wide range of posts, departments, and eligibility requirements, so there's something for people at different stages of their careers.",
+    a: "Careermitra lists government jobs from central departments, state governments, banks, railways, and defense organizations. Educational requirements and eligibility criteria vary by post, so review each listing before applying.",
   },
   {
-    q: "Can I find both Central and State Government job notifications here?",
-    a: "Yes. Careermitra has separate sections for central and state government jobs. Whether you're looking for opportunities in your own state or across India, you can find relevant notifications in one place.",
+    q: "Can I find both central and state government job notifications?",
+    a: "Yes. Careermitra covers both central and state government recruitment. Browse central government jobs or explore state-specific notifications based on where you want to work.",
   },
   {
-    q: "Are there jobs for 10th pass, 12th pass, ITI, Diploma and graduate candidates?",
-    a: "Careermitra lists jobs across different educational requirements. That said, every post has its own eligibility criteria, so always read the individual notification carefully before you apply to make sure you qualify.",
+    q: "Are there government jobs for 10th pass, 12th pass, ITI, diploma, and graduate candidates?",
+    a: "Yes. Careermitra lists jobs for 10th pass, 12th pass, ITI, diploma, and graduate candidates. Eligibility varies by post, so check the official notification before applying.",
   },
   {
-    q: "Does Careermitra help with exam preparation and understanding eligibility?",
-    a: "Careermitra has career guidance content that explains eligibility requirements, what different recruitment processes look like, and how government career paths generally work. It's useful if you're just starting and trying to figure out where to begin.",
+    q: "Does Careermitra help with exam preparation and eligibility?",
+    a: "Careermitra’s career guides explain eligibility criteria, recruitment stages, and different government career paths. Use them to understand what a post requires and what you need to prepare before applying.",
   },
   {
-    q: "Are internship & Skill Up's opportunities also available on Careermitra?",
-    a: "Yes. Along with job notifications, Careermitra covers internship & Skill Up's options too. The internship section gives students and fresh graduates information on different types of internships, government schemes, and how to go about applying for them.",
+    q: "Are internships and SkillUps available on Careermitra?",
+    a: "Yes. Careermitra also lists internships and skill development programs. Students and fresh graduates can explore the available options, check the requirements, and find application details.",
   },
   {
     q: "How do I create a profile on Careermitra?",
-    a: "Sign up for a free account and enter your education and career details. Once your profile is set up, the platform starts matching you with suitable job notifications and sends you alerts when something relevant comes up.",
+    a: "Sign up for a free account and add your education and career details. Careermitra uses your profile to show relevant job listings and alerts. Keep your details up to date as your qualifications change.",
+  },
+  {
+    q: "What are the benefits of using CareerMitra with and without logging in?",
+    a: "You can use CareerMitra without logging in. Government job notifications, recruitment updates, and career guidance are open to everyone. If you register and log in, CareerMitra gives you a personal dashboard and sends job alerts that match your profile.",
+  },
+  {
+    q: "Why is it important to complete my CareerMitra profile?",
+    a: "A complete profile shows you opportunities that fit your education, qualifications, and career interests. You get government job notifications that matches your qualifications. You can also see updates on PG entrance exams, along with internships and SkillUps that suit your background. Eligible students and recent alumni can find support for building their digital presence and developing startup ideas. Accurate details help CareerMitra pick the right opportunities for you. If your profile is incomplete, you may miss career recommendations made for you.",
+  },
+  {
+    q: "How can I receive personalized job notifications on CareerMitra?",
+    a: "Create a free CareerMitra account and fill in your education and other profile details. After that, log in to your dashboard to see jobs that match your qualifications. Keep your profile up to date so the suggestions stay useful.",
   },
 ];
 
@@ -94,8 +106,9 @@ function FAQItem({ faq, index, activeIndex, setActiveIndex }) {
 export default function HomeFAQ() {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const leftFaqs = FAQS.slice(0, 5);
-  const rightFaqs = FAQS.slice(5, 10);
+  const half = Math.ceil(FAQS.length / 2);
+  const leftFaqs = FAQS.slice(0, half);
+  const rightFaqs = FAQS.slice(half);
 
   return (
     <section style={{ padding: "56px 0 10px", }}>
@@ -128,13 +141,13 @@ export default function HomeFAQ() {
             </motion.div>
 
             <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 bg-clip-text text-transparent drop-shadow-sm"
+              className="text-3xl md:text-4xl lg:text-[2.1rem] xl:whitespace-nowrap font-black leading-tight tracking-tight mb-4 bg-clip-text text-transparent drop-shadow-sm"
               style={{
                 backgroundImage:
                   "linear-gradient(90deg, #111827 0%, #111827 34%, #ea580c 40%, #ea580c 58%, #65a30d 64%, #65a30d 100%)",
               }}
             >
-              Frequently Asked Questions
+              Government Job FAQs: What You Need to Know
             </h2>
 
             <motion.div
@@ -152,23 +165,23 @@ export default function HomeFAQ() {
               }}
             />
 
-            <p style={{ color: "#6b7280", maxWidth: 620, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
-              Everything you need to know about finding your next government job on Careermitra.
+            <p style={{ color: "#6b7280", maxWidth: 900, margin: "0 auto", fontSize: 17, fontWeight: 500, lineHeight: 1.7 }}>
+              Find answers about job notifications, eligibility, profile-based alerts, and using Careermitra.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4">
-          {/* Left column — questions 1-5 */}
+          {/* Left column — first half of the questions */}
           <div className="flex flex-col gap-4">
             {leftFaqs.map((faq, i) => (
               <FAQItem key={i} faq={faq} index={i} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
             ))}
           </div>
-          {/* Right column — questions 6-10 */}
+          {/* Right column — second half */}
           <div className="flex flex-col gap-4">
             {rightFaqs.map((faq, i) => {
-              const index = i + 5;
+              const index = i + half;
               return (
                 <FAQItem key={index} faq={faq} index={index} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
               );

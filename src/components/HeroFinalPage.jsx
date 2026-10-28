@@ -28,6 +28,7 @@ import {
 import { GrAnnounce } from "react-icons/gr";
 import HeroVideoModal from "./HeroVideoModal";
 import HeroPrimaryVideo from "./HeroPrimaryVideo";
+import heroStudent from "../assets/hero-student2.jpeg";
 
 
 const ANNOUNCEMENT_API_BASE =
@@ -54,8 +55,8 @@ const CARDS = [
         cornerGlow: "radial-gradient(circle at top right, rgba(168, 85, 247, 0.16) 0%, rgba(168, 85, 247, 0.04) 50%, transparent 70%)",
         btnGrad: "linear-gradient(135deg, #7c3aed, #9333ea)",
         description:
-            "Register and stay updated with profile-based job alerts on email and your dashboard.",
-        button: "Free Registration",
+            "Register once and get job alerts matched to your profile by email and through your dashboard.",
+        button: "Register Free",
         link: "/register",
     },
     {
@@ -67,7 +68,7 @@ const CARDS = [
         cornerGlow: "radial-gradient(circle at top right, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0.04) 50%, transparent 70%)",
         btnGrad: "linear-gradient(135deg, #2563eb, #1d4ed8)",
         description:
-            "Explore the Latest Jobs & Apply Instantly.",
+            "Browse open vacancies with eligibility details and official application links.",
         button: "View Jobs",
         link: "/latest-job-notifications",
     },
@@ -80,7 +81,7 @@ const CARDS = [
         cornerGlow: "radial-gradient(circle at top right, rgba(249, 115, 22, 0.16) 0%, rgba(249, 115, 22, 0.04) 50%, transparent 70%)",
         btnGrad: "linear-gradient(135deg, #ea580c, #f97316)",
         description:
-            "Explore Internships / SkillUps to accelerate your career.",
+            "Find internships and skill programs that strengthen your profile.",
         button: "Explore Now",
         link: "/internships",
     },
@@ -93,7 +94,7 @@ const CARDS = [
         cornerGlow: "radial-gradient(circle at top right, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0.04) 50%, transparent 70%)",
         btnGrad: "linear-gradient(135deg, #059669, #10b981)",
         description:
-            "Pan-India, State & Institute PG entrance exam notifications and direct apply links.",
+            "Track All India, State, and Institute PG entrance exams with direct apply links.",
         button: "Explore Now",
         link: "/pg-entrance",
     },
@@ -107,12 +108,17 @@ const CARDS = [
         btnGrad: "linear-gradient(135deg, #0284c7, #2563eb)",
         description:
             "Websites, CRM and digital marketing to launch your business online with confidence.",
-        button: "Grow Online",
+        button: "Explore Now",
         link: "/digital-presence",
+        horizontal: true, // wide card at the bottom: text left, button right
     },
 ];
 
-// Announcements panel next to the cards — hidden for now (set to true to bring it back).
+
+// Internal links inside paragraph text
+const INLINE_LINK = "font-semibold text-orange-600 underline decoration-orange-300 underline-offset-2 hover:text-orange-700 hover:decoration-orange-500";
+
+// "New Government Job Announcements" block — hidden (set to true to bring it back).
 const SHOW_ANNOUNCEMENTS = false;
 
 /* ─────────────────────────────────────────
@@ -494,198 +500,182 @@ function VerticalAnnouncements({ list, loading }) {
 }
 
 /* ─────────────────────────────────────────
-   FEATURE CARD  (responsive)
+   FEATURE CARD — icon, title, description, button.
+   card.horizontal → wide card (icon + text in one row, no button).
 ───────────────────────────────────────── */
 function FeatureCard({ card, className = "" }) {
     const router = useRouter();
-    const navigate = (to, isExt) => {
-        if (isExt) {
-            window.open(to, "_blank");
-        } else {
-            router.push(to);
-        }
+    const handleClick = () => {
+        if (card.isExternal) window.open(card.link, "_blank");
+        else router.push(card.link);
     };
+    const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(); } };
     const Icon = card.icon;
     const accent = card.iconColor;
 
+    const iconBox = (size) => (
+        <div
+            className={`${size} rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}
+            style={{ background: card.iconBg, boxShadow: `0 6px 14px -6px ${accent}66, inset 0 0 0 1px ${accent}1f` }}
+        >
+            <Icon style={{ color: accent, fontSize: 17 }} />
+        </div>
+    );
+
+    if (card.horizontal) {
+        return (
+            <div
+                onClick={handleClick}
+                onKeyDown={onKey}
+                role="link"
+                tabIndex={0}
+                className={`${className} relative flex items-center gap-4 overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1 px-4 py-4 sm:px-5 rounded-2xl`}
+                style={{
+                    background: `linear-gradient(110deg, #ffffff 55%, ${card.iconBg}cc 100%)`,
+                    border: `1px solid ${accent}26`,
+                    boxShadow: `0 10px 28px -20px ${accent}80`,
+                }}
+            >
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-0.75" style={{ background: card.btnGrad }} />
+                {/* Left ~80%: icon + text */}
+                <div className="flex min-w-0 flex-1 sm:basis-[80%] items-center gap-3 sm:gap-4">
+                    {iconBox("w-10 h-10 sm:w-11 sm:h-11")}
+                    <div className="min-w-0 flex-1 text-left">
+                        <h3 className="text-[13px] sm:text-[15px] font-extrabold text-slate-900 leading-tight">{card.title}</h3>
+                        <p className="mt-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed">{card.description}</p>
+                    </div>
+                </div>
+
+                {/* Right ~20%: button, vertically centred */}
+                <div className="flex shrink-0 sm:basis-[20%] items-center justify-center self-stretch">
+                    <span
+                        className="hero-card-btn relative flex w-full items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap px-3 py-2 sm:py-2.5 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.02]"
+                        style={{
+                            background: card.btnGrad,
+                            "--btn-glow": `${accent}99`,
+                            "--shine-delay": `${(card.id - 1) * 0.6}s`,
+                        }}
+                        suppressHydrationWarning={true}
+                    >
+                        <span className="hero-card-btn-shine pointer-events-none absolute inset-y-0 -left-1/2 w-1/3" aria-hidden="true" />
+                        <span className="relative">{card.button}</span>
+                        <FaArrowRight size={10} className="hero-card-btn-arrow relative shrink-0 transition-transform group-hover:translate-x-1" />
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
-            onClick={() => navigate(card.link, card.isExternal)}
-            className={`${className} hero-feature-card relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 p-4 sm:p-5 rounded-3xl`}
+            onClick={handleClick}
+            onKeyDown={onKey}
+            role="link"
+            tabIndex={0}
+            className={`${className} relative flex flex-col justify-between overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1 p-3.5 sm:p-4 rounded-2xl`}
             style={{
-                "--accent": accent,
-                background: `linear-gradient(160deg, #ffffff 55%, ${card.iconBg}99 100%)`,
+                background: `linear-gradient(160deg, #ffffff 55%, ${card.iconBg}aa 100%)`,
                 border: `1px solid ${accent}22`,
+                boxShadow: `0 10px 28px -20px ${accent}80`,
             }}
         >
             {/* Coloured top edge */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-1 opacity-90" style={{ background: card.btnGrad }} />
-
-            {/* Dotted texture, fading out from the top-right corner */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.75" style={{ background: card.btnGrad }} />
+            {/* Dotted texture in the top-right corner */}
             <div
-                className="pointer-events-none absolute inset-0 opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+                className="pointer-events-none absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity duration-300"
                 style={{
-                    backgroundImage: `radial-gradient(${accent}33 1.1px, transparent 1.3px)`,
-                    backgroundSize: "12px 12px",
-                    WebkitMaskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 62%)",
-                    maskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 62%)",
+                    backgroundImage: `radial-gradient(${accent}2e 1px, transparent 1.2px)`,
+                    backgroundSize: "11px 11px",
+                    WebkitMaskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 55%)",
+                    maskImage: "radial-gradient(circle at 100% 0%, #000 0%, transparent 55%)",
                 }}
             />
-
-            {/* Top-right soft corner glow + rings */}
-            <div
-                className="pointer-events-none absolute -top-2 -right-2 w-32 sm:w-36 h-32 sm:h-36 rounded-bl-full transition-all duration-300 opacity-80 group-hover:opacity-100 group-hover:scale-105"
-                style={{ background: card.cornerGlow }}
-            />
             <div className="pointer-events-none absolute -top-10 -right-10 w-28 h-28 rounded-full transition-transform duration-500 group-hover:scale-110"
-                style={{ border: `1.5px solid ${accent}1f` }} />
-            <div className="pointer-events-none absolute -top-16 -right-16 w-44 h-44 rounded-full transition-transform duration-500 group-hover:scale-110"
-                style={{ border: `1.5px dashed ${accent}1a` }} />
+                style={{ border: `1.5px solid ${accent}1a` }} />
 
-            {/* Bottom-left soft blob */}
-            <div className="pointer-events-none absolute -bottom-12 -left-10 w-32 h-32 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-300"
-                style={{ background: card.iconBg }} />
-
-            {/* Top icon and content */}
             <div className="relative z-10 text-left">
-                {/* Icon box (rounded squircle) */}
-                <div
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-2.5 sm:mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-                    style={{ background: card.iconBg, boxShadow: `0 6px 16px -6px ${accent}66, inset 0 0 0 1px ${accent}1f` }}
-                >
-                    <Icon style={{ color: card.iconColor, fontSize: 20 }} />
-                </div>
-
-                {/* Title & Description (left aligned) */}
-                <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug sm:mb-1.5">
+                {/* {iconBox("w-9 h-9 sm:w-10 sm:h-10 mb-2.5 sm:mb-3")} */}
+                <h3 className="text-[13px] sm:text-[15px] font-extrabold text-slate-900 leading-tight">
                     {card.title}
                 </h3>
-                {/* Phones: title + button only. */}
-                <p className="hidden sm:block text-[11px] sm:text-xs text-slate-500 leading-relaxed font-normal">
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed line-clamp-3">
                     {card.description}
                 </p>
             </div>
 
-            {/* CTA Button */}
-            <div className="relative z-10 mt-3 sm:mt-5 sm:pt-1">
-                <button
-                    type="button"
-                    className="w-full flex items-center justify-center gap-1.5 py-2.5 sm:py-3 text-white text-xs sm:text-sm font-bold rounded-2xl transition-all hover:opacity-95 active:scale-98"
-                    style={{ background: card.btnGrad, boxShadow: `0 8px 18px -8px ${accent}99, inset 0 1px 0 rgba(255,255,255,0.25)` }}
+            <div className="relative z-10 mt-3 sm:mt-4">
+                <span
+                    className="hero-card-btn relative w-full flex items-center justify-center gap-1.5 overflow-hidden py-2 sm:py-2.5 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.02]"
+                    style={{
+                        background: card.btnGrad,
+                        "--btn-glow": `${accent}99`,
+                        "--shine-delay": `${(card.id - 1) * 0.6}s`,
+                    }}
                     suppressHydrationWarning={true}
                 >
-                    <span className="truncate">{card.button}</span>
-                    <FaArrowRight size={11} className="transition-transform group-hover:translate-x-1 shrink-0" />
-                </button>
+                    {/* Light shine that sweeps across every few seconds */}
+                    <span className="hero-card-btn-shine pointer-events-none absolute inset-y-0 -left-1/2 w-1/3" aria-hidden="true" />
+                    <span className="relative truncate">{card.button}</span>
+                    <FaArrowRight size={10} className="hero-card-btn-arrow relative shrink-0 transition-transform group-hover:translate-x-1" />
+                </span>
             </div>
         </div>
     );
 }
 
 /* ─────────────────────────────────────────
-   GROW ONLINE BANNER
+   SECTION HEADING (shared by the home blocks)
 ───────────────────────────────────────── */
-function GrowOnlineBanner() {
+function BlockHeading({ title, children }) {
     return (
-        <Link
-            href="/digital-presence"
-            className="group block relative mt-6 sm:mt-8 w-full rounded-3xl overflow-hidden border border-sky-200/80 bg-linear-to-r from-[#edf5ff] via-[#f4f9ff] to-[#e8f2ff] p-5 sm:p-7 lg:p-9 shadow-xs hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
-        >
-            {/* Background subtle mesh glow */}
-            <div className="pointer-events-none absolute -right-12 -bottom-12 w-80 h-80 bg-blue-400/15 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500" />
-            <div className="pointer-events-none absolute left-1/4 -top-12 w-56 h-56 bg-sky-300/20 rounded-full blur-2xl" />
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 leading-tight">
+                {title}
+            </h2>
+            <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
+            {children && (
+                <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-600">{children}</p>
+            )}
+        </div>
+    );
+}
 
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10">
-                {/* Left content */}
-                <div className="flex-1 text-center lg:text-left">
-                    <span className="inline-block text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-blue-600 mb-2 font-mono">
-                        GROW ONLINE
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                        Launch Your Digital Presence <br className="hidden sm:inline" />
-                        with Confidence
-                    </h3>
-                    <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
-                        Whether you&apos;re starting a business, launching a startup, building a personal brand, or taking your existing business online, we provide <strong className="font-bold text-slate-800">affordable website development</strong>, <strong className="font-bold text-slate-800">CRM solutions</strong>, and <strong className="font-bold text-slate-800">digital marketing services</strong> tailored to your needs.
+/* ─────────────────────────────────────────
+   BLOCK 3 — NEW GOVERNMENT JOB ANNOUNCEMENTS
+───────────────────────────────────────── */
+function AnnouncementsBlock({ list, loading }) {
+    return (
+        <div className="mt-14 sm:mt-20 grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-stretch">
+            {/* Text */}
+            <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-violet-100 bg-linear-to-br from-violet-50 via-white to-orange-50/60 p-6 sm:p-8 flex flex-col justify-center">
+                <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-violet-200/40 blur-3xl" />
+                <div className="relative">
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-purple-600 to-purple-800 shadow-lg shadow-purple-200">
+                        <GrAnnounce className="text-white" style={{ fontSize: 24 }} />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 leading-tight">
+                        New Government Job Announcements: Stay Updated
+                    </h2>
+                    <div className="mt-3 h-1 w-16 rounded-full bg-linear-to-r from-purple-600 to-orange-500" />
+                    <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-slate-600">
+                        This panel lists recent recruitment notices from UPSC, SSC, and IBPS. It also covers public sector banks, high courts, and state public service commissions. Check the notice date and the last date for each job. Then read the full notification before you apply. Use this section to find relevant openings. Confirm the eligibility, application steps, and deadlines in the official notification.
                     </p>
-
-                    <div className="mt-6 flex items-center justify-center lg:justify-start">
-                        <span className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-blue-600 group-hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-all">
-                            <span>Get Started</span>
-                            <FaArrowRight size={11} className="transition-transform group-hover:translate-x-1" />
-                        </span>
-                    </div>
-                </div>
-
-                {/* Right Illustration & Feature Pills */}
-                <div className="relative shrink-0 flex flex-col sm:flex-row items-center gap-5 lg:gap-7">
-                    
-                    {/* Laptop & Launching Rocket Illustration */}
-                    <div className="relative flex items-center justify-center">
-                        {/* Floating WWW tag */}
-                        <div className="absolute -top-3 -left-3 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-black shadow-sm z-20">
-                            WWW
-                        </div>
-
-                        {/* Floating Chart Icon */}
-                        <div className="absolute -top-2 right-2 px-1.5 py-1 rounded-md bg-white border border-rose-100 text-rose-500 shadow-sm z-20 text-xs">
-                            📈
-                        </div>
-
-                        {/* Plant Pot */}
-                        <div className="absolute -bottom-1 -left-4 text-xl sm:text-2xl z-20">
-                            🪴
-                        </div>
-
-                        {/* Laptop Mockup */}
-                        <div className="relative w-44 sm:w-52 h-28 sm:h-34 bg-slate-900 rounded-t-xl border-4 border-slate-700 shadow-lg flex items-center justify-center overflow-hidden">
-                            <div className="w-full h-full bg-linear-to-b from-sky-400 via-blue-500 to-indigo-600 flex flex-col items-center justify-center p-2 relative">
-                                
-                                {/* Rocket taking off */}
-                                <div className="text-3xl sm:text-4xl -rotate-45 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300 z-10 filter drop-shadow-md">
-                                    🚀
-                                </div>
-                                
-                                {/* Smoke / Clouds */}
-                                <div className="absolute bottom-0 inset-x-0 h-8 bg-white/30 backdrop-blur-xs rounded-t-full flex items-center justify-around px-2">
-                                    <span className="w-3 h-3 bg-white/70 rounded-full" />
-                                    <span className="w-5 h-5 bg-white/80 rounded-full" />
-                                    <span className="w-3 h-3 bg-white/70 rounded-full" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Laptop Bottom Base */}
-                        <div className="absolute -bottom-1.5 w-52 sm:w-60 h-2 bg-slate-300 rounded-b-lg shadow-sm" />
-                    </div>
-
-                    {/* 3 Pill Cards on Right */}
-                    <div className="flex flex-col gap-2.5 w-48 sm:w-52 shrink-0">
-                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
-                            <span className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-xs">
-                                &lt;/&gt;
-                            </span>
-                            <span className="text-xs sm:text-sm font-bold text-slate-800">Web Development</span>
-                        </div>
-
-                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
-                            <span className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 text-sm">
-                                ⚙️
-                            </span>
-                            <span className="text-xs sm:text-sm font-bold text-slate-800">CRM Solutions</span>
-                        </div>
-
-                        <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-white/95 border border-blue-100 shadow-xs group-hover:shadow-md transition-all">
-                            <span className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 text-sm">
-                                📊
-                            </span>
-                            <span className="text-xs sm:text-sm font-bold text-slate-800">Digital Marketing</span>
-                        </div>
-                    </div>
-
+                    <Link
+                        href="/latest-job-notifications"
+                        className="group mt-6 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-500 to-orange-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-300"
+                    >
+                        Apply Now
+                        <FaArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                    </Link>
                 </div>
             </div>
-        </Link>
+
+            {/* Live list */}
+            <div className="lg:col-span-3 flex flex-col h-90 lg:h-auto lg:min-h-95">
+                <VerticalAnnouncements list={list} loading={loading} />
+            </div>
+        </div>
     );
 }
 
@@ -740,74 +730,131 @@ export default function HeroFinalPage({ initialAnnouncements = [] }) {
     }, [initialAnnouncements]);
 
     return (
-        <section className="relative bg-white w-full py-8 sm:py-12 xl:py-16">
-            <div className="w-full px-4 md:px-15 mx-auto">
+        <section className="relative w-full overflow-hidden bg-linear-to-br from-white via-white to-orange-50/40 py-8 sm:py-12 xl:py-14">
+            {/* Soft background shapes */}
+            <div className="pointer-events-none absolute -left-40 top-1/3 h-112 w-112 rounded-full bg-orange-100/60 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-green-100/50 blur-3xl" />
+            <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-emerald-50 blur-3xl" />
 
-                {/* ── Section heading ── */}
-                <div className="text-center mb-6 sm:mb-8 xl:mb-10">
-                    <span
-                        className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] px-4 py-1.5 rounded-full border mb-5"
-                        style={{
-                            color: "#ea580c",
-                            background: "#fff7ed",
-                            borderColor: "#fed7aa",
-                        }}
-                    >
-                        <FaFire style={{ color: "#f97316", fontSize: 10 }} />
-                        Let your career be, an informed choice… not a forced decision
-                    </span>
+            <div className="relative w-full px-4 md:px-15 mx-auto">
 
-                    <h2
-                        className="text-2xl sm:text-6xl font-black leading-tight tracking-tight"
-                        style={{ color: "#0f172a" }}
-                    >
-                        Welcome to   {" "}
-                        <span
-                            className="  text-orange-500"
+                {/* ── BLOCK 1 (left, with student photo) + BLOCK 2 cards (right) ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-10 lg:gap-8 xl:gap-12 items-start">
 
-                        >
-                            Careermitra
-                        </span>
-                    </h2>
+                {/* Left: hero text + photo */}
+                <div className="relative text-center lg:text-left">
 
-                    <HeroVideoModal />
-
-                    {/* The video chosen in the admin panel (Media Library → ★ Set home). */}
-                    <HeroPrimaryVideo />
-
-                    {/* <p
-            className="mt-4 text-lg max-w-xl mx-auto leading-relaxed"
-            style={{ color: "#64748b" }}
-          >
-            Everything you need to advance your career in one place
-          </p> */}
-                </div>
-
-                {/* ── Cards + Announcements ── */}
-                <div className="flex flex-col xl:flex-row gap-4 xl:gap-5 items-stretch w-full">
-
-                    {/* Cards — 2 col on mobile (5th card full width), 3 col on tablet, 5 col on xl+ */}
-                    <div className="w-full xl:flex-1 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-4">
-                        {dynamicCards.map((card, i) => (
-                            <FeatureCard key={card.id} card={card}
-                                className={i === dynamicCards.length - 1 && dynamicCards.length % 2 === 1 ? "col-span-2 sm:col-span-1" : ""} />
-                        ))}
+                    {/* Student photo — large screens only, to the right of the text */}
+                    <div className="pointer-events-none absolute inset-y-0 -right-2 hidden xl:flex items-center w-[38%]">
+                        <div className="absolute right-0 top-[15%] h-[70%] w-[110%] rounded-full bg-linear-to-br from-orange-100/60 via-orange-50/40 to-transparent blur-3xl" />
+                        <img
+                            src={heroStudent.src || heroStudent}
+                            alt=""
+                            aria-hidden="true"
+                            className="relative w-full h-auto max-h-full object-contain"
+                            style={{
+                                // multiply: the photo's white background takes the page colour, so there is no white box
+                                mixBlendMode: "multiply",
+                                // soft fade on all four edges
+                                WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 6%, #000 85%, transparent 100%)",
+                                WebkitMaskComposite: "source-in",
+                                maskImage: "linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 6%, #000 85%, transparent 100%)",
+                                maskComposite: "intersect",
+                            }}
+                        />
                     </div>
 
-                    {/* Announcements — hidden (SHOW_ANNOUNCEMENTS) */}
-                    {SHOW_ANNOUNCEMENTS && (
-                        <div className="w-full xl:w-96 xl:shrink-0">
-                            {/* Auto-scrolling announcements panel on all screen sizes */}
-                            <div className="flex flex-col" style={{ height: 250 }}>
-                                <VerticalAnnouncements list={annList} loading={annLoading} />
-                            </div>
+                    <div className="relative z-10 xl:max-w-[60%]">
+                        <span className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] px-4 py-1.5 rounded-full border border-orange-200 bg-orange-50/80 text-orange-600 mb-5">
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500 shadow-[0_0_0_3px_rgba(249,115,22,0.18)]" />
+                            Find Your Direction Before You Take the Next Step
+                        </span>
+
+                        <h1 className="text-[1.85rem] sm:text-[2.5rem] xl:text-[1.80rem] font-black leading-[1.08] tracking-[-0.025em] text-slate-900">
+                            <span className="bg-linear-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+                                Government Jobs Notifications 
+                            </span>{" "}
+                            <span className="block mt-1">Recruitment Insights for Your Career Growth</span>
+                        </h1>
+
+                        <p className="mt-4 text-[15px] sm:text-base font-bold text-slate-800 leading-snug">
+                            Government jobs, internships, SkillUps, and PG entrance matched to your profile
+                        </p>
+
+                        <div className="mt-3.5 space-y-3 text-[13.5px] sm:text-sm leading-[1.75] text-slate-600 max-w-2xl mx-auto lg:mx-0 lg:text-justify lg:hyphens-auto">
+                            <p>
+                                Finding the right opportunity should not take hours of searching. <Link href="/latest-job-notifications" className={INLINE_LINK}>Government job notifications</Link>, <Link href="/internships" className={INLINE_LINK}>internships</Link>, <Link href="/internships?tab=skillups" className={INLINE_LINK}>SkillUps</Link>, and <Link href="/pg-entrance" className={INLINE_LINK}>PG entrance</Link> updates are spread across many websites. Each department and state has its own portal. Careermitra brings them all to one place. You can see what fits your goals without checking dozens of sites every day.
+                            </p>
+                            <p>
+                                Create a free profile to get updates that match you. They reach your email and your <Link href="/user-dashboard" className={INLINE_LINK}>Careermitra dashboard</Link>. Each listing shows the eligibility, the number of vacancies, and the last date to apply. It also links to the official notification, so you can check the details yourself and decide with confidence.
+                            </p>
                         </div>
-                    )}
+
+                        <HeroVideoModal label="Watch How to Register on Careermitra" />
+                    </div>
+                </div>
+
+                {/* Right: pinned YouTube video + quick access cards */}
+                <div className="relative z-10">
+                    {/* The video pinned in the admin panel (Media Library → ★ Set home). */}
+                    <HeroPrimaryVideo inline dismissible={false} />
+
+                    <div className="text-center lg:text-left mb-4">
+                        <h2 className="text-xl sm:text-[1.4rem] font-black tracking-tight text-slate-900 leading-tight">
+                            The Right Path Starts With the Right Choice
+                        </h2>
+                        <div className="mx-auto lg:mx-0 mt-2 h-0.75 w-12 rounded-full bg-linear-to-r from-orange-500 to-amber-400" />
+                        <p className="mt-2.5 text-[13px] leading-relaxed text-slate-600">
+                            Whether you&apos;re a student, a final-year candidate, or an experienced professional, start with what matters to you. Choose the option below that fits where you are right now.
+                        </p>
+                    </div>
+
+                    {/* Card button animations: shine sweep, arrow nudge, glow on hover */}
+                    <style>{`
+                      @keyframes hero-btn-shine {
+                        0%   { transform: translateX(0) skewX(-20deg); opacity: 0; }
+                        8%   { opacity: 1; }
+                        30%  { transform: translateX(480%) skewX(-20deg); opacity: 0; }
+                        100% { transform: translateX(480%) skewX(-20deg); opacity: 0; }
+                      }
+                      @keyframes hero-btn-arrow {
+                        0%, 100% { transform: translateX(0); }
+                        50%      { transform: translateX(3px); }
+                      }
+                      .hero-card-btn {
+                        box-shadow: 0 8px 16px -8px var(--btn-glow), inset 0 1px 0 rgba(255,255,255,0.25);
+                      }
+                      .group:hover .hero-card-btn {
+                        box-shadow: 0 12px 24px -8px var(--btn-glow), inset 0 1px 0 rgba(255,255,255,0.3);
+                      }
+                      .hero-card-btn-shine {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+                        animation: hero-btn-shine 3.2s ease-in-out infinite;
+                        animation-delay: var(--shine-delay);
+                      }
+                      .hero-card-btn-arrow {
+                        animation: hero-btn-arrow 1.4s ease-in-out infinite;
+                      }
+                      .group:hover .hero-card-btn-arrow { animation-play-state: paused; }
+                      @media (prefers-reduced-motion: reduce) {
+                        .hero-card-btn-shine, .hero-card-btn-arrow { animation: none; }
+                      }
+                    `}</style>
+
+                    {/* 2 cards per row; Digital Presence is the wide card at the bottom */}
+                    <div className="grid grid-cols-2 gap-3">
+                        {dynamicCards.map((card) => (
+                            <FeatureCard key={card.id} card={card} className={card.horizontal ? "col-span-2" : ""} />
+                        ))}
+                    </div>
+                </div>
 
                 </div>
 
-                {/* ── Grow Online Banner — removed; the "Digital Presence" card above links there ── */}
-                {/* <GrowOnlineBanner /> */}
+                {/* ── BLOCK 3: New Government Job Announcements ── */}
+                {SHOW_ANNOUNCEMENTS && (
+                    <AnnouncementsBlock list={annList} loading={annLoading} />
+                )}
 
             </div>
         </section>

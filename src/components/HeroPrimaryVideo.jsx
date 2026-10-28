@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaPlay, FaYoutube, FaChevronRight } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { API_BASE_URL } from "@/utils/api";
+
+// For useSyncExternalStore: nothing to subscribe to, we only need to know if we are in the browser.
+const noopSubscribe = () => () => {};
 
 /**
  * "New Video on YouTube" card on the home hero — shows the video the admin
@@ -18,10 +22,14 @@ const SITE = API_BASE_URL.replace(/\/api\/?$/, "");
 
 const fileUrl = (url) => (!url ? null : /^https?:\/\//.test(url) ? url : `${SITE}${url.startsWith("/") ? "" : "/"}${url}`);
 
-export default function HeroPrimaryVideo() {
+// inline      → normal block in the layout (no floating), full width.
+// dismissible → show the ✕ that hides the card for this visitor.
+export default function HeroPrimaryVideo({ inline = false, dismissible = true }) {
     const [video, setVideo] = useState(null);
     const [hidden, setHidden] = useState(true);
     const [playing, setPlaying] = useState(false);
+    // The player is rendered into <body> (portal), which only exists in the browser.
+    const portalReady = useSyncExternalStore(noopSubscribe, () => true, () => false);
 
     useEffect(() => {
         let alive = true;
@@ -33,7 +41,7 @@ export default function HeroPrimaryVideo() {
                 let dismissed = null;
                 try { dismissed = localStorage.getItem(DISMISS_KEY); } catch { /* private mode */ }
                 setVideo(v);
-                setHidden(dismissed === v.id);
+                setHidden(dismissible && dismissed === v.id);
             })
             .catch(() => { });
         return () => { alive = false; };
@@ -70,8 +78,35 @@ export default function HeroPrimaryVideo() {
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.25 }}
                         // Phones / tablets: a card under the "See how to register" button. Desktop: floats top-right of the hero.
-                        className="relative mx-auto mt-4 w-full max-w-sm text-left xl:absolute xl:right-6 xl:top-4 xl:mt-0 xl:w-80 z-20"
+                        className={inline
+                            ? "relative w-full text-left mb-5"
+                            : "relative mx-auto mt-4 w-full max-w-sm text-left xl:absolute xl:right-6 xl:top-4 xl:mt-0 xl:w-80 z-20"}
                     >
+                        {inline ? (
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setPlaying(true)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setPlaying(true)}
+                            className="group flex items-center gap-3.5 cursor-pointer rounded-2xl border border-red-100 bg-white p-2.5 pr-4 shadow-[0_10px_30px_-18px_rgba(220,38,38,0.45)] transition-all hover:-translate-y-0.5 hover:border-red-200 hover:shadow-[0_14px_34px_-16px_rgba(220,38,38,0.5)]"
+                        >
+                            <div className="relative h-16 w-28 sm:h-18 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-slate-200 ring-1 ring-black/5">
+                                {thumb && <img src={thumb} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />}
+                                <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-transform group-hover:scale-110">
+                                        <FaPlay size={10} className="ml-0.5" />
+                                    </span>
+                                </span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-600">
+                                    <FaYoutube size={12} /> New Video on YouTube
+                                </span>
+                                <p className="mt-1 text-[13px] sm:text-sm font-bold leading-snug text-slate-900 line-clamp-2">{video.title}</p>
+                            </div>
+                            <FaChevronRight className="shrink-0 text-red-500 transition-transform group-hover:translate-x-0.5" size={12} />
+                        </div>
+                        ) : (
                         <div
                             role="button"
                             tabIndex={0}
@@ -84,10 +119,12 @@ export default function HeroPrimaryVideo() {
                                     <FaYoutube className="text-red-600" size={16} /> New Video on YouTube
                                 </span>
                             </div>
+                            {dismissible && (
                             <button type="button" onClick={dismiss} aria-label="Hide video"
                                 className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
                                 <IoClose size={18} />
                             </button>
+                            )}
                             <div className="flex items-center gap-3">
                                 <div className="relative h-16 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-200 ring-1 ring-black/5">
                                     {thumb && <img src={thumb} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />}
@@ -104,11 +141,12 @@ export default function HeroPrimaryVideo() {
                                 <FaChevronRight className="shrink-0 text-orange-500 transition-transform group-hover:translate-x-0.5" size={12} />
                             </div>
                         </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <AnimatePresence>
+            {portalReady && createPortal(<AnimatePresence>
                 {playing && (
                     <motion.div
                         key="hero-video-player"
@@ -116,7 +154,8 @@ export default function HeroPrimaryVideo() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+                        className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        style={{ zIndex: 2147483000 }}
                         onClick={() => setPlaying(false)}
                         role="dialog"
                         aria-modal="true"
@@ -150,7 +189,7 @@ export default function HeroPrimaryVideo() {
                         </button>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>, document.body)}
         </>
     );
 }

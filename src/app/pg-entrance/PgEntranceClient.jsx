@@ -124,6 +124,13 @@ export default function PgEntranceClient({ initialExams = [], initialPagination 
     }
   }, [activeSection, activeStream, searchQuery]);
 
+  // Prefill the search box from ?q= (used by the header Global Search).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (q) setSearchQuery(q);
+  }, []);
+
   // Trigger search/filter fetch on change
   useEffect(() => {
     const handler = setTimeout(() => {

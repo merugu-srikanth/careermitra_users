@@ -1,22 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaPlay } from "react-icons/fa";
+import { FaPlay, FaArrowRight } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+
+// For useSyncExternalStore: nothing to subscribe to, we only need to know if we are in the browser.
+const noopSubscribe = () => () => {};
 
 // Career Mitra YouTube channel (@Career_Mitra_Official) uploads playlist —
 // always plays the channel's newest video first. To pin one specific video
 // instead, set VIDEO_ID (e.g. "ru-Qp4f1v8I") and it takes priority.
 const UPLOADS_PLAYLIST_ID = "UUpsa4-5c3GG17b0kZ28SzeA";
-const VIDEO_ID = "HuWuFVmFkJk"; // "How to Register Careermitra website" — https://youtu.be/HuWuFVmFkJk
+export const VIDEO_ID = "bHJ4nvF4Jhc"; // "How to Register on Careermitra" — https://youtu.be/bHJ4nvF4Jhc
 
 const EMBED_URL = VIDEO_ID
     ? `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&rel=0&modestbranding=1`
     : `https://www.youtube-nocookie.com/embed/videoseries?list=${UPLOADS_PLAYLIST_ID}&autoplay=1&rel=0&modestbranding=1`;
 
-export default function HeroVideoModal({ label = "See How To Register On Careermitra" }) {
+// Pass `renderTrigger={(open) => <YourCard onClick={open} />}` to open the
+// video from your own element instead of the default pill button.
+export default function HeroVideoModal({ label = "See How To Register On Careermitra", renderTrigger }) {
     const [open, setOpen] = useState(false);
+    // The popup is rendered into <body> (portal), which only exists in the browser.
+    const portalReady = useSyncExternalStore(noopSubscribe, () => true, () => false);
 
     // Esc to close + lock page scroll while the modal is open.
     useEffect(() => {
@@ -33,20 +41,23 @@ export default function HeroVideoModal({ label = "See How To Register On Careerm
 
     return (
         <>
+            {renderTrigger ? renderTrigger(() => setOpen(true)) : (
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="group mt-4 sm:mt-5 inline-flex max-w-full items-center gap-2.5 sm:gap-3 rounded-full border border-orange-200 bg-white py-1.5 pl-1.5 pr-4 sm:pr-5 text-left text-xs sm:text-sm font-semibold leading-snug text-slate-800 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-md active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 cursor-pointer"
+                className="group mt-6 sm:mt-7 inline-flex max-w-full items-center gap-2.5 sm:gap-3 rounded-full border border-orange-200 bg-white py-1.5 pl-1.5 pr-4 sm:pr-5 text-left text-[13px] sm:text-sm font-bold leading-snug text-slate-900 shadow-[0_10px_30px_-12px_rgba(249,115,22,0.45)] transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_14px_34px_-12px_rgba(249,115,22,0.6)] active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 cursor-pointer"
                 aria-haspopup="dialog"
             >
-                <span className="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-500 text-white shadow">
-                    <span className="absolute inset-0 rounded-full bg-orange-400/60 animate-ping" />
-                    <FaPlay size={11} className="relative ml-0.5" />
+                <span className="relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white shadow-md">
+                    <span className="absolute inset-0 rounded-full bg-orange-400/50 animate-ping" />
+                    <FaPlay size={12} className="relative ml-0.5" />
                 </span>
-                {label}
+                <span className="whitespace-nowrap pr-2 sm:pr-4">{label}</span>
+                <FaArrowRight size={13} className="shrink-0 text-orange-500 transition-transform duration-200 group-hover:translate-x-1" />
             </button>
+            )}
 
-            <AnimatePresence>
+            {portalReady && createPortal(<AnimatePresence>
                 {open && (
                     <motion.div
                         key="video-backdrop"
@@ -54,7 +65,8 @@ export default function HeroVideoModal({ label = "See How To Register On Careerm
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+                        className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        style={{ zIndex: 2147483000 }}
                         onClick={() => setOpen(false)}
                         role="dialog"
                         aria-modal="true"
@@ -88,7 +100,7 @@ export default function HeroVideoModal({ label = "See How To Register On Careerm
                         </button>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>, document.body)}
         </>
     );
 }

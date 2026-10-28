@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import HeroFinalPage from '@/components/HeroFinalPage';
 import HomeBlogs from "@/components/HomeBlogs/HomeBlogs";
 import HomeFAQ from "@/components/HomeFAQ";
+import HomePersonalizedUpdates from "@/components/HomePersonalizedUpdates";
+import MentorsSection from "@/components/MentorsSection";
 
 const ArrowRightIcon = () => (
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -55,6 +57,11 @@ export default function HomeClient({
       <HomeBlogs initialSections={initialBlogSections} />
       
       <CareerHomeJobs initialJobs={initialJobs} />
+
+      <HomePersonalizedUpdates />
+
+      {/* Same section as on the Meet Our Team page */}
+      <MentorsSection />
 
       <HomeFAQ />
 

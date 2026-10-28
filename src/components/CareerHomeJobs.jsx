@@ -626,23 +626,27 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
 
                 {/* ── Header ── */}
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-5">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-linear-to-r from-orange-100 to-yellow-100 border border-orange-200 shadow-sm mb-4">
                         <span className="text-sm">✨</span>
                         <span className="text-orange-700 font-bold text-xs uppercase tracking-widest">
-                            Fresh Opportunities
+                            Latest Government Jobs
                         </span>
                     </div>
 
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                        Latest Government Jobs
+                    <h2 className="text-3xl md:text-4xl lg:text-[2.1rem] font-black leading-tight tracking-tight mb-4 xl:whitespace-nowrap bg-linear-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
+                        Open Now: Latest Government Jobs 2026 You Can Apply For
                     </h2>
 
-                    <div className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full" />
+                    <div className="h-1 w-24 mx-auto mb-6 bg-linear-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full" />
 
-                    <p className="text-gray-500 max-w-xl mx-auto text-base">
-                        Discover the latest government job opportunities across India.
-                        Updated daily with new positions in various sectors.
-                    </p>
+                    <div className="max-w-4xl mx-auto space-y-3 text-[15px] md:text-base leading-[1.8] text-slate-600 text-pretty">
+                        <p>
+                            Looking for a government job with applications still open? Browse openings across departments and compare the details before deciding where to apply. Each listing shows the <strong className="font-semibold text-slate-800">post, department, required qualification, age limit, number of vacancies, and application deadline</strong>, so you can quickly see whether you’re eligible.
+                        </p>
+                        <p>
+                            Found a post that suits your qualifications? Read the full notification to understand the requirements, then follow the instructions on the official application portal. <strong className="font-semibold text-slate-800">Deadlines vary by post, so check the last date before you start.</strong>
+                        </p>
+                    </div>
                 </div>
 
                 {/* ── Toolbar: View Toggle ── */}
@@ -731,7 +735,7 @@ export default function CareerHomeJobs({ initialJobs = [] }) {
                         <Link href="/latest-job-notifications"
                             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-black rounded-full shadow-xl hover:shadow-2xl transition-all text-base group"
                         >
-                            <span>View All Opportunities</span>
+                            <span>View All Government Job Opportunities</span>
                             <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
                                 <ArrowIcon />
                             </motion.span>

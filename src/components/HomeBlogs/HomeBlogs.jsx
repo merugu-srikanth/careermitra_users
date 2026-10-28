@@ -267,6 +267,81 @@ const BLOGLIST_STYLES = `
 .bl-pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .bl-pag-info { font-size: 0.87rem; color: #6b7280; padding: 0 6px; }
 
+/* ── HIGHLIGHT + INTROS ── */
+.hb-hl {
+  background: none;
+  color: #1f2937; font-weight: 600;
+}
+.hb-lead strong, .hb-intro-body strong { color: #111827; font-weight: 700; }
+/* Internal links inside the intro text */
+.hb-link {
+  color: #ea580c; font-weight: 600;
+  text-decoration: underline; text-decoration-color: #fdba74; text-underline-offset: 2px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.hb-link:hover { color: #c2410c; text-decoration-color: #f97316; }
+
+.hb-intro {
+  position: relative;
+  margin: -8px 0 26px;
+  padding: 20px 24px 20px 26px;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #fff7ed 0%, #ffffff 55%, #f0fdf4 100%);
+  border: 1px solid #fde7d3;
+}
+.hb-intro::before {
+  content: ''; position: absolute; left: 0; top: 16px; bottom: 16px;
+  width: 4px; border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #f97316, #22c55e);
+}
+.hb-intro h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.02rem, 1.6vw, 1.22rem); font-weight: 800;
+  color: #111827; line-height: 1.35; margin: 0 0 8px;
+}
+.hb-intro-body p {
+  font-size: 0.92rem; color: #4b5563; line-height: 1.8; margin: 0;
+  max-width: none;
+}
+.hb-intro-body p + p { margin-top: 8px; }
+@media(max-width:600px){
+  .hb-intro { padding: 16px 16px 16px 20px; border-radius: 14px; }
+  .hb-intro-body p { font-size: 0.87rem; line-height: 1.75; }
+}
+
+/* Section button (replaces the plain "View More" link) */
+.bl-section-head a.hb-more-btn {
+  padding: 8px 16px; border-radius: 999px;
+  background: #fff7ed; border: 1px solid #fed7aa;
+  color: #ea580c; font-size: 0.82rem; font-weight: 700;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.bl-section-head a.hb-more-btn svg { width: 13px; height: 13px; transition: transform 0.2s; }
+.bl-section-head a.hb-more-btn:hover {
+  background: #f97316; color: #fff; border-color: #f97316;
+  box-shadow: 0 8px 18px -8px rgba(249,115,22,0.6); transform: translateY(-1px);
+}
+.bl-section-head a.hb-more-btn:hover svg { transform: translateX(3px); }
+/* Desktop: heading and button on one line, vertically centred */
+.bl-section-head { align-items: center; gap: 16px; }
+.bl-section-head h2 { line-height: 1.25; min-width: 0; }
+.bl-section-head a.hb-more-btn { flex-shrink: 0; }
+
+/* Phones: heading gets the full width, button sits underneath it */
+@media(max-width:640px){
+  .bl-section-head {
+    flex-direction: column; align-items: flex-start; gap: 10px;
+    margin-bottom: 22px; padding-bottom: 12px;
+  }
+  .bl-section-head h2 { font-size: 1.35rem; }
+  .bl-section-head a.hb-more-btn {
+    padding: 7px 14px; font-size: 0.78rem;
+    background: #f97316; border-color: #f97316; color: #fff;
+    box-shadow: 0 6px 14px -8px rgba(249,115,22,0.7);
+  }
+  .bl-section-head a.hb-more-btn:hover { background: #ea580c; border-color: #ea580c; }
+}
+
 /* ── EMPTY / ERROR ── */
 .bl-empty { text-align: center; padding: 48px 0 24px; }
 .bl-empty svg { width: 52px; height: 52px; color: #e5e7eb; margin: 0 auto 16px; display: block; }
@@ -360,6 +435,85 @@ const SECTIONS = [
     { name: "Defence Jobs", slug: "defence-jobs" }
 ];
 
+// Highlighted phrase inside the intro text (soft orange marker underline).
+const Hl = ({ children }) => <mark className="hb-hl">{children}</mark>;
+
+// Intro text shown above each section's cards (content from the content team — keep wording as is).
+const SECTION_INTROS = {
+    "career-guidance": {
+        heading: "Know Before You Apply: Career Guides in Plain Language",
+        button: "Read All Career Guides",
+        body: (
+            <>
+                <p>
+                    Eligibility rules, age limits, and selection stages change from one post to the next, so it&apos;s easy to miss a requirement that matters. Our career guidance section explains these details in <Hl>plain language</Hl>.
+                </p>
+                <p>
+                    You’ll find guides on <strong>internships, state recruitment, court jobs, and power sector careers</strong>, covering who can apply, what the selection process involves, and what to prepare. Pick the guide that matches your goal and <Hl>check the requirements before you start your application</Hl>.
+                </p>
+            </>
+        ),
+    },
+    "central-government-jobs": {
+        heading: "Thinking of cracking a Central Government job?",
+        button: "View More Central Jobs",
+        body: (
+            <>
+                <p>
+                    A central government job can shape your career, but finding the right opportunity at the right time matters. Careermitra brings government job openings from ministries, institutes, and public organizations across India, including <strong>ICAI, AIIMS, EPFO, and CCRUM</strong>.
+                </p>
+                <p>
+                    Guides for candidates with <strong>ITI, diploma, and engineering</strong> qualifications are available too. Each listing includes the <Hl>eligibility criteria, application process, and last date</Hl>, so candidates can quickly check whether they meet the requirements. Found a suitable job? Read the full notification and follow the application instructions before the deadline.
+                </p>
+            </>
+        ),
+    },
+    "state-government-jobs": {
+        heading: "Explore All State PSC Job Notifications",
+        button: "View More State Jobs",
+        body: (
+            <>
+                <p>
+                    Looking for a state government job? Careermitra helps you explore recruitment opportunities across <Link href="/psu-jobs" className="hb-link">all State PSCs</Link>, each with its own <Hl>eligibility rules, age relaxations, and exam patterns</Hl>. Get recruitment updates from all states like <strong><Link href="/state-government-jobs/telangana" className="hb-link">Telangana</Link>, <Link href="/state-government-jobs/andhra-pradesh" className="hb-link">Andhra Pradesh</Link>, Bihar, West Bengal, Rajasthan</strong>, and more. Select your state to browse the latest job notifications and check the eligibility criteria, age limits, and selection stages before applying. Found a job that suits you? Read the full notification and follow the official application process.
+                </p>
+            </>
+        ),
+    },
+    "defence-jobs": {
+        heading: "Ready to Explore a Career in Defence?",
+        body: (
+            <>
+                <p>
+                    Interested in joining the <strong>Army, Navy, or Air Force</strong>? Each recruitment entry has its own <Hl>eligibility criteria, physical fitness requirements, and medical standards</Hl>. Careermitra helps you explore openings related to <strong>AFCAT, Indian Navy recruitment schemes, DRDO, and NDA</strong>. Check the qualifications, selection stages, and other requirements for each entry before applying. Found one that matches your interests and qualifications? Read the full official notification and follow the application instructions.
+                </p>
+            </>
+        ),
+    },
+};
+
+// Section header (category name + button) and its intro panel.
+const SectionHeader = ({ sec, showLink = true }) => {
+    const intro = SECTION_INTROS[sec.slug];
+    return (
+        <>
+            <div className="bl-section-head">
+                <h2>{sec.name}</h2>
+                {showLink && (
+                    <Link href={`/${sec.slug}`} className="hb-more-btn">
+                        {intro?.button || "View More"} <ArrowIcon />
+                    </Link>
+                )}
+            </div>
+            {intro && (
+                <div className="hb-intro">
+                    <h3>{intro.heading}</h3>
+                    <div className="hb-intro-body">{intro.body}</div>
+                </div>
+            )}
+        </>
+    );
+};
+
 const HomeBlogs = ({ initialSections = [] }) => {
     const [mounted, setMounted] = useState(false);
     const [categorizedSections, setCategorizedSections] = useState(initialSections);
@@ -420,20 +574,22 @@ const HomeBlogs = ({ initialSections = [] }) => {
             <div>
                 <div className="w-full px-4 md:px-15 mx-auto py-8">
 
-                    {/* ── All Government Jobs HEADING ── */}
-                    <div className="text-center mb-10">
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
-                            All Government Jobs Notifications
-                        </h1>
+                    {/* ── Section intro ── */}
+                    <div className="text-center mb-12 max-w-7xl mx-auto">
+                        <h2 className="text-3xl md:text-4xl lg:text-[2.1rem] xl:whitespace-nowrap font-black leading-tight tracking-tight mb-4 bg-linear-to-r from-gray-900 via-orange-600 to-green-600 bg-clip-text text-transparent">
+                            Government Job Notifications, All in One Place
+                        </h2>
 
-                        <div
-                            className="h-1 w-28 mx-auto mb-5 bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full"
-                        />
+                        <div className="h-1 w-24 mx-auto mb-6 bg-linear-to-r from-orange-500 via-yellow-400 to-green-500 rounded-full" />
 
-                        <p className="text-gray-500 max-w-xl mx-auto text-base">
-                            Discover the latest government job opportunities across India.
-                            Updated daily with new positions in various sectors.
-                        </p>
+                        <div className="hb-lead max-w-4xl mx-auto space-y-3 text-[15px] md:text-base leading-[1.8] text-slate-600 text-pretty">
+                            <p>
+                                Government jobs are spread across many departments, states, banks, railways, and defense organizations. Each job has its own <Hl>eligibility rules, application steps, and last date</Hl>. It is hard to keep track of them all.
+                            </p>
+                            <p>
+                                Careermitra brings these jobs together in one place. Browse <strong>central government jobs, state government jobs, banking jobs, and defense jobs</strong>. You will also find eligibility guides and career articles. They help you <Hl>compare your options, check the requirements, and decide what to apply for next</Hl>.
+                            </p>
+                        </div>
                     </div>
 
                     {/* ── GRID / STATES ── */}
@@ -441,9 +597,7 @@ const HomeBlogs = ({ initialSections = [] }) => {
                         <div className="space-y-12">
                             {SECTIONS.map((sec, idx) => (
                                 <div key={idx}>
-                                    <div className="bl-section-head">
-                                        <h2>{sec.name}</h2>
-                                    </div>
+                                    <SectionHeader sec={sec} showLink={false} />
                                     <div className="bl-grid">
                                         {[...Array(4)].map((_, i) => <CardSkeleton key={i} />)}
                                     </div>
@@ -470,13 +624,8 @@ const HomeBlogs = ({ initialSections = [] }) => {
                                 if (sec.blogs.length === 0) return null;
                                 return (
                                     <section key={sec.slug} className="relative">
-                                        {/* Section Header */}
-                                        <div className="bl-section-head">
-                                            <h2>{sec.name}</h2>
-                                            <Link href={`/${sec.slug}`}>
-                                                View More <ArrowIcon />
-                                            </Link>
-                                        </div>
+                                        {/* Section Header + intro */}
+                                        <SectionHeader sec={sec} />
 
                                         {/* Grid of Cards */}
                                         <div className="bl-grid">
