@@ -446,7 +446,7 @@ const SECTION_INTROS = {
         body: (
             <>
                 <p>
-                    Eligibility rules, age limits, and selection stages change from one post to the next, so it&apos;s easy to miss a requirement that matters. Our career guidance section explains these details in <Hl>plain language</Hl>.
+                    Eligibility rules, age limits, and selection stages change from one post to the next, so it&apos;s easy to miss a requirement that matters. Our career guidance section explains these details in plain language.
                 </p>
                 <p>
                     You’ll find guides on <strong>internships, state recruitment, court jobs, and power sector careers</strong>, covering who can apply, what the selection process involves, and what to prepare. Pick the guide that matches your goal and <Hl>check the requirements before you start your application</Hl>.
