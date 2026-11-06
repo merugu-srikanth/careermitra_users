@@ -78,15 +78,18 @@ export default async function RootLayout({ children }) {
   const footerCategories = await getFooterCategories();
 
   return (
-    <html lang="en-IN" className={poppins.variable} suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        {/* Google AdSense */}
-        <Script
+    // data-scroll-behavior: Next turns the global smooth scroll off while changing pages,
+    // so a new page opens at the top instantly instead of animating up from the footer.
+    <html lang="en-IN" className={poppins.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/* Google AdSense — in <head> of the server HTML so Google's site check finds it */}
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4115444466556482"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
+      </head>
+      <body suppressHydrationWarning>
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-580RJ53PGL"

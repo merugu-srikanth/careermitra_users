@@ -327,10 +327,10 @@ export default function InternshipsClient({
 
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Posted Date & Age Limit
+                    Posted Date
                   </span>
                   <p className="text-sm font-semibold text-slate-800">
-                    {formatDateDDMMYYYY(selectedSkillDetail.postedDate)} • {selectedSkillDetail.age}
+                    {formatDateDDMMYYYY(selectedSkillDetail.postedDate)}
                   </p>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import { FaBell, FaSignInAlt, FaUserPlus, FaYoutube, FaWhatsapp, FaMapMarkerAlt, FaDirections } from "react-icons/fa";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import logo from "../assets/NewLogo.png";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +28,14 @@ function buildCategoryUrl(child, parents) {
 
 export default function Footer({ initialCategories = null }) {
   const { token } = useAuth();
+  const pathname = usePathname();
+  // A link to the page you're already on does nothing in Next — scroll back to the top instead.
+  const toTopIfSamePage = (href) => (e) => {
+    if (pathname === href) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
   const [cats, setCats] = useState(initialCategories || { parents: [], children: [] });
 
   useEffect(() => {
@@ -165,7 +174,7 @@ export default function Footer({ initialCategories = null }) {
             <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               {quickLinks.map((item) => (
                 <li key={item.to}>
-                  <Link href={item.to} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
+                  <Link href={item.to} onClick={toTopIfSamePage(item.to)} className="group inline-flex items-center gap-2 text-slate-300 transition-colors duration-200 hover:text-orange-300">
                     <span className="text-orange-400 transition-transform duration-200 group-hover:translate-x-1">→</span>
                     <span>{item.label}</span>
                   </Link>

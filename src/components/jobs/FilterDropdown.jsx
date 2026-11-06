@@ -10,6 +10,10 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
  * scrolling filter panel never clips it; it flips above the button when there
  * is no room below. Long lists get a search box.
  *
+ * Phones: the search box is not auto-focused on touch screens (the keyboard
+ * would pop up, resize the page and close the list), and page scroll / resize
+ * moves the list with its button instead of closing it.
+ *
  * options: [{ value, label }] — value "" is the "All" choice.
  * multi: value is comma-separated; options toggle (checkboxes) and the list
  * stays open; "" clears the selection. `multiLabel(value)` names the button.
@@ -36,10 +40,20 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
 
   const place = () => {
     const r = buttonRef.current?.getBoundingClientRect();
-    if (!r) return;
-    const below = window.innerHeight - r.bottom;
+    if (!r) return false;
+    // The visible area (smaller than the window while a phone keyboard is open).
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    const viewH = vv?.height ?? window.innerHeight;
+    const viewW = vv?.width ?? window.innerWidth;
+    if (r.bottom < 0 || r.top > viewH) return false; // button scrolled out of sight
+    const below = viewH - r.bottom;
     const up = below < PANEL_MAX + 16 && r.top > below;
-    setRect({ left: r.left, width: r.width, top: up ? undefined : r.bottom + 6, bottom: up ? window.innerHeight - r.top + 6 : undefined });
+    const room = Math.max(140, (up ? r.top : below) - 16);
+    const width = Math.min(Math.max(r.width, 200), viewW - 16);
+    const left = Math.max(8, Math.min(r.left, viewW - width - 8));
+    setRect({ left, width, maxHeight: Math.min(PANEL_MAX, room),
+      top: up ? undefined : r.bottom + 6, bottom: up ? window.innerHeight - r.top + 6 : undefined });
+    return true;
   };
 
   const openList = () => {
@@ -59,22 +73,44 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
     onChange(next.join(","));
   };
 
-  // Close on outside click, page scroll / resize (the button moves), Escape.
+  // Close on an outside tap / click. Page scroll or resize (phone keyboard,
+  // rotation) moves the list with its button; it closes only once the button
+  // is out of sight.
   useEffect(() => {
     if (!open) return;
     const onDown = (e) => {
       if (!panelRef.current?.contains(e.target) && !buttonRef.current?.contains(e.target)) close();
     };
-    const onScroll = (e) => { if (!panelRef.current?.contains(e.target)) close(); };
-    document.addEventListener("mousedown", onDown);
-    window.addEventListener("scroll", onScroll, true);
-    window.addEventListener("resize", close);
+    let frame = 0;
+    const follow = (e) => {
+      if (e?.target && panelRef.current?.contains(e.target)) return; // scrolling the list itself
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => { if (!place()) close(); });
+    };
+    const vv = window.visualViewport;
+    document.addEventListener("pointerdown", onDown);
+    window.addEventListener("scroll", follow, true);
+    window.addEventListener("resize", follow);
+    vv?.addEventListener("resize", follow);
+    vv?.addEventListener("scroll", follow);
     return () => {
-      document.removeEventListener("mousedown", onDown);
-      window.removeEventListener("scroll", onScroll, true);
-      window.removeEventListener("resize", close);
+      cancelAnimationFrame(frame);
+      document.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("scroll", follow, true);
+      window.removeEventListener("resize", follow);
+      vv?.removeEventListener("resize", follow);
+      vv?.removeEventListener("scroll", follow);
     };
   }, [open]);
+
+  // Desktop only: put the cursor in the search box. On touch screens that
+  // would pop up the keyboard over the list — the user taps the box instead.
+  const searchRef = useRef(null);
+  useEffect(() => {
+    if (!open || !searchable) return;
+    const touch = window.matchMedia?.("(pointer: coarse)").matches;
+    if (!touch) searchRef.current?.focus({ preventScroll: true });
+  }, [open, searchable]);
 
   // Keep the highlighted option in view.
   useLayoutEffect(() => {
@@ -124,24 +160,24 @@ export default function FilterDropdown({ id, value, options, onChange, highlight
       {open && rect && createPortal(
         <div
           ref={panelRef}
-          style={{ position: "fixed", left: rect.left, width: Math.max(rect.width, 200), top: rect.top, bottom: rect.bottom }}
-          className="z-100 bg-white rounded-xl border border-gray-200 shadow-xl shadow-gray-900/10 overflow-hidden"
+          style={{ position: "fixed", left: rect.left, width: rect.width, top: rect.top, bottom: rect.bottom }}
+          className="z-[1000] flex flex-col bg-white rounded-xl border border-gray-200 shadow-xl shadow-gray-900/10 overflow-hidden"
         >
           {searchable && (
             <div className="p-2 border-b border-gray-100">
               <label className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-gray-50 border border-gray-200 focus-within:border-orange-300 focus-within:bg-white">
                 <Search size={13} className="text-gray-400" />
                 <input
-                  autoFocus
+                  ref={searchRef}
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setActive(0); }}
                   placeholder="Search..."
-                  className="flex-1 min-w-0 bg-transparent text-xs focus:outline-none"
+                  className="flex-1 min-w-0 bg-transparent text-base sm:text-xs focus:outline-none"
                 />
               </label>
             </div>
           )}
-          <ul ref={listRef} role="listbox" aria-multiselectable={multi || undefined} className="overflow-y-auto py-1" style={{ maxHeight: searchable ? PANEL_MAX - 48 : PANEL_MAX }}>
+          <ul ref={listRef} role="listbox" aria-multiselectable={multi || undefined} className="overflow-y-auto overscroll-contain py-1" style={{ maxHeight: searchable ? rect.maxHeight - 48 : rect.maxHeight }}>
             {visible.length === 0 && <li className="px-3 py-3 text-xs text-gray-400 text-center">No matches</li>}
             {visible.map((o, i) => {
               const isSelected = isOn(o.value);
