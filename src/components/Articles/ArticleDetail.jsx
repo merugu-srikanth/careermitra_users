@@ -112,10 +112,12 @@ function useTTS() {
 
 /* ── Quick Summary with typewriter effect ── */
 function QuickSummary({ text }) {
-  const [open, setOpen]           = useState(false);
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone]           = useState(false);
-  const timerRef = useRef(null);
+  // Expanded by default with the full text shown (no typewriter on load);
+  // collapsing and re-expanding still plays the typewriter effect.
+  const [open, setOpen]           = useState(true);
+  const [displayed, setDisplayed] = useState(text);
+  const [done, setDone]           = useState(true);
+  const timerRef = useRef(null); 
 
   const toggle = () => {
     if (open) {
@@ -655,11 +657,6 @@ export default function ArticleDetail({ initialArticle = null }) {
           </div>
         </div>
 
-        {/* ── Header ad (Header-Resp) — right after the breadcrumb ── */}
-        <div className="w-full mx-auto px-4 md:px-15 pt-4">
-          <AdSenseUnit key={article.id ?? article._id ?? article.slug ?? article.title} slot="1610470183" />
-        </div>
-
         {/* ── Main two-column layout ── */}
         <div className="w-full mx-auto px-4 md:px-15 py-6 sm:py-8">
           <div className={`grid gap-8 items-start ${readingMode ? "lg:grid-cols-1 max-w-3xl mx-auto" : "lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px]"}`}>
@@ -687,10 +684,18 @@ export default function ArticleDetail({ initialArticle = null }) {
                 {article.title}
               </h1>
 
-              {/* Quick Summary — typewriter on click */}
+              {/* Quick Summary — open by default */}
               {article.short_description && (
-                <QuickSummary text={article.short_description} />
+                <QuickSummary
+                  key={article.id ?? article._id ?? article.slug ?? article.title}
+                  text={article.short_description}
+                />
               )}
+
+              {/* Header ad (Header-Resp) — right below the Quick Summary */}
+              <div className="mb-6">
+                <AdSenseUnit key={article.id ?? article._id ?? article.slug ?? article.title} slot="1610470183" />
+              </div>
 
               {/* Featured image — full width of this column */}
               <div className="relative rounded-xl overflow-hidden mb-5 bg-gray-100 w-full pb-[56.25%]">
