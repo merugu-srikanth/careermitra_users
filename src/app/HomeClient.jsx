@@ -9,6 +9,7 @@ import HomeBlogs from "@/components/HomeBlogs/HomeBlogs";
 import HomeFAQ from "@/components/HomeFAQ";
 import HomePersonalizedUpdates from "@/components/HomePersonalizedUpdates";
 import MentorsSection from "@/components/MentorsSection";
+import HomeHeaderAd from "@/components/Ads/HomeHeaderAd";
 
 const ArrowRightIcon = () => (
   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -51,6 +52,9 @@ export default function HomeClient({
 }) {
   return (
     <div className="py-20" style={{ fontFamily: "'Poppins', sans-serif" }}>
+
+      {/* HomePage-Header ad — directly below the navbar */}
+      <HomeHeaderAd />
 
       <HeroFinalPage initialAnnouncements={initialAnnouncements} />
 

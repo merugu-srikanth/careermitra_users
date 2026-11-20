@@ -9,6 +9,7 @@ import { generateArticleSchema, generatePersonSchema, generateFAQSchema } from "
 import blogFallback from "../../assets/blog-sample.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import AdSenseUnit from "../Ads/AdSenseUnit";
 
 const API_BASE = "https://careermitra.in/api";
 
@@ -652,6 +653,11 @@ export default function ArticleDetail({ initialArticle = null }) {
               <span className="text-gray-500 truncate shrink min-w-0 max-w-[80px] xs:max-w-[120px] sm:max-w-xs md:max-w-sm">{article.title}</span>
             </nav>
           </div>
+        </div>
+
+        {/* ── Header ad (Header-Resp) — right after the breadcrumb ── */}
+        <div className="w-full mx-auto px-4 md:px-15 pt-4">
+          <AdSenseUnit key={article.id ?? article._id ?? article.slug ?? article.title} slot="1610470183" />
         </div>
 
         {/* ── Main two-column layout ── */}
