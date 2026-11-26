@@ -178,3 +178,42 @@ button, a {
   .skel::after { animation: none; }
   .skel-item { animation: none; opacity: 1; }
 }
+
+/* ── Exam Image Compressor tool (/tools/exam-image-compressor) ───────────── */
+@theme {
+  /* logo orange + logo green, used as `brand-*` / `leaf-*` utilities */
+  --color-brand-50: #fff6ed;
+  --color-brand-100: #ffead5;
+  --color-brand-200: #fed0a8;
+  --color-brand-300: #fdb173;
+  --color-brand-500: #f7821b;
+  --color-brand-600: #ec6a0c;
+  --color-brand-700: #c4520b;
+  --color-leaf-50: #f0fbea;
+  --color-leaf-100: #ddf5d0;
+  --color-leaf-200: #bfeaa8;
+  --color-leaf-500: #3daa35;
+  --color-leaf-600: #2f8f29;
+  --color-leaf-700: #267222;
+}
+
+.eic-checker {
+  background-image: linear-gradient(45deg,#f1f5f9 25%,transparent 25%),linear-gradient(-45deg,#f1f5f9 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#f1f5f9 75%),linear-gradient(-45deg,transparent 75%,#f1f5f9 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+.eic-chip-active {
+  border-color: #f7821b !important;
+  background: #fff6ed !important;
+  color: #c4520b !important;
+  box-shadow: 0 0 0 3px rgba(247,130,27,.15);
+}
+.eic-spinner {
+  border: 3px solid #ffead5;
+  border-top-color: #f7821b;
+  border-radius: 9999px;
+  width: 22px;
+  height: 22px;
+  animation: eic-spin .8s linear infinite;
+}
+@keyframes eic-spin { to { transform: rotate(360deg); } }

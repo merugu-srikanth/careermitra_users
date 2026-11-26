@@ -14,7 +14,7 @@ import {
   FaFacebook, FaYoutube, FaChevronDown, FaTimes, FaBars,
   FaUser, FaEnvelope, FaBell, FaCalendarAlt,
   FaBriefcase, FaGraduationCap, FaSearch, FaBookOpen, FaCompass,
-  FaRocket
+  FaRocket, FaTools
 } from "react-icons/fa";
 import { calculateProfileCompletion, flattenEducation } from "../utils/profileCompletion";
 import { isDeadlineExpired } from "../utils/jobDeadline";
@@ -60,6 +60,9 @@ const navLinks = [
 
     ],
   },
+
+  // Tools — sits right after Explore (shows in both the desktop bar and the mobile drawer)
+  { name: "Tools", path: "/tools/exam-image-compressor", Icon: FaTools },
 ];
 
 
